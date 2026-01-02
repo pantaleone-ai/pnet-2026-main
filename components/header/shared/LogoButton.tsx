@@ -16,15 +16,15 @@ const LogoButton = memo(({ className }: { className?: string }) => {
       <div className="relative size-6 shrink-0 overflow-hidden rounded-full">
         <Image
           src="/images/logo.png"
-          alt="HireTim logo"
+          alt="Pantaleone logo"
           className="size-full object-cover"
           width={48}
           height={48}
           priority
         />
       </div>
-      <span className="text-foreground group-hover:text-foreground/80 text-xl font-semibold group-hover:underline group-hover:underline-offset-6 md:text-lg">
-        HireTim
+      <span className="text-foreground group-hover:text-foreground/90 text-xl font-medium group-hover:underline group-hover:underline-offset-4 md:text-lg">
+        Pantaleone
       </span>
     </Link>
   );

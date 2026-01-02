@@ -2,6 +2,7 @@ import { featuredApps } from "@/.source/server";
 import type { Source, SourceConfig } from "fumadocs-core/source";
 import { loader } from "fumadocs-core/source";
 import { formatDate } from "@/lib/helpers";
+import { format } from "date-fns";
 import type { ProjectType } from "@/features/projects/types/ProjectType";
 
 const featuredAppsDocs = featuredApps as unknown as {
@@ -16,6 +17,19 @@ export const featuredAppsSource = loader({
 export function getFeaturedApps(): ProjectType[] {
   return featuredAppsSource.getPages().map((page, index) => {
     const data = page.data as unknown as ProjectType;
+
+    // Safe date formatting that handles invalid dates
+    const formatSafeDate = (dateStr: string | undefined, formatStr: string): string => {
+      if (!dateStr) return "";
+      try {
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return "";
+        return format(date, formatStr);
+      } catch {
+        return "";
+      }
+    };
+
     return {
       id: index,
       title: data.title,
@@ -30,8 +44,8 @@ export function getFeaturedApps(): ProjectType[] {
       videoEmbedUrl: data.videoEmbedUrl,
       videoEmbedAlt: data.videoEmbedAlt,
       techStacks: data.techStacks,
-      fromDate: data.fromDate ? formatDate(data.fromDate, "MMM yyyy") : "",
-      toDate: data.toDate ? formatDate(data.toDate, "MMM yyyy") : "",
+      fromDate: formatSafeDate(data.fromDate, "MMM yyyy"),
+      toDate: formatSafeDate(data.toDate, "MMM yyyy"),
     };
   });
 }
