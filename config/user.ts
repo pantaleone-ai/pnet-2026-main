@@ -43,8 +43,8 @@ I specialize in providing a comprehensive range of digital solutions, including 
 
 Whether you are looking for advanced AI implementation or strategic digital consulting, I am dedicated to delivering excellence in every project.
 `,
-  avatar: "/images/horizontal-profile.jpg",
-  ogImage: "/images/open-graph-image.jpg",
+  avatar: "/images/avatar.jpg",
+  ogImage: "/images/open-graph-image.png",
   namePronunciationUrl: "",
   timeZone: "America/New_York",
   keywords: [

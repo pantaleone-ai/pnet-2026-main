@@ -1,7 +1,7 @@
 import { featuredApps } from "@/.source/server";
 import type { Source, SourceConfig } from "fumadocs-core/source";
 import { loader } from "fumadocs-core/source";
-import { formatDate } from "@/lib/helpers";
+// import { formatDate } from "@/lib/helpers";
 import { format } from "date-fns";
 import type { ProjectType } from "@/features/projects/types/ProjectType";
 
