@@ -7,7 +7,7 @@ export function getBaseUrl(slug?: string): string {
     process.env.NEXT_PUBLIC_BASE_URL ||
     (process.env.NODE_ENV === "development"
       ? "http://localhost:3000"
-      : "https://hiretimsf.com");
+      : "https://pantaleone.net");
 
   if (!slug) return baseUrl;
 

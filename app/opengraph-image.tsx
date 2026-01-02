@@ -3,7 +3,7 @@ import { ImageResponse } from "next/og";
 // Force Edge Runtime for performance
 export const runtime = "edge";
 
-export const alt = "Pantaleone AI - Systems Architecture";
+export const alt = "Pantaleone AI - Forward Deployed AI Product Lead";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -82,7 +82,7 @@ export default async function Image() {
             fontWeight: 500,
           }}
         >
-          Senior Next.js Systems Architect & AI Engineering
+          Pantaleone AI - Forward Deployed AI Product Lead
         </div>
       </div>
     ),
