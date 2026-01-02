@@ -1,0 +1,94 @@
+---
+title: "Build Your Own Private AI Stack in Minutes - Own it and Scale"
+description: "Stop renting your AI. Deploy a powerful, self-hosted AI stack with Ollama, Open WebUI, and N8N using a single command. Full privacy, zero API fees, total control."
+image: "https://pantaleone-net.s3.us-west-1.amazonaws.com/blog-images/mcp-ai-server1.jpg"
+created: "2025-10-13"
+date: "2025-10-13"
+author: "Matt Pantaleone"
+tags:
+  - Self-Hosted AI
+  - Ollama
+  - N8N
+  - Docker
+  - Private LLM
+  - AI Stack
+  - Agentic Workflows
+  - Open WebUI
+  - Self-host LLM guide
+  - Private ChatGPT alternative
+  - Ollama N8N integration
+  - Local AI development stack
+  - Docker-compose AI stack
+  - Open-source AI platform
+  - Build private AI agent
+  - N8N automation workflows
+  - Data privacy AI
+---
+
+# Introduction
+The future of AI isn\'t just about using someone else\'s API. This private AI stack gives you the core components to run powerful language models with the incredibly efficient llama.cpp engine and build automated, agentic systems—all on your own hardware, with your data kept private.
+
+No API fees. No rate limits. Just speed and safety.
+
+# Why The Private AI Stack
+- **Privacy & Control:** Your data, prompts, and models never leave your machine. This is non-negotiable for serious work.
+- **Zero API Costs:** Experiment, iterate, and run massive workloads without worrying about a bill. The only cost is your hardware.
+- **Performance & Efficiency:** llama.cpp is the gold standard for running LLMs on consumer hardware. Get incredible inference speed on CPU and unlock even more with a GPU.
+- **Integrated Automation:** With N8N built-in, you can connect your private LLM to any app or API, creating powerful, automated agents that *do things*.
+- **Simple Setup:** Forget configuration hell. This is a one-command deployment.
+
+# Quick Start: From Zero to Private AI in 2 Minutes
+This stack is engineered for builders who value their time. If you have Docker, you\'re ready.
+
+## Prerequisites
+- Docker and Docker Compose installed.
+- Git installed.
+
+### One-Command Deployment
+Open your terminal and run:
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/pantaleone-ai/private-ai-stack.git
+    ```
+
+2.  **Navigate into the directory:**
+    ```bash
+    cd private-ai-stack
+    ```
+
+3.  **Launch the stack:**
+    ```bash
+    docker-compose up -d
+    ```
+
+That\'s it. You now have a complete, private AI ecosystem running.
+-   **Open WebUI (Your private ChatGPT):** `http://localhost:8080`
+-   **N8N (Your automation engine):** `http://localhost:5678`
+
+The first time you run it, the stack will download the default model (Phi-3-mini), which may take a few minutes.
+
+# The Core Components:
+This is a curated foundation for building intelligent systems.
+
+-   **Llama.cpp:** The engine. A high-performance inference server that runs quantized GGUF models with maximum efficiency. It\'s the brains and the muscle of the operation.
+-   **Open WebUI:** The interface. A sleek, ChatGPT-like UI for interacting with your local models served by llama.cpp. Perfect for testing, RAG, and daily use.
+-   **N8N:** The automation layer. This is where the magic happens. Connect your private LLM to the real world to build agentic workflows, automate processes, and create systems that execute tasks.
+
+# How to Extend and Expand:
+Here\’s how you start building on top.
+
+-   **Load Different Models:** The stack starts with Phi-3-mini. Want to run a Llama 3 or Mistral model? Find a GGUF version on Hugging Face, then update the `LLM_MODEL_FILE` variable in your `.env` file and restart the stack.
+    ```
+    # .env file - Find GGUF models from creators like "TheBloke"
+    LLM_MODEL_FILE=Llama-3-8B-Instruct.Q4_K_M.gguf
+    ```
+-   **Build Your First Agentic Workflow:** Use N8N to create a workflow. Pull data from an API, have your local llama.cpp model process it, and then post the result to Slack or a database. This is the first step toward true automation.
+-   **Integrate a Vector Database:** Add another Docker container for a vector DB like Chroma or Weaviate. Use N8N and llama.cpp to build a private RAG system that can answer questions about your own documents.
+-   **Scale Your Hardware:** Running this on a laptop is great for development. When you\'re ready, deploy the same docker-compose.yml on a dedicated server with a powerful GPU. llama.cpp will automatically leverage it to unlock incredible speed and performance.
+
+
+# Conclusion
+This stack gives you the foundation to create, automate, and innovate on your own terms, powered by the lean and powerful llama.cpp engine. The tools are ready, the setup is simple, even for non developers.
+
+Clone the repo, launch the stack, and start building something great.

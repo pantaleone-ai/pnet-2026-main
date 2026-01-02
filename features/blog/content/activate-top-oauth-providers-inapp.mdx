@@ -1,0 +1,134 @@
+---
+title: "OAuth Setup: The Unfiltered Guide for Builders"
+description: "Stop wasting time with confusing documentation. This is the direct, no-BS guide for builders to set up OAuth 2.0 for Google, GitHub, Apple, and more. Get your API keys and get back to work."
+created: "2025-08-29"   # <--- THIS WAS MISSING
+date: "2025-08-29"
+author: "Matt Pantaleone"
+image: "https://pantaleone-net.s3.us-west-1.amazonaws.com/oath-social-logins.webp"
+tags:
+  - OAuth 2.0
+  - Authentication
+  - API Keys
+  - Google OAuth
+  - GitHub OAuth
+  - Apple Sign In
+  - Developer Guide
+  - API Integration
+  - OAuth setup guide
+  - User Authentication
+  - Secure Login
+  - OAuth 2.0 tutorial
+  - Discord OAuth2
+# Uncomment the lines below ONLY if your schema explicitly defines them.
+# otherwise, they will cause build errors:
+# category: "Integrations"
+# authorAvatar: "/images/avatar.jpg"
+---
+
+# Introduction
+
+Auth setup is a necessary evil. Most official documentation is a maze designed to waste a builder's time. This isn't that.
+
+This is a direct, unfiltered guide. No fluff, no broken premises. Just the critical steps to get your **OAuth 2.0 credentials** for the major platforms and move on. Don't just patch on a login system; build a solid foundation for user access. Let's get it done.
+
+## 1. Google OAuth (6 Steps)
+
+The baseline. Get this done first.
+**Dashboard:** `https://console.developers.google.com/`
+
+1.  **New Project:** Go to Google Cloud Console. Name it `ImgSquash [Environment]`. Create it.
+2.  **Enable API:** Navigate to `APIs & Services` → `Library`. Search for `Google+ API` and enable it.
+3.  **Create OAuth Client:** Go to `APIs & Services` → `Credentials`. Click `+ CREATE CREDENTIALS` → `OAuth 2.0 Client IDs`. Choose `Web application`.
+4.  **Set Redirect URIs:**
+    *   Production: `https://imgsquash.com/auth/callback`
+    *   Staging: `https://staging.imgsquash.com/auth/callback`
+    *   Dev: `http://localhost:3000/auth/callback`
+5.  **Configure Consent Screen:** Set your App Name, Support Email, and the `userinfo.email` + `userinfo.profile` scopes.
+6.  **Get Credentials:**
+    *   `GOOGLE_CLIENT_ID`
+    *   `GOOGLE_CLIENT_SECRET`
+
+## 2. GitHub OAuth (4 Steps)
+
+For the builders. This one's easy.
+**Dashboard:** `https://github.com/settings/developers`
+
+1.  **New OAuth App:** Go to GitHub Developer Settings → OAuth Apps. Click `New OAuth App`.
+2.  **App Details:** Fill in your Application name, Homepage URL, and a description.
+3.  **Callback URL:** Set the Authorization callback URL for production, staging, and dev.
+4.  **Get Credentials:**
+    *   `GITHUB_CLIENT_ID`
+    *   `GITHUB_CLIENT_SECRET`
+
+## 3. Apple Sign-In (8 Steps)
+
+Apple's process is a broken model. You just have to push through it.
+**Dashboard:** `https://developer.apple.com/account`
+
+1.  **Create App ID:** In the Developer Console, create a new `App ID`. Description: `ImgSquash Web App`. Bundle ID: `com.imgsquash.web`.
+2.  **Enable Sign In with Apple:** Find the capability and check the box.
+3.  **Create Service ID:** Identifier: `com.imgsquash.web.service`.
+4.  **Configure Service:** Edit the Service ID, enable "Sign in with Apple" again, and add your domain (`imgsquash.com`).
+5.  **Set Return URLs:** Configure for production, staging, and dev.
+6.  **Create Key:** Go to `Keys`, create one, and enable "Sign in with Apple."
+7.  **Generate Private Key:** Download the `.p8` file. Don't lose it. Note your Key ID and Team ID.
+8.  **Generate Client Secret:** This is a JWT you have to generate yourself.
+    *   `APPLE_CLIENT_ID`
+    *   `APPLE_CLIENT_SECRET`
+
+## 4. Discord OAuth (4 Steps)
+
+Simple. Direct. How it should be.
+**Dashboard:** `https://discord.com/developers/applications`
+
+1.  **New Application:** Create it and give it a name.
+2.  **Configure OAuth2:** Go to the `OAuth2` tab and add your Redirects.
+3.  **Set Scopes:** Add `bot`, `identify`, `email`, `guilds`.
+4.  **Get Credentials:**
+    *   `DISCORD_CLIENT_ID`
+    *   `DISCORD_CLIENT_SECRET`
+
+## 5. Twitter OAuth 2.0 (6 Steps)
+
+They call their developer platform a "platform." Incredible. You have to apply for access and wait.
+**Dashboard:** `https://developer.twitter.com/`
+
+1.  **Apply for Access:** You need "Elevated" access. Expect to wait.
+2.  **Create App:** Once approved, create an app in the Developer Portal.
+3.  **App Details:** Set your Website URL and a description.
+4.  **Set Permissions:** Edit App permissions to `Read` to get email address access.
+5.  **Callback URL:** Set the type to `Web App` and add your callback URL.
+6.  **Get API Keys:**
+    *   `TWITTER_CLIENT_ID`
+    *   `TWITTER_CLIENT_SECRET`
+
+## 6. Facebook & Instagram OAuth (Meta Platform)
+
+Welcome to the Meta maze. One dashboard for both.
+**Dashboard:** `https://developers.facebook.com/`
+
+1.  **Create App:** `My Apps` → `Create App`. Type: `Business`.
+2.  **Add Products:** Set up `Facebook Login` and `Instagram Basic Display`.
+3.  **Configure Redirect URIs:** Add your callback URLs for all environments. This is required for both products.
+4.  **App Review:** You must request `email` and `public_profile` for Facebook and `user_profile` for Instagram. Submit for review.
+5.  **Get Credentials:**
+    *   `FACEBOOK_CLIENT_ID` / `FACEBOOK_CLIENT_SECRET`
+    *   `INSTAGRAM_CLIENT_ID` / `INSTAGRAM_CLIENT_SECRET`
+
+## Other Key Platforms
+
+These are straightforward. No excuses.
+
+*   **TikTok:** (4 Steps) Go to the developer dashboard, create a Web App, set Redirect/Live URLs, and grab your credentials.
+*   **Coinbase:** (4 Steps) Go to OAuth Applications, create a new app, set details and permissions (`wallet:accounts:read`, `wallet:user:read`), and get your keys.
+
+# Conclusion
+
+The foundation is laid. Now execute.
+
+1.  Plug these values into your environment files. No placeholders.
+2.  Test every single provider. One by one.
+3.  Build real error handling for failures.
+4.  Get the buttons on the frontend.
+
+Lets. Keep. Building. Faster.

@@ -1,0 +1,29 @@
+# Pantaleone.net
+
+> Driving Growth With Agentic AI & Automation Solutions.
+
+## Overview
+Pantaleone.net is an AI consultancy and digital studio focused on building "Agentic AI" and automated foundations for businesses. They design AI agents, workflows, and rapid experiences to automate sales, shipping, and support operations.
+
+## Services
+- **AI Vision & Strategy**: Defining roadmaps for AI adoption.
+- **AI Model Training**: Customizing models for specific business needs.
+- **Workflow Design**: Automating processes to create digital workforces.
+- **Rapid Experience Design**: Fast prototyping and build-out of digital products.
+- **Consulting**: Business, Technology, and Marketing strategy.
+
+## Portfolio & Products
+The site showcases several developed tools and boilerplates:
+
+- **[ProfitSignals.xyz](https://www.profitsignals.xyz/)**: AI Agent for Finance powered by Groq and TradingView.
+- **[SaaS Starter](https://www.pantaleone.net/)**: A Next.js 15, BetterAuth, Stripe, and Shadcn boilerplate for building AI apps.
+- **[MixPHD.com](https://mixphd.com/)**: A discovery engine for drink recipes and cocktails.
+- **[ImgSquash](https://imgsquash.com/)**: Free in-browser image compressor (JPEG/PNG).
+- **QR Code Generator**: A free tool to generate customizable QR codes.
+- **NextJS Portfolio App**: A scalable portfolio solution inspired by Vercel/Supabase.
+
+## Navigation
+- [Home](https://www.pantaleone.net/)
+- [Shop](https://www.pantaleone.net/shop)
+- [Blog](https://www.pantaleone.net/blog)
+- [About](https://www.pantaleone.net/about)

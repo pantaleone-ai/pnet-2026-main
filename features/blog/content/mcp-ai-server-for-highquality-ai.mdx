@@ -1,0 +1,96 @@
+---
+title: "Single Source Configuration: Building an MCP Server"
+description: "An AI model in isolation is a brain in a jar. To build true AI agents, you need to give them secure access to data and tools. The Model Context Protocol (MCP) provides that foundation."
+image: "https://pantaleone-net.s3.us-west-1.amazonaws.com/blog-images/mcp-ai-server1.jpg"
+created: "2025-03-15"
+date: "2025-03-15"
+author: "Matt Pantaleone"
+tags:
+  - MCP server
+  - Model Context Protocol
+  - AI integration
+  - Python SDK
+  - AI tools
+  - AI Agent MCP Tools
+  - Custom MCP
+  - MCP tools
+  - AI secure connection
+  - AI external tools
+  - AI data access
+  - AI server setup
+  - Claude integration
+  - AI development
+  - Secure AI systems
+---
+
+# Giving Your AI Agency with the Model Context Protocol
+
+An AI model in isolation is like a brain in a jar—powerful, but unable to act. To build true **AI agents** that can interact with the world, we need a secure bridge to external data and tools. The **Model Context Protocol (MCP)** provides that architectural foundation. This is how you give your AI hands.
+
+## What is an MCP Server?
+An MCP server is a gateway that implements the **Model Context Protocol (MCP)**, an open standard from Anthropic for connecting AI models to external systems. It acts as a secure middleman, allowing an AI agent to access the tools and data it needs in a controlled way. For any serious builder, this is the proper way to extend an AI's capabilities.
+
+---
+
+# Key Architectural Aspects of MCP
+
+## 1. Resources vs. Tools: Perception vs. Action
+MCP makes a critical distinction between two types of capabilities:
+
+- **Resources**: These are for *read-only* perception. They let the AI see information, like listing files or reading a document, without changing anything.
+- **Tools**: These are for *actions* that have side effects. They let the AI do things, like writing a file or calling an API.
+
+This deliberate separation is the core of safe, agentic design. You grant capabilities with precision.
+
+## 2. Security as the Bedrock
+Security isn't an afterthought in MCP; it's the foundation.
+
+- **Strict Scopes**: You can lock down access to specific directories or functions, preventing the AI from straying into unauthorized territory.
+- **Secure Handshake**: The AI and server explicitly negotiate capabilities at the start of a session. No surprises.
+- **Authorization by Design**: The protocol is built to support user consent for any sensitive actions.
+
+In my view, this security-first approach is the only sane way to build powerful agents.
+
+## 3. The Python SDK: Fast Implementation
+The official MCP Python SDK makes it incredibly simple to get started. With a `pip install` and a few decorators (`@mcp.resource`, `@mcp.tool`), you can have a server running in minutes. The low barrier to entry means any builder can start architecting enterprise-grade agents.
+
+## 4. Blueprint: A File System Agent
+Talk is cheap. Here’s a code blueprint for an MCP server that gives an AI agent sandboxed access to a file system.
+
+```python
+from mcp.server.fastmcp import FastMCP
+import os
+
+# Define the sandbox. The AI can never leave this directory.
+BASE_PATH = "/home/user/documents"
+mcp = FastMCP("FileSystemServer")
+
+# A RESOURCE: Let the AI list files (read-only perception)
+@mcp.resource("file://{path}/")
+def list_files(path: str) -> list[str]:
+    full_path = os.path.join(BASE_PATH, path)
+    # Security check: Ensure the path is within the sandbox.
+    if not full_path.startswith(BASE_PATH):
+        raise ValueError("Path not allowed")
+    return [f for f in os.listdir(full_path) if os.path.isfile(os.path.join(full_path, f))]
+
+# A RESOURCE: Let the AI read a file's content (read-only perception)
+@mcp.resource("file://{path}")
+def read_file(path: str) -> str:
+    full_path = os.path.join(BASE_PATH, path)
+    if not full_path.startswith(BASE_PATH):
+        raise ValueError("Path not allowed")
+    with open(full_path, "r") as f:
+        return f.read()
+
+# A TOOL: Let the AI write a file (action with side effects)
+@mcp.tool()
+def write_file(path: str, content: str) -> None:
+    full_path = os.path.join(BASE_PATH, path)
+    if not full_path.startswith(BASE_PATH):
+        raise ValueError("Path not allowed")
+    with open(full_path, "w") as f:
+        f.write(content)
+```![An MCP server is the nervous system for your AI agent.](https://pantaleone-net.s3.us-west-1.amazonaws.com/blog-images/mcp-ai-server2.jpg "MCP AI Server")
+
+This is the power of MCP: secure, simple, and designed for building agents that can actually *do* things.
