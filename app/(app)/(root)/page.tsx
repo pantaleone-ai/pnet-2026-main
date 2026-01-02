@@ -13,11 +13,11 @@ export default function Home() {
       <SeparatorHorizontal borderTop={false} />
       <Hero />
       <SeparatorHorizontal short={true} />
-      <HeadingTitle title="Featured Apps" />
+      <HeadingTitle title="Featured AI Apps" />
       <SeparatorHorizontal short={true} />
       <FeaturedApps />
       <SeparatorHorizontal short={true} />
-      <HeadingTitle title="Latest Blog Posts" />
+      <HeadingTitle title="Latest Automation Blog Posts" />
       <SeparatorHorizontal short={true} />
       <LatestBlogPosts />
       <SeparatorHorizontal short={true} />
