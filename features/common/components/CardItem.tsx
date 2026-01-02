@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import type { BlogPostType } from "@/features/blog/types/BlogPostType";
 import type { ProjectType } from "@/features/projects/types/ProjectType";
+import type { ShopProduct } from "@/features/shop/types/ShopProduct";
 import CalendarIcon from "@/features/common/icons/calendar-icon";
 import DateIcon from "@/features/common/icons/date-icon";
 import ReadingTimeIcon from "@/features/common/icons/reading-time-icon";
@@ -35,10 +36,17 @@ type CardItemProps =
       type: "blog";
       item: Omit<BlogPostType, "body">;
       sizes?: string;
+    }
+  | {
+      index: number;
+      type: "product";
+      item: ShopProduct;
+      sizes?: string;
     };
 
 export default function CardItem({ index, item, type, sizes }: CardItemProps) {
   const isBlog = type === "blog";
+  const isProduct = type === "product";
   const href = isBlog ? `/blog/post/${item.slug}` : undefined;
 
   return (
@@ -52,7 +60,7 @@ export default function CardItem({ index, item, type, sizes }: CardItemProps) {
     >
       <CoverImage
         index={index}
-        imageUrl={isBlog ? item.image : item.imageUrl}
+        imageUrl={isBlog ? item.image : isProduct ? item.imageUrl : item.imageUrl}
         imageAlt={item.imageAlt || item.title}
         href={href}
         sizes={sizes}
@@ -63,6 +71,8 @@ export default function CardItem({ index, item, type, sizes }: CardItemProps) {
         <div className="flex flex-1 flex-col">
           {isBlog ? (
             <BlogContent item={item} index={index} />
+          ) : isProduct ? (
+            <ProductContent item={item} index={index} />
           ) : (
             <ProjectContent item={item} index={index} />
           )}
@@ -305,6 +315,60 @@ const ProjectContent = ({
               >
                 GitHub
                 <span className="sr-only"> repository for {item.title}</span>
+              </Link>
+            </Button>
+          </div>
+        )}
+      </CardFooter>
+    </>
+  );
+};
+
+const ProductContent = ({
+  item,
+  index,
+}: {
+  item: ShopProduct;
+  index: number;
+}) => {
+  return (
+    <>
+      <CardHeader className="gap-0 p-0">
+        <CardTitle
+          id={`card-title-${index}`}
+          className="border-b border-dashed border-border-edge px-2 py-2 text-left text-lg/6 text-foreground"
+        >
+          {item.title}
+        </CardTitle>
+        <CardDescription className="border-b border-dashed border-border-edge px-2 py-2 text-left text-sm/6 text-muted-foreground">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground font-mono">
+              {item.category}
+            </span>
+            <span className="font-bold text-foreground">
+              ${item.price} {item.currency}
+            </span>
+          </div>
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-0">
+        <CardDescription className="border-b border-dashed border-border-edge px-2 py-2">
+          <span className="line-clamp-3 text-left text-sm/6 text-balance text-foreground">
+            {item.description}
+          </span>
+        </CardDescription>
+      </CardContent>
+      <CardFooter className="flex w-full flex-col items-stretch p-0">
+        {item.purchaseUrl && (
+          <div className="flex w-full px-2 py-2">
+              <Button asChild className="w-full">
+              <Link
+                target="_blank"
+                rel="noopener noreferrer"
+                href={item.purchaseUrl}
+              >
+                Buy Now - ${item.price}
+                <span className="sr-only"> purchase {item.title}</span>
               </Link>
             </Button>
           </div>

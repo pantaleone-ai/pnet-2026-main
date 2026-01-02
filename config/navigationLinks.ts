@@ -8,6 +8,7 @@ import {
   HomeIcon,
   ArchiveIcon as ProjectsIcon,
   MailIcon as ContactIcon,
+  ShoppingCartIcon as ShopIcon,
 } from "lucide-react";
 
 const NAVIGATION_LINKS: NavigationLinkType[] = [
@@ -45,6 +46,11 @@ const NAVIGATION_LINKS: NavigationLinkType[] = [
     icon: ProjectsIcon,
     href: "/projects",
     label: "Projects",
+  },
+  {
+    icon: ShopIcon,
+    href: "/shop",
+    label: "Shop",
   },
   {
     icon: BlogIcon,

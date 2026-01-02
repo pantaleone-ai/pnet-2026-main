@@ -52,6 +52,28 @@ var changelogSchema = frontmatterSchema.extend({
   description: z.string(),
   created: z.string()
 });
+var shopProductSchema = frontmatterSchema.extend({
+  title: z.string(),
+  description: z.string(),
+  category: z.string(),
+  price: z.number(),
+  currency: z.string().default("USD"),
+  sku: z.string().optional(),
+  inventory: z.number().optional(),
+  purchaseUrl: z.string().optional(),
+  imageUrl: z.string().optional(),
+  imageAlt: z.string().optional(),
+  featured: z.boolean().default(false),
+  isDigital: z.boolean().default(true),
+  fromDate: z.string().optional(),
+  toDate: z.string().optional(),
+  websiteUrl: z.string().optional(),
+  githubUrl: z.string().optional(),
+  videoEmbedUrl: z.string().optional(),
+  videoEmbedAlt: z.string().optional(),
+  techStacks: z.array(z.string()).optional(),
+  weight: z.number().optional()
+});
 
 // source.config.ts
 var featuredApps = defineDocs({
@@ -129,6 +151,36 @@ var changelog = defineDocs({
     schema: changelogSchema
   })
 });
+var shopProductSchema2 = frontmatterSchema2.extend({
+  title: z2.string(),
+  description: z2.string(),
+  category: z2.string(),
+  price: z2.number(),
+  currency: z2.string().default("USD"),
+  sku: z2.string().optional(),
+  inventory: z2.number().optional(),
+  purchaseUrl: z2.string().optional(),
+  imageUrl: z2.string().optional(),
+  imageAlt: z2.string().optional(),
+  featured: z2.boolean().default(false),
+  isDigital: z2.boolean().default(true),
+  fromDate: z2.string().optional(),
+  toDate: z2.string().optional(),
+  websiteUrl: z2.string().optional(),
+  githubUrl: z2.string().optional(),
+  videoEmbedUrl: z2.string().optional(),
+  videoEmbedAlt: z2.string().optional(),
+  techStacks: z2.array(z2.string()).optional(),
+  weight: z2.number().optional()
+});
+var shop = defineDocs({
+  dir: "features/shop/content",
+  docs: defineCollections({
+    type: "doc",
+    dir: "features/shop/content",
+    schema: shopProductSchema2
+  })
+});
 var source_config_default = defineConfig({
   plugins: [lastModified()]
 });
@@ -142,5 +194,6 @@ export {
   featuredApps,
   privacy,
   projects,
+  shop,
   webApps
 };

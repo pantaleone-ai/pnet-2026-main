@@ -97,6 +97,39 @@ export const changelog = defineDocs({
   }),
 });
 
+// Define shop product schema directly here to avoid import issues
+const shopProductSchema = frontmatterSchema.extend({
+  title: z.string(),
+  description: z.string(),
+  category: z.string(),
+  price: z.number(),
+  currency: z.string().default("USD"),
+  sku: z.string().optional(),
+  inventory: z.number().optional(),
+  purchaseUrl: z.string().optional(),
+  imageUrl: z.string().optional(),
+  imageAlt: z.string().optional(),
+  featured: z.boolean().default(false),
+  isDigital: z.boolean().default(true),
+  fromDate: z.string().optional(),
+  toDate: z.string().optional(),
+  websiteUrl: z.string().optional(),
+  githubUrl: z.string().optional(),
+  videoEmbedUrl: z.string().optional(),
+  videoEmbedAlt: z.string().optional(),
+  techStacks: z.array(z.string()).optional(),
+  weight: z.number().optional(),
+});
+
+export const shop = defineDocs({
+  dir: "features/shop/content",
+  docs: defineCollections({
+    type: "doc",
+    dir: "features/shop/content",
+    schema: shopProductSchema,
+  }),
+});
+
 export default defineConfig({
   plugins: [lastModified()],
 });

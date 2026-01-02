@@ -49,6 +49,14 @@ const HEAD: HeadType[] = [
     slug: "/projects",
   },
   {
+    page: "Shop",
+    title: truncateTitle("Shop | AI Apps, Workflows, Services & Artwork"),
+    description: truncateDescription(
+      "Explore AI applications, N8N workflows, AI services, and digital artwork for purchase.",
+    ),
+    slug: "/shop",
+  },
+  {
     page: "Contact",
     title: truncateTitle("Contact | Hire for AI Engineering & Consulting"),
     description: truncateDescription(
