@@ -3,7 +3,7 @@ import Hero from "@/features/home/components/Hero";
 import HeadingTitle from "@/components/HeadingTitle";
 // import ContactMe from "@/components/ContactMe";
 import FeaturedApps from "@/features/home/components/FeaturedApps";
-import { WhatPeopleSay } from "@/features/home/components/WhatPeopleSay";
+// import { WhatPeopleSay } from "@/features/home/components/WhatPeopleSay";
 // import { FaqSection } from "@/features/home/components/FAQ";
 import LatestBlogPosts from "@/features/home/components/LatestBlogPosts";
 
@@ -21,9 +21,9 @@ export default function Home() {
       <SeparatorHorizontal short={true} />
       <LatestBlogPosts />
       <SeparatorHorizontal short={true} />
-      <HeadingTitle title="What People Are Saying" />
+      {/* <HeadingTitle title="What People Are Saying" />
       <SeparatorHorizontal short={true} />
-      <WhatPeopleSay />
+      <WhatPeopleSay /> */}
       <SeparatorHorizontal />
       {/* <HeadingTitle title="FAQ" />
       <SeparatorHorizontal short={true} />

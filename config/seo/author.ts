@@ -1,9 +1,9 @@
 const AUTHOR = {
-  name: "Tim Baz",
-  twitterUrl: "https://x.com/hiretimsf",
-  twitterAddress: "@hiretimsf",
-  githubUrl: "https://github.com/hiretimsf",
-  email: "hiretimsf@gmail.com",
+  name: "Pantaleone.net",
+  twitterUrl: "https://x.com/m_pantaleone",
+  twitterAddress: "@m_pantaleone",
+  githubUrl: "https://github.com/pantaleone-ai",
+  email: "mdptrading@gmail.com",
 };
 
 export default AUTHOR;

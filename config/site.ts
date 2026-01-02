@@ -7,9 +7,9 @@ export const siteConfig = {
   metadataBase: new URL("https://pantaleone.net"),
   keywords: ["Next.js", "React", "AI", "Systems Architecture"],
   links: {
-    twitter: "https://twitter.com/pantaleone_ai",
+    twitter: "https://twitter.com/m_pantaleone",
     github: "https://github.com/pantaleone-ai",
-    linkedin: "https://linkedin.com/in/pantaleone",
+    linkedin: "https://linkedin.com/in/m_pantaleone",
   },
 };
 
