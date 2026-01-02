@@ -29,16 +29,16 @@ const SOCIAL_LINKS: SocialLinkType[] = [
     icon: LinkedInIcon,
     label: "LinkedIn",
   },
-  // {
-  //   href: "https://www.facebook.com/hiretimsf/",
-  //   icon: FacebookIcon,
-  //   label: "Facebook",
-  // },
-  // {
-  //   href: "https://www.strava.com/athletes/128944314",
-  //   icon: StravaIcon,
-  //   label: "Strava",
-  // },
+  {
+    href: "https://www.facebook.com/hiretimsf/",
+    icon: FacebookIcon,
+    label: "Facebook",
+  },
+  {
+    href: "https://www.strava.com/athletes/128944314",
+    icon: StravaIcon,
+    label: "Strava",
+  },
 ];
 
 export default SOCIAL_LINKS;

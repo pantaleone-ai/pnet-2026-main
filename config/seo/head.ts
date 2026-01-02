@@ -4,7 +4,7 @@ import type { HeadType } from "@/types";
 const HEAD: HeadType[] = [
   {
     page: "Home",
-    title: truncateTitle("Matt Pantaleone | Forward Deployed AI Engineer"),
+    title: truncateTitle("Pantaleone.net | Forward Deployed AI Engineer"),
     description: truncateDescription(
       "Specializing in Forward Deployed AI, autonomous workflows, and enterprise automation. Building scalable AI-driven solutions at Pantaleone Digital Services.",
     ),
