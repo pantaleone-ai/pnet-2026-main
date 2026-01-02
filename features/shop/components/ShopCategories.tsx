@@ -44,7 +44,7 @@ export default function ShopCategories() {
       <section>
         <h2 className="text-xl font-semibold mb-4">Browse Categories</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {categories.map((category, index) => {
+          {categories.map((category) => {
             const products = getProductsByCategory(category);
             const Icon = getCategoryIcon(category);
 
