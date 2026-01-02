@@ -242,7 +242,7 @@ const ProjectContent = ({
             <div className="flex items-center">
               <CalendarIcon className="mr-2 size-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground font-mono">
-                {item.fromDate} - {item.toDate}
+                {item.fromDate}
               </span>
             </div>
           ) : null}

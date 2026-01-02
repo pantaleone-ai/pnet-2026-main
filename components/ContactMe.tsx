@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import SOCIAL_LINKS from "@/config/socialLinks";
 import { trackEvent } from "@/lib/events";
-import Image from "next/image";
+// import Image from "next/image";
 import Link from "next/link";
 
 interface ContactMeProps {
@@ -17,10 +17,10 @@ interface ContactMeProps {
 
 const ContactMe = ({
   className = "",
-  heading = "Looking for a Frontend Developer?",
-  description = "I'm available for in-person or remote work.",
+  heading = "Looking to Accelerate AI Projects?",
+  description = "Let's chat about your vision and projects!",
   buttonText = "Contact Me",
-  imageAlt = "Professional frontend developer ready to collaborate on projects",
+  // imageAlt = "Professional frontend developer ready to collaborate on projects",
   showSocialLinks = false,
 }: ContactMeProps) => {
   return (
@@ -89,21 +89,21 @@ const ContactMe = ({
         )}
       </div>
       <div className="flex-none">
-        <Image
+        {/* <Image
           alt={imageAlt}
           src="/images/contact-me.png"
           width={400}
           height={400}
           className="z-10 h-96 w-full rounded-2xl object-cover lg:aspect-square lg:h-auto lg:max-w-sm"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 400px"
-        />
+        /> */}
       </div>
-      <Image
+      {/* <Image
         src="/images/background.jpg"
         alt=""
         fill
         className="absolute inset-0 -z-10 object-cover"
-      />
+      /> */}
     </section>
   );
 };
