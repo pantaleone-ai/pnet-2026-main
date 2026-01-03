@@ -10,6 +10,10 @@ import {
   MailIcon as ContactIcon,
   ShoppingCartIcon as ShopIcon,
   AppWindowMacIcon as AppIcon,
+  BrainIcon,
+  WorkflowIcon,
+  ZapIcon,
+  PaletteIcon,
 } from "lucide-react";
 
 const NAVIGATION_LINKS: NavigationLinkType[] = [
@@ -52,25 +56,25 @@ const NAVIGATION_LINKS: NavigationLinkType[] = [
         href: "/shop/ai-apps",
         label: "AI Apps & Agents",
         description: truncateDescription("AI Apps & Agents", 30),
-        icon: AppIcon,
+        icon: BrainIcon,
       },
       {
         href: "/shop/ai-workflows",
         label: "AI & N8N Workflows",
         description: truncateDescription("AI & N8N Workflows", 30),
-        icon: AppIcon,
+        icon: WorkflowIcon,
       },
       {
         href: "/shop/ai-services",
         label: "AI Services",
         description: truncateDescription("AI Services", 30),
-        icon: AppIcon,
+        icon: ZapIcon,
       },
       {
         href: "/shop/ai-artwork",
         label: "AI Artwork",
         description: truncateDescription("AI Artwork", 30),
-        icon: AppIcon,
+        icon: PaletteIcon,
       },
     ],
   },

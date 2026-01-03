@@ -102,8 +102,7 @@ const MenuButton: FC<Props> = memo(
               <Accordion type="single" collapsible>
                 {NAVIGATION_LINKS.map((menuItem) => {
                   const isActive = activePath === menuItem.href;
-                  return menuItem.href === "/about" &&
-                    menuItem.subNavigationLinks ? (
+                  return menuItem.subNavigationLinks ? (
                     <AccordionItem key={menuItem.href} value={menuItem.href}>
                       <AccordionTrigger
                         className={cn(
@@ -121,24 +120,23 @@ const MenuButton: FC<Props> = memo(
                       </AccordionTrigger>
                       <AccordionContent>
                         <ul className="divide-border divide-y">
-                          {menuItem.href === "/about" &&
-                            menuItem.subNavigationLinks.map((subItem) => (
-                              <li key={subItem.href}>
-                                <SubNavigationItem
-                                  href={subItem.href}
-                                  onClick={() => handleNavigation()}
-                                  label={subItem.label ?? ""}
-                                  description={subItem.description ?? ""}
-                                  icon={
-                                    subItem.icon
-                                      ? React.createElement(subItem.icon)
-                                      : null
-                                  }
-                                  className="group flex w-full gap-2 px-6 py-4"
-                                  isLoading={isLoading}
-                                />
-                              </li>
-                            ))}
+                          {menuItem.subNavigationLinks.map((subItem) => (
+                            <li key={subItem.href}>
+                              <SubNavigationItem
+                                href={subItem.href}
+                                onClick={() => handleNavigation()}
+                                label={subItem.label ?? ""}
+                                description={subItem.description ?? ""}
+                                icon={
+                                  subItem.icon
+                                    ? React.createElement(subItem.icon)
+                                    : null
+                                }
+                                className="group flex w-full gap-2 px-6 py-4"
+                                isLoading={isLoading}
+                              />
+                            </li>
+                          ))}
                         </ul>
                       </AccordionContent>
                     </AccordionItem>

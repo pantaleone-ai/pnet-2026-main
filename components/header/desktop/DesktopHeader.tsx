@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import type { FC } from "react";
 import React, { memo, useCallback } from "react";
 import NavigationAbout from "./navigations/about/NavigationAbout";
+import NavigationShop from "./navigations/shop/NavigationShop";
 interface Props {
   activePath: string;
 }
@@ -30,6 +31,7 @@ const navItemStyles = {
 
 const navigationComponents: Record<string, React.ComponentType> = {
   About: NavigationAbout,
+  Shop: NavigationShop,
 };
 
 const DesktopHeader: FC<Props> = memo(({ activePath }) => {
