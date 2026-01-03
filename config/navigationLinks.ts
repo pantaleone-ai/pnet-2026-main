@@ -9,7 +9,6 @@ import {
   ArchiveIcon as ProjectsIcon,
   MailIcon as ContactIcon,
   ShoppingCartIcon as ShopIcon,
-  AppWindowMacIcon as AppIcon,
   BrainIcon,
   WorkflowIcon,
   ZapIcon,
