@@ -24,11 +24,11 @@ export default function ShopCategoryProducts({ category }: { category: string })
                   <p className="text-sm text-muted-foreground mb-3">{product.description}</p>
                   <div className="flex justify-between items-center">
                     <span className="bg-outline text-outline-foreground px-2 py-1 rounded-full text-sm font-medium border">{product.category}</span>
-                    {product.purchaseUrl && (
-                      <Button size="sm" asChild>
-                        <Link href={product.purchaseUrl} target="_blank">Buy Now</Link>
-                      </Button>
-                    )}
+                    <Button size="sm" asChild>
+                      <Link href={`/shop/${product.category.toLowerCase().replace(/\s+/g, '-')}/${product.slug}`}>
+                        View Details
+                      </Link>
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

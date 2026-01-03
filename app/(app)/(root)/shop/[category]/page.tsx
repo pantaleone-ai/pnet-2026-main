@@ -37,7 +37,7 @@ export const metadata: Metadata = {
 export default async function ShopCategoryPage({
   params,
 }: {
-  params: { category: string };
+  params: Promise<{ category: string }>;
 }) {
   // Convert URL slug to readable category name
   const formatCategoryName = (slug: string): string => {
@@ -48,7 +48,8 @@ export default async function ShopCategoryPage({
       .replace(/\b\w/g, (char) => char.toUpperCase());
   };
 
-  const categoryName = params.category ? formatCategoryName(params.category) : '';
+  const { category } = await params;
+  const categoryName = category ? formatCategoryName(category) : '';
 
   return (
     <>

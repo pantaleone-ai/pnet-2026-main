@@ -90,3 +90,14 @@ export function getCategories(): string[] {
     return [];
   }
 }
+
+export function getProductBySlug(category: string, slug: string): ShopProduct | null {
+  try {
+    return getProducts().find((product) =>
+      product.category === category && product.slug === slug
+    ) || null;
+  } catch (error) {
+    console.error("Error getting product by slug:", error);
+    return null;
+  }
+}
