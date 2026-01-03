@@ -79,7 +79,7 @@ const config = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' data: https://vercel.live https://*.posthog.com https://www.googletagmanager.com https://platform.twitter.com",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' data: https://vercel.live https://*.posthog.com https://www.googletagmanager.com https://platform.twitter.com https://va.vercel-scripts.com",
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https: blob: https://i.ebayimg.com https://ebayimg.com",
               "font-src 'self' data:",

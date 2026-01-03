@@ -42,9 +42,9 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: {
-  params: { category: string; slug: string };
+  params: Promise<{ category: string; slug: string }>;
 }): Promise<Metadata> {
-  const { category, slug } = params;
+  const { category, slug } = await params;
   const product = getProductBySlug(category, slug);
 
   if (!product) {
@@ -86,9 +86,9 @@ export async function generateMetadata({
 export default async function ProductDetailPage({
   params,
 }: {
-  params: { category: string; slug: string };
+  params: Promise<{ category: string; slug: string }>;
 }) {
-  const { category, slug } = params;
+  const { category, slug } = await params;
   const product = getProductBySlug(category, slug);
   const relatedProducts = getProductsByCategory(category).filter(p => p.slug !== slug);
 
