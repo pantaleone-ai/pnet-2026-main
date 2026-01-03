@@ -1,10 +1,10 @@
 import { truncateDescription } from "@/lib/seo";
 import type { NavigationLinkType } from "@/types";
 import {
-  UserIcon as AboutMeIcon,
+  // UserIcon as AboutMeIcon,
   RssIcon as BlogIcon,
-  GraduationCapIcon as EducationIcon,
-  FileTextIcon as ExperienceIcon,
+  // GraduationCapIcon as EducationIcon,
+  // FileTextIcon as ExperienceIcon,
   HomeIcon,
   ArchiveIcon as ProjectsIcon,
   MailIcon as ContactIcon,
