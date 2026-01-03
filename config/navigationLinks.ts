@@ -52,13 +52,13 @@ const NAVIGATION_LINKS: NavigationLinkType[] = [
     label: "Shop",
     subNavigationLinks: [
       {
-        href: "/shop/ai-apps",
+        href: "/shop/ai-apps-&-agents",
         label: "AI Apps & Agents",
         description: truncateDescription("AI Apps & Agents", 30),
         icon: BrainIcon,
       },
       {
-        href: "/shop/ai-workflows",
+        href: "/shop/ai-&-n8n-workflows",
         label: "AI & N8N Workflows",
         description: truncateDescription("AI & N8N Workflows", 30),
         icon: WorkflowIcon,
@@ -70,7 +70,7 @@ const NAVIGATION_LINKS: NavigationLinkType[] = [
         icon: ZapIcon,
       },
       {
-        href: "/shop/ai-artwork",
+        href: "/shop/artwork",
         label: "AI Artwork",
         description: truncateDescription("AI Artwork", 30),
         icon: PaletteIcon,

@@ -1,8 +1,8 @@
 // @ts-nocheck
-import * as __fd_glob_49 from "../features/shop/content/ai-services/ai-consulting-hour.mdx?collection=shop"
+import * as __fd_glob_49 from "../features/shop/content/artwork/ai-generated-landscape.mdx?collection=shop"
 import * as __fd_glob_48 from "../features/shop/content/ai-workflows/social-media-automation.mdx?collection=shop"
-import * as __fd_glob_47 from "../features/shop/content/artwork/ai-generated-landscape.mdx?collection=shop"
-import * as __fd_glob_46 from "../features/shop/content/ai-apps/ai-agent-starter-kit.mdx?collection=shop"
+import * as __fd_glob_47 from "../features/shop/content/ai-apps/ai-agent-starter-kit.mdx?collection=shop"
+import * as __fd_glob_46 from "../features/shop/content/ai-services/ai-consulting-hour.mdx?collection=shop"
 import * as __fd_glob_45 from "../features/shop/content/shop.mdx?collection=shop"
 import * as __fd_glob_44 from "../features/about/content/web-apps/portfolio-website-v3.mdx?collection=about"
 import * as __fd_glob_43 from "../features/about/content/web-apps/portfolio-website-v2.mdx?collection=about"
@@ -182,6 +182,6 @@ export const privacy = await create.docs("privacy", "features/privacy/content", 
 
 export const projects = await create.docs("projects", "features/projects/content", {}, {"ai-saas-starter-nextjs-betterauth-supabase-free-boilerplate.mdx": __fd_glob_28, "imgsquash.mdx": __fd_glob_29, "migratecms-migrate-anycms-to-nextjs.mdx": __fd_glob_30, "mixphd.mdx": __fd_glob_31, "pantaleonenet.mdx": __fd_glob_32, "profitsignals-ai-chat-agent.mdx": __fd_glob_33, "qrcode-generator-free-nextjs15-tailwind.mdx": __fd_glob_34, "skillsnap-increase-ai-skills.mdx": __fd_glob_35, });
 
-export const shop = await create.docs("shop", "features/shop/content", {}, {"shop.mdx": __fd_glob_45, "ai-apps/ai-agent-starter-kit.mdx": __fd_glob_46, "artwork/ai-generated-landscape.mdx": __fd_glob_47, "ai-workflows/social-media-automation.mdx": __fd_glob_48, "ai-services/ai-consulting-hour.mdx": __fd_glob_49, });
+export const shop = await create.docs("shop", "features/shop/content", {}, {"shop.mdx": __fd_glob_45, "ai-services/ai-consulting-hour.mdx": __fd_glob_46, "ai-apps/ai-agent-starter-kit.mdx": __fd_glob_47, "ai-workflows/social-media-automation.mdx": __fd_glob_48, "artwork/ai-generated-landscape.mdx": __fd_glob_49, });
 
 export const webApps = await create.docs("webApps", "features/about/content/web-apps", {}, {"full-stack-blog-app.mdx": __fd_glob_36, "portfolio-website-v1.mdx": __fd_glob_37, "portfolio-website-v2.mdx": __fd_glob_38, "portfolio-website-v3.mdx": __fd_glob_39, });

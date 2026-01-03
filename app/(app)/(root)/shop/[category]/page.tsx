@@ -41,12 +41,14 @@ export default async function ShopCategoryPage({
 }) {
   // Convert URL slug to readable category name
   const formatCategoryName = (slug: string): string => {
-    return slug
+    // First decode the URL-encoded slug
+    const decodedSlug = decodeURIComponent(slug);
+    return decodedSlug
       .replace(/-/g, ' ')
       .replace(/\b\w/g, (char) => char.toUpperCase());
   };
 
-  const categoryName = formatCategoryName(params.category);
+  const categoryName = params.category ? formatCategoryName(params.category) : '';
 
   return (
     <>
