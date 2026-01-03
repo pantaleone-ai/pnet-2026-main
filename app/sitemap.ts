@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { getBlogPosts } from "@/features/blog/data/blogSource";
+import { getProducts, getCategories } from "@/features/shop/data/shopSource";
 import { getBaseUrl } from "@/lib/helpers";
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -101,5 +102,29 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  return [...staticPages, ...blogPosts];
+  // Add shop main page
+  const shopMainPage = {
+    url: getBaseUrl("/shop"),
+    lastModified: new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.9,
+  };
+
+  // Add shop category pages
+  const shopCategories = getCategories().map((category) => ({
+    url: getBaseUrl(`/shop/${category.toLowerCase().replace(/\s+/g, '-')}`),
+    lastModified: new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.8,
+  }));
+
+  // Add shop product pages
+  const shopProducts = getProducts().map((product) => ({
+    url: getBaseUrl(`/shop/${product.category.toLowerCase().replace(/\s+/g, '-')}/${product.slug}`),
+    lastModified: new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
+  }));
+
+  return [...staticPages, ...blogPosts, shopMainPage, ...shopCategories, ...shopProducts];
 }

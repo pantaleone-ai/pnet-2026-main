@@ -35,6 +35,7 @@ type ShopProduct = {
   videoEmbedAlt?: string;
   techStacks?: string[];
   weight?: number;
+  slug: string;
 };
 
 export type { ShopProduct };

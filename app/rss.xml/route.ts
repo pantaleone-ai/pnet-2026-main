@@ -1,4 +1,5 @@
 import { getBlogPosts } from "@/features/blog/data/blogSource";
+import { getProducts } from "@/features/shop/data/shopSource";
 import { getBaseUrl } from "@/lib/helpers";
 import { Feed } from "feed";
 
@@ -27,6 +28,19 @@ export async function GET() {
       description: post.description,
       content: post.description,
       date: new Date(post.created),
+    });
+  });
+
+  // Add shop products to RSS feed
+  const products = getProducts();
+  products.forEach((product) => {
+    feed.addItem({
+      title: product.title,
+      id: getBaseUrl(`/shop/${product.category.toLowerCase().replace(/\s+/g, '-')}/${product.slug}`),
+      link: getBaseUrl(`/shop/${product.category.toLowerCase().replace(/\s+/g, '-')}/${product.slug}`),
+      description: product.description,
+      content: product.description,
+      date: new Date(),
     });
   });
 

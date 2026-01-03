@@ -15,6 +15,9 @@ type Page = ReturnType<typeof shopSource.getPages>[number];
 function getProduct(page: Page, index: number): ShopProduct {
   const data = page.data as unknown as ShopProduct;
 
+  // Generate slug from page slugs or title
+  const slug = page.slugs.length > 0 ? page.slugs.join("/") : data.title.toLowerCase().replace(/\s+/g, '-');
+
   return {
     id: index,
     title: data.title,
@@ -37,6 +40,7 @@ function getProduct(page: Page, index: number): ShopProduct {
     videoEmbedAlt: data.videoEmbedAlt,
     techStacks: data.techStacks,
     weight: data.weight,
+    slug: slug,
   };
 }
 
