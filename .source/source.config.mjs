@@ -181,11 +181,27 @@ var shop = defineDocs({
     schema: shopProductSchema2
   })
 });
+var aiApps = defineDocs({
+  dir: "features/ai-apps/content"
+});
+var aiWorkflows = defineDocs({
+  dir: "features/ai-workflows/content"
+});
+var aiServices = defineDocs({
+  dir: "features/ai-services/content"
+});
+var aiArt = defineDocs({
+  dir: "features/ai-art/content"
+});
 var source_config_default = defineConfig({
   plugins: [lastModified()]
 });
 export {
   about,
+  aiApps,
+  aiArt,
+  aiServices,
+  aiWorkflows,
   blog,
   changelog,
   source_config_default as default,

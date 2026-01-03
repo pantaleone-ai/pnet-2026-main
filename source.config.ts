@@ -130,6 +130,22 @@ export const shop = defineDocs({
   }),
 });
 
+export const aiApps = defineDocs({
+  dir: "features/ai-apps/content",
+});
+
+export const aiWorkflows = defineDocs({
+  dir: "features/ai-workflows/content",
+});
+
+export const aiServices = defineDocs({
+  dir: "features/ai-services/content",
+});
+
+export const aiArt = defineDocs({
+  dir: "features/ai-art/content",
+});
+
 export default defineConfig({
   plugins: [lastModified()],
 });

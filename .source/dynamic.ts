@@ -14,6 +14,34 @@ const create = await dynamic<typeof Config, import("fumadocs-mdx/runtime/types")
        */
       lastModified?: Date;
     },
+    aiApps: {
+      /**
+       * Last modified date of document file, obtained from version control.
+       *
+       */
+      lastModified?: Date;
+    },
+    aiArt: {
+      /**
+       * Last modified date of document file, obtained from version control.
+       *
+       */
+      lastModified?: Date;
+    },
+    aiServices: {
+      /**
+       * Last modified date of document file, obtained from version control.
+       *
+       */
+      lastModified?: Date;
+    },
+    aiWorkflows: {
+      /**
+       * Last modified date of document file, obtained from version control.
+       *
+       */
+      lastModified?: Date;
+    },
     blog: {
       /**
        * Last modified date of document file, obtained from version control.
