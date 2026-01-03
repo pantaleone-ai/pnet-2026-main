@@ -9,6 +9,7 @@ import {
   ArchiveIcon as ProjectsIcon,
   MailIcon as ContactIcon,
   ShoppingCartIcon as ShopIcon,
+  AppWindowMacIcon as AppIcon,
 } from "lucide-react";
 
 const NAVIGATION_LINKS: NavigationLinkType[] = [
@@ -17,28 +18,59 @@ const NAVIGATION_LINKS: NavigationLinkType[] = [
     href: "/",
     label: "Home",
   },
+  // {
+  //   icon: AboutMeIcon,
+  //   href: "/about",
+  //   label: "About",
+  //   subNavigationLinks: [
+  //     {
+  //       href: "/about",
+  //       label: "About Me",
+  //       description: truncateDescription("Background and skills", 30),
+  //       icon: AboutMeIcon,
+  //     },
+  //     {
+  //       href: "/experience",
+  //       label: "Experience",
+  //       description: truncateDescription("Background and Experience", 30),
+  //       icon: ExperienceIcon,
+  //     },
+  //     {
+  //       href: "/education",
+  //       label: "Education",
+  //       description: truncateDescription("Education and certifications", 30),
+  //       icon: EducationIcon,
+  //     },
+  //   ],
+  // },
   {
-    icon: AboutMeIcon,
-    href: "/about",
-    label: "About",
+    icon: ShopIcon,
+    href: "/shop",
+    label: "Shop",
     subNavigationLinks: [
       {
-        href: "/about",
-        label: "About Me",
-        description: truncateDescription("Background and skills", 30),
-        icon: AboutMeIcon,
+        href: "/ai-apps",
+        label: "AI Apps & Agents",
+        description: truncateDescription("AI Apps & Agents", 30),
+        icon: AppIcon,
       },
       {
-        href: "/experience",
-        label: "Experience",
-        description: truncateDescription("Background and Experience", 30),
-        icon: ExperienceIcon,
+        href: "/ai-workflows",
+        label: "AI, N8N Workflows",
+        description: truncateDescription("AI, N8N Workflows", 30),
+        icon: AppIcon,
       },
       {
-        href: "/education",
-        label: "Education",
-        description: truncateDescription("Education and certifications", 30),
-        icon: EducationIcon,
+        href: "/ai-services",
+        label: "AI Services",
+        description: truncateDescription("AI Services", 30),
+        icon: AppIcon,
+      },
+      {
+        href: "/ai-artwork",
+        label: "AI Artwork",
+        description: truncateDescription("AI Artwork", 30),
+        icon: AppIcon,
       },
     ],
   },
@@ -47,11 +79,7 @@ const NAVIGATION_LINKS: NavigationLinkType[] = [
     href: "/projects",
     label: "Projects",
   },
-  {
-    icon: ShopIcon,
-    href: "/shop",
-    label: "Shop",
-  },
+
   {
     icon: BlogIcon,
     href: "/blog",
