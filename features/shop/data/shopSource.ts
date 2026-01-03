@@ -15,8 +15,8 @@ type Page = ReturnType<typeof shopSource.getPages>[number];
 function getProduct(page: Page, index: number): ShopProduct {
   const data = page.data as unknown as ShopProduct;
 
-  // Generate slug from page slugs or title
-  const slug = page.slugs.length > 0 ? page.slugs.join("/") : data.title.toLowerCase().replace(/\s+/g, '-');
+  // Generate slug from page slugs or title - use only the filename part
+  const slug = page.slugs.length > 0 ? page.slugs[page.slugs.length - 1]?.replace(/\.mdx?$/, '') || data.title.toLowerCase().replace(/\s+/g, '-') : data.title.toLowerCase().replace(/\s+/g, '-');
 
   return {
     id: index,
@@ -64,7 +64,16 @@ export function getProducts(): ShopProduct[] {
 
 export function getProductsByCategory(category: string): ShopProduct[] {
   try {
-    return getProducts().filter((product) => product.category === category);
+    // Normalize the input category slug to match against product categories
+    const normalizedCategory = category
+      .replace(/-/g, ' ')
+      .replace(/&/g, '&')
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+
+    return getProducts().filter((product) => {
+      // Compare normalized category with product category
+      return product.category === normalizedCategory;
+    });
   } catch (error) {
     console.error("Error getting products by category:", error);
     return [];
@@ -93,8 +102,14 @@ export function getCategories(): string[] {
 
 export function getProductBySlug(category: string, slug: string): ShopProduct | null {
   try {
+    // Normalize the input category slug to match against product categories
+    const normalizedCategory = category
+      .replace(/-/g, ' ')
+      .replace(/&/g, '&')
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+
     return getProducts().find((product) =>
-      product.category === category && product.slug === slug
+      product.category === normalizedCategory && product.slug === slug
     ) || null;
   } catch (error) {
     console.error("Error getting product by slug:", error);

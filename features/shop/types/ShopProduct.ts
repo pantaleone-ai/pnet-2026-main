@@ -27,8 +27,8 @@ type ShopProduct = {
   imageAlt?: string;
   featured?: boolean;
   isDigital?: boolean;
-  fromDate: string;
-  toDate: string;
+  fromDate?: string;
+  toDate?: string;
   websiteUrl?: string;
   githubUrl?: string;
   videoEmbedUrl?: string;

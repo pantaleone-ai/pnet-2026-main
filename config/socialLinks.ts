@@ -1,7 +1,7 @@
-import { FaStrava as StravaIcon } from "react-icons/fa";
+// import { FaStrava as StravaIcon } from "react-icons/fa";
 import {
   FaEnvelope as EmailIcon,
-  FaFacebook as FacebookIcon,
+  // FaFacebook as FacebookIcon,
   FaGithub as GitHubIcon,
   FaLinkedin as LinkedInIcon,
   FaXTwitter as XPlatformIcon,
@@ -25,20 +25,20 @@ const SOCIAL_LINKS: SocialLinkType[] = [
     label: "GitHub",
   },
   {
-    href: "https://www.linkedin.com/in/m_pantaleone/",
+    href: "https://www.linkedin.com/in/mattpantaleone/",
     icon: LinkedInIcon,
     label: "LinkedIn",
   },
-  {
-    href: "https://www.facebook.com/hiretimsf/",
-    icon: FacebookIcon,
-    label: "Facebook",
-  },
-  {
-    href: "https://www.strava.com/athletes/128944314",
-    icon: StravaIcon,
-    label: "Strava",
-  },
+  // {
+  //   href: "https://www.facebook.com/hiretimsf/",
+  //   icon: FacebookIcon,
+  //   label: "Facebook",
+  // },
+  // {
+  //   href: "https://www.strava.com/athletes/128944314",
+  //   icon: StravaIcon,
+  //   label: "Strava",
+  // },
 ];
 
 export default SOCIAL_LINKS;

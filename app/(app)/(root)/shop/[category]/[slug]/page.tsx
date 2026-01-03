@@ -116,7 +116,7 @@ export default async function ProductDetailPage({
       <div className="mb-4">
         <Link href="/shop" className="text-primary hover:underline">Shop</Link>
         <span className="mx-2">/</span>
-        <Link href={`/shop/${category}`} className="text-primary hover:underline">{categoryName}</Link>
+        <Link href={`/shop/${category.toLowerCase().replace(/\s+/g, '-')}`} className="text-primary hover:underline">{categoryName}</Link>
         <span className="mx-2">/</span>
         <span className="text-muted-foreground">{product.title}</span>
       </div>
