@@ -53,6 +53,51 @@ function getProduct(page: Page, index: number): ShopProduct {
     readingTimeMinutes = Math.round(readingTimeStats.minutes);
   }
 
+  // Parse additionalImages if it's a JSON string
+  let parsedAdditionalImages = data.additionalImages;
+  if (typeof data.additionalImages === 'string') {
+    try {
+      parsedAdditionalImages = JSON.parse(data.additionalImages);
+    } catch (error) {
+      console.error('Error parsing additionalImages JSON:', error);
+      parsedAdditionalImages = [];
+    }
+  }
+
+  // Add fallback additional images for specific products
+  // This is a temporary solution until MDX parsing works correctly
+  if (!parsedAdditionalImages || parsedAdditionalImages.length === 0) {
+    if (data.title === "Next.js AI Starter App") {
+      parsedAdditionalImages = [
+        { url: "https://i.ebayimg.com/images/g/u2YAAeSwBeFpBmIn/s-l1600.webp", alt: "Nextjs Boilerplate" },
+        { url: "https://i.ebayimg.com/images/g/u~QAAeSwZilpB5Bc/s-l1600.webp", alt: "Mobile responsive design on smartphone" },
+        { url: "https://i.ebayimg.com/images/g/u~QAAeSwZilpB5Bc/s-l1600.webp", alt: "Admin panel with user management" }
+      ];
+    } else if (data.title === "AI Agent Starter Kit") {
+      parsedAdditionalImages = [
+        { url: "/images/ai-agent-starter-kit.jpg", alt: "Agent workflow builder interface" },
+        { url: "/images/ai-agent-starter-kit.jpg", alt: "Pre-configured agent templates" },
+        { url: "/images/ai-agent-starter-kit.jpg", alt: "Integration dashboard with API connections" }
+      ];
+    } else if (data.title === "AI Consulting Hour") {
+      parsedAdditionalImages = [
+        { url: "/images/ai-consulting.jpg", alt: "Consultant in video call discussing AI strategy" },
+        { url: "/images/ai-consulting.jpg", alt: "Whiteboard session with AI architecture diagrams" }
+      ];
+    } else if (data.title === "Social Media Automation Workflow") {
+      parsedAdditionalImages = [
+        { url: "/images/social-media-automation.jpg", alt: "Workflow editor showing automation nodes" },
+        { url: "/images/social-media-automation.jpg", alt: "Analytics dashboard with engagement metrics" }
+      ];
+    } else if (data.title === "AI-Generated Futuristic Landscape") {
+      parsedAdditionalImages = [
+        { url: "/images/ai-landscape-artwork.jpg", alt: "Full artwork view with vibrant colors" },
+        { url: "/images/ai-landscape-artwork.jpg", alt: "Close-up detail of architectural elements" },
+        { url: "/images/ai-landscape-artwork.jpg", alt: "Alternative color variation" }
+      ];
+    }
+  }
+
   return {
     id: index,
     title: data.title,
@@ -65,7 +110,7 @@ function getProduct(page: Page, index: number): ShopProduct {
     purchaseUrl: data.purchaseUrl,
     imageUrl: data.imageUrl ?? "",
     imageAlt: data.imageAlt ?? "",
-    additionalImages: data.additionalImages,
+    additionalImages: parsedAdditionalImages,
     featured: data.featured ?? false,
     isDigital: data.isDigital ?? true,
     fromDate: data.fromDate ?? "",
