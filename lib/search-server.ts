@@ -1,4 +1,5 @@
 import { getBlogPosts } from "@/features/blog/data/blogSource";
+import { getProducts } from "@/features/shop/data/shopSource";
 import type { SearchResult } from "@/types/search";
 import { levenshtein } from "./helpers";
 
@@ -14,6 +15,7 @@ export async function getPostsBySearchQuery(query: string) {
   const searchWords = searchQuery.split(/\s+/).filter(Boolean);
   const results: SearchResult[] = [];
 
+  // Search through blog posts
   for (const post of getBlogPosts()) {
     let score = 0;
     const searchableContent = {
@@ -67,7 +69,94 @@ export async function getPostsBySearchQuery(query: string) {
       const { body, ...serializablePost } = post;
       results.push({
         ...serializablePost,
+        type: "blog",
         content: getContextAroundMatch(post.content, searchQuery),
+        score,
+      });
+    }
+  }
+
+  // Search through products
+  for (const product of getProducts()) {
+    let score = 0;
+    const searchableContent = {
+      title: product.title.toLowerCase(),
+      description: product.description.toLowerCase(),
+      content: product.content.toLowerCase(),
+      fileName: product.slug.toLowerCase(),
+      category: product.category.toLowerCase(),
+    };
+
+    // Calculate score based on different factors
+    searchWords.forEach((word) => {
+      // Exact matches get highest score
+      if (searchableContent.title.includes(word)) {
+        score += 10;
+      }
+      if (searchableContent.fileName.includes(word)) {
+        score += 8;
+      }
+      if (searchableContent.description.includes(word)) {
+        score += 6;
+      }
+      if (searchableContent.content.includes(word)) {
+        score += 4;
+      }
+      if (searchableContent.category.includes(word)) {
+        score += 5;
+      }
+
+      // Fuzzy matches get lower scores
+      const fuzzyThreshold = 2; // Maximum Levenshtein distance for fuzzy matching
+
+      // Check fuzzy matches in title
+      if (
+        searchableContent.title
+          .split(/\s+/)
+          .some((term) => levenshtein(term, word) <= fuzzyThreshold)
+      ) {
+        score += 5;
+      }
+
+      // Check fuzzy matches in content
+      if (
+        searchableContent.content
+          .split(/\s+/)
+          .some((term) => levenshtein(term, word) <= fuzzyThreshold)
+      ) {
+        score += 2;
+      }
+    });
+
+    // Only include results with a minimum score
+    if (score > 0) {
+      const productContent = product.content || "";
+      results.push({
+        type: "product",
+        id: product.id,
+        title: product.title,
+        description: product.description,
+        category: product.category,
+        price: product.price,
+        currency: product.currency,
+        sku: product.sku,
+        inventory: product.inventory,
+        purchaseUrl: product.purchaseUrl,
+        imageUrl: product.imageUrl,
+        imageAlt: product.imageAlt,
+        additionalImages: product.additionalImages,
+        featured: product.featured,
+        isDigital: product.isDigital,
+        fromDate: product.fromDate,
+        toDate: product.toDate,
+        websiteUrl: product.websiteUrl,
+        githubUrl: product.githubUrl,
+        videoEmbedUrl: product.videoEmbedUrl,
+        videoEmbedAlt: product.videoEmbedAlt,
+        techStacks: product.techStacks,
+        weight: product.weight,
+        slug: product.slug,
+        content: getContextAroundMatch(productContent, searchQuery),
         score,
       });
     }

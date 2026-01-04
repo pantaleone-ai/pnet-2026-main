@@ -16,12 +16,13 @@ function HeroContent() {
       </p> */}
       <h1 className="text-foreground px-4 text-[32px] font-semibold tracking-tight sm:text-[40px] sm:text-left py-2">
         {/* <span className="sm:hidden">Hey!</span> */}
-        Let&apos;s Create the Future
+        We Create the Future
       </h1>
 
-      <p className="text-foreground/80 px-4 text-lg/8 text-left py-4 pb-40">
-        We help forward-thinking leaders architect the future through AI, automation, agentic workflows, and proprietary digital platforms.
+      <p className="text-foreground/80 px-4 text-lg/8 text-left py-4 pb-8">
+        We help forward-thinking businesses and leaders architect the future through AI, automation, agentic workflows, and proprietary digital platforms.  
       </p>
+      <p className="text-foreground/80 px-4 text-lg/8 text-left py-4 pb-10">With nearly 20 years of experience optimizing the largest businesses in the world, we drive transformative change to businesses and governments.</p>
 
       <ul
         className="text-foreground space-y-2 divide-y divide-dashed divide-border-edge"
