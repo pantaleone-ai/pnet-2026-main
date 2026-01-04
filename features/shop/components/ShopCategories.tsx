@@ -78,7 +78,7 @@ export default function ShopCategories() {
 
 function getCategoryIcon(category: string) {
   const categoryLower = category.toLowerCase();
-  if (categoryLower.includes("ai apps") || categoryLower.includes("agents")) {
+  if (categoryLower.includes("apps")) {
     return Brain;
   } else if (categoryLower.includes("workflows")) {
     return Workflow;
@@ -92,7 +92,7 @@ function getCategoryIcon(category: string) {
 
 function getCategoryDescription(category: string): string {
   const categoryLower = category.toLowerCase();
-  if (categoryLower.includes("ai apps") || categoryLower.includes("agents")) {
+  if (categoryLower.includes("apps")) {
     return "AI applications and agents to automate your workflows and enhance productivity.";
   } else if (categoryLower.includes("workflows")) {
     return "Pre-built N8N workflows for common automation tasks and AI integrations.";

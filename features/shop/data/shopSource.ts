@@ -64,14 +64,13 @@ export function getProducts(): ShopProduct[] {
 
 export function getProductsByCategory(category: string): ShopProduct[] {
   try {
-    // Normalize the input category slug to match against product categories
+    // For single-word categories, we can use direct comparison
+    // Just capitalize the first letter to match the stored format
     const normalizedCategory = category
       .replace(/-/g, ' ')
-      .replace(/&/g, '&')
       .replace(/\b\w/g, (char) => char.toUpperCase());
 
     return getProducts().filter((product) => {
-      // Compare normalized category with product category
       return product.category === normalizedCategory;
     });
   } catch (error) {
@@ -105,7 +104,6 @@ export function getProductBySlug(category: string, slug: string): ShopProduct | 
     // Normalize the input category slug to match against product categories
     const normalizedCategory = category
       .replace(/-/g, ' ')
-      .replace(/&/g, '&')
       .replace(/\b\w/g, (char) => char.toUpperCase());
 
     return getProducts().find((product) =>
