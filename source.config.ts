@@ -25,21 +25,21 @@ export const featuredApps = defineDocs({
   }),
 });
 
-export const about = defineDocs({
-  dir: "features/about/content",
-  docs: defineCollections({
-    type: "doc",
-    dir: "features/about/content",
-    schema: frontmatterSchema.extend({
-      title: z.string(),
-      description: z.string().optional(),
-      imageUrl: z.string().optional(),
-      imageUrlDesktop: z.string().optional(),
-      imageUrlMobile: z.string().optional(),
-      imageAlt: z.string().optional(),
-    }),
-  }),
-});
+// export const about = defineDocs({
+//   dir: "features/about/content",
+//   docs: defineCollections({
+//     type: "doc",
+//     dir: "features/about/content",
+//     schema: frontmatterSchema.extend({
+//       title: z.string(),
+//       description: z.string().optional(),
+//       imageUrl: z.string().optional(),
+//       imageUrlDesktop: z.string().optional(),
+//       imageUrlMobile: z.string().optional(),
+//       imageAlt: z.string().optional(),
+//     }),
+//   }),
+// });
 
 export const webApps = defineDocs({
   dir: "features/about/content/web-apps",
@@ -62,13 +62,13 @@ export const projects = defineDocs({
   }),
 });
 
-export const experience = defineDocs({
-  dir: "features/experience/content",
-});
+// export const experience = defineDocs({
+//   dir: "features/experience/content",
+// });
 
-export const education = defineDocs({
-  dir: "features/education/content",
-});
+// export const education = defineDocs({
+//   dir: "features/education/content",
+// });
 
 export const blog = defineDocs({
   dir: "features/blog/content",
@@ -130,21 +130,6 @@ export const shop = defineDocs({
   }),
 });
 
-export const aiApps = defineDocs({
-  dir: "features/ai-apps/content",
-});
-
-export const aiWorkflows = defineDocs({
-  dir: "features/ai-workflows/content",
-});
-
-export const aiServices = defineDocs({
-  dir: "features/ai-services/content",
-});
-
-export const aiArt = defineDocs({
-  dir: "features/ai-art/content",
-});
 
 export default defineConfig({
   plugins: [lastModified()],

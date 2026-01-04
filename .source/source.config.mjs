@@ -87,21 +87,6 @@ var featuredApps = defineDocs({
     })
   })
 });
-var about = defineDocs({
-  dir: "features/about/content",
-  docs: defineCollections({
-    type: "doc",
-    dir: "features/about/content",
-    schema: frontmatterSchema2.extend({
-      title: z2.string(),
-      description: z2.string().optional(),
-      imageUrl: z2.string().optional(),
-      imageUrlDesktop: z2.string().optional(),
-      imageUrlMobile: z2.string().optional(),
-      imageAlt: z2.string().optional()
-    })
-  })
-});
 var webApps = defineDocs({
   dir: "features/about/content/web-apps",
   docs: defineCollections({
@@ -120,12 +105,6 @@ var projects = defineDocs({
     dir: "features/projects/content",
     schema: baseProjectSchema
   })
-});
-var experience = defineDocs({
-  dir: "features/experience/content"
-});
-var education = defineDocs({
-  dir: "features/education/content"
 });
 var blog = defineDocs({
   dir: "features/blog/content",
@@ -181,32 +160,13 @@ var shop = defineDocs({
     schema: shopProductSchema2
   })
 });
-var aiApps = defineDocs({
-  dir: "features/ai-apps/content"
-});
-var aiWorkflows = defineDocs({
-  dir: "features/ai-workflows/content"
-});
-var aiServices = defineDocs({
-  dir: "features/ai-services/content"
-});
-var aiArt = defineDocs({
-  dir: "features/ai-art/content"
-});
 var source_config_default = defineConfig({
   plugins: [lastModified()]
 });
 export {
-  about,
-  aiApps,
-  aiArt,
-  aiServices,
-  aiWorkflows,
   blog,
   changelog,
   source_config_default as default,
-  education,
-  experience,
   featuredApps,
   privacy,
   projects,

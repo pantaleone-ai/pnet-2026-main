@@ -196,6 +196,9 @@
 }
 
 .dark {
+
+  --code: #1f1f22;
+  
   /* zinc-950 */
   --background: oklch(0.141 0.005 285.823);
 
