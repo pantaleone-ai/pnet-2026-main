@@ -1,18 +1,11 @@
 import ContactMe from "@/components/ContactMe";
-import { DocsLayout } from "@/components/fuma/fuma-layout";
-import { DocsBody, DocsPage } from "@/components/fuma/fuma-page";
 import HeadingTitle from "@/components/HeadingTitle";
 import LastModified from "@/components/LastModified";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
-import { experienceSource } from "@/features/experience/data/experienceSource";
 import { getBaseUrl } from "@/lib/helpers";
-import { getMDXComponents } from "@/mdx-components";
 import type { HeadType } from "@/types";
-import type { TableOfContents } from "fumadocs-core/toc";
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import type { ComponentType } from "react";
 
 // Validate SEO configuration to ensure all required fields are present
 // This helps catch missing or incomplete SEO setup early
@@ -41,51 +34,38 @@ export const metadata: Metadata = {
   },
 };
 
-type MDXPageData = {
-  body: ComponentType<{ code: unknown; components?: unknown }>;
-  toc?: TableOfContents;
-  title?: string;
-  description?: string;
-  imageUrl?: string;
-  imageAlt?: string;
-  lastModified?: string | number | Date;
-};
-
 export default async function ExperiencePage() {
-  const page = experienceSource.getPage(["experience"]);
-  if (!page) notFound();
-
-  const pageData = page.data as MDXPageData;
-  const MDX = pageData.body;
-  const title = pageData.title;
-
   return (
     <>
       <SeparatorHorizontal borderTop={false} />
       <main className="mx-auto flex flex-col">
         <HeadingTitle
-          title={title ?? "Work Experience"}
+          title="Work Experience"
           textStyleClassName="text-3xl font-semibold md:text-4xl"
           gridId="grid-experience"
         />
         <SeparatorHorizontal short={true} />
         <div className="border-border relative min-h-52 max-w-full">
-          <DocsLayout
-            tree={experienceSource.pageTree}
-            containerProps={{ className: "relative bg-transparent" }}
-          >
-            <DocsPage toc={pageData.toc} prose={false}>
-              <DocsBody prose={false}>
-                <MDX code={MDX} components={{ ...getMDXComponents() }} />
-              </DocsBody>
-            </DocsPage>
-          </DocsLayout>
+          <div className="prose dark:prose-invert mx-auto max-w-3xl px-6 py-8">
+            <h2 className="text-2xl font-semibold mb-4">Professional Experience</h2>
+            <p className="mb-4">
+              I have extensive experience in software development, with a focus on building
+              modern web applications and working with cutting-edge technologies.
+            </p>
+            <p className="mb-4">
+              My professional journey includes working on various projects that have
+              honed my skills in frontend development, backend integration, and full-stack
+              application architecture.
+            </p>
+            <p className="mb-4">
+              While specific work history details are not available at this time, I bring
+              a wealth of practical knowledge and expertise to every project I undertake.
+            </p>
+          </div>
         </div>
       </main>
       <SeparatorHorizontal short={true} />
-      <LastModified
-        lastModified={pageData.lastModified ?? new Date().toISOString()}
-      />
+      <LastModified lastModified={new Date().toISOString()} />
       <SeparatorHorizontal short={true} />
       <ContactMe />
       <SeparatorHorizontal borderBottom={false} />

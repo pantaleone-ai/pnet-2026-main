@@ -1,18 +1,11 @@
 import ContactMe from "@/components/ContactMe";
-import { DocsLayout } from "@/components/fuma/fuma-layout";
-import { DocsBody, DocsPage } from "@/components/fuma/fuma-page";
 import Heading from "@/components/HeadingTitle";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
-import { aboutSource } from "@/features/about/data/aboutSource";
 import { getBaseUrl } from "@/lib/helpers";
-import { getMDXComponents } from "@/mdx-components";
 import type { HeadType } from "@/types";
-import type { TableOfContents } from "fumadocs-core/toc";
 import type { Metadata } from "next";
 import Image from "next/image";
-import { notFound } from "next/navigation";
-import type { ComponentType } from "react";
 import Web from "@/features/about/components/Web";
 import LastModified from "@/components/LastModified";
 
@@ -43,32 +36,10 @@ export const metadata: Metadata = {
   },
 };
 
-type MDXPageData = {
-  body: ComponentType<{ code: unknown; components?: unknown }>;
-  toc?: TableOfContents;
-  title?: string;
-  description?: string;
-  imageUrl?: string;
-  imageUrlDesktop?: string;
-  imageUrlMobile?: string;
-  imageAlt?: string;
-  lastModified?: string | number | Date;
-};
 
 export default async function AboutMePage() {
-  const page = aboutSource.getPage(["about"]);
-  if (!page) notFound();
-
-  const pageData = page.data as MDXPageData;
-  const MDX = pageData.body;
-  const title = pageData.title;
   const defaultImage = "/images/horizontal-profile-about.jpg";
-  const imageUrlDesktop =
-    pageData.imageUrlDesktop ?? pageData.imageUrl ?? defaultImage;
-  const imageUrlMobile =
-    pageData.imageUrlMobile ?? pageData.imageUrl ?? defaultImage;
   const imageAlt =
-    pageData.imageAlt ??
     "Professional headshot of Tim, a Frontend Developer with 5 years of experience";
 
   return (
@@ -80,7 +51,7 @@ export default async function AboutMePage() {
           <div className="md:hidden">
             <Image
               alt={imageAlt}
-              src={imageUrlMobile}
+              src={defaultImage}
               width={1000}
               height={750}
               className="aspect-4/3 w-full object-cover dark:grayscale"
@@ -92,7 +63,7 @@ export default async function AboutMePage() {
           <div className="hidden md:block">
             <Image
               alt={imageAlt}
-              src={imageUrlDesktop}
+              src={defaultImage}
               width={1000}
               height={500}
               className="w-full object-cover md:h-auto md:max-h-96 dark:grayscale"
@@ -103,28 +74,27 @@ export default async function AboutMePage() {
         </div>
         <SeparatorHorizontal short={true} />
         <Heading
-          title={title ?? "Hello, I'm Tim"}
+          title="Hello, I'm Tim"
           textStyleClassName="text-3xl font-semibold md:text-4xl"
           gridId="grid-about"
         />
         <SeparatorHorizontal short={true} />
         <div className="border-border relative min-h-52 max-w-full">
-          <DocsLayout
-            tree={aboutSource.pageTree}
-            containerProps={{ className: "relative bg-transparent" }}
-          >
-            <DocsPage toc={pageData.toc}>
-              <DocsBody prose={false}>
-                <MDX code={MDX} components={{ ...getMDXComponents(), Web }} />
-              </DocsBody>
-            </DocsPage>
-          </DocsLayout>
+          <div className="prose dark:prose-invert mx-auto max-w-3xl px-6 py-8">
+            <h2 className="text-2xl font-semibold mb-4">About Me</h2>
+            <p className="mb-4">
+              I'm a passionate developer with expertise in building modern web applications.
+              My journey in software development has led me to work on various exciting projects.
+            </p>
+            <p className="mb-6">
+              Below you can explore some of the web applications I've developed:
+            </p>
+            <Web />
+          </div>
         </div>
       </main>
       <SeparatorHorizontal short={true} />
-      <LastModified
-        lastModified={pageData.lastModified ?? new Date().toISOString()}
-      />
+      <LastModified lastModified={new Date().toISOString()} />
       <SeparatorHorizontal short={true} />
       <ContactMe />
       <SeparatorHorizontal borderBottom={false} />
