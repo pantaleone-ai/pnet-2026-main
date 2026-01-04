@@ -52,7 +52,7 @@ export default function ShopCategories() {
       <section>
             <div className="relative mx-auto max-w-7xl px-6 py-8 md:py-10 lg:px-8">
               <BackgroundDots gridId="blog-posts" className="text-gray-200/80" />
-        <h2 className="text-xl font-semibold mb-4">AI Product and Services Categories</h2>
+        <h2 className="text-xl font-semibold mb-4">Shop AI Products Services & Artwork</h2>
         <div className="xl mx-auto grid max-w-5xl grid-cols-1 gap-x-8 gap-y-8 pb-4 lg:mx-0 lg:max-w-none lg:grid-cols-3">
           {categories.map((category) => {
             const products = getProductsByCategory(category);
@@ -67,7 +67,7 @@ export default function ShopCategories() {
                   >
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 items-center px-2 py-2">
                   <CardTitle className="text-lg font-medium flex items-center gap-2">
-                    <Icon className="h-5 w-5" />
+                    <Icon className="h-5 w-5" />``
                     <span>{category}</span>
                   </CardTitle>
                   <span className="bg-secondary text-secondary-foreground px-2 py-1 rounded-full text-sm font-medium">{products.length}</span>
@@ -76,7 +76,7 @@ export default function ShopCategories() {
                   <p className="text-md text-muted-foreground px-4 py-4">
                     {getCategoryDescription(category)}
                   </p>
-                  <Button size="sm" className="w-fit m-4" asChild>
+                  <Button size="lg" className="w-fit m-4" asChild>
                     <Link href={`/shop/${category.toLowerCase().replace(/\s+/g, '-')}`}>
                       Browse {category}
                     </Link>

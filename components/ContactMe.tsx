@@ -70,7 +70,7 @@ const ContactMe = ({
             ))}
           </div>
         ) : (
-          <div className="mt-6">
+          <div className="m-6">
             <Button
               asChild
               variant="outline"
