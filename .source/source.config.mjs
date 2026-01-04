@@ -87,17 +87,17 @@ var featuredApps = defineDocs({
     })
   })
 });
-var webApps = defineDocs({
-  dir: "features/about/content/web-apps",
-  docs: defineCollections({
-    type: "doc",
-    dir: "features/about/content/web-apps",
-    schema: baseProjectSchema.extend({
-      imageUrl: baseProjectSchema.shape.imageUrl.unwrap(),
-      imageAlt: baseProjectSchema.shape.imageAlt.unwrap()
-    })
-  })
-});
+// var webApps = defineDocs({
+//   dir: "features/about/content/web-apps",
+//   docs: defineCollections({
+//     type: "doc",
+//     dir: "features/about/content/web-apps",
+//     schema: baseProjectSchema.extend({
+//       imageUrl: baseProjectSchema.shape.imageUrl.unwrap(),
+//       imageAlt: baseProjectSchema.shape.imageAlt.unwrap()
+//     })
+//   })
+// });
 var projects = defineDocs({
   dir: "features/projects/content",
   docs: defineCollections({
@@ -170,6 +170,6 @@ export {
   featuredApps,
   privacy,
   projects,
-  shop,
-  webApps
+  shop
+  // webApps
 };
