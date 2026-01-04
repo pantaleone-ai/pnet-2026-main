@@ -25,6 +25,10 @@ type ShopProduct = {
   purchaseUrl?: string;
   imageUrl: string;
   imageAlt?: string;
+  additionalImages?: {
+    url: string;
+    alt?: string;
+  }[];
   featured?: boolean;
   isDigital?: boolean;
   fromDate?: string;

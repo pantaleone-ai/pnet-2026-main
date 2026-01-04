@@ -14,6 +14,7 @@ import { DocsBody } from "@/components/fuma/fuma-page";
 import { getMDXComponents } from "@/mdx-components";
 import type { MDXComponents } from "mdx/types";
 import React from "react";
+import { ProductImageGallery } from "@/features/shop/components/ProductImageGallery";
 
 /** * SEO Logic */
 const PAGE = "Shop";
@@ -101,15 +102,13 @@ export default async function ProductDetailPage({
         <div className="lg:col-span-7 space-y-12 text-left">
           <section>
             {product.imageUrl && (
-              <div className="relative aspect-video overflow-hidden rounded-2xl border bg-muted shadow-sm group">
-                <Image
-                  alt={product.imageAlt || product.title}
-                  src={product.imageUrl}
-                  fill
-                  className="object-cover transition-transform duration-500 group-hover:scale-[1.01]"
-                  priority
-                />
-              </div>
+              <ProductImageGallery
+                primaryImage={{
+                  url: product.imageUrl,
+                  alt: product.imageAlt || product.title
+                }}
+                additionalImages={product.additionalImages}
+              />
             )}
           </section>
 

@@ -63,6 +63,10 @@ var shopProductSchema = frontmatterSchema.extend({
   purchaseUrl: z.string().optional(),
   imageUrl: z.string().optional(),
   imageAlt: z.string().optional(),
+  additionalImages: z.array(z.object({
+    url: z.string(),
+    alt: z.string().optional()
+  })).optional(),
   featured: z.boolean().default(false),
   isDigital: z.boolean().default(true),
   fromDate: z.string().optional(),

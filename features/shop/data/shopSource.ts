@@ -65,6 +65,7 @@ function getProduct(page: Page, index: number): ShopProduct {
     purchaseUrl: data.purchaseUrl,
     imageUrl: data.imageUrl ?? "",
     imageAlt: data.imageAlt ?? "",
+    additionalImages: data.additionalImages,
     featured: data.featured ?? false,
     isDigital: data.isDigital ?? true,
     fromDate: data.fromDate ?? "",
