@@ -23,7 +23,7 @@ const LogoButton = memo(({ className }: { className?: string }) => {
           priority
         />
       </div>
-      <span className="text-foreground group-hover:text-foreground/90 text-xl font-medium group-hover:underline group-hover:underline-offset-4 md:text-lg">
+      <span className="tracking-tight text-foreground group-hover:text-foreground/90 text-xl font-medium group-hover:underline group-hover:underline-offset-4 md:text-lg">
         Pantaleone
       </span>
     </Link>

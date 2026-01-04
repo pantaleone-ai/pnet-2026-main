@@ -2,6 +2,10 @@ import { shop } from "@/.source/server";
 import type { Source, SourceConfig } from "fumadocs-core/source";
 import { loader } from "fumadocs-core/source";
 import type { ShopProduct } from "../types/ShopProduct";
+import fs from "fs";
+import path from "path";
+import readingTime from "reading-time";
+import React from "react";
 
 const shopDocs = shop as unknown as { toFumadocsSource: () => unknown };
 
@@ -13,10 +17,41 @@ export const shopSource = loader({
 type Page = ReturnType<typeof shopSource.getPages>[number];
 
 function getProduct(page: Page, index: number): ShopProduct {
-  const data = page.data as unknown as ShopProduct;
+  const data = page.data as unknown as ShopProduct & {
+    body: React.ComponentType<object>;
+  };
 
   // Generate slug from page slugs or title - use only the filename part
   const slug = page.slugs.length > 0 ? page.slugs[page.slugs.length - 1]?.replace(/\.mdx?$/, '') || data.title.toLowerCase().replace(/\s+/g, '-') : data.title.toLowerCase().replace(/\s+/g, '-');
+
+  // Get file path for reading content
+  const pageWithFile = page as Page & { file: { path: string } };
+  let filePath = "";
+  if (pageWithFile.file?.path) {
+    filePath = path.join(
+      process.cwd(),
+      "features/shop/content",
+      pageWithFile.file.path,
+    );
+  } else if (slug) {
+    filePath = path.join(
+      process.cwd(),
+      "features/shop/content",
+      `${slug}.mdx`,
+    );
+  }
+
+  // Read and process MDX content
+  let contentStr = "";
+  let readingTimeText = "";
+  let readingTimeMinutes = 0;
+
+  if (filePath && fs.existsSync(filePath)) {
+    contentStr = fs.readFileSync(filePath, "utf-8");
+    const readingTimeStats = readingTime(contentStr);
+    readingTimeText = readingTimeStats.text;
+    readingTimeMinutes = Math.round(readingTimeStats.minutes);
+  }
 
   return {
     id: index,
@@ -41,6 +76,10 @@ function getProduct(page: Page, index: number): ShopProduct {
     techStacks: data.techStacks,
     weight: data.weight,
     slug: slug,
+    body: data.body,
+    content: contentStr,
+    readingTime: readingTimeText,
+    readingTimeMinutes: readingTimeMinutes,
   };
 }
 
