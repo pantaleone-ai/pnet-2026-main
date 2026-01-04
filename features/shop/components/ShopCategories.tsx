@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Brain, Workflow, Palette, Zap } from "lucide-react";
+import BackgroundDots from "@/features/common/components/BackgroundDots";
+import { cn } from "@/lib/utils";
 
 export default function ShopCategories() {
   const categories = getCategories();
@@ -48,15 +50,22 @@ export default function ShopCategories() {
 
       {/* Categories Section */}
       <section>
-        <h2 className="text-xl font-semibold mb-4">Browse Categories</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="relative mx-auto max-w-7xl px-6 py-8 md:py-10 lg:px-8">
+              <BackgroundDots gridId="blog-posts" className="text-gray-200/80" />
+        <h2 className="text-xl font-semibold mb-4">AI Product and Services Categories</h2>
+        <div className="xl mx-auto grid max-w-5xl grid-cols-1 gap-x-8 gap-y-8 pb-4 lg:mx-0 lg:max-w-none lg:grid-cols-3">
           {categories.map((category) => {
             const products = getProductsByCategory(category);
             const Icon = getCategoryIcon(category);
 
             return (
-              <Card key={category} className="hover:shadow-lg transition-shadow">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <Card key={category}       className={cn(
+                      "h-full gap-0 rounded-md border-x border-b pb-4 border-border-edge py-0 transition-all duration-300 shadow-md hover:border-muted-foreground/40 shadow-lg"
+                    )}
+                    role="article"
+                    aria-labelledby={`card-title-${category}`}
+                  >
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 items-center px-2 py-2">
                   <CardTitle className="text-lg font-medium flex items-center gap-2">
                     <Icon className="h-5 w-5" />
                     <span>{category}</span>
@@ -64,10 +73,10 @@ export default function ShopCategories() {
                   <span className="bg-secondary text-secondary-foreground px-2 py-1 rounded-full text-sm font-medium">{products.length}</span>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground mb-4">
+                  <p className="text-md text-muted-foreground px-4 py-4">
                     {getCategoryDescription(category)}
                   </p>
-                  <Button size="sm" className="w-full" asChild>
+                  <Button size="sm" className="w-fit m-4" asChild>
                     <Link href={`/shop/${category.toLowerCase().replace(/\s+/g, '-')}`}>
                       Browse {category}
                     </Link>
@@ -76,6 +85,7 @@ export default function ShopCategories() {
               </Card>
             );
           })}
+        </div>
         </div>
       </section>
     </div>

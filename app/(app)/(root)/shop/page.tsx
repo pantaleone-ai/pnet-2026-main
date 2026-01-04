@@ -39,7 +39,7 @@ export default async function ShopPage() {
   return (
     <>
       <SeparatorHorizontal borderTop={false} />
-      <HeadingTitle title="Shop" />
+      <HeadingTitle title="Shop Pantaleone AI Products, Services, Apps & Artwork" />
       <SeparatorHorizontal short={true} />
       <ShopHero />
       <SeparatorHorizontal short={true} />
