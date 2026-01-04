@@ -14,11 +14,11 @@ export default function Home() {
       <SeparatorHorizontal borderTop={false} />
       <Hero />
       <SeparatorHorizontal short={true} />
-      <HeadingTitle title="Featured AI Products" />
+      <HeadingTitle title="AI Agents, Workflows & Apps" />
       <SeparatorHorizontal short={true} />
       <FeaturedProducts />
       <SeparatorHorizontal short={true} />
-      <HeadingTitle title="Featured AI Apps" />
+      <HeadingTitle title="Pantaleone AI Projects"/>
       <SeparatorHorizontal short={true} />
       <FeaturedApps />
       <SeparatorHorizontal short={true} />
@@ -29,7 +29,7 @@ export default function Home() {
       {/* <HeadingTitle title="What People Are Saying" />
       <SeparatorHorizontal short={true} />
       <WhatPeopleSay /> */}
-      <SeparatorHorizontal />
+      {/* <SeparatorHorizontal /> */}
       {/* <HeadingTitle title="FAQ" />
       <SeparatorHorizontal short={true} />
       <FaqSection />
