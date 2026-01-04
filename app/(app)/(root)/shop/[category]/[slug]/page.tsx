@@ -131,7 +131,7 @@ export default async function ProductDetailPage({
                 <h3 className="text-2xl font-bold">Features & Specs</h3>
               </div>
               
-              <div className="bg-card rounded-xl border p-6 md:p-10 shadow-sm prose prose-invert max-w-none prose-p:text-left prose-li:text-left prose-headings:text-left">
+              <div className="rounded-xl border p-4 md:p-10 shadow-sm prose prose-invert max-w-none prose-p:text-left prose-li:text-left prose-headings:text-left">
                 <DocsBody>
                   <MDXContent components={getMDXComponents()} />
                 </DocsBody>
@@ -167,7 +167,7 @@ export default async function ProductDetailPage({
                     {product.title}
                   </CardTitle>
                 </div>
-                <div className="mt-8 flex items-baseline gap-2">
+                <div className="mt-8 flex items-baseline gap-2 pl-4">
                   <span className="text-5xl font-black tracking-tighter">${product.price}</span>
                   <span className="text-muted-foreground font-bold text-lg uppercase">{product.currency}</span>
                 </div>
@@ -176,13 +176,13 @@ export default async function ProductDetailPage({
               <CardContent className="space-y-8">
                 <div className="space-y-4 pt-2">
                   {product.purchaseUrl && (
-                    <Button size="lg" className="w-full text-xl font-bold h-16 shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform" asChild>
+                    <Button size="lg" className="text-xl font-bold h-16 shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform" asChild>
                       <Link href={product.purchaseUrl} target="_blank">
                         <ShoppingCart className="mr-3 h-5 w-5" /> Get Instant Access
                       </Link>
                     </Button>
                   )}
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-4 pl-4">
                     {product.websiteUrl && (
                       <Button variant="secondary" size="lg" className="font-semibold" asChild>
                         <Link href={product.websiteUrl} target="_blank">
@@ -200,7 +200,7 @@ export default async function ProductDetailPage({
                   </div>
                 </div>
 
-                <div className="pt-8 border-t space-y-6 text-sm">
+                <div className="pt-8 border-t space-y-6 text-sm pl-4">
                   <div className="flex items-start gap-4">
                     <Box className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                     <div className="text-left">
