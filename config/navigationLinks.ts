@@ -53,8 +53,8 @@ const NAVIGATION_LINKS: NavigationLinkType[] = [
     subNavigationLinks: [
       {
         href: "/shop/apps",
-        label: "AI Apps & Agents",
-        description: truncateDescription("AI Apps & Agents", 30),
+        label: "AI Apps",
+        description: truncateDescription("AI Apps", 30),
         icon: BrainIcon,
       },
       {

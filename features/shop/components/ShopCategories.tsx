@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ShoppingCart, Brain, Workflow, Palette, Zap } from "lucide-react";
 import BackgroundDots from "@/features/common/components/BackgroundDots";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 export default function ShopCategories() {
   const categories = getCategories();
@@ -53,36 +54,93 @@ export default function ShopCategories() {
             <div className="relative mx-auto max-w-7xl px-6 py-8 md:py-10 lg:px-8">
               <BackgroundDots gridId="blog-posts" className="text-gray-200/80" />
         <h2 className="text-xl font-semibold mb-4">Shop AI Products Services & Artwork</h2>
-        <div className="xl mx-auto grid max-w-5xl grid-cols-1 gap-x-8 gap-y-8 pb-4 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+        <div className="max-w-4xl mx-auto space-y-8">
           {categories.map((category) => {
             const products = getProductsByCategory(category);
+            const featuredProducts = products.filter(product => product.featured);
             const Icon = getCategoryIcon(category);
 
             return (
-              <Card key={category}       className={cn(
-                      "h-full gap-0 rounded-md border-x border-b pb-4 border-border-edge py-0 transition-all duration-300 shadow-md hover:border-muted-foreground/40 shadow-lg"
-                    )}
-                    role="article"
-                    aria-labelledby={`card-title-${category}`}
-                  >
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 items-center px-2 py-2">
-                  <CardTitle className="text-lg font-medium flex items-center gap-2">
-                    <Icon className="h-5 w-5" />
-                    <span>{category}</span>
-                  </CardTitle>
-                  <span className="bg-secondary text-secondary-foreground px-2 py-1 rounded-full text-sm font-medium">{products.length}</span>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-md text-muted-foreground px-4 py-4">
-                    {getCategoryDescription(category)}
-                  </p>
-                  <Button size="lg" className="w-fit m-4" asChild>
-                    <Link href={`/shop/${category.toLowerCase().replace(/\s+/g, '-')}`}>
-                      Browse {category}
-                    </Link>
-                  </Button>
-                </CardContent>
-              </Card>
+              <div key={category} className="w-full">
+                <Card className={cn(
+                        "w-full gap-0 rounded-md border border-border-edge transition-all duration-300 shadow-md hover:border-muted-foreground/40"
+                      )}
+                      role="article"
+                      aria-labelledby={`card-title-${category}`}
+                    >
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 items-center px-4 py-4">
+                    <CardTitle className="text-xl font-medium flex items-center gap-3">
+                      <Icon className="h-6 w-6" />
+                      <span>{category}</span>
+                    </CardTitle>
+                    <span className="bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-sm font-medium">{products.length}</span>
+                  </CardHeader>
+                  <CardContent className="px-4 pb-4">
+                    <p className="text-md text-muted-foreground mb-6">
+                      {getCategoryDescription(category)}
+                    </p>
+
+                    {/* Featured Products in this Category */}
+                    {featuredProducts.length > 0 && (
+                      <div className="mt-6">
+                        <h3 className="text-sm font-medium text-muted-foreground mb-4">Featured in this category</h3>
+                        <div className="space-y-4">
+                          {featuredProducts.slice(0, 2).map((product) => (
+                            <Card key={product.id} className="border-none shadow-none">
+                              <CardContent className="p-0">
+                                <div className="flex items-center gap-4">
+                                  {product.imageUrl && (
+                                    <div className="relative w-20 h-20 flex-shrink-0">
+                                      <Image
+                                        src={product.imageUrl}
+                                        alt={product.imageAlt || product.title}
+                                        fill
+                                        className="rounded-md object-cover"
+                                        sizes="80px"
+                                      />
+                                    </div>
+                                  )}
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-start justify-between">
+                                      <div>
+                                        <h4 className="font-medium text-base line-clamp-1">{product.title}</h4>
+                                        <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{product.description}</p>
+                                      </div>
+                                      <span className="bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-sm font-medium flex-shrink-0 ml-3">${product.price}</span>
+                                    </div>
+                                    <div className="flex gap-3 mt-3">
+                                      {product.purchaseUrl && (
+                                        <Button size="sm" asChild>
+                                          <Link target="_blank" rel="noopener noreferrer" href={product.purchaseUrl}>
+                                            Buy ${product.price}
+                                          </Link>
+                                        </Button>
+                                      )}
+                                      <Button variant="outline" size="sm" asChild>
+                                        <Link href={`/shop/${category.toLowerCase().replace(/\s+/g, '-')}/${product.slug}`}>
+                                                          Details
+                                                        </Link>
+                                                      </Button>
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              </CardContent>
+                                            </Card>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+
+                    <div className="mt-6">
+                      <Button size="lg" className="w-fit" asChild>
+                        <Link href={`/shop/${category.toLowerCase().replace(/\s+/g, '-')}`}>
+                          Browse {category}
+                        </Link>
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             );
           })}
         </div>

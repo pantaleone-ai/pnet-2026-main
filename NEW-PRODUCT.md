@@ -17,7 +17,7 @@ features/shop/content/
 
 #### 1. **Choose the Right Category**
 Pick the appropriate category folder for your product:
-- `ai-apps/` - For AI applications and agents
+- `ai-apps/` - For AI applications
 - `ai-services/` - For consulting and services
 - `ai-workflows/` - For automation workflows
 - `artwork/` - For AI-generated artwork
@@ -34,7 +34,7 @@ features/shop/content/ai-apps/my-awesome-product.mdx
 ---
 title: My Awesome Product
 description: Brief description of what this product does and who it's for
-category: AI Apps & Agents  # Must match your category name
+category: Apps  # Must match your category name
 price: 29.99               # Price in numbers
 currency: USD              # Currency code (default: USD)
 featured: true             # Set to true to feature on homepage
@@ -77,7 +77,7 @@ Information about support options and documentation.
 These fields are mandatory:
 - `title` - Product name
 - `description` - Short description
-- `category` - Must match your category (e.g., "AI Apps & Agents")
+- `category` - Must match your category (e.g., "Apps")
 - `price` - Numerical price
 - `isDigital` - Boolean (true/false)
 
@@ -99,7 +99,7 @@ These fields are mandatory:
 
 ### 📊 Product Categories
 Use these exact category names:
-- **"AI Apps & Agents"** - For AI applications
+- **"Apps"** - For AI applications
 - **"AI Services"** - For consulting/services
 - **"AI Workflows"** - For automation workflows
 - **"AI Artwork"** - For digital artwork
