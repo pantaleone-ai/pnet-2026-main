@@ -1,5 +1,6 @@
 import ContactMe from "@/components/ContactMe";
 import HEAD from "@/config/seo/head";
+import { siteConfig } from "@/config/site";
 import { getProductBySlug, getProductsByCategory, getCategories, getProducts } from "@/features/shop/data/shopSource";
 import { getBaseUrl } from "@/lib/helpers";
 import type { HeadType } from "@/types";
@@ -52,9 +53,25 @@ export async function generateMetadata({
     alternates: { canonical: url },
     openGraph: {
       title: `${product.title} - ${pageConfig.title}`,
-      images: [{ url: product.imageUrl || "/summary_large_image.png" }],
+      description: product.description || "Shop AI products",
+      images: [
+        {
+          url: product.imageUrl || "/summary_large_image.png",
+          width: 1200,
+          height: 630,
+          alt: product.title,
+        },
+      ],
       url: url,
       type: "website",
+      siteName: siteConfig.name,
+      locale: "en_US",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${product.title} - ${pageConfig.title}`,
+      description: product.description || "Shop AI products",
+      images: [product.imageUrl || "/summary_large_image.png"],
     },
   };
 }

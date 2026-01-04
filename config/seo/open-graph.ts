@@ -1,5 +1,5 @@
-const OPENGRAPH_IMAGE = "/images/open-graph-image.jpg";
-const TWITTER_IMAGE = "/images/twitter-image.jpg";
+const OPENGRAPH_IMAGE = "/images/opengraph-image.png";
+const TWITTER_IMAGE = "/images/twitter-image.png";
 
 const OPEN_GRAPH = {
   image: OPENGRAPH_IMAGE,
