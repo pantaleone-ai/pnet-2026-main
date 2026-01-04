@@ -62,13 +62,61 @@ export const projects = defineDocs({
   }),
 });
 
-// export const experience = defineDocs({
-//   dir: "features/experience/content",
-// });
+export const experience = defineDocs({
+  dir: "features/experience/content",
+  docs: defineCollections({
+    type: "doc",
+    dir: "features/experience/content",
+    schema: frontmatterSchema.extend({
+      title: z.string(),
+      description: z.string().optional(),
+      company: z.string().optional(),
+      position: z.string().optional(),
+      fromDate: z.string().optional(),
+      toDate: z.string().optional(),
+      location: z.string().optional(),
+      websiteUrl: z.string().optional(),
+      imageUrl: z.string().optional(),
+      imageAlt: z.string().optional(),
+    }),
+  }),
+});
 
-// export const education = defineDocs({
-//   dir: "features/education/content",
-// });
+export const education = defineDocs({
+  dir: "features/education/content",
+  docs: defineCollections({
+    type: "doc",
+    dir: "features/education/content",
+    schema: frontmatterSchema.extend({
+      title: z.string(),
+      description: z.string().optional(),
+      institution: z.string().optional(),
+      degree: z.string().optional(),
+      fromDate: z.string().optional(),
+      toDate: z.string().optional(),
+      location: z.string().optional(),
+      websiteUrl: z.string().optional(),
+      imageUrl: z.string().optional(),
+      imageAlt: z.string().optional(),
+    }),
+  }),
+});
+
+export const about = defineDocs({
+  dir: "features/about/content",
+  docs: defineCollections({
+    type: "doc",
+    dir: "features/about/content",
+    schema: frontmatterSchema.extend({
+      title: z.string(),
+      description: z.string().optional(),
+      imageUrl: z.string().optional(),
+      imageUrlDesktop: z.string().optional(),
+      imageUrlMobile: z.string().optional(),
+      imageAlt: z.string().optional(),
+    }),
+  }),
+});
 
 export const blog = defineDocs({
   dir: "features/blog/content",

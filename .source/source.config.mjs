@@ -106,6 +106,59 @@ var projects = defineDocs({
     schema: baseProjectSchema
   })
 });
+var experience = defineDocs({
+  dir: "features/experience/content",
+  docs: defineCollections({
+    type: "doc",
+    dir: "features/experience/content",
+    schema: frontmatterSchema2.extend({
+      title: z2.string(),
+      description: z2.string().optional(),
+      company: z2.string().optional(),
+      position: z2.string().optional(),
+      fromDate: z2.string().optional(),
+      toDate: z2.string().optional(),
+      location: z2.string().optional(),
+      websiteUrl: z2.string().optional(),
+      imageUrl: z2.string().optional(),
+      imageAlt: z2.string().optional()
+    })
+  })
+});
+var education = defineDocs({
+  dir: "features/education/content",
+  docs: defineCollections({
+    type: "doc",
+    dir: "features/education/content",
+    schema: frontmatterSchema2.extend({
+      title: z2.string(),
+      description: z2.string().optional(),
+      institution: z2.string().optional(),
+      degree: z2.string().optional(),
+      fromDate: z2.string().optional(),
+      toDate: z2.string().optional(),
+      location: z2.string().optional(),
+      websiteUrl: z2.string().optional(),
+      imageUrl: z2.string().optional(),
+      imageAlt: z2.string().optional()
+    })
+  })
+});
+var about = defineDocs({
+  dir: "features/about/content",
+  docs: defineCollections({
+    type: "doc",
+    dir: "features/about/content",
+    schema: frontmatterSchema2.extend({
+      title: z2.string(),
+      description: z2.string().optional(),
+      imageUrl: z2.string().optional(),
+      imageUrlDesktop: z2.string().optional(),
+      imageUrlMobile: z2.string().optional(),
+      imageAlt: z2.string().optional()
+    })
+  })
+});
 var blog = defineDocs({
   dir: "features/blog/content",
   docs: defineCollections({
@@ -164,9 +217,12 @@ var source_config_default = defineConfig({
   plugins: [lastModified()]
 });
 export {
+  about,
   blog,
   changelog,
   source_config_default as default,
+  education,
+  experience,
   featuredApps,
   privacy,
   projects,
