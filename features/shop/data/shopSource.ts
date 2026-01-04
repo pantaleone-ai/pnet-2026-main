@@ -76,10 +76,23 @@ function getProduct(page: Page, index: number): ShopProduct {
     techStacks: data.techStacks,
     weight: data.weight,
     slug: slug,
-    body: data.body,
     content: contentStr,
     readingTime: readingTimeText,
     readingTimeMinutes: readingTimeMinutes,
+  };
+}
+
+function getProductWithBody(page: Page, index: number): ShopProduct & {
+  body: React.ComponentType<object>;
+} {
+  const baseProduct = getProduct(page, index);
+  const data = page.data as unknown as ShopProduct & {
+    body: React.ComponentType<object>;
+  };
+
+  return {
+    ...baseProduct,
+    body: data.body,
   };
 }
 
@@ -138,16 +151,27 @@ export function getCategories(): string[] {
   }
 }
 
-export function getProductBySlug(category: string, slug: string): ShopProduct | null {
+export function getProductBySlug(category: string, slug: string): (ShopProduct & {
+  body: React.ComponentType<object>;
+}) | null {
   try {
     // Normalize the input category slug to match against product categories
     const normalizedCategory = category
       .replace(/-/g, ' ')
       .replace(/\b\w/g, (char) => char.toUpperCase());
 
-    return getProducts().find((product) =>
-      product.category === normalizedCategory && product.slug === slug
-    ) || null;
+    // Find the page that matches the category and slug
+    const page = shopSource.getPages().find((page) => {
+      const data = page.data as unknown as ShopProduct;
+      const pageSlug = page.slugs.length > 0 ? page.slugs[page.slugs.length - 1]?.replace(/\.mdx?$/, '') || data.title.toLowerCase().replace(/\s+/g, '-') : data.title.toLowerCase().replace(/\s+/g, '-');
+      return data.category === normalizedCategory && pageSlug === slug;
+    });
+
+    if (!page) return null;
+
+    // Get the index for the product ID
+    const index = shopSource.getPages().findIndex(p => p === page);
+    return getProductWithBody(page, index);
   } catch (error) {
     console.error("Error getting product by slug:", error);
     return null;

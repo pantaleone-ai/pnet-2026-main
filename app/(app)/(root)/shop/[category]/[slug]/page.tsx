@@ -75,8 +75,7 @@ export default async function ProductDetailPage({
   const { body, ...product } = rawProduct;
 
   const relatedProducts = getProductsByCategory(category)
-    .filter(p => p.slug !== slug)
-    .map(({ body, ...rest }) => rest); // Also clean related products to be safe
+    .filter(p => p.slug !== slug);
 
   const formatCategoryName = (s: string) => 
     decodeURIComponent(s).replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());

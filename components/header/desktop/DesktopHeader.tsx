@@ -1,6 +1,6 @@
 "use client";
 
-import GithubButton from "@/components/header/shared/GithubButton";
+// import GithubButton from "@/components/header/shared/GithubButton";
 import LogoButton from "@/components/header/shared/LogoButton";
 import { SearchButton } from "@/components/header/shared/SearchButton";
 import ThemeToggle from "@/components/header/shared/ThemeToggle";
@@ -112,7 +112,7 @@ const DesktopHeader: FC<Props> = memo(({ activePath }) => {
         </NavigationMenuList>
 
         <div className="flex flex-1 items-center justify-end gap-1.5">
-          <GithubButton />
+          {/* <GithubButton /> */}
           <span className="mx-2 flex h-4 w-px bg-border" />
           <SearchButton />
           <span className="mx-2 flex h-4 w-px bg-border" />

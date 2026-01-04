@@ -36,7 +36,6 @@ type ShopProduct = {
   techStacks?: string[];
   weight?: number;
   slug: string;
-  body?: React.ComponentType<object>;
   content?: string;
   readingTime?: string;
   readingTimeMinutes?: number;
