@@ -373,6 +373,14 @@ const ProductContent = ({
             </Button>
           </div>
         )}
+        <div className="flex w-full px-2 py-2">
+          <Button variant="outline" asChild className="w-full">
+            <Link href={`/shop/${item.category.toLowerCase().replace(/\s+/g, '-')}/${item.slug}`}>
+              View Details
+              <span className="sr-only"> about {item.title}</span>
+            </Link>
+          </Button>
+        </div>
       </CardFooter>
     </>
   );

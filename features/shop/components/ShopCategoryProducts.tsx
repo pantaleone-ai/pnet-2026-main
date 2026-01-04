@@ -22,9 +22,15 @@ export default function ShopCategoryProducts({ category }: { category: string })
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground mb-3">{product.description}</p>
-                  <div className="flex justify-between items-center">
-                    <span className="bg-outline text-outline-foreground px-2 py-1 rounded-full text-sm font-medium border">{product.category}</span>
-                    <Button size="sm" asChild>
+                  <div className="flex flex-col gap-2">
+                    {product.purchaseUrl && (
+                      <Button size="sm" asChild>
+                        <Link target="_blank" rel="noopener noreferrer" href={product.purchaseUrl}>
+                          Buy Now - ${product.price}
+                        </Link>
+                      </Button>
+                    )}
+                    <Button variant="outline" size="sm" asChild>
                       <Link href={`/shop/${product.category.toLowerCase().replace(/\s+/g, '-')}/${product.slug}`}>
                         View Details
                       </Link>
