@@ -65,18 +65,30 @@ export default async function ProductDetailPage({
   params: Promise<{ category: string; slug: string }>;
 }) {
   const { category, slug } = await params;
-  const product = getProductBySlug(category, slug);
-  const relatedProducts = getProductsByCategory(category).filter(p => p.slug !== slug);
+  const rawProduct = getProductBySlug(category, slug);
+  
+  if (!rawProduct) return notFound();
 
-  if (!product) return notFound();
+  // FIX: Destructure 'body' immediately. 
+  // We keep 'body' as a local variable (MDXContent) and 
+  // 'product' remains a plain, serializable object for everything else.
+  const { body, ...product } = rawProduct;
 
-  const formatCategoryName = (s: string) => decodeURIComponent(s).replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  const relatedProducts = getProductsByCategory(category)
+    .filter(p => p.slug !== slug)
+    .map(({ body, ...rest }) => rest); // Also clean related products to be safe
+
+  const formatCategoryName = (s: string) => 
+    decodeURIComponent(s).replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+  
   const categoryName = formatCategoryName(category);
-  const MDXContent = product.body as React.FC<{ components: MDXComponents }> | undefined;
+  
+  // Cast the locally scoped 'body' for use in the JSX
+  const MDXContent = body as React.FC<{ components: MDXComponents }> | undefined;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-      {/* Breadcrumb - Left Aligned */}
+      {/* Breadcrumb */}
       <nav className="flex items-center space-x-2 text-sm text-muted-foreground mb-10 overflow-x-auto whitespace-nowrap pb-2">
         <Link href="/shop" className="hover:text-primary transition-colors">Shop</Link>
         <ChevronRight className="h-4 w-4 shrink-0" />
@@ -88,7 +100,6 @@ export default async function ProductDetailPage({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* LEFT COLUMN: Main Content */}
         <div className="lg:col-span-7 space-y-12 text-left">
-          {/* Hero Media */}
           <section>
             {product.imageUrl && (
               <div className="relative aspect-video overflow-hidden rounded-2xl border bg-muted shadow-sm group">
@@ -103,7 +114,6 @@ export default async function ProductDetailPage({
             )}
           </section>
 
-          {/* Product Header & Description */}
           <section className="space-y-6">
             <div className="space-y-2">
               <h1 className="text-4xl font-extrabold tracking-tight">{product.title}</h1>
@@ -114,7 +124,7 @@ export default async function ProductDetailPage({
             </p>
           </section>
 
-          {/* Features & Specs Section */}
+          {/* Render MDX using the local variable */}
           {MDXContent && (
             <section className="pt-10 border-t">
               <div className="flex items-center gap-2 mb-8">
@@ -122,7 +132,6 @@ export default async function ProductDetailPage({
                 <h3 className="text-2xl font-bold">Features & Specs</h3>
               </div>
               
-              {/* Added 'prose-p:text-left' and 'prose-li:text-left' to force list alignment */}
               <div className="bg-card rounded-xl border p-6 md:p-10 shadow-sm prose prose-invert max-w-none prose-p:text-left prose-li:text-left prose-headings:text-left">
                 <DocsBody>
                   <MDXContent components={getMDXComponents()} />
@@ -131,7 +140,6 @@ export default async function ProductDetailPage({
             </section>
           )}
 
-          {/* Demo Section */}
           {product.videoEmbedUrl && (
             <section className="pt-10 border-t">
               <h3 className="text-2xl font-bold mb-6">Demo & Walkthrough</h3>
@@ -193,7 +201,6 @@ export default async function ProductDetailPage({
                   </div>
                 </div>
 
-                {/* Info List - Left Aligned */}
                 <div className="pt-8 border-t space-y-6 text-sm">
                   <div className="flex items-start gap-4">
                     <Box className="h-5 w-5 text-primary shrink-0 mt-0.5" />
@@ -222,10 +229,9 @@ export default async function ProductDetailPage({
               </CardContent>
             </Card>
 
-            {/* Support Callout */}
             <div className="p-5 rounded-2xl border border-dashed border-primary/20 bg-primary/5 flex gap-4 items-start text-sm text-muted-foreground shadow-inner">
               <Info className="h-5 w-5 shrink-0 text-primary mt-0.5" />
-              <p className="leading-relaxed">Purchase includes lifetime access to the current version plus 12 months of prioritized updates and community support.</p>
+              <p className="leading-relaxed">Purchase includes lifetime access to the current version plus 12 months of prioritized updates.</p>
             </div>
           </div>
         </div>
