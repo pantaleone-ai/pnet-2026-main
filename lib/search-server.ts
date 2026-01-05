@@ -82,7 +82,7 @@ export async function getPostsBySearchQuery(query: string) {
     const searchableContent = {
       title: product.title.toLowerCase(),
       description: product.description.toLowerCase(),
-      content: product.content.toLowerCase(),
+      content: (product.content || "").toLowerCase(),
       fileName: product.slug.toLowerCase(),
       category: product.category.toLowerCase(),
     };
