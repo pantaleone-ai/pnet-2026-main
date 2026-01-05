@@ -12,6 +12,7 @@ import { SkipToMain } from "@/components/SkipToMain";
 // --- CHANGED: Now importing from your new unified config ---
 import { siteConfig } from "@/config/site";
 import { META_THEME_COLORS } from "@/config/theme"; // Assuming you kept the theme config
+import { analyticsConfig } from "@/config/analytics";
 import { fontMono, fontSans } from "@/lib/fonts";
 // import { getBaseUrl } from "@/lib/helpers";
 
@@ -165,6 +166,53 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <ConsentManager>{children}</ConsentManager>
           </NuqsAdapter>
         </Providers>
+
+        {/* Google Analytics - Only loads when consent is given */}
+        {analyticsConfig.googleAnalytics.enabled && (
+          <>
+            <Script
+              id="google-analytics"
+              strategy="afterInteractive"
+              src={`https://www.googletagmanager.com/gtag/js?id=${analyticsConfig.googleAnalytics.id}`}
+            />
+            <Script
+              id="google-analytics-init"
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('js', new Date());
+                  gtag('config', '${analyticsConfig.googleAnalytics.id}', {
+                    page_path: window.location.pathname,
+                  });
+                `,
+              }}
+            />
+          </>
+        )}
+
+        {/* Meta Pixel - Only loads when consent is given */}
+        {analyticsConfig.metaPixel.enabled && (
+          <Script
+            id="meta-pixel"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `
+                !function(f,b,e,v,n,t,s)
+                {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                n.queue=[];t=b.createElement(e);t.async=!0;
+                t.src=v;s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s)}(window, document,'script',
+                'https://connect.facebook.net/en_US/fbevents.js');
+                fbq('init', '${analyticsConfig.metaPixel.id}');
+                fbq('track', 'PageView');
+              `,
+            }}
+          />
+        )}
       </body>
     </html>
   );

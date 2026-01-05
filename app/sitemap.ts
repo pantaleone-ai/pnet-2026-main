@@ -14,24 +14,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1.0, // Homepage gets highest priority
     },
     {
-      url: getBaseUrl("/about"),
-      lastModified: new Date(),
-      changeFrequency: "monthly" as const,
-      priority: 0.8,
-    },
-    {
-      url: getBaseUrl("/experience"),
-      lastModified: new Date(),
-      changeFrequency: "monthly" as const,
-      priority: 0.8,
-    },
-    {
-      url: getBaseUrl("/education"),
-      lastModified: new Date(),
-      changeFrequency: "monthly" as const,
-      priority: 0.8,
-    },
-    {
       url: getBaseUrl("/projects"),
       lastModified: new Date(),
       changeFrequency: "weekly" as const,
@@ -48,48 +30,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
       changeFrequency: "monthly" as const,
       priority: 0.8,
-    },
-    {
-      url: getBaseUrl("/llms.txt"),
-      lastModified: new Date(),
-      changeFrequency: "daily" as const,
-      priority: 0.9,
-    },
-    {
-      url: getBaseUrl("/llms-full.txt"),
-      lastModified: new Date(),
-      changeFrequency: "daily" as const,
-      priority: 0.9,
-    },
-    {
-      url: getBaseUrl("/rss.xml"),
-      lastModified: new Date(),
-      changeFrequency: "daily" as const,
-      priority: 0.9,
-    },
-    {
-      url: getBaseUrl("/sitemap.xml"),
-      lastModified: new Date(),
-      changeFrequency: "daily" as const,
-      priority: 0.9,
-    },
-    {
-      url: getBaseUrl("/robots.txt"),
-      lastModified: new Date(),
-      changeFrequency: "daily" as const,
-      priority: 0.9,
-    },
-    {
-      url: getBaseUrl("/privacy"),
-      lastModified: new Date(),
-      changeFrequency: "daily" as const,
-      priority: 0.9,
-    },
-    {
-      url: getBaseUrl("/changelog"),
-      lastModified: new Date(),
-      changeFrequency: "daily" as const,
-      priority: 0.9,
     },
   ];
 
