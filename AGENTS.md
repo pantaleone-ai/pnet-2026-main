@@ -1,12 +1,12 @@
-# AI Agent Guidelines for hiretimsf.com
+# AI Agent Guidelines for pantaleone.net
 
-This guide provides essential information for AI agents working with the hiretimsf.com codebase - a Next.js dev portfolio website.
+This guide provides essential information for AI agents working with the pantaleone.net codebase - a Next.js dev portfolio website.
 
 ## Project Overview
 
-**hiretimsf.com** is a minimal portfolio built with modern web technologies. It serves as:
+**pantaleone.net** is a minimal portfolio built with modern web technologies. It serves as:
 
-- Personal portfolio for Tim (@hiretimsf)
+- Personal portfolio for Pantaleone
 - Showcase for work experience and projects
 
 ### Key Features
@@ -108,7 +108,7 @@ See `.env.example` for required variables:
 
 **Core Application**:
 
-- `APP_URL` - Application base URL (e.g., `https://hiretimsf.com`)
+- `APP_URL` - Application base URL (e.g., `https://pantaleone.net`)
 
 ## Deployment
 
@@ -137,4 +137,4 @@ npm run preview        # Build and preview locally
 
 ---
 
-**Note**: This is a personal portfolio project for Tim (@hiretimsf).
+**Note**: This is a personal portfolio project for Pantaleone.
