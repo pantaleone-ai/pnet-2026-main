@@ -9,6 +9,7 @@ import BlogPostMetaData from "@/features/blog/components/BlogPostMetaData";
 import BlogPostNavigation from "@/features/blog/components/BlogPostNavigation";
 import BlogPostTitle from "@/features/blog/components/BlogPostTitle";
 import { blogSource, getBlogPosts } from "@/features/blog/data/blogSource";
+import FeaturedProductsSection from "@/features/shop/components/FeaturedProductsSection";
 import type { BlogPostFrontmatter } from "@/features/blog/types/BlogPostFrontmatter";
 import type { BlogPostType } from "@/features/blog/types/BlogPostType";
 import { getBaseUrl } from "@/lib/helpers";
@@ -193,6 +194,8 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
       <LastModified
         lastModified={post.lastUpdated ?? new Date().toISOString()}
       />
+      <SeparatorHorizontal short={true} />
+      <FeaturedProductsSection />
       <SeparatorHorizontal short={true} />
       <ContactMe />
       <SeparatorHorizontal borderBottom={false} />

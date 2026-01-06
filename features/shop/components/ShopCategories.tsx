@@ -57,7 +57,6 @@ export default function ShopCategories() {
         <div className="max-w-4xl mx-auto space-y-8">
           {categories.map((category) => {
             const products = getProductsByCategory(category);
-            const featuredProducts = products.filter(product => product.featured);
             const Icon = getCategoryIcon(category);
 
             return (
@@ -80,12 +79,11 @@ export default function ShopCategories() {
                       {getCategoryDescription(category)}
                     </p>
 
-                    {/* Featured Products in this Category */}
-                    {featuredProducts.length > 0 && (
+                    {/* All Products in this Category */}
+                    {products.length > 0 && (
                       <div className="mt-6">
-                        <h3 className="text-sm font-medium text-muted-foreground mb-4">Featured in this category</h3>
                         <div className="space-y-4">
-                          {featuredProducts.slice(0, 2).map((product) => (
+                          {products.map((product) => (
                             <Card key={product.id} className="border-none shadow-none">
                               <CardContent className="p-0">
                                 <div className="flex items-center gap-4">

@@ -9,8 +9,8 @@ export async function GET() {
   );
 
   const feed = new Feed({
-    title: "Tim's Blog RSS Feed",
-    description: "Latest blog posts from Tim",
+    title: "Pantaleone.net AI Product and Blog RSS Feed",
+    description: "Latest products and posts from Pantaleone.net",
     id: getBaseUrl(),
     link: getBaseUrl(),
     language: "en",
