@@ -65,7 +65,6 @@ export async function getPostsBySearchQuery(query: string) {
 
     // Only include results with a minimum score
     if (score > 0) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { body, ...serializablePost } = post;
       results.push({
         ...serializablePost,
