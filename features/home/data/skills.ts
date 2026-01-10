@@ -6,15 +6,15 @@ export const SKILLS: SkillType[] = [
   //   description: "Integrating custom AI solutions directly into enterprise infrastructure." 
   // },
   { 
-    name: "AI Automation", 
-    description: "Architecting autonomous agents." 
+    name: "Automation", 
+    description: "Building autonomous agents." 
   },
   { 
-    name: "Product Leadership", 
-    description: "Building AI platforms and workflows." 
+    name: "AI Products", 
+    description: "AI platforms and workflows." 
   },
   { 
-    name: "AI Consulting", 
-    description: "15+ years of diverse AI consulting experience." 
+    name: "16+ Years", 
+    description: "of diverse AI consulting experience." 
   },
 ];
