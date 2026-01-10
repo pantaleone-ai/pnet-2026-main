@@ -190,12 +190,26 @@ export function SearchButton() {
 
   const displayedResults = searchResults || [];
 
-  const handleResultClick = (slug: string) => {
+  const handleResultClick = (result: SearchResult) => {
     // Add to history
     if (searchTerm && !searchHistory.includes(searchTerm)) {
       setSearchHistory((prev) => [searchTerm, ...prev].slice(0, 5));
     }
-    handleOpenLink(`/blog/post/${slug}`);
+
+    // Construct correct URL based on content type
+    let url: string;
+    if (result.type === "blog") {
+      url = `/blog/post/${result.slug}`;
+    } else if (result.type === "product") {
+      // Convert category to URL slug format (e.g., "AI Apps" -> "ai-apps")
+      const categorySlug = result.category.toLowerCase().replace(/\s+/g, '-');
+      url = `/shop/${categorySlug}/${result.slug}`;
+    } else {
+      // Fallback for unknown types
+      url = `/`;
+    }
+
+    handleOpenLink(url);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -206,7 +220,7 @@ export function SearchButton() {
     ) {
       const result = displayedResults[selectedIndex];
       if (result) {
-        handleResultClick(result.slug);
+        handleResultClick(result);
       }
     }
     // Navigate results with arrows if needed, but cmdk handles this naturally for CommandItems
@@ -328,7 +342,7 @@ export function SearchButton() {
                       <CommandItem
                         key={result.slug}
                         value={result.title}
-                        onSelect={() => handleResultClick(result.slug)}
+                        onSelect={() => handleResultClick(result)}
                         className={cn(
                           "mt-2 cursor-pointer rounded-sm px-4 py-5 transition-colors dark:hover:bg-background/50",
                           index === selectedIndex && "bg-background/50",

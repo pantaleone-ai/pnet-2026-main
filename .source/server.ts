@@ -1,13 +1,13 @@
 // @ts-nocheck
 import * as __fd_glob_53 from "../features/shop/content/artwork/ai-generated-landscape.mdx?collection=shop"
-import * as __fd_glob_52 from "../features/shop/content/ai-workflows/social-media-automation.mdx?collection=shop"
-import * as __fd_glob_51 from "../features/shop/content/ai-apps/skillsnap-guide.mdx?collection=shop"
-import * as __fd_glob_50 from "../features/shop/content/ai-apps/qr-generator-tool.mdx?collection=shop"
-import * as __fd_glob_49 from "../features/shop/content/ai-apps/profitsignals-app.mdx?collection=shop"
-import * as __fd_glob_48 from "../features/shop/content/ai-apps/nextjs-ai-starter-app.mdx?collection=shop"
-import * as __fd_glob_47 from "../features/shop/content/ai-apps/mixphd-app.mdx?collection=shop"
-import * as __fd_glob_46 from "../features/shop/content/ai-apps/migratecms-tool.mdx?collection=shop"
-import * as __fd_glob_45 from "../features/shop/content/ai-apps/imgsquash-tool.mdx?collection=shop"
+import * as __fd_glob_52 from "../features/shop/content/ai-apps/skillsnap-guide.mdx?collection=shop"
+import * as __fd_glob_51 from "../features/shop/content/ai-apps/qr-generator-tool.mdx?collection=shop"
+import * as __fd_glob_50 from "../features/shop/content/ai-apps/profitsignals-app.mdx?collection=shop"
+import * as __fd_glob_49 from "../features/shop/content/ai-apps/nextjs-ai-starter-app.mdx?collection=shop"
+import * as __fd_glob_48 from "../features/shop/content/ai-apps/mixphd-app.mdx?collection=shop"
+import * as __fd_glob_47 from "../features/shop/content/ai-apps/migratecms-tool.mdx?collection=shop"
+import * as __fd_glob_46 from "../features/shop/content/ai-apps/imgsquash-tool.mdx?collection=shop"
+import * as __fd_glob_45 from "../features/shop/content/ai-workflows/social-media-automation.mdx?collection=shop"
 import * as __fd_glob_44 from "../features/about/content/web-apps/portfolio-website-v3.mdx?collection=about"
 import * as __fd_glob_43 from "../features/about/content/web-apps/portfolio-website-v2.mdx?collection=about"
 import * as __fd_glob_42 from "../features/about/content/web-apps/portfolio-website-v1.mdx?collection=about"
@@ -150,6 +150,6 @@ export const privacy = await create.docs("privacy", "features/privacy/content", 
 
 export const projects = await create.docs("projects", "features/projects/content", {}, {"ai-saas-starter-nextjs-betterauth-supabase-free-boilerplate.mdx": __fd_glob_28, "imgsquash.mdx": __fd_glob_29, "migratecms-migrate-anycms-to-nextjs.mdx": __fd_glob_30, "mixphd.mdx": __fd_glob_31, "pantaleonenet.mdx": __fd_glob_32, "profitsignals-ai-chat-agent.mdx": __fd_glob_33, "qrcode-generator-free-nextjs15-tailwind.mdx": __fd_glob_34, "skillsnap-increase-ai-skills.mdx": __fd_glob_35, });
 
-export const shop = await create.docs("shop", "features/shop/content", {}, {"ai-apps/imgsquash-tool.mdx": __fd_glob_45, "ai-apps/migratecms-tool.mdx": __fd_glob_46, "ai-apps/mixphd-app.mdx": __fd_glob_47, "ai-apps/nextjs-ai-starter-app.mdx": __fd_glob_48, "ai-apps/profitsignals-app.mdx": __fd_glob_49, "ai-apps/qr-generator-tool.mdx": __fd_glob_50, "ai-apps/skillsnap-guide.mdx": __fd_glob_51, "ai-workflows/social-media-automation.mdx": __fd_glob_52, "artwork/ai-generated-landscape.mdx": __fd_glob_53, });
+export const shop = await create.docs("shop", "features/shop/content", {}, {"ai-workflows/social-media-automation.mdx": __fd_glob_45, "ai-apps/imgsquash-tool.mdx": __fd_glob_46, "ai-apps/migratecms-tool.mdx": __fd_glob_47, "ai-apps/mixphd-app.mdx": __fd_glob_48, "ai-apps/nextjs-ai-starter-app.mdx": __fd_glob_49, "ai-apps/profitsignals-app.mdx": __fd_glob_50, "ai-apps/qr-generator-tool.mdx": __fd_glob_51, "ai-apps/skillsnap-guide.mdx": __fd_glob_52, "artwork/ai-generated-landscape.mdx": __fd_glob_53, });
 
 export const webApps = await create.docs("webApps", "features/about/content/web-apps", {}, {"full-stack-blog-app.mdx": __fd_glob_36, "portfolio-website-v1.mdx": __fd_glob_37, "portfolio-website-v2.mdx": __fd_glob_38, "portfolio-website-v3.mdx": __fd_glob_39, });

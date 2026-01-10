@@ -62,7 +62,7 @@ export function Pre(props: ComponentProps<"pre">) {
   return (
     <pre
       {...props}
-      className={cn("min-w-full w-max *:flex *:flex-col", props.className)}
+      className={cn("min-w-full w-full *:flex *:flex-col", props.className)}
     >
       {props.children}
     </pre>
@@ -80,10 +80,15 @@ export function CodeBlock({
   Actions = (props) => (
     <div {...props} className={cn("empty:hidden", props.className)} />
   ),
+  "data-line-numbers": lineNumbers,
+  "data-line-numbers-start": lineNumbersStart,
   ...props
 }: CodeBlockProps) {
   const inTab = use(TabsContext) !== null;
   const areaRef = useRef<HTMLDivElement>(null);
+
+  // Enable line numbers by default
+  const showLineNumbers = lineNumbers !== false; // Default to true unless explicitly disabled
 
   return (
     <figure
@@ -135,12 +140,14 @@ export function CodeBlock({
           "text-[0.8125rem] py-3.5 overflow-auto max-h-[600px] fd-scroll-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-fd-ring",
           viewportProps.className,
         )}
+        data-line-numbers={showLineNumbers}
+        data-line-numbers-start={lineNumbersStart}
         style={
           {
             // space for toolbar
             "--padding-right": !title ? "calc(var(--spacing) * 8)" : undefined,
-            counterSet: props["data-line-numbers"]
-              ? `line ${Number(props["data-line-numbers-start"] ?? 1) - 1}`
+            counterSet: showLineNumbers
+              ? `line ${Number(lineNumbersStart ?? 1) - 1}`
               : undefined,
             ...viewportProps.style,
           } as object

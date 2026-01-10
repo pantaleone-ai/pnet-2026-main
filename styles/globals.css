@@ -356,6 +356,10 @@
 
     pre {
       @apply overflow-x-auto overscroll-x-none px-4 py-4 has-data-line-numbers:px-0;
+      /* Allow wrapping by default */
+      white-space: pre-wrap;
+      word-break: break-all;
+      overflow-wrap: break-word;
     }
 
     /* Reset styles for code inside code blocks to avoid double styling */
