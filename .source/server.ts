@@ -1,6 +1,6 @@
 // @ts-nocheck
-import * as __fd_glob_54 from "../features/shop/content/artwork/ai-generated-landscape.mdx?collection=shop"
-import * as __fd_glob_53 from "../features/shop/content/ai-workflows/social-media-automation.mdx?collection=shop"
+import * as __fd_glob_54 from "../features/shop/content/ai-workflows/social-media-automation.mdx?collection=shop"
+import * as __fd_glob_53 from "../features/shop/content/artwork/ai-generated-landscape.mdx?collection=shop"
 import * as __fd_glob_52 from "../features/shop/content/ai-apps/skillsnap-guide.mdx?collection=shop"
 import * as __fd_glob_51 from "../features/shop/content/ai-apps/qr-generator-tool.mdx?collection=shop"
 import * as __fd_glob_50 from "../features/shop/content/ai-apps/profitsignals-app.mdx?collection=shop"
@@ -26,11 +26,11 @@ import * as __fd_glob_31 from "../features/projects/content/mixphd.mdx?collectio
 import * as __fd_glob_30 from "../features/projects/content/migratecms-migrate-anycms-to-nextjs.mdx?collection=projects"
 import * as __fd_glob_29 from "../features/projects/content/imgsquash.mdx?collection=projects"
 import * as __fd_glob_28 from "../features/projects/content/ai-saas-starter-nextjs-betterauth-supabase-free-boilerplate.mdx?collection=projects"
-import * as __fd_glob_27 from "../features/home/content/featured-apps/qr-code-generator.mdx?collection=featuredApps"
-import * as __fd_glob_26 from "../features/home/content/featured-apps/profitsignals-ai-agent.mdx?collection=featuredApps"
-import * as __fd_glob_25 from "../features/home/content/featured-apps/nextjs-saas-starter.mdx?collection=featuredApps"
-import * as __fd_glob_24 from "../features/privacy/content/terms.mdx?collection=privacy"
-import * as __fd_glob_23 from "../features/privacy/content/privacy.mdx?collection=privacy"
+import * as __fd_glob_27 from "../features/privacy/content/terms.mdx?collection=privacy"
+import * as __fd_glob_26 from "../features/privacy/content/privacy.mdx?collection=privacy"
+import * as __fd_glob_25 from "../features/home/content/featured-apps/qr-code-generator.mdx?collection=featuredApps"
+import * as __fd_glob_24 from "../features/home/content/featured-apps/profitsignals-ai-agent.mdx?collection=featuredApps"
+import * as __fd_glob_23 from "../features/home/content/featured-apps/nextjs-saas-starter.mdx?collection=featuredApps"
 import * as __fd_glob_22 from "../features/experience/content/experience.mdx?collection=experience"
 import * as __fd_glob_21 from "../features/education/content/education.mdx?collection=education"
 import * as __fd_glob_20 from "../features/changelog/content/changelog.mdx?collection=changelog"
@@ -145,12 +145,12 @@ export const education = await create.docs("education", "features/education/cont
 
 export const experience = await create.docs("experience", "features/experience/content", {}, {"experience.mdx": __fd_glob_22, });
 
-export const featuredApps = await create.docs("featuredApps", "features/home/content/featured-apps", {}, {"nextjs-saas-starter.mdx": __fd_glob_25, "profitsignals-ai-agent.mdx": __fd_glob_26, "qr-code-generator.mdx": __fd_glob_27, });
+export const featuredApps = await create.docs("featuredApps", "features/home/content/featured-apps", {}, {"nextjs-saas-starter.mdx": __fd_glob_23, "profitsignals-ai-agent.mdx": __fd_glob_24, "qr-code-generator.mdx": __fd_glob_25, });
 
-export const privacy = await create.docs("privacy", "features/privacy/content", {}, {"privacy.mdx": __fd_glob_23, "terms.mdx": __fd_glob_24, });
+export const privacy = await create.docs("privacy", "features/privacy/content", {}, {"privacy.mdx": __fd_glob_26, "terms.mdx": __fd_glob_27, });
 
 export const projects = await create.docs("projects", "features/projects/content", {}, {"ai-saas-starter-nextjs-betterauth-supabase-free-boilerplate.mdx": __fd_glob_28, "imgsquash.mdx": __fd_glob_29, "migratecms-migrate-anycms-to-nextjs.mdx": __fd_glob_30, "mixphd.mdx": __fd_glob_31, "pantaleonenet.mdx": __fd_glob_32, "profitsignals-ai-chat-agent.mdx": __fd_glob_33, "qrcode-generator-free-nextjs15-tailwind.mdx": __fd_glob_34, "skillsnap-increase-ai-skills.mdx": __fd_glob_35, });
 
-export const shop = await create.docs("shop", "features/shop/content", {}, {"shop.mdx": __fd_glob_45, "ai-apps/imgsquash-tool.mdx": __fd_glob_46, "ai-apps/migratecms-tool.mdx": __fd_glob_47, "ai-apps/mixphd-app.mdx": __fd_glob_48, "ai-apps/nextjs-ai-starter-app.mdx": __fd_glob_49, "ai-apps/profitsignals-app.mdx": __fd_glob_50, "ai-apps/qr-generator-tool.mdx": __fd_glob_51, "ai-apps/skillsnap-guide.mdx": __fd_glob_52, "ai-workflows/social-media-automation.mdx": __fd_glob_53, "artwork/ai-generated-landscape.mdx": __fd_glob_54, });
+export const shop = await create.docs("shop", "features/shop/content", {}, {"shop.mdx": __fd_glob_45, "ai-apps/imgsquash-tool.mdx": __fd_glob_46, "ai-apps/migratecms-tool.mdx": __fd_glob_47, "ai-apps/mixphd-app.mdx": __fd_glob_48, "ai-apps/nextjs-ai-starter-app.mdx": __fd_glob_49, "ai-apps/profitsignals-app.mdx": __fd_glob_50, "ai-apps/qr-generator-tool.mdx": __fd_glob_51, "ai-apps/skillsnap-guide.mdx": __fd_glob_52, "artwork/ai-generated-landscape.mdx": __fd_glob_53, "ai-workflows/social-media-automation.mdx": __fd_glob_54, });
 
 export const webApps = await create.docs("webApps", "features/about/content/web-apps", {}, {"full-stack-blog-app.mdx": __fd_glob_36, "portfolio-website-v1.mdx": __fd_glob_37, "portfolio-website-v2.mdx": __fd_glob_38, "portfolio-website-v3.mdx": __fd_glob_39, });

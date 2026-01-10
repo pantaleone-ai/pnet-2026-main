@@ -1,11 +1,12 @@
 import { getProductsByCategory, getCategories } from "@/features/shop/data/shopSource";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import CardItem from "@/features/common/components/CardItem";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Brain, Workflow, Palette, Zap } from "lucide-react";
 import BackgroundDots from "@/features/common/components/BackgroundDots";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
+import { slugify } from "@/lib/helpers";
 
 export default function ShopCategories() {
   const categories = getCategories();
@@ -14,36 +15,18 @@ export default function ShopCategories() {
   return (
     <div className="space-y-8">
       {/* Featured Products Section */}
-      {allProducts.length > 0 && (
+      {allProducts.filter(product => product.featured).length > 0 && (
         <section>
           <h2 className="text-xl font-semibold mb-4">Featured Products</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {allProducts.filter(product => product.featured).slice(0, 3).map((product) => (
-              <Card key={product.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                <CardTitle className="flex justify-between items-center">
-                  <span>{product.title}</span>
-                  <span className="bg-secondary text-secondary-foreground px-2 py-1 rounded-full text-sm font-medium">${product.price}</span>
-                </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground mb-3">{product.description}</p>
-                  <div className="flex flex-col gap-2">
-                    {product.purchaseUrl && (
-                      <Button size="sm" asChild>
-                        <Link target="_blank" rel="noopener noreferrer" href={product.purchaseUrl}>
-                          Buy Now - ${product.price}
-                        </Link>
-                      </Button>
-                    )}
-                    <Button variant="outline" size="sm" asChild>
-                      <Link href={`/shop/${product.category.toLowerCase().replace(/\s+/g, '-')}/${product.slug}`}>
-                        View Details
-                      </Link>
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+          <div className="xl mx-auto grid max-w-5xl grid-cols-1 gap-x-8 gap-y-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+            {allProducts.filter(product => product.featured).slice(0, 3).map((product, index) => (
+              <CardItem
+                key={slugify(product.title ?? "")}
+                index={index}
+                type="product"
+                item={product}
+                sizes="(max-width: 1024px) 100vw, (max-width: 1280px) 33vw, 400px"
+              />
             ))}
           </div>
         </section>
@@ -82,52 +65,20 @@ export default function ShopCategories() {
                     {/* All Products in this Category */}
                     {products.length > 0 && (
                       <div className="mt-6">
-                        <div className="space-y-4">
-                          {products.map((product) => (
-                            <Card key={product.id} className="border-none shadow-none">
-                              <CardContent className="p-0">
-                                <div className="flex items-center gap-4">
-                                  {product.imageUrl && (
-                                    <div className="relative w-20 h-20 flex-shrink-0">
-                                      <Image
-                                        src={product.imageUrl}
-                                        alt={product.imageAlt || product.title}
-                                        fill
-                                        className="rounded-md object-cover"
-                                        sizes="80px"
-                                      />
-                                    </div>
-                                  )}
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-start justify-between">
-                                      <div>
-                                        <h4 className="font-medium text-base line-clamp-1">{product.title}</h4>
-                                        <p className="text-sm text-muted-foreground line-clamp-2 mt-1">{product.description}</p>
-                                      </div>
-                                      <span className="bg-secondary text-secondary-foreground px-3 py-1 rounded-full text-sm font-medium flex-shrink-0 ml-3">${product.price}</span>
-                                    </div>
-                                    <div className="flex gap-3 mt-3">
-                                      {product.purchaseUrl && (
-                                        <Button size="sm" asChild>
-                                          <Link target="_blank" rel="noopener noreferrer" href={product.purchaseUrl}>
-                                            Buy ${product.price}
-                                          </Link>
-                                        </Button>
-                                      )}
-                                      <Button variant="outline" size="sm" asChild>
-                                        <Link href={`/shop/${category.toLowerCase().replace(/\s+/g, '-')}/${product.slug}`}>
-                                                          Details
-                                                        </Link>
-                                                      </Button>
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                              </CardContent>
-                                            </Card>
-                                          ))}
-                                        </div>
-                                      </div>
-                                    )}
+                        <h3 className="text-lg font-semibold mb-4">Products in {category}</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                          {products.map((product, index) => (
+                            <CardItem
+                              key={slugify(product.title ?? "")}
+                              index={index}
+                              type="product"
+                              item={product}
+                              sizes="(max-width: 1024px) 100vw, (max-width: 1280px) 33vw, 400px"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
                     <div className="mt-6">
                       <Button size="lg" className="w-fit" asChild>
