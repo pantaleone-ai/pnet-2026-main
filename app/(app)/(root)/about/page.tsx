@@ -54,7 +54,7 @@ export default async function AboutMePage() {
               src={defaultImage}
               width={1000}
               height={750}
-              className="aspect-4/3 w-full object-cover dark:grayscale"
+              className="aspect-4/3 w-full object-cover"
               sizes="100vw"
               priority
             />
@@ -66,7 +66,7 @@ export default async function AboutMePage() {
               src={defaultImage}
               width={1000}
               height={500}
-              className="w-full object-cover md:h-auto md:max-h-96 dark:grayscale"
+              className="w-full object-cover md:h-auto md:max-h-96"
               sizes="100vw"
               priority
             />

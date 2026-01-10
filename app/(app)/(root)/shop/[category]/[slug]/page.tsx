@@ -16,6 +16,7 @@ import { getMDXComponents } from "@/mdx-components";
 import type { MDXComponents } from "mdx/types";
 import React from "react";
 import { ProductImageGallery } from "@/features/shop/components/ProductImageGallery";
+import type { Product, WithContext } from "schema-dts";
 
 /** * SEO Logic */
 const PAGE = "Shop";
@@ -76,6 +77,34 @@ export async function generateMetadata({
   };
 }
 
+/** * Structured Data */
+function getProductJsonLd(product: any): WithContext<Product> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.title,
+    description: product.description,
+    image: product.imageUrl || "/summary_large_image.png",
+    offers: {
+      "@type": "Offer",
+      price: product.price,
+      priceCurrency: product.currency || "USD",
+      availability: "https://schema.org/InStock",
+      url: product.purchaseUrl || "#",
+    },
+    brand: {
+      "@type": "Brand",
+      name: "Pantaleone Digital Services",
+    },
+    category: product.category,
+    additionalProperty: product.techStacks?.map((tech: string) => ({
+      "@type": "PropertyValue",
+      name: "Technology",
+      value: tech,
+    })) || [],
+  };
+}
+
 /** * Page Component */
 export default async function ProductDetailPage({
   params,
@@ -104,8 +133,15 @@ export default async function ProductDetailPage({
   const MDXContent = body as React.FC<{ components: MDXComponents }> | undefined;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-      {/* Breadcrumb */}
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(getProductJsonLd(product)).replace(/</g, "\\u003c"),
+        }}
+      />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        {/* Breadcrumb */}
       <nav className="flex items-center space-x-2 text-sm text-muted-foreground mb-10 overflow-x-auto whitespace-nowrap pb-2">
         <Link href="/shop" className="hover:text-primary transition-colors">Shop</Link>
         <ChevronRight className="h-4 w-4 shrink-0" />
@@ -295,5 +331,6 @@ export default async function ProductDetailPage({
         <ContactMe />
       </div>
     </div>
+    </>
   );
 }

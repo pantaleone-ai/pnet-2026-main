@@ -43,7 +43,7 @@ export default function FamilyPhotos() {
                     src={photo.src}
                     alt={photo.alt}
                     placeholder="blur"
-                    className="h-auto w-full rounded-xl object-cover dark:grayscale"
+                    className="h-auto w-full rounded-xl object-cover"
                     sizes="100vw"
                   />
                 </div>
@@ -67,7 +67,7 @@ export default function FamilyPhotos() {
               src={photo.src}
               alt={photo.alt}
               placeholder="blur"
-              className="h-auto w-full transition-transform hover:scale-105 rounded-xl object-cover dark:grayscale"
+              className="h-auto w-full transition-transform hover:scale-105 rounded-xl object-cover"
               sizes="33vw"
             />
           </div>
@@ -99,7 +99,7 @@ export default function FamilyPhotos() {
                         alt={photo.alt}
                         fill
                         placeholder="blur"
-                        className="object-contain dark:grayscale"
+                        className="object-contain"
                         sizes="100vw"
                         priority={index === initialSlide}
                       />
