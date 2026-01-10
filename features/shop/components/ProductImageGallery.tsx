@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ImageModal from "@/components/ImageModal";
 
 interface ProductImageGalleryProps {
   primaryImage: {
@@ -20,6 +21,7 @@ export function ProductImageGallery({ primaryImage, additionalImages }: ProductI
   // Combine primary image with additional images
   const allImages = [primaryImage, ...(additionalImages || [])];
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Debug logging
   console.log('ProductImageGallery rendered');
@@ -56,18 +58,32 @@ export function ProductImageGallery({ primaryImage, additionalImages }: ProductI
     setCurrentIndex(index);
   };
 
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <div className="space-y-4">
       {/* Main Image Display */}
       <div className="relative aspect-video overflow-hidden rounded-2xl border bg-muted shadow-sm group">
         {currentImage.url && (
-          <Image
-            alt={currentImage.alt || "Product image"}
-            src={currentImage.url}
-            fill
-            className="object-cover transition-transform duration-500 group-hover:scale-[1.01]"
-            priority={currentIndex === 0}
-          />
+          <button
+            onClick={openModal}
+            className="w-full h-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-2xl"
+            aria-label={`View ${currentImage.alt || "product image"} in full size`}
+          >
+            <Image
+              alt={currentImage.alt || "Product image"}
+              src={currentImage.url}
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-[1.01]"
+              priority={currentIndex === 0}
+            />
+          </button>
         )}
 
         {/* Navigation Arrows */}
@@ -135,6 +151,14 @@ export function ProductImageGallery({ primaryImage, additionalImages }: ProductI
           ))}
         </div>
       )}
+
+      {/* Image Modal */}
+      <ImageModal
+        images={allImages.map(img => ({ url: img.url, alt: img.alt || "Product image" }))}
+        initialIndex={currentIndex}
+        isOpen={isModalOpen}
+        onClose={closeModal}
+      />
     </div>
   );
 }
