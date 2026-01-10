@@ -1,4 +1,5 @@
 import ContactMe from "@/components/ContactMe";
+import { DocsBody, DocsPage } from "@/components/fuma/fuma-page";
 import HEAD from "@/config/seo/head";
 import { siteConfig } from "@/config/site";
 import { getProductBySlug, getProductsByCategory, getCategories, getProducts } from "@/features/shop/data/shopSource";
@@ -11,7 +12,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { ShoppingCart, ExternalLink, Github, Box, Cpu, ChevronRight, Info, CheckCircle2 } from "lucide-react";
-import { DocsBody } from "@/components/fuma/fuma-page";
 import { getMDXComponents } from "@/mdx-components";
 import type { MDXComponents } from "mdx/types";
 import React from "react";
@@ -99,7 +99,7 @@ export default async function ProductDetailPage({
     decodeURIComponent(s).replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
   
   const categoryName = formatCategoryName(category);
-  
+
   // Cast the locally scoped 'body' for use in the JSX
   const MDXContent = body as React.FC<{ components: MDXComponents }> | undefined;
 
@@ -146,11 +146,15 @@ export default async function ProductDetailPage({
                 <CheckCircle2 className="h-6 w-6 text-primary" />
                 <h3 className="text-2xl font-bold">Features & Specs</h3>
               </div>
-              
-              <div className="rounded-xl border p-4 md:p-10 shadow-sm prose prose-invert max-w-none prose-p:text-left prose-li:text-left prose-headings:text-left">
-                <DocsBody>
-                  <MDXContent components={getMDXComponents()} />
-                </DocsBody>
+
+              <div className="rounded-xl border shadow-sm">
+                <DocsPage toc={[]}>
+                  <DocsBody>
+                    <div className="p-4 md:p-10 prose prose-invert max-w-none prose-p:text-left prose-li:text-left prose-headings:text-left">
+                      <MDXContent components={getMDXComponents()} />
+                    </div>
+                  </DocsBody>
+                </DocsPage>
               </div>
             </section>
           )}

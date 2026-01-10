@@ -118,7 +118,7 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
   const prevPost = posts[postIndex + 1]; // Older
 
   const authorImage = post.authorAvatar ?? "";
-  const authorName = post.author ?? "Tim Baz";
+  const authorName = post.author ?? "Pantaleone.net";
   const date = post.created;
   const category = post.category ?? "General";
   const readTime = post.readingTimeMinutes;
@@ -160,7 +160,7 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
           src={post.image}
           width={1000}
           height={500}
-          className="h-auto max-h-96 w-full object-cover dark:grayscale"
+          className="h-auto max-h-96 w-full object-cover"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 1000px"
           priority
         />
