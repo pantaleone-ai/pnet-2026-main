@@ -6,9 +6,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
 import { ShoppingCart, ExternalLink, Github, Box, Cpu, ChevronRight, Info } from "lucide-react";
-import { useState } from "react";
 import { ProductImageGallery } from "@/features/shop/components/ProductImageGallery";
-import ImageModal from "@/components/ImageModal";
 import type { Product, WithContext } from "schema-dts";
 
 /** * Structured Data */
@@ -51,18 +49,6 @@ export default function ProductDetailClient({
   category: string;
   relatedProducts: any[];
 }) {
-  const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
-  const [selectedProductImages, setSelectedProductImages] = useState<Array<{url: string, alt: string}>>([]);
-
-  const openImageModal = (images: Array<{url: string, alt: string}>, index: number) => {
-    setSelectedProductImages(images);
-    setSelectedImageIndex(index);
-  };
-
-  const closeImageModal = () => {
-    setSelectedImageIndex(null);
-    setSelectedProductImages([]);
-  };
 
   return (
     <>
@@ -217,20 +203,16 @@ export default function ProductDetailClient({
             {relatedProducts.slice(0, 3).map((rp) => (
               <div key={rp.id} className="group block">
                 <article className="h-full space-y-4">
-                  <div className="relative aspect-video overflow-hidden rounded-2xl border border-transparent group-hover:border-primary/20 transition-all">
-                    <button
-                      onClick={() => openImageModal([{ url: rp.imageUrl || '', alt: rp.title }], 0)}
-                      className="w-full h-full cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-2xl"
-                      aria-label={`View ${rp.title} image in full size`}
-                    >
+                  <Link href={`/shop/${category}/${rp.slug}`} className="block">
+                    <div className="relative aspect-video overflow-hidden rounded-2xl border border-transparent group-hover:border-primary/20 transition-all cursor-pointer">
                       <Image
                         src={rp.imageUrl || ''}
                         alt={rp.title}
                         fill
                         className="object-cover object-top group-hover:scale-105 transition-transform duration-700"
                       />
-                    </button>
-                  </div>
+                    </div>
+                  </Link>
                   <Link href={`/shop/${category}/${rp.slug}`} className="block">
                     <div className="space-y-2 text-left">
                       <div className="flex justify-between items-center">
@@ -252,16 +234,6 @@ export default function ProductDetailClient({
       <div className="mt-32 border-t pt-20">
         <ContactMe />
       </div>
-
-      {/* Image Modal */}
-      {selectedImageIndex !== null && (
-        <ImageModal
-          images={selectedProductImages}
-          initialIndex={selectedImageIndex}
-          isOpen={true}
-          onClose={closeImageModal}
-        />
-      )}
     </div>
     </>
   );

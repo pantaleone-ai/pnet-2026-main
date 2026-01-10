@@ -80,7 +80,7 @@ export function ProductImageGallery({ primaryImage, additionalImages }: ProductI
               alt={currentImage.alt || "Product image"}
               src={currentImage.url}
               fill
-              className="object-cover transition-transform duration-500 group-hover:scale-[1.01]"
+              className="object-cover object-top transition-transform duration-500 group-hover:scale-[1.01]"
               priority={currentIndex === 0}
             />
           </button>
@@ -138,7 +138,7 @@ export function ProductImageGallery({ primaryImage, additionalImages }: ProductI
                   alt={image.alt || `Product thumbnail ${index + 1}`}
                   src={image.url}
                   fill
-                  className="object-cover"
+                  className="object-cover object-top"
                   sizes="(max-width: 768px) 20vw, 15vw"
                 />
               )}
