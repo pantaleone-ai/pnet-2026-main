@@ -2,8 +2,10 @@ import HEAD from "@/config/seo/head";
 import { siteConfig } from "@/config/site";
 import { getProductBySlug, getProductsByCategory, getCategories, getProducts } from "@/features/shop/data/shopSource";
 import { getBaseUrl } from "@/lib/helpers";
+import { getMDXComponents } from "@/mdx-components";
 import type { HeadType } from "@/types";
 import type { Metadata } from "next";
+import type { MDXComponents } from "mdx/types";
 import { notFound } from "next/navigation";
 import ProductDetailClient from "@/features/shop/components/ProductDetailClient";
 
@@ -90,10 +92,16 @@ export default async function ProductDetailPage({
 
   const categoryName = formatCategoryName(category);
 
+  const MDXContent = body as React.FC<{ components: MDXComponents }>;
+
   return <ProductDetailClient
     product={product}
     categoryName={categoryName}
     category={category}
     relatedProducts={relatedProducts}
-  />;
+  >
+    <div className="prose prose-lg max-w-none dark:prose-invert">
+      <MDXContent components={getMDXComponents()} />
+    </div>
+  </ProductDetailClient>;
 }

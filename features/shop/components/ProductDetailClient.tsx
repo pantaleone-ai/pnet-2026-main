@@ -42,12 +42,14 @@ export default function ProductDetailClient({
   product,
   categoryName,
   category,
-  relatedProducts
+  relatedProducts,
+  children
 }: {
   product: any;
   categoryName: string;
   category: string;
   relatedProducts: any[];
+  children: React.ReactNode;
 }) {
 
   return (
@@ -93,7 +95,10 @@ export default function ProductDetailClient({
             </p>
           </section>
 
-
+          {/* Product Content */}
+          <section className="pt-10 border-t">
+            {children}
+          </section>
 
           {product.videoEmbedUrl && (
             <section className="pt-10 border-t">
