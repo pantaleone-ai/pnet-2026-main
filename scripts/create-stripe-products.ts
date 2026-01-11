@@ -53,14 +53,14 @@ async function parseMDXFile(filePath: string): Promise<ProductFrontmatter | null
 
 async function createStripeProduct(frontmatter: ProductFrontmatter): Promise<StripeProduct | null> {
   try {
-    const images = [];
+    const images: string[] = [];
     if (frontmatter.imageUrl) {
       images.push(frontmatter.imageUrl);
     }
 
     // Handle additional images if they exist
     if (frontmatter.additionalImages) {
-      let additionalImages = frontmatter.additionalImages;
+      let additionalImages: any = frontmatter.additionalImages;
       if (typeof additionalImages === 'string') {
         try {
           additionalImages = JSON.parse(additionalImages);
@@ -253,7 +253,7 @@ async function updateStripeProduct(productId: string, frontmatter: ProductFrontm
 
     // Handle additional images if they exist
     if (frontmatter.additionalImages) {
-      let additionalImages = frontmatter.additionalImages;
+      let additionalImages: any = frontmatter.additionalImages;
       if (typeof additionalImages === 'string') {
         try {
           additionalImages = JSON.parse(additionalImages);
@@ -363,13 +363,12 @@ async function findMDXFiles(dirPath: string): Promise<string[]> {
 async function main() {
   const args = process.argv.slice(2);
   const isDryRun = args.includes('--dry-run');
-  const isForce = args.includes('--force');
 
   if (isDryRun) {
     console.log('🔍 DRY RUN MODE - No actual Stripe API calls will be made');
   }
 
-  const shopContentDir = path.join(process.cwd(), '..', 'features/shop/content');
+  const shopContentDir = path.join(process.cwd(), 'features/shop/content');
 
   console.log('Finding MDX files...');
   const mdxFiles = await findMDXFiles(shopContentDir);
