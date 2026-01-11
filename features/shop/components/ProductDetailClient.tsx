@@ -22,7 +22,7 @@ function getProductJsonLd(product: any): WithContext<Product> {
       price: product.price,
       priceCurrency: product.currency || "USD",
       availability: "https://schema.org/InStock",
-      url: product.purchaseUrl || "#",
+      url: product.stripePaymentLink || product.purchaseUrl || "#",
     },
     brand: {
       "@type": "Brand",
@@ -136,9 +136,13 @@ export default function ProductDetailClient({
 
               <CardContent className="space-y-8">
                 <div className="space-y-4 pt-2">
-                  {product.purchaseUrl && (
+                  {(() => {
+                    console.log('ProductDetailClient - product:', product.title, 'stripePaymentLink:', product.stripePaymentLink, 'purchaseUrl:', product.purchaseUrl);
+                    return null;
+                  })()}
+                  {(product.stripePaymentLink || product.purchaseUrl) && (
                     <Button size="lg" className="text-xl font-bold h-16 shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform" asChild>
-                      <Link href={product.purchaseUrl} target="_blank">
+                      <Link href={product.stripePaymentLink || product.purchaseUrl} target="_blank">
                         <ShoppingCart className="mr-3 h-5 w-5" /> Get Instant Access
                       </Link>
                     </Button>

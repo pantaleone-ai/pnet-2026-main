@@ -7,6 +7,9 @@ export const shopProductSchema = baseProjectSchema.extend({
   sku: z.string().optional(),
   inventory: z.number().optional(),
   purchaseUrl: z.string().optional(),
+  stripeProductId: z.string().optional(),
+  stripePriceId: z.string().optional(),
+  stripePaymentLink: z.string().optional(),
   category: z.string(),
   featured: z.boolean().default(false),
   isDigital: z.boolean().default(true),
@@ -23,6 +26,9 @@ type ShopProduct = {
   sku?: string;
   inventory?: number;
   purchaseUrl?: string;
+  stripeProductId?: string;
+  stripePriceId?: string;
+  stripePaymentLink?: string;
   imageUrl: string;
   imageAlt?: string;
   additionalImages?: {

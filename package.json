@@ -1,19 +1,19 @@
 {
-  "name": "hiretimsf.com",
-  "version": "0.1.0",
+  "name": "pantaleone.net",
+  "version": "2.0.0",
   "description": "A minimal portfolio and blog to showcase my work as a Frontend Developer.",
-  "homepage": "https://hiretimsf.com",
+  "homepage": "https://pantaleone.net",
   "license": "MIT",
   "author": {
-    "name": "Tim",
-    "email": "hiretimsf@gmail.com",
-    "url": "https://github.com/hiretimsf"
+    "name": "Matt",
+    "email": "mdptrading@gmail.com",
+    "url": "https://github.com/pantaleone-ai"
   },
   "contributors": [
     {
-      "name": "Tim",
-      "email": "hiretimsf@gmail.com",
-      "url": "https://github.com/hiretimsf"
+      "name": "Matt",
+      "email": "mdptrading@gmail.com",
+      "url": "https://github.com/pantaleone-ai"
     }
   ],
   "repository": {
@@ -82,6 +82,7 @@
     "fumadocs-mdx": "^14.2.4",
     "fumadocs-ui": "^16.4.2",
     "geist": "^1.5.1",
+    "gray-matter": "^4.0.3",
     "html-escaper": "^3.0.3",
     "input-otp": "^1.4.2",
     "jotai": "^2.16.1",

@@ -313,12 +313,16 @@ const ProductContent = ({
       </CardDescription>
 
       <div className="flex w-full flex-col gap-2 pt-2">
-        {item.purchaseUrl && (
+        {(() => {
+          console.log('CardItem - product:', item.title, 'stripePaymentLink:', item.stripePaymentLink, 'purchaseUrl:', item.purchaseUrl);
+          return null;
+        })()}
+        {(item.stripePaymentLink || item.purchaseUrl) && (
           <Button asChild className="w-full">
             <Link
               target="_blank"
               rel="noopener noreferrer"
-              href={item.purchaseUrl}
+              href={item.stripePaymentLink || item.purchaseUrl || "#"}
             >
               Buy Now - ${item.price}
               <span className="sr-only"> purchase {item.title}</span>
