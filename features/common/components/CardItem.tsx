@@ -313,10 +313,6 @@ const ProductContent = ({
       </CardDescription>
 
       <div className="flex w-full flex-col gap-2 pt-2">
-        {(() => {
-          console.log('CardItem - product:', item.title, 'stripePaymentLink:', item.stripePaymentLink, 'purchaseUrl:', item.purchaseUrl);
-          return null;
-        })()}
         {(item.stripePaymentLink || item.purchaseUrl) && (
           <Button asChild className="w-full">
             <Link

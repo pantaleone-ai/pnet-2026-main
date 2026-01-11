@@ -136,10 +136,6 @@ export default function ProductDetailClient({
 
               <CardContent className="space-y-8">
                 <div className="space-y-4 pt-2">
-                  {(() => {
-                    console.log('ProductDetailClient - product:', product.title, 'stripePaymentLink:', product.stripePaymentLink, 'purchaseUrl:', product.purchaseUrl);
-                    return null;
-                  })()}
                   {(product.stripePaymentLink || product.purchaseUrl) && (
                     <Button size="lg" className="text-xl font-bold h-16 shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform" asChild>
                       <Link href={product.stripePaymentLink || product.purchaseUrl} target="_blank">
