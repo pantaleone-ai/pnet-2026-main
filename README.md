@@ -1,8 +1,8 @@
-# HireTimSF.com - Portfolio V4
+# pantaleone.net - AI Portfolio & Digital Solutions
 
 <div align="center">
   <img src="docs/images/github-heading.jpg" alt="Project Overview" width="100%" />
-  
+
   <br />
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
@@ -13,7 +13,7 @@
   <br />
 
   <h3>
-    <a href="https://hiretimsf.com">🌐 Live Demo</a>
+    <a href="https://pantaleone.net">🌐 Live Demo</a>
     <span> | </span>
     <a href="#-getting-started">🚀 Getting Started</a>
   </h3>
@@ -21,7 +21,7 @@
 
 <br />
 
-A minimal, high-performance portfolio and blog built with **Next.js 16 (App Router)**, **Tailwind CSS v4**, and **Shadcn UI**. It showcases my work as a Frontend Developer, featuring a clean design, dark mode support, and a fully functional MDX blog.
+A modern, AI-focused portfolio and digital solutions platform built with **Next.js 16 (App Router)**, **Tailwind CSS v4**, and **Shadcn UI**. Showcases AI products, automation workflows, and digital consulting services through an integrated shop, blog, and project showcase.
 
 ---
 
@@ -45,30 +45,36 @@ A minimal, high-performance portfolio and blog built with **Next.js 16 (App Rout
 
 ## 🛠️ Tech Stack
 
-Built with the latest web technologies for optimal performance and developer experience.
+Built with cutting-edge web technologies and AI integrations for optimal performance and modern development experience.
 
-| Category       | Technology                                                   | Description                                     |
-| -------------- | ------------------------------------------------------------ | ----------------------------------------------- |
-| **Framework**  | [Next.js 16](https://nextjs.org/)                            | App Router, Turbopack, Server Components        |
-| **Styling**    | [Tailwind CSS v4](https://tailwindcss.com/)                  | Utility-first CSS framework                     |
-| **UI Library** | [shadcn/ui](https://ui.shadcn.com/)                          | Accessible & customizable components            |
-| **Animation**  | [Motion](https://motion.dev/)                                | Declarative animations (formerly Framer Motion) |
-| **Content**    | [Fumadocs](https://fumadocs.dev/)                            | MDX-based content management                    |
-| **State**      | [Nuqs](https://nuqs.47ng.com/) & [Jotai](https://jotai.org/) | URL state & atomic state management             |
-| **Analytics**  | [PostHog](https://posthog.com/)                              | Product analytics & insights                    |
-| **Deployment** | [Vercel](https://vercel.com/)                                | Edge network deployment                         |
+| Category          | Technology                                                   | Description                                     |
+| ----------------- | ------------------------------------------------------------ | ----------------------------------------------- |
+| **Framework**     | [Next.js 16](https://nextjs.org/)                            | App Router, Turbopack, Server Components        |
+| **Styling**       | [Tailwind CSS v4](https://tailwindcss.com/)                  | Utility-first CSS framework                     |
+| **UI Library**    | [shadcn/ui](https://ui.shadcn.com/)                          | Accessible & customizable components            |
+| **Animation**     | [Motion](https://motion.dev/)                                | Declarative animations (formerly Framer Motion) |
+| **Content**       | [Fumadocs](https://fumadocs.dev/)                            | MDX-based content management                    |
+| **State**         | [Nuqs](https://nuqs.47ng.com/) & [Jotai](https://jotai.org/) | URL state & atomic state management             |
+| **AI Integration**| [Model Context Protocol](https://modelcontextprotocol.io/)   | AI agent communication and tool integration     |
+| **Analytics**     | [PostHog](https://posthog.com/)                              | Product analytics & insights                    |
+| **Commerce**      | [Stripe](https://stripe.com/)                                | Payment processing for AI products              |
+| **Deployment**    | [Vercel](https://vercel.com/)                                | Edge network deployment                         |
 
 ---
 
 ## ✨ Key Features
 
-- **🎨 Modern Aesthetic**: Minimalist design with a focus on typography and whitespace.
+- **🛒 AI Product Shop**: E-commerce platform for selling AI apps, workflows, services, and artwork.
+- **🤖 AI Agent Integration**: LLM-txt endpoints for AI agent discovery and MCP protocol support.
+- **📝 MDX Blog**: Comprehensive content on AI, automation, and digital transformation.
+- **🎨 Modern Aesthetic**: Minimalist design with interactive particle animations and smooth transitions.
 - **🌗 Dark Mode**: Seamless theme switching with system preference detection.
 - **⚡ High Performance**: Optimized Core Web Vitals, fast LCP/FCP using Next.js 16.
-- **📝 MDX Blog**: Write content in Markdown/MDX with syntax highlighting and custom components.
-- **🔎 Smart Search**: Client-side fuzzy search with keyword highlighting.
+- **🔎 Smart Search**: Client-side fuzzy search with keyword highlighting across all content.
 - **📱 Responsive**: Fluid layouts that adapt perfectly to mobile, tablet, and desktop.
 - **🔍 SEO Ready**: JSON-LD schema, dynamic sitemap, robots.txt, and Open Graph tags.
+- **💳 Payment Integration**: Stripe-powered checkout for AI products and services.
+- **📊 Analytics**: PostHog integration for user behavior insights and conversion tracking.
 
 ---
 
@@ -86,8 +92,8 @@ Follow these steps to run the project locally.
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/hiretimsf/hiretimsf.com.git
-   cd hiretimsf.com
+   git clone https://github.com/pantaleone-ai/pnet-2026-main.git
+   cd pnet-2026-main
    ```
 
 2. **Install dependencies**
@@ -106,13 +112,13 @@ Follow these steps to run the project locally.
    cp env.template .env.local
    ```
 
-   Open `.env.local` and add your API keys (e.g., Resend, PostHog).
+   Open `.env.local` and add your API keys (e.g., Stripe, PostHog, Resend).
 
 4. **Start the Development Server**
    ```bash
    npm run dev
    ```
-   The site should be live at [http://localhost:3000](http://localhost:3000) (or the port shown in your terminal).
+   The site should be live at [http://localhost:1408](http://localhost:1408) (development port).
 
 ### Available Scripts
 
@@ -129,36 +135,44 @@ Follow these steps to run the project locally.
 
 ## 🏗️ Project Structure
 
-A quick look at the top-level directory structure:
+A comprehensive overview of the project architecture:
 
 ```
-hiretimsf.com/
-├── actions/        # Server actions for mutations/data
-├── app/            # Next.js App Router (pages & layouts)
-├── components/     # React components (atomic design)
-├── config/         # Static configuration (site, nav, SEO)
-├── features/       # Feature-based modules (blog, projects, etc.)
-├── hooks/          # Custom React hooks
-├── lib/            # Shared utilities and helpers
-├── public/         # Static assets (images, fonts)
-├── styles/         # Global styles & Tailwind setup
-└── types/          # TypeScript type definitions
+pantaleone.net/
+├── actions/           # Server actions for data mutations and API calls
+├── app/               # Next.js App Router (pages, layouts, API routes)
+│   ├── (app)/         # Main application routes
+│   ├── (llms)/        # AI agent discovery endpoints (/llms.txt, /llms-full.txt)
+│   └── api/           # REST API endpoints
+├── components/        # Shared React components (atomic design)
+├── config/            # Static configuration (site, navigation, SEO, analytics)
+├── features/          # Feature-based modules
+│   ├── blog/          # MDX blog system with search and categories
+│   ├── shop/          # E-commerce platform for AI products
+│   ├── projects/      # Portfolio project showcase
+│   ├── home/          # Landing page components
+│   └── common/        # Shared feature components
+├── hooks/             # Custom React hooks
+├── lib/               # Shared utilities and helpers
+│   ├── mcp-utils.ts   # Model Context Protocol utilities
+│   └── search-*.ts    # Search and indexing functionality
+├── public/            # Static assets (images, fonts, favicons)
+├── scripts/           # Build and utility scripts
+├── styles/            # Global styles and Tailwind configuration
+└── types/             # TypeScript type definitions
 ```
 
 ---
 
-## 🕰️ Previous Versions
+## 🤖 AI Agent Discovery
 
-A history of my portfolio evolution:
+This platform includes LLM-txt endpoints for AI agent integration:
 
-<div align="center">
-  <img src="docs/images/github-previous-versions.jpg" alt="Previous Versions" width="100%" />
-</div>
+- **`/llms.txt`** - Basic AI agent discovery information
+- **`/llms-full.txt`** - Comprehensive site information for AI agents
+- **MCP Integration** - Model Context Protocol support for advanced AI tool integration
 
-- **v3** (2024): [Live Demo](https://hiretimsf.vercel.app/) - Next.js 16, Motion
-- **v2** (2023): [Live Demo](https://tim-portfolio-web-v2.vercel.app/) - Next.js 15, Framer Motion
-- **v1** (2022): [Live Demo](https://tim-portfolio-web-v1.vercel.app/) - Next.js 13, Basic Tailwind
-- **v0** (2021): [Live Demo](https://personal-website-76368.web.app/index.html) - HTML, CSS, jQuery
+These endpoints allow AI agents to discover and interact with the platform's content, products, and services programmatically.
 
 ---
 
@@ -177,7 +191,7 @@ Special thanks to the open-source community and the creators of these tools:
 - [Lucide](https://lucide.dev) for the crisp icon set.
 
 <div align="center">
-  <a href="https://hiretimsf.com/contact">
+  <a href="https://pantaleone.net/contact">
     <img src="docs/images/github-contact.jpg" alt="Contact Me" width="100%" />
   </a>
 </div>
