@@ -3,6 +3,7 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
+import { use_mcp_tool } from '../lib/mcp-utils';
 
 interface ProductFrontmatter {
   title: string;
@@ -57,6 +58,29 @@ async function createStripeProduct(frontmatter: ProductFrontmatter): Promise<Str
       images.push(frontmatter.imageUrl);
     }
 
+    // Handle additional images if they exist
+    if (frontmatter.additionalImages) {
+      let additionalImages = frontmatter.additionalImages;
+      if (typeof additionalImages === 'string') {
+        try {
+          additionalImages = JSON.parse(additionalImages);
+        } catch (error) {
+          console.warn(`Failed to parse additionalImages for ${frontmatter.title}:`, error);
+          additionalImages = [];
+        }
+      }
+
+      if (Array.isArray(additionalImages)) {
+        for (const img of additionalImages) {
+          if (typeof img === 'string') {
+            images.push(img);
+          } else if (img && typeof img === 'object' && img.url) {
+            images.push(img.url);
+          }
+        }
+      }
+    }
+
     const metadata: Record<string, string> = {};
     if (frontmatter.sku) metadata.sku = frontmatter.sku;
     if (frontmatter.category) metadata.category = frontmatter.category;
@@ -64,15 +88,36 @@ async function createStripeProduct(frontmatter: ProductFrontmatter): Promise<Str
     if (frontmatter.isDigital !== undefined) metadata.isDigital = frontmatter.isDigital.toString();
     if (frontmatter.techStacks) metadata.techStacks = JSON.stringify(frontmatter.techStacks);
 
-    console.log(`Would create Stripe product: ${frontmatter.title}`);
+    console.log(`Creating Stripe product: ${frontmatter.title}`);
     console.log(`Name: ${frontmatter.title}`);
     console.log(`Description: ${frontmatter.description}`);
-    console.log(`Images: ${images}`);
+    console.log(`Images: ${images.length} images`);
     console.log(`Metadata:`, metadata);
 
-    // Placeholder - will be replaced with actual MCP call
+    // Create product using MCP Stripe tool
+    const createProductArgs: any = {
+      name: frontmatter.title,
+      description: frontmatter.description
+    };
+
+    if (images.length > 0) {
+      createProductArgs.images = images;
+    }
+
+    const result = await use_mcp_tool({
+      server_name: "github.com/stripe/agent-toolkit",
+      tool_name: "create_product",
+      arguments: createProductArgs
+    });
+
+    if (!result || !result.id) {
+      console.error(`Failed to create Stripe product for ${frontmatter.title}`);
+      return null;
+    }
+
+    console.log(`Successfully created Stripe product: ${result.id}`);
     return {
-      id: `prod_placeholder_${frontmatter.title.toLowerCase().replace(/\s+/g, '_')}`,
+      id: result.id,
       name: frontmatter.title,
       description: frontmatter.description,
       images,
@@ -89,11 +134,27 @@ async function createStripePrice(productId: string, frontmatter: ProductFrontmat
     const unitAmount = Math.round(frontmatter.price * 100); // Convert to cents
     const currency = frontmatter.currency || 'usd';
 
-    console.log(`Would create Stripe price for ${frontmatter.title}: $${frontmatter.price} ${currency} (${unitAmount} cents)`);
+    console.log(`Creating Stripe price for ${frontmatter.title}: $${frontmatter.price} ${currency} (${unitAmount} cents)`);
 
-    // Placeholder - will be replaced with actual MCP call
+    // Create price using MCP Stripe tool
+    const result = await use_mcp_tool({
+      server_name: "github.com/stripe/agent-toolkit",
+      tool_name: "create_price",
+      arguments: {
+        product: productId,
+        unit_amount: unitAmount,
+        currency: currency.toLowerCase()
+      }
+    });
+
+    if (!result || !result.id) {
+      console.error(`Failed to create Stripe price for ${frontmatter.title}`);
+      return null;
+    }
+
+    console.log(`Successfully created Stripe price: ${result.id}`);
     return {
-      id: `price_placeholder_${frontmatter.title.toLowerCase().replace(/\s+/g, '_')}`,
+      id: result.id,
       product: productId,
       unit_amount: unitAmount,
       currency: currency.toLowerCase()
@@ -106,12 +167,27 @@ async function createStripePrice(productId: string, frontmatter: ProductFrontmat
 
 async function createPaymentLink(priceId: string, frontmatter: ProductFrontmatter): Promise<StripePaymentLink | null> {
   try {
-    console.log(`Would create payment link for ${frontmatter.title} using price ${priceId}`);
+    console.log(`Creating payment link for ${frontmatter.title} using price ${priceId}`);
 
-    // Placeholder - will be replaced with actual MCP call
+    // Create payment link using MCP Stripe tool
+    const result = await use_mcp_tool({
+      server_name: "github.com/stripe/agent-toolkit",
+      tool_name: "create_payment_link",
+      arguments: {
+        price: priceId,
+        quantity: 1
+      }
+    });
+
+    if (!result || !result.id || !result.url) {
+      console.error(`Failed to create payment link for ${frontmatter.title}`);
+      return null;
+    }
+
+    console.log(`Successfully created payment link: ${result.id} - ${result.url}`);
     return {
-      id: `link_placeholder_${priceId}`,
-      url: `https://buy.stripe.com/placeholder-${frontmatter.title.toLowerCase().replace(/\s+/g, '-')}`
+      id: result.id,
+      url: result.url
     };
   } catch (error) {
     console.error(`Error creating payment link for ${frontmatter.title}:`, error);
@@ -139,6 +215,84 @@ async function updateMDXFile(filePath: string, stripeProductId: string, stripePr
   }
 }
 
+async function checkExistingStripeProduct(frontmatter: ProductFrontmatter): Promise<string | null> {
+  try {
+    // Try to find existing product by name
+    const products = await use_mcp_tool({
+      server_name: "github.com/stripe/agent-toolkit",
+      tool_name: "list_products",
+      arguments: {
+        limit: 100
+      }
+    });
+
+    if (products && Array.isArray(products.data)) {
+      const existingProduct = products.data.find((product: any) =>
+        product.name === frontmatter.title
+      );
+
+      if (existingProduct) {
+        console.log(`Found existing Stripe product for ${frontmatter.title}: ${existingProduct.id}`);
+        return existingProduct.id;
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.warn(`Error checking for existing product ${frontmatter.title}:`, error);
+    return null;
+  }
+}
+
+async function updateStripeProduct(productId: string, frontmatter: ProductFrontmatter): Promise<StripeProduct | null> {
+  try {
+    const images: string[] = [];
+    if (frontmatter.imageUrl) {
+      images.push(frontmatter.imageUrl);
+    }
+
+    // Handle additional images if they exist
+    if (frontmatter.additionalImages) {
+      let additionalImages = frontmatter.additionalImages;
+      if (typeof additionalImages === 'string') {
+        try {
+          additionalImages = JSON.parse(additionalImages);
+        } catch (error) {
+          console.warn(`Failed to parse additionalImages for ${frontmatter.title}:`, error);
+          additionalImages = [];
+        }
+      }
+
+      if (Array.isArray(additionalImages)) {
+        for (const img of additionalImages) {
+          if (typeof img === 'string') {
+            images.push(img);
+          } else if (img && typeof img === 'object' && img.url) {
+            images.push(img.url);
+          }
+        }
+      }
+    }
+
+    console.log(`Updating Stripe product: ${frontmatter.title}`);
+    console.log(`New description: ${frontmatter.description}`);
+    console.log(`Images: ${images.length} images`);
+
+    // Note: The Stripe API doesn't have a direct update method for products via MCP tools
+    // We'll need to recreate the product or use webhooks/triggers for updates
+    // For now, we'll return the existing product info
+    return {
+      id: productId,
+      name: frontmatter.title,
+      description: frontmatter.description,
+      images
+    };
+  } catch (error) {
+    console.error(`Error updating Stripe product for ${frontmatter.title}:`, error);
+    return null;
+  }
+}
+
 async function processProduct(filePath: string) {
   console.log(`\nProcessing: ${filePath}`);
 
@@ -154,9 +308,23 @@ async function processProduct(filePath: string) {
     return;
   }
 
-  // Create Stripe product
-  const stripeProduct = await createStripeProduct(frontmatter);
+  // Check if product already exists
+  const existingProductId = await checkExistingStripeProduct(frontmatter);
+
+  let stripeProduct: StripeProduct | null;
+
+  if (existingProductId) {
+    // Update existing product
+    stripeProduct = await updateStripeProduct(existingProductId, frontmatter);
+  } else {
+    // Create new product
+    stripeProduct = await createStripeProduct(frontmatter);
+  }
+
   if (!stripeProduct) return;
+
+  // For now, we'll create new prices and payment links even for existing products
+  // In a production system, you'd want to check if prices need updating too
 
   // Create price
   const stripePrice = await createStripePrice(stripeProduct.id, frontmatter);
@@ -193,19 +361,55 @@ async function findMDXFiles(dirPath: string): Promise<string[]> {
 }
 
 async function main() {
+  const args = process.argv.slice(2);
+  const isDryRun = args.includes('--dry-run');
+  const isForce = args.includes('--force');
+
+  if (isDryRun) {
+    console.log('🔍 DRY RUN MODE - No actual Stripe API calls will be made');
+  }
+
   const shopContentDir = path.join(process.cwd(), '..', 'features/shop/content');
 
   console.log('Finding MDX files...');
   const mdxFiles = await findMDXFiles(shopContentDir);
   console.log(`Found ${mdxFiles.length} MDX files`);
 
+  let successCount = 0;
+  let errorCount = 0;
+
   for (const file of mdxFiles) {
-    await processProduct(file);
+    try {
+      if (isDryRun) {
+        console.log(`\n🔍 [DRY RUN] Would process: ${file}`);
+        const frontmatter = await parseMDXFile(file);
+        if (frontmatter) {
+          console.log(`   Product: ${frontmatter.title}`);
+          console.log(`   Price: $${frontmatter.price}`);
+          console.log(`   Description: ${frontmatter.description.substring(0, 50)}...`);
+        }
+        successCount++;
+      } else {
+        await processProduct(file);
+        successCount++;
+      }
+    } catch (error) {
+      console.error(`❌ Failed to process ${file}:`, error);
+      errorCount++;
+    }
+
     // Small delay to avoid rate limiting
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
 
-  console.log('\nStripe product creation completed!');
+  console.log(`\n${isDryRun ? '🔍 Dry run' : '✅ Stripe product sync'} completed!`);
+  console.log(`   Successful: ${successCount}`);
+  console.log(`   Errors: ${errorCount}`);
+  console.log(`   Total: ${mdxFiles.length}`);
+
+  if (errorCount > 0) {
+    process.exit(1);
+  }
 }
 
 main().catch(console.error);
