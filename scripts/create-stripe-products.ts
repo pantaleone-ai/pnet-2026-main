@@ -106,11 +106,11 @@ async function createStripePrice(productId: string, frontmatter: ProductFrontmat
 
 async function createPaymentLink(priceId: string, frontmatter: ProductFrontmatter): Promise<StripePaymentLink | null> {
   try {
-    console.log(`Would create payment link for ${frontmatter.title}`);
+    console.log(`Would create payment link for ${frontmatter.title} using price ${priceId}`);
 
     // Placeholder - will be replaced with actual MCP call
     return {
-      id: `link_placeholder_${frontmatter.title.toLowerCase().replace(/\s+/g, '_')}`,
+      id: `link_placeholder_${priceId}`,
       url: `https://buy.stripe.com/placeholder-${frontmatter.title.toLowerCase().replace(/\s+/g, '-')}`
     };
   } catch (error) {
