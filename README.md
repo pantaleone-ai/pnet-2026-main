@@ -1,7 +1,6 @@
 # pantaleone.net - AI Portfolio & Digital Solutions
 
 <div align="center">
-  <img src="docs/images/github-heading.jpg" alt="Project Overview" width="100%" />
 
   <br />
 
@@ -22,24 +21,6 @@
 <br />
 
 A modern, AI-focused portfolio and digital solutions platform built with **Next.js 16 (App Router)**, **Tailwind CSS v4**, and **Shadcn UI**. Showcases AI products, automation workflows, and digital consulting services through an integrated shop, blog, and project showcase.
-
----
-
-## 📸 Project Previews
-
-### Desktop & Mobile
-
-<div align="center">
-  <img src="docs/images/github-desktop-mockup.jpg" alt="Desktop Preview" width="100%" />
-  <br /><br />
-  <img src="docs/images/github-mobile-mockup.jpg" alt="Mobile Preview" width="100%" />
-</div>
-
-### Responsive Design
-
-<div align="center">
-  <img src="docs/images/github-experience-section.png" alt="Responsive Experience Section" width="100%" />
-</div>
 
 ---
 
@@ -184,14 +165,8 @@ This project is open source and available under the [MIT License](./LICENSE).
 
 ## 🙏 Acknowledgments
 
-Special thanks to the open-source community and the creators of these tools:
+Special thanks HireTim for the awesome base template! to the open-source community and the creators of these tools:
 
 - [Fumadocs](https://fumadocs.dev) for the amazing documentation framework.
 - [shadcn/ui](https://ui.shadcn.com) for the beautiful component primitives.
 - [Lucide](https://lucide.dev) for the crisp icon set.
-
-<div align="center">
-  <a href="https://pantaleone.net/contact">
-    <img src="docs/images/github-contact.jpg" alt="Contact Me" width="100%" />
-  </a>
-</div>
