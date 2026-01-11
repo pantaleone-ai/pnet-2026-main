@@ -23,12 +23,6 @@ export function ProductImageGallery({ primaryImage, additionalImages }: ProductI
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Debug logging
-  console.log('ProductImageGallery rendered');
-  console.log('Primary image:', primaryImage);
-  console.log('Additional images:', additionalImages);
-  console.log('All images count:', allImages.length);
-
   // Handle empty state
   if (!primaryImage?.url || allImages.length === 0) {
     return (

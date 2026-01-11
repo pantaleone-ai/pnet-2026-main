@@ -201,6 +201,10 @@ var shopProductSchema2 = frontmatterSchema2.extend({
   stripePaymentLink: z2.string().optional(),
   imageUrl: z2.string().optional(),
   imageAlt: z2.string().optional(),
+  additionalImages: z2.array(z2.object({
+    url: z2.string(),
+    alt: z2.string().optional()
+  })).optional(),
   featured: z2.boolean().default(false),
   isDigital: z2.boolean().default(true),
   fromDate: z2.string().default(""),
