@@ -1,7 +1,6 @@
 import { getProductsByCategory } from "@/features/shop/data/shopSource";
 import CardItem from "@/features/common/components/CardItem";
 import BackgroundDots from "@/features/common/components/BackgroundDots";
-import { slugify } from "@/lib/helpers";
 import Link from "next/link";
 
 export default function ShopCategoryProducts({ category }: { category: string }) {
@@ -17,7 +16,7 @@ export default function ShopCategoryProducts({ category }: { category: string })
             <div className="xl mx-auto grid max-w-5xl grid-cols-1 gap-x-8 gap-y-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
               {products.map((product, index) => (
                 <CardItem
-                  key={slugify(product.title ?? "")}
+                  key={`${product.id}-${product.slug}`}
                   index={index}
                   type="product"
                   item={product}
