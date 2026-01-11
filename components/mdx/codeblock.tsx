@@ -87,8 +87,8 @@ export function CodeBlock({
   const inTab = use(TabsContext) !== null;
   const areaRef = useRef<HTMLDivElement>(null);
 
-  // Enable line numbers by default
-  const showLineNumbers = lineNumbers !== false; // Default to true unless explicitly disabled
+  // Disable line numbers by default
+  const showLineNumbers = lineNumbers === false; // Default to false unless explicitly enabled
 
   return (
     <figure
