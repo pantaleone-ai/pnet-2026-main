@@ -14,6 +14,7 @@ export const shopProductSchema = baseProjectSchema.extend({
   featured: z.boolean().default(false),
   isDigital: z.boolean().default(true),
   weight: z.number().optional(),
+  gtin: z.string().optional(), // UPC/EAN/GTIN for product feeds
 });
 
 type ShopProduct = {
@@ -49,6 +50,7 @@ type ShopProduct = {
   content?: string;
   readingTime?: string;
   readingTimeMinutes?: number;
+  gtin?: string; // UPC/EAN/GTIN for product feeds
 };
 
 export type { ShopProduct };
