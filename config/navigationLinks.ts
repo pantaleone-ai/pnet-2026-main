@@ -13,6 +13,7 @@ import {
   WorkflowIcon,
   ZapIcon,
   PaletteIcon,
+  StoreIcon,
 } from "lucide-react";
 
 const NAVIGATION_LINKS: NavigationLinkType[] = [
@@ -74,6 +75,12 @@ const NAVIGATION_LINKS: NavigationLinkType[] = [
         label: "AI Artwork",
         description: truncateDescription("AI Artwork", 30),
         icon: PaletteIcon,
+      },
+      {
+        href: "/shop/",
+        label: "View All Products",
+        description: truncateDescription("All Pantaleone.net Products", 30),
+        icon: StoreIcon,
       },
     ],
   },
