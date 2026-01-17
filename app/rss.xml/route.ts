@@ -34,10 +34,14 @@ export async function GET() {
   // Add shop products to RSS feed
   const products = getProducts();
   products.forEach((product) => {
+    // Map category names to directory-based URLs
+    const categorySlug = product.category === "Apps" ? "ai-apps" :
+                        product.category === "Ai Workflows" ? "ai-workflows" :
+                        product.category.toLowerCase().replace(/\s+/g, '-');
     feed.addItem({
       title: product.title,
-      id: getBaseUrl(`/shop/${product.category.toLowerCase().replace(/\s+/g, '-')}/${product.slug}`),
-      link: getBaseUrl(`/shop/${product.category.toLowerCase().replace(/\s+/g, '-')}/${product.slug}`),
+      id: getBaseUrl(`/shop/${categorySlug}/${product.slug}`),
+      link: getBaseUrl(`/shop/${categorySlug}/${product.slug}`),
       description: product.description,
       content: product.description,
       date: new Date(),

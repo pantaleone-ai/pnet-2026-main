@@ -50,21 +50,35 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.9,
   };
 
-  // Add shop category pages
-  const shopCategories = getCategories().map((category) => ({
-    url: getBaseUrl(`/shop/${category.toLowerCase().replace(/\s+/g, '-')}`),
-    lastModified: new Date(),
-    changeFrequency: "weekly" as const,
-    priority: 0.8,
-  }));
+  // Add shop category pages - use directory-based URLs that match routing
+  const shopCategories = [
+    {
+      url: getBaseUrl("/shop/ai-apps"),
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    },
+    {
+      url: getBaseUrl("/shop/ai-workflows"),
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
+    },
+  ];
 
-  // Add shop product pages
-  const shopProducts = getProducts().map((product) => ({
-    url: getBaseUrl(`/shop/${product.category.toLowerCase().replace(/\s+/g, '-')}/${product.slug}`),
-    lastModified: new Date(),
-    changeFrequency: "weekly" as const,
-    priority: 0.7,
-  }));
+  // Add shop product pages - use directory-based category URLs
+  const shopProducts = getProducts().map((product) => {
+    // Map category names to directory-based URLs
+    const categorySlug = product.category === "Apps" ? "ai-apps" :
+                        product.category === "Ai Workflows" ? "ai-workflows" :
+                        product.category.toLowerCase().replace(/\s+/g, '-');
+    return {
+      url: getBaseUrl(`/shop/${categorySlug}/${product.slug}`),
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    };
+  });
 
   return [...staticPages, ...blogPosts, shopMainPage, ...shopCategories, ...shopProducts];
 }

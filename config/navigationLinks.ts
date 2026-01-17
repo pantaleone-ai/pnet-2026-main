@@ -53,28 +53,16 @@ const NAVIGATION_LINKS: NavigationLinkType[] = [
     label: "Shop",
     subNavigationLinks: [
       {
-        href: "/shop/apps",
+        href: "/shop/ai-apps",
         label: "AI Apps",
         description: truncateDescription("AI Apps", 30),
         icon: BrainIcon,
       },
       {
-        href: "/shop/workflows",
+        href: "/shop/ai-workflows",
         label: "AI & N8N Workflows",
         description: truncateDescription("AI & N8N Workflows", 30),
         icon: WorkflowIcon,
-      },
-      {
-        href: "/shop/services",
-        label: "AI Services",
-        description: truncateDescription("AI Services", 30),
-        icon: ZapIcon,
-      },
-      {
-        href: "/shop/artwork",
-        label: "AI Artwork",
-        description: truncateDescription("AI Artwork", 30),
-        icon: PaletteIcon,
       },
       {
         href: "/shop/",
