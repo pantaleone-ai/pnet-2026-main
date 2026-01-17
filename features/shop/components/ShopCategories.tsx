@@ -82,7 +82,7 @@ export default function ShopCategories() {
 
                     <div className="mt-6">
                       <Button size="lg" className="w-fit" asChild>
-                        <Link href={`/shop/${category.toLowerCase().replace(/\s+/g, '-')}`}>
+                        <Link href={`/shop/${getCategorySlug(category)}`}>
                           Browse {category}
                         </Link>
                       </Button>
@@ -111,6 +111,17 @@ function getCategoryIcon(category: string) {
     return Palette;
   }
   return ShoppingCart;
+}
+
+function getCategorySlug(category: string): string {
+  // Map category names to URL slugs (same as in shopSource.ts)
+  const categoryMapping: Record<string, string> = {
+    'Apps': 'ai-apps',
+    'Ai Workflows': 'ai-workflows',
+    // Add more mappings as needed for future categories
+  };
+
+  return categoryMapping[category] || category.toLowerCase().replace(/\s+/g, '-');
 }
 
 function getCategoryDescription(category: string): string {

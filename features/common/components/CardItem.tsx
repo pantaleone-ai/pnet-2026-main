@@ -326,7 +326,7 @@ const ProductContent = ({
           </Button>
         )}
         <Button variant="outline" asChild className="w-full">
-          <Link href={`/shop/${item.category.toLowerCase().replace(/\s+/g, '-')}/${item.slug}`}>
+          <Link href={`/shop/${getProductCategorySlug(item.category)}/${item.slug}`}>
             View Details
             <span className="sr-only"> about {item.title}</span>
           </Link>
@@ -335,3 +335,15 @@ const ProductContent = ({
     </div>
   );
 };
+
+// Helper function to map category names to URL slugs
+function getProductCategorySlug(category: string): string {
+  // Map category names to URL slugs (same as in shopSource.ts)
+  const categoryMapping: Record<string, string> = {
+    'Apps': 'ai-apps',
+    'Ai Workflows': 'ai-workflows',
+    // Add more mappings as needed for future categories
+  };
+
+  return categoryMapping[category] || category.toLowerCase().replace(/\s+/g, '-');
+}

@@ -165,11 +165,24 @@ export function getProducts(): ShopProduct[] {
 
 export function getProductsByCategory(category: string): ShopProduct[] {
   try {
-    // For single-word categories, we can use direct comparison
-    // Just capitalize the first letter to match the stored format
-    const normalizedCategory = category
-      .replace(/-/g, ' ')
-      .replace(/\b\w/g, (char) => char.toUpperCase());
+    // Map URL slugs to actual product categories
+    const categoryMapping: Record<string, string> = {
+      'ai-apps': 'Apps',
+      'ai-workflows': 'Ai Workflows',
+      'Ai Apps': 'Apps', // Handle formatted category names from URL
+      'Ai Workflows': 'Ai Workflows', // Handle formatted category names from URL
+      // Add more mappings as needed for future categories
+    };
+
+    // First check if we have a direct mapping for the URL slug
+    const mappedCategory = categoryMapping[category] || category;
+
+    // If no mapping found, try to normalize the input
+    const normalizedCategory = mappedCategory === category
+      ? category
+          .replace(/-/g, ' ')
+          .replace(/\b\w/g, (char) => char.toUpperCase())
+      : mappedCategory;
 
     return getProducts().filter((product) => {
       return product.category === normalizedCategory;
@@ -204,10 +217,22 @@ export function getProductBySlug(category: string, slug: string): (ShopProduct &
   body: React.ComponentType<object>;
 }) | null {
   try {
-    // Normalize the input category slug to match against product categories
-    const normalizedCategory = category
-      .replace(/-/g, ' ')
-      .replace(/\b\w/g, (char) => char.toUpperCase());
+    // Map URL slugs to actual product categories (same mapping as getProductsByCategory)
+    const categoryMapping: Record<string, string> = {
+      'ai-apps': 'AI Apps',
+      'ai-workflows': 'AI Workflows',
+      // Add more mappings as needed for future categories
+    };
+
+    // First check if we have a direct mapping for the URL slug
+    const mappedCategory = categoryMapping[category] || category;
+
+    // If no mapping found, try to normalize the input
+    const normalizedCategory = mappedCategory === category
+      ? category
+          .replace(/-/g, ' ')
+          .replace(/\b\w/g, (char) => char.toUpperCase())
+      : mappedCategory;
 
     // Find the page that matches the category and slug
     const page = shopSource.getPages().find((page) => {
