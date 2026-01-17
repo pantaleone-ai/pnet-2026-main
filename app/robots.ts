@@ -22,6 +22,9 @@ export default function robots(): MetadataRoute.Robots {
         ],
       },
     ],
-    sitemap: getBaseUrl("/sitemap.xml"),
+    sitemap: [
+      getBaseUrl("/sitemap.xml"),
+      getBaseUrl("/products/sitemap.xml"),
+    ],
   };
 }
