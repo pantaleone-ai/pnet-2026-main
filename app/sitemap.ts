@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { getBlogPosts } from "@/features/blog/data/blogSource";
-import { getProducts, getCategories } from "@/features/shop/data/shopSource";
+import { getProducts } from "@/features/shop/data/shopSource";
 import { getBaseUrl } from "@/lib/helpers";
 
 export default function sitemap(): MetadataRoute.Sitemap {

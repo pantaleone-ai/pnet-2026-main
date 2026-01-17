@@ -11,8 +11,6 @@ import {
   ShoppingCartIcon as ShopIcon,
   BrainIcon,
   WorkflowIcon,
-  ZapIcon,
-  PaletteIcon,
   StoreIcon,
 } from "lucide-react";
 
