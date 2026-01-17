@@ -14,7 +14,7 @@ interface Props {
 
 const SiteHeader: FC<Props> = () => {
   const path = usePathname();
-  const showProgressBar = path?.startsWith("/blog/post/");
+  const showProgressBar = path?.startsWith("/blog/") && !path?.endsWith("/blog");
 
   const { scrollY } = useScroll();
 

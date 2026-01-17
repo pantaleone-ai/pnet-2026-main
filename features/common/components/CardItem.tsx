@@ -39,7 +39,7 @@ type CardItemProps =
 export default function CardItem({ index, item, type, sizes }: CardItemProps) {
   const isBlog = type === "blog";
   const isProduct = type === "product";
-  const href = isBlog ? `/blog/post/${item.slug}` : undefined;
+  const href = isBlog ? `/blog/${item.slug}` : undefined;
 
   return (
     <Card
@@ -122,7 +122,7 @@ const BlogContent = ({
   item: Omit<BlogPostType, "body">;
   index: number;
 }) => {
-  const href = `/blog/post/${item.slug}`;
+  const href = `/blog/${item.slug}`;
   return (
     <div className="p-4 space-y-3">
       <div className="flex items-center gap-3 text-sm text-muted-foreground">

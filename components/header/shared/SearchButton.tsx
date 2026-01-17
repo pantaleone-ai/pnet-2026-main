@@ -199,7 +199,7 @@ export function SearchButton() {
     // Construct correct URL based on content type
     let url: string;
     if (result.type === "blog") {
-      url = `/blog/post/${result.slug}`;
+      url = `/blog/${result.slug}`;
     } else if (result.type === "product") {
       // Convert category to URL slug format (e.g., "AI Apps" -> "ai-apps")
       const categorySlug = result.category.toLowerCase().replace(/\s+/g, '-');

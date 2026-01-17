@@ -40,7 +40,7 @@ function getPageJsonLd(post: BlogPostType): WithContext<BlogPosting> {
     headline: post.title,
     description: post.description,
     image: post.image || `/og/simple?title=${encodeURIComponent(post.title)}`,
-    url: `${SITE_INFO.url}/blog/post/${post.slug}`,
+    url: `${SITE_INFO.url}/blog/${post.slug}`,
     datePublished: new Date(post.created).toISOString(),
     dateModified: new Date(post.lastUpdated || post.created).toISOString(),
     author: {
@@ -71,7 +71,7 @@ export async function generateMetadata({
       "Read this insightful blog post.",
     keywords: data.seo?.join(", ") || "blog, mdx, next.js",
     alternates: {
-      canonical: getBaseUrl(`blog/post/${slug}`),
+      canonical: getBaseUrl(`blog/${slug}`),
     },
     robots: {
       index: true,
@@ -90,7 +90,7 @@ export async function generateMetadata({
         },
       ],
       type: "article",
-      url: getBaseUrl(`blog/post/${slug}`),
+      url: getBaseUrl(`blog/${slug}`),
     },
     twitter: {
       card: "summary_large_image",

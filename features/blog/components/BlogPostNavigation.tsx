@@ -34,7 +34,7 @@ export default function BlogPostNavigation({
       <div className="flex items-center gap-2">
         <LLMCopyButtonWithViewOptions markdownUrl={`/blog.mdx/${post.slug}`} />
 
-        <ShareButton url={`/blog/post/${post.slug}`} />
+        <ShareButton url={`/blog/${post.slug}`} />
 
         {previous && (
           <Tooltip>
@@ -45,7 +45,7 @@ export default function BlogPostNavigation({
                 className="h-7 w-7 border border-border-edge rounded-md"
                 asChild
               >
-                <Link href={`/blog/post/${previous.slug}`}>
+                <Link href={`/blog/${previous.slug}`}>
                   <ArrowLeftIcon className="h-4 w-4" />
                   <span className="sr-only">Previous: {previous.title}</span>
                 </Link>
@@ -74,7 +74,7 @@ export default function BlogPostNavigation({
                 className="h-7 w-7 border border-border-edge rounded-md"
                 asChild
               >
-                <Link href={`/blog/post/${next.slug}`}>
+                <Link href={`/blog/${next.slug}`}>
                   <span className="sr-only">Next: {next.title}</span>
                   <ArrowRightIcon className="h-4 w-4" />
                 </Link>
