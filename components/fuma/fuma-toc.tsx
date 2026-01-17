@@ -15,7 +15,7 @@ import {
   useRef,
   useState,
 } from "react";
-import Banner from "@/features/common/components/Banner";
+// import Banner from "@/features/common/components/Banner";
 
 export interface TOCProps {
   /**
@@ -65,7 +65,7 @@ export function Toc(props: HTMLAttributes<HTMLDivElement>) {
     >
       <div className="flex h-full w-(--fd-toc-width) max-w-full flex-col pe-4">
         {props.children}
-        <Banner />
+        {/* <Banner /> */}
       </div>
     </motion.div>
   );
