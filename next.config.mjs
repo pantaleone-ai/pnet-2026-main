@@ -3,6 +3,9 @@ import { createMDX } from "fumadocs-mdx/next";
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
+  experimental: {
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-*', 'react-icons', 'date-fns'],
+  },
   async redirects() {
     return [
       {

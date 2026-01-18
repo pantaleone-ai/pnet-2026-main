@@ -47,11 +47,13 @@ export default function CardItem({ index, item, type, sizes }: CardItemProps) {
         "group h-full gap-0 rounded-lg border border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-black/5 hover:border-primary/20 hover:bg-card/80",
         "hover:-translate-y-1",
       )}
+      style={{ contentVisibility: index > 2 ? 'auto' : 'visible' }}
       role="article"
       aria-labelledby={`card-title-${index}`}
     >
       <CoverImage
         index={index}
+        type={type}
         imageUrl={isBlog ? item.image : isProduct ? item.imageUrl : item.imageUrl}
         imageAlt={item.imageAlt || item.title}
         href={href}
@@ -76,12 +78,15 @@ export default function CardItem({ index, item, type, sizes }: CardItemProps) {
 // Sub-components
 
 const CoverImage = ({
+  index,
+  type,
   imageUrl,
   imageAlt,
   href,
   sizes,
 }: {
   index: number;
+  type: "project" | "blog" | "product";
   imageUrl: string;
   imageAlt: string;
   href?: string;
@@ -96,7 +101,8 @@ const CoverImage = ({
           fill
           className="object-cover object-top transition-transform duration-500 ease-out group-hover:scale-110"
           sizes={sizes || "(max-width: 1023px) 100vw, 33vw"}
-          priority={false}
+          priority={index === 0 && type === "project"} // Prioritize first project image (likely LCP)
+          loading={index === 0 && type === "project" ? "eager" : "lazy"} // Eager load first image
         />
         {/* Subtle overlay on hover */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

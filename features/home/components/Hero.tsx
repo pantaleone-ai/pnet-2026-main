@@ -97,23 +97,20 @@ function ParticleCanvas() {
   // Track inputs
   const mouse = useRef({ x: 0, y: 0 });
   const cameraOffset = useRef({ x: 0, y: 0 });
+  const frameCount = useRef(0); // For throttling animation to 30fps
 
   const particles = useRef<Particle[]>([]);
 
-  // Configuration
-  const Z_SPEED = 1.0;
+  // Configuration - Optimized for performance
+  const Z_SPEED = 0.8;
   const DEPTH = 2000;
   const FOV = 800;
-  const STEER_SENSITIVITY = 0.05;
+  const STEER_SENSITIVITY = 0.03; // Reduced sensitivity
 
   const COLORS: { r: number; g: number; b: number }[] = [
     { r: 255, g: 255, b: 255 }, // White
-    { r: 255, g: 255, b: 255 },
-    { r: 255, g: 255, b: 255 },
     { r: 200, g: 230, b: 255 }, // Light Ice Blue
     { r: 100, g: 180, b: 255 }, // Deep Sky Blue
-    { r: 255, g: 220, b: 180 }, // Soft Amber
-    { r: 255, g: 160, b: 100 }, // Deep Orange
   ];
 
   // Handle theme changes
@@ -150,7 +147,7 @@ function ParticleCanvas() {
       mouse.current = { x: width / 2, y: height / 2 };
 
       const isMobile = width < 768;
-      const count = isMobile ? 400 : 800;
+      const count = isMobile ? 150 : 300; // Reduced particle count by ~60%
 
       initParticles(width, height, count);
     };
@@ -212,6 +209,9 @@ function ParticleCanvas() {
   }, []);
 
   useAnimationFrame(() => {
+    frameCount.current++;
+    if (frameCount.current % 2 !== 0) return; // Throttle to 30fps
+
     if (!canvasRef.current) return;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -243,7 +243,7 @@ function ParticleCanvas() {
         p.z = DEPTH;
         p.x = (Math.random() - 0.5) * width * 4;
         p.y = (Math.random() - 0.5) * height * 4;
-        p.alpha = 0; 
+        p.alpha = 0;
       }
 
       const k = FOV / p.z;
@@ -255,7 +255,7 @@ function ParticleCanvas() {
       let targetAlpha = 1;
       if (zNorm > 0.9) targetAlpha = (1 - zNorm) * 10;
       else if (zNorm < 0.2) targetAlpha = zNorm * 5;
-      
+
       p.alpha += (targetAlpha - p.alpha) * 0.1;
 
       if (x2d >= 0 && x2d <= width && y2d >= 0 && y2d <= height) {
