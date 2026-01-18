@@ -211,7 +211,7 @@ async function updateStripeProduct(productId: string, productData: any): Promise
       throw new Error(`HTTP ${response.status}: ${error}`);
     }
 
-    const updatedProduct = await response.json();
+    const _updatedProduct = await response.json();
     console.log(`✅ Updated Stripe product with ${Object.keys(metadata).length} metadata fields and ${images.length} images`);
     return true;
 
