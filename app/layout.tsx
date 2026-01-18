@@ -92,8 +92,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   generator: "Next.js 16",
   keywords: siteConfig.keywords,
-  authors: [{ name: "Pantaleone", url: siteConfig.links.twitter }],
-  creator: "Pantaleone",
+  authors: [{ name: "Pantaleone AI", url: siteConfig.links.twitter }],
+  creator: "Pantaleone AI",
 
   // OpenGraph
   openGraph: {
@@ -119,7 +119,7 @@ export const metadata: Metadata = {
     title: siteConfig.name,
     description: siteConfig.description,
     images: [siteConfig.ogImage],
-    creator: "@pantaleone_ai",
+    creator: "@m_pantaleone",
   },
 
   icons: {
