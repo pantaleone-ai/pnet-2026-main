@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ShoppingCart, Brain, Workflow, Palette, Zap } from "lucide-react";
 import BackgroundDots from "@/features/common/components/BackgroundDots";
 import { cn } from "@/lib/utils";
-import { slugify } from "@/lib/helpers";
+import { slugify, getProductCategorySlug } from "@/lib/helpers";
 
 export default function ShopCategories() {
   const categories = getCategories();
@@ -82,7 +82,7 @@ export default function ShopCategories() {
 
                     <div className="mt-6">
                       <Button size="lg" className="w-fit" asChild>
-                        <Link href={`/shop/${getCategorySlug(category)}`}>
+                        <Link href={`/shop/${getProductCategorySlug(category)}`}>
                           Browse {category}
                         </Link>
                       </Button>
@@ -113,16 +113,7 @@ function getCategoryIcon(category: string) {
   return ShoppingCart;
 }
 
-function getCategorySlug(category: string): string {
-  // Map category names to URL slugs (same as in shopSource.ts)
-  const categoryMapping: Record<string, string> = {
-    'Apps': 'ai-apps',
-    'Ai Workflows': 'ai-workflows',
-    // Add more mappings as needed for future categories
-  };
 
-  return categoryMapping[category] || category.toLowerCase().replace(/\s+/g, '-');
-}
 
 function getCategoryDescription(category: string): string {
   const categoryLower = category.toLowerCase();

@@ -7,7 +7,7 @@ import type { ShopProduct } from "@/features/shop/types/ShopProduct";
 import CalendarIcon from "@/features/common/icons/calendar-icon";
 import DateIcon from "@/features/common/icons/date-icon";
 import ReadingTimeIcon from "@/features/common/icons/reading-time-icon";
-import { formatDate } from "@/lib/helpers";
+import { formatDate, getProductCategorySlug } from "@/lib/helpers";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/events";
 import { ArrowRightIcon } from "lucide-react";
@@ -335,15 +335,3 @@ const ProductContent = ({
     </div>
   );
 };
-
-// Helper function to map category names to URL slugs
-function getProductCategorySlug(category: string): string {
-  // Map category names to URL slugs (same as in shopSource.ts)
-  const categoryMapping: Record<string, string> = {
-    'Apps': 'ai-apps',
-    'Ai Workflows': 'ai-workflows',
-    // Add more mappings as needed for future categories
-  };
-
-  return categoryMapping[category] || category.toLowerCase().replace(/\s+/g, '-');
-}

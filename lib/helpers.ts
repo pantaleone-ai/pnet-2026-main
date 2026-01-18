@@ -91,3 +91,17 @@ export const levenshtein = (a: string, b: string): number => {
 
   return matrix[b.length]![a.length]!;
 };
+
+/**
+ * Maps product category names to URL slugs for consistent routing
+ */
+export function getProductCategorySlug(category: string): string {
+  // Map category names to URL slugs
+  const categoryMapping: Record<string, string> = {
+    'Apps': 'ai-apps',
+    'Ai Workflows': 'ai-workflows',
+    // Add more mappings as needed for future categories
+  };
+
+  return categoryMapping[category] || category.toLowerCase().replace(/\s+/g, '-');
+}

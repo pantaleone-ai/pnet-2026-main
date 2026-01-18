@@ -1,7 +1,7 @@
 import HEAD from "@/config/seo/head";
 import { siteConfig } from "@/config/site";
 import { getProductBySlug, getProductsByCategory, getCategories, getProducts } from "@/features/shop/data/shopSource";
-import { getBaseUrl } from "@/lib/helpers";
+import { getBaseUrl, getProductCategorySlug } from "@/lib/helpers";
 import { getMDXComponents } from "@/mdx-components";
 import type { HeadType } from "@/types";
 import type { Metadata } from "next";
@@ -21,7 +21,7 @@ export async function generateStaticParams() {
     return products
       .filter((product) => product.category === category)
       .map((product) => ({
-        category: category.toLowerCase().replace(/\s+/g, '-'),
+        category: getProductCategorySlug(category),
         slug: product.slug,
       }));
   });

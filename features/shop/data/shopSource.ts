@@ -219,8 +219,10 @@ export function getProductBySlug(category: string, slug: string): (ShopProduct &
   try {
     // Map URL slugs to actual product categories (same mapping as getProductsByCategory)
     const categoryMapping: Record<string, string> = {
-      'ai-apps': 'AI Apps',
-      'ai-workflows': 'AI Workflows',
+      'ai-apps': 'Apps',
+      'ai-workflows': 'Ai Workflows',
+      'Ai Apps': 'Apps', // Handle formatted category names from URL
+      'Ai Workflows': 'Ai Workflows', // Handle formatted category names from URL
       // Add more mappings as needed for future categories
     };
 
