@@ -70,9 +70,38 @@ export default function ProductDetailClient({
         <span className="text-foreground font-medium truncate">{product.title}</span>
       </nav>
 
+      {/* Mobile Buy Now Banner - Above Fold */}
+      <div className="lg:hidden mb-8">
+        <Card className="shadow-xl border-primary/10 overflow-hidden bg-card/50 backdrop-blur">
+          <CardContent className="p-6">
+            <div className="space-y-4 text-center">
+              <div className="space-y-2">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary uppercase tracking-widest">
+                  {categoryName}
+                </span>
+                <h2 className="text-2xl font-black tracking-tight leading-tight">
+                  {product.title}
+                </h2>
+              </div>
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-4xl font-black tracking-tighter">${product.price}</span>
+                <span className="text-muted-foreground font-bold text-lg uppercase">{product.currency}</span>
+              </div>
+              {(product.stripePaymentLink || product.purchaseUrl) && (
+                <Button size="lg" className="text-xl font-bold h-16 w-full shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform" asChild>
+                  <Link href={product.stripePaymentLink || product.purchaseUrl} target="_blank">
+                    <ShoppingCart className="mr-3 h-5 w-5" /> Get Instant Access
+                  </Link>
+                </Button>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* LEFT COLUMN: Main Content */}
-        <div className="lg:col-span-7 space-y-12 text-left">
+        <div className="order-1 lg:col-span-7 lg:order-none space-y-12 text-left">
           <section>
             {product.imageUrl && (
               <ProductImageGallery
@@ -116,7 +145,7 @@ export default function ProductDetailClient({
         </div>
 
         {/* RIGHT COLUMN: Sidebar (Sticky) */}
-        <div className="lg:col-span-5">
+        <div className="order-2 lg:col-span-5 lg:order-none">
           <div className="sticky top-24 space-y-6">
             <Card className="shadow-2xl border-primary/10 overflow-hidden bg-card/50 backdrop-blur">
               <CardHeader className="pb-4">
@@ -137,7 +166,7 @@ export default function ProductDetailClient({
               <CardContent className="space-y-8">
                 <div className="space-y-4 pt-2">
                   {(product.stripePaymentLink || product.purchaseUrl) && (
-                    <Button size="lg" className="text-xl font-bold h-16 shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform" asChild>
+                    <Button size="lg" className="text-xl lg:text-xl text-2xl font-bold h-20 lg:h-16 shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform" asChild>
                       <Link href={product.stripePaymentLink || product.purchaseUrl} target="_blank">
                         <ShoppingCart className="mr-3 h-5 w-5" /> Get Instant Access
                       </Link>
