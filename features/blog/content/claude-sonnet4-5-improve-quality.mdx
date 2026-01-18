@@ -58,7 +58,7 @@ Structure tweaks organize outputs, using formats like markdown or XML to make re
 
 2. **Set Paragraph Rhythm**: Specify: "Limit paragraphs to 3-5 sentences; use bullet points for lists." This enforces brevity and readability, aligning with Sonnet 4.5's concise communication style.
 
-3. **Use XML or JSON for Structured Outputs**: For data-heavy responses, instruct: "Output in JSON format: {'key': 'value'} without preamble." Prefill with an opening bracket to guide the model.
+3. **Use XML or JSON for Structured Outputs**: For data-heavy responses, instruct: "Output in JSON format: `{'key': 'value'}` without preamble." Prefill with an opening bracket to guide the model.
 
 4. **Implement Step-by-Step Workflows**: Add: "Break tasks into steps: 1. Analyze, 2. Plan, 3. Execute." This guided chain-of-thought approach enforces structure in reasoning-heavy queries, like coding.
 
@@ -70,10 +70,10 @@ Claude Sonnet 4.5's agent capabilities make these tweaks powerful for multi-step
 
 Drawing from tested practices, these techniques refine tweaks for optimal results.
 
-- **Structured and Labeled Prompts**: Use tags like <task> and <output_requirements> to organize inputs, ensuring Claude parses and structures outputs accurately.
-- **Extended Thinking for Complex Problems**: Enable step-by-step reasoning: "Think aloud in <thinking> tags before final answer." This internalizes structure.
+- **Structured and Labeled Prompts**: Use tags like `<task>` and `<output_requirements>` to organize inputs, ensuring Claude parses and structures outputs accurately.
+- **Extended Thinking for Complex Problems**: Enable step-by-step reasoning: "Think aloud in `<thinking>` tags before final answer." This internalizes structure.
 - **Be Brutally Specific**: Detail formats and criteria, e.g., "Use exactly 5 bullet points; explain rationale."
-- **Show Examples**: Provide 3-5 few-shot examples in <examples> tags to model desired style and structure.
+- **Show Examples**: Provide 3-5 few-shot examples in `<examples>` tags to model desired style and structure.
 - **Place Context First**: Put background info before queries to maintain coherent structure in long contexts.
 
 For migration from Claude 3.5, audit assumptions and add explicit specificity to leverage 4.5's improvements.
