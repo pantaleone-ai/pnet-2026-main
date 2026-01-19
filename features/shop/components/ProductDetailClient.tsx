@@ -4,9 +4,9 @@ import ContactMe from "@/components/ContactMe";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import Image from "next/image";
 import { ShoppingCart, ExternalLink, Github, Box, Cpu, ChevronRight, Info } from "lucide-react";
 import { ProductImageGallery } from "@/features/shop/components/ProductImageGallery";
+import ProductCard from "./ProductCard";
 import type { Product, WithContext } from "schema-dts";
 
 /** * Structured Data */
@@ -235,31 +235,11 @@ export default function ProductDetailClient({
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
             {relatedProducts.slice(0, 3).map((rp) => (
-              <div key={rp.id} className="group block">
-                <article className="h-full space-y-4">
-                  <Link href={`/shop/${category}/${rp.slug}`} className="block">
-                    <div className="relative aspect-video overflow-hidden rounded-2xl border border-transparent group-hover:border-primary/20 transition-all cursor-pointer">
-                      <Image
-                        src={rp.imageUrl || ''}
-                        alt={rp.title}
-                        fill
-                        className="object-cover object-top group-hover:scale-105 transition-transform duration-700"
-                      />
-                    </div>
-                  </Link>
-                  <Link href={`/shop/${category}/${rp.slug}`} className="block">
-                    <div className="space-y-2 text-left">
-                      <div className="flex justify-between items-center">
-                        <h3 className="font-bold text-xl tracking-tight group-hover:text-primary transition-colors">{rp.title}</h3>
-                        <p className="font-black text-lg">${rp.price}</p>
-                      </div>
-                      <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
-                        {rp.description}
-                      </p>
-                    </div>
-                  </Link>
-                </article>
-              </div>
+              <ProductCard
+                key={rp.id}
+                product={rp}
+                categorySlug={category}
+              />
             ))}
           </div>
         </section>
