@@ -13,6 +13,21 @@ const config = {
         destination: '/blog/:slug*',
         permanent: true, // 301 redirect
       },
+      {
+        source: '/about',
+        destination: 'https://pantaleone.net',
+        permanent: true, // 301 redirect
+      },
+      {
+        source: '/education',
+        destination: 'https://pantaleone.net',
+        permanent: true, // 301 redirect
+      },
+      {
+        source: '/experience',
+        destination: 'https://pantaleone.net',
+        permanent: true, // 301 redirect
+      },
     ];
   },
   images: {
