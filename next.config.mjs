@@ -28,6 +28,63 @@ const config = {
         destination: 'https://pantaleone.net',
         permanent: true, // 301 redirect
       },
+      // Feed redirects to RSS XML
+      {
+        source: '/feed',
+        destination: '/rss.xml',
+        permanent: true,
+      },
+      {
+        source: '/feed/',
+        destination: '/rss.xml',
+        permanent: true,
+      },
+      // Directory redirects to homepage
+      {
+        source: '/digital-asset-nft-tag/:slug*',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/grid',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/sets',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/tag/:slug*',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/p/:slug*',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/nft-art/:slug*',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/product/:slug*',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/buy-nfts-and-custom-artwork',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/buy-nfts-and-custom-artwork/',
+        destination: '/',
+        permanent: true,
+      },
     ];
   },
   images: {
