@@ -3,9 +3,21 @@ import Stripe from 'stripe';
 import { track } from '@/lib/analytics';
 import { headers } from 'next/headers';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '');
-
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+// Lazy initialization of Stripe client to avoid build-time errors
+let stripe: Stripe | null = null;
+
+function getStripeClient(): Stripe {
+  if (!stripe) {
+    const apiKey = process.env.STRIPE_SECRET_KEY;
+    if (!apiKey) {
+      throw new Error('STRIPE_SECRET_KEY is required');
+    }
+    stripe = new Stripe(apiKey);
+  }
+  return stripe;
+}
 
 /**
  * Handle Stripe webhooks for e-commerce tracking
@@ -25,7 +37,7 @@ export async function POST(request: NextRequest) {
     let event: Stripe.Event;
 
     try {
-      event = stripe.webhooks.constructEvent(body, sig, endpointSecret);
+      event = getStripeClient().webhooks.constructEvent(body, sig, endpointSecret);
     } catch (err: any) {
       console.error('Webhook signature verification failed:', err.message);
       return NextResponse.json({ error: 'Webhook signature verification failed' }, { status: 400 });
@@ -71,7 +83,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
     }
 
     // Get line items from the session
-    const lineItems = await stripe.checkout.sessions.listLineItems(session.id, {
+    const lineItems = await getStripeClient().checkout.sessions.listLineItems(session.id, {
       expand: ['data.price.product']
     });
 
@@ -126,7 +138,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
     }
 
     // Mark as tracked to prevent duplicate processing
-    await stripe.paymentIntents.update(paymentIntent.id, {
+    await getStripeClient().paymentIntents.update(paymentIntent.id, {
       metadata: { ...paymentIntent.metadata, tracked: 'true' }
     });
 
