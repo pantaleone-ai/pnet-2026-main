@@ -1,8 +1,10 @@
+import { useEffect } from "react";
 import { getProducts } from "@/features/shop/data/shopSource";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import BackgroundDots from "@/features/common/components/BackgroundDots";
 import ProductCard from "./ProductCard";
+import { track } from "@/lib/analytics";
 
 export default function FeaturedProductsSection() {
   const featuredProducts = getProducts().filter(product => product.featured);
@@ -10,6 +12,20 @@ export default function FeaturedProductsSection() {
   if (featuredProducts.length === 0) {
     return null;
   }
+
+  // Track product impressions on component mount
+  useEffect(() => {
+    const productsToTrack = featuredProducts.slice(0, 3).map(product => ({
+      id: product.id.toString(),
+      name: product.title,
+      category: product.category,
+      price: product.price,
+      currency: product.currency || 'USD',
+      brand: 'Pantaleone Digital Services'
+    }));
+
+    track.productImpression(productsToTrack, 'featured-products');
+  }, [featuredProducts]);
 
   return (
     <div className="relative mx-auto max-w-7xl px-6 py-8 md:py-10 lg:px-8">

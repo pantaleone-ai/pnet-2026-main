@@ -8,6 +8,7 @@ import { USER } from "@/config/user";
 import BlogPostMetaData from "@/features/blog/components/BlogPostMetaData";
 import BlogPostNavigation from "@/features/blog/components/BlogPostNavigation";
 import BlogPostTitle from "@/features/blog/components/BlogPostTitle";
+import BlogPostAnalytics from "@/features/blog/components/BlogPostAnalytics";
 import { blogSource, getBlogPosts } from "@/features/blog/data/blogSource";
 import FeaturedProductsSection from "@/features/shop/components/FeaturedProductsSection";
 import type { BlogPostFrontmatter } from "@/features/blog/types/BlogPostFrontmatter";
@@ -147,6 +148,7 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
           __html: JSON.stringify(getPageJsonLd(post)).replace(/</g, "\\u003c"),
         }}
       />
+      <BlogPostAnalytics post={post} />
       <SeparatorHorizontal borderTop={false} short={true} />
       <main className="mx-auto flex flex-col">
         <BlogPostNavigation

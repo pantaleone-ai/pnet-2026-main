@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import ContactMe from "@/components/ContactMe";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import Link from "next/link";
 import { ShoppingCart, ExternalLink, Github, Box, Cpu, ChevronRight, Info } from "lucide-react";
 import { ProductImageGallery } from "@/features/shop/components/ProductImageGallery";
 import ProductCard from "./ProductCard";
+import { track } from "@/lib/analytics";
 import type { Product, WithContext } from "schema-dts";
 
 /** * Structured Data */
@@ -51,6 +53,29 @@ export default function ProductDetailClient({
   relatedProducts: any[];
   children: React.ReactNode;
 }) {
+  // Track product view on component mount
+  useEffect(() => {
+    track.productView({
+      id: product.id || product.slug || 'unknown',
+      name: product.title,
+      category: category,
+      price: product.price,
+      currency: product.currency || 'USD',
+      brand: 'Pantaleone Digital Services'
+    });
+  }, [product.id, product.title, product.price, product.currency, category]);
+
+  // Handle payment link click tracking
+  const handlePaymentClick = () => {
+    track.beginCheckout({
+      id: product.id || product.slug || 'unknown',
+      name: product.title,
+      category: category,
+      price: product.price,
+      currency: product.currency || 'USD',
+      brand: 'Pantaleone Digital Services'
+    });
+  };
 
   return (
     <>
@@ -89,7 +114,7 @@ export default function ProductDetailClient({
               </div>
               {(product.stripePaymentLink || product.purchaseUrl) && (
                 <Button size="lg" className="text-xl font-bold h-16 w-full shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform" asChild>
-                  <Link href={product.stripePaymentLink || product.purchaseUrl} target="_blank">
+                  <Link href={product.stripePaymentLink || product.purchaseUrl} target="_blank" onClick={handlePaymentClick}>
                     <ShoppingCart className="mr-3 h-5 w-5" /> Get Instant Access
                   </Link>
                 </Button>
@@ -167,7 +192,7 @@ export default function ProductDetailClient({
                 <div className="space-y-4 pt-2">
                   {(product.stripePaymentLink || product.purchaseUrl) && (
                     <Button size="lg" className="text-xl lg:text-xl text-2xl font-bold h-20 lg:h-16 shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform" asChild>
-                      <Link href={product.stripePaymentLink || product.purchaseUrl} target="_blank">
+                      <Link href={product.stripePaymentLink || product.purchaseUrl} target="_blank" onClick={handlePaymentClick}>
                         <ShoppingCart className="mr-3 h-5 w-5" /> Get Instant Access
                       </Link>
                     </Button>

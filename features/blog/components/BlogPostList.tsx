@@ -1,11 +1,28 @@
+import { useEffect } from "react";
 import { getBlogPosts } from "@/features/blog/data/blogSource";
 import BackgroundDots from "@/features/common/components/BackgroundDots";
 import CardItem from "@/features/common/components/CardItem";
+import { track } from "@/lib/analytics";
 
 export default function BlogPostList() {
   const posts = getBlogPosts().sort(
     (a, b) => new Date(b.created).getTime() - new Date(a.created).getTime(),
   );
+
+  // Track blog post impressions on component mount
+  useEffect(() => {
+    const postsToTrack = posts.slice(0, 9).map(post => ({
+      id: post.slug,
+      title: post.title,
+      category: post.category || 'General',
+      author: post.author || 'Pantaleone',
+      publishedAt: post.created,
+      readTime: post.readingTimeMinutes,
+      tags: post.seo || []
+    }));
+
+    track.blogPostImpression(postsToTrack, 'blog-listing');
+  }, [posts]);
 
   return (
     <div className="relative mx-auto max-w-7xl px-6 py-8 md:py-10 lg:px-8">
