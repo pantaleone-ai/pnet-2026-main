@@ -4,37 +4,43 @@ import { useEffect, useState } from "react";
 import { track } from "@/lib/analytics";
 
 interface BlogPostAnalyticsProps {
-  post: {
-    slug: string;
-    title: string;
-    category?: string;
-    author?: string;
-    created: string;
-    readingTimeMinutes?: number;
-    seo?: string[];
-  };
+  slug: string;
+  title: string;
+  category?: string;
+  author?: string;
+  created: string;
+  readingTimeMinutes?: number;
+  seo?: string[];
 }
 
 /**
  * Client component for tracking blog post analytics
  * Tracks post views and engagement metrics
  */
-export default function BlogPostAnalytics({ post }: BlogPostAnalyticsProps) {
+export default function BlogPostAnalytics({
+  slug,
+  title,
+  category,
+  author,
+  created,
+  readingTimeMinutes,
+  seo
+}: BlogPostAnalyticsProps) {
   const [startTime] = useState(Date.now());
   const [maxScrollDepth, setMaxScrollDepth] = useState(0);
 
   // Track blog post view on mount
   useEffect(() => {
     track.blogPostView({
-      id: post.slug,
-      title: post.title,
-      category: post.category || 'General',
-      author: post.author || 'Pantaleone',
-      publishedAt: post.created,
-      readTime: post.readingTimeMinutes,
-      tags: post.seo || []
+      id: slug,
+      title: title,
+      category: category || 'General',
+      author: author || 'Pantaleone',
+      publishedAt: created,
+      readTime: readingTimeMinutes,
+      tags: seo || []
     });
-  }, [post.slug, post.title, post.category, post.author, post.created, post.readingTimeMinutes, post.seo]);
+  }, [slug, title, category, author, created, readingTimeMinutes, seo]);
 
   // Track scroll depth and engagement
   useEffect(() => {
@@ -53,7 +59,7 @@ export default function BlogPostAnalytics({ post }: BlogPostAnalyticsProps) {
       const readComplete = maxScrollDepth >= 80; // Consider read complete if scrolled 80%+
 
       track.blogPostEngaged({
-        postId: post.slug,
+        postId: slug,
         scrollDepth: maxScrollDepth,
         timeOnPage,
         readComplete
@@ -67,7 +73,7 @@ export default function BlogPostAnalytics({ post }: BlogPostAnalyticsProps) {
 
       if (timeOnPage > 10) { // Only track if user has been on page for more than 10 seconds
         track.blogPostEngaged({
-          postId: post.slug,
+          postId: slug,
           scrollDepth: maxScrollDepth,
           timeOnPage,
           readComplete
@@ -88,13 +94,13 @@ export default function BlogPostAnalytics({ post }: BlogPostAnalyticsProps) {
       const readComplete = maxScrollDepth >= 80;
 
       track.blogPostEngaged({
-        postId: post.slug,
+        postId: slug,
         scrollDepth: maxScrollDepth,
         timeOnPage,
         readComplete
       });
     };
-  }, [post.slug, startTime, maxScrollDepth]);
+  }, [slug, startTime, maxScrollDepth]);
 
   // This component doesn't render anything
   return null;

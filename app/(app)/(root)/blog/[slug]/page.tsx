@@ -150,7 +150,15 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
           __html: JSON.stringify(getPageJsonLd(post)).replace(/</g, "\\u003c"),
         }}
       />
-      <BlogPostAnalytics post={post} />
+      <BlogPostAnalytics
+        slug={post.slug}
+        title={post.title}
+        category={post.category}
+        author={post.author}
+        created={post.created}
+        readingTimeMinutes={post.readingTimeMinutes}
+        seo={post.seo}
+      />
       <SeparatorHorizontal borderTop={false} short={true} />
       <main className="mx-auto flex flex-col">
         <BlogPostNavigation
