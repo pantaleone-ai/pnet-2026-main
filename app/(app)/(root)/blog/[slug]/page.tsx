@@ -10,6 +10,7 @@ import BlogPostNavigation from "@/features/blog/components/BlogPostNavigation";
 import BlogPostTitle from "@/features/blog/components/BlogPostTitle";
 import BlogPostAnalytics from "@/features/blog/components/BlogPostAnalytics";
 import { blogSource, getBlogPosts } from "@/features/blog/data/blogSource";
+import { getProducts } from "@/features/shop/data/shopSource";
 import FeaturedProductsSection from "@/features/shop/components/FeaturedProductsSection";
 import type { BlogPostFrontmatter } from "@/features/blog/types/BlogPostFrontmatter";
 import type { BlogPostType } from "@/features/blog/types/BlogPostType";
@@ -107,6 +108,7 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
   const posts = getBlogPosts().sort(
     (a, b) => new Date(b.created).getTime() - new Date(a.created).getTime(),
   );
+  const products = getProducts();
   const postIndex = posts.findIndex((p) => p.slug === slug);
   const post = posts[postIndex];
   const page = blogSource.getPage([slug]);
@@ -197,7 +199,7 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
         lastModified={post.lastUpdated ?? new Date().toISOString()}
       />
       <SeparatorHorizontal short={true} />
-      <FeaturedProductsSection />
+      <FeaturedProductsSection products={products} />
       <SeparatorHorizontal short={true} />
       <ContactMe />
       <SeparatorHorizontal borderBottom={false} />

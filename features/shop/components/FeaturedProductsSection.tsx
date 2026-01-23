@@ -1,13 +1,19 @@
+"use client";
+
 import { useEffect } from "react";
-import { getProducts } from "@/features/shop/data/shopSource";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import BackgroundDots from "@/features/common/components/BackgroundDots";
 import ProductCard from "./ProductCard";
 import { track } from "@/lib/analytics";
+import type { ShopProduct } from "../types/ShopProduct";
 
-export default function FeaturedProductsSection() {
-  const featuredProducts = getProducts().filter(product => product.featured);
+interface FeaturedProductsSectionProps {
+  products: ShopProduct[];
+}
+
+export default function FeaturedProductsSection({ products }: FeaturedProductsSectionProps) {
+  const featuredProducts = products.filter(product => product.featured);
 
   if (featuredProducts.length === 0) {
     return null;

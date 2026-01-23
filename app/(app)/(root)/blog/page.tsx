@@ -5,6 +5,8 @@ import HEAD from "@/config/seo/head";
 import { getBaseUrl } from "@/lib/helpers";
 import type { HeadType } from "@/types";
 import type { Metadata } from "next";
+import { getBlogPosts } from "@/features/blog/data/blogSource";
+import { getProducts } from "@/features/shop/data/shopSource";
 import BlogPostList from "@/features/blog/components/BlogPostList";
 import FeaturedProductsSection from "@/features/shop/components/FeaturedProductsSection";
 
@@ -36,6 +38,12 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogPage() {
+  // Fetch data on server side
+  const posts = getBlogPosts().sort(
+    (a, b) => new Date(b.created).getTime() - new Date(a.created).getTime(),
+  );
+  const products = getProducts();
+
   return (
     <>
       <SeparatorHorizontal borderTop={false} />
@@ -44,9 +52,9 @@ export default async function BlogPage() {
         textStyleClassName="text-2xl font-bold sm:text-3xl"
       />
       <SeparatorHorizontal short={true} />
-      <BlogPostList />
+      <BlogPostList posts={posts} />
       <SeparatorHorizontal short={true} />
-      <FeaturedProductsSection />
+      <FeaturedProductsSection products={products} />
       <SeparatorHorizontal short={true} />
       <ContactMe />
       <SeparatorHorizontal borderBottom={false} />
