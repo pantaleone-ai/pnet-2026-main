@@ -4,10 +4,26 @@ import { useEffect } from "react";
 import BackgroundDots from "@/features/common/components/BackgroundDots";
 import CardItem from "@/features/common/components/CardItem";
 import { track } from "@/lib/analytics";
-import type { BlogPostType } from "@/features/blog/types/BlogPostType";
+
+interface SerializableBlogPost {
+  slug: string;
+  title: string;
+  description: string;
+  created: string;
+  lastUpdated?: string;
+  image: string;
+  author?: string;
+  authorAvatar?: string;
+  category?: string;
+  tags?: string[];
+  seo?: string[];
+  content: string;
+  readingTime: string;
+  readingTimeMinutes: number;
+}
 
 interface BlogPostListProps {
-  posts: BlogPostType[];
+  posts: SerializableBlogPost[];
 }
 
 export default function BlogPostList({ posts }: BlogPostListProps) {
@@ -30,17 +46,14 @@ export default function BlogPostList({ posts }: BlogPostListProps) {
     <div className="relative mx-auto max-w-7xl px-6 py-8 md:py-10 lg:px-8">
       <BackgroundDots gridId="blog-posts" className="text-gray-200/80" />
       <div className="xl mx-auto grid max-w-5xl grid-cols-1 gap-x-8 gap-y-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
-        {posts.map((post, index) => {
-          const { body, ...postItem } = post;
-          return (
-            <CardItem
-              key={post.slug}
-              index={index}
-              item={postItem}
-              type="blog"
-            />
-          );
-        })}
+        {posts.map((post, index) => (
+          <CardItem
+            key={post.slug}
+            index={index}
+            item={post}
+            type="blog"
+          />
+        ))}
       </div>
     </div>
   );

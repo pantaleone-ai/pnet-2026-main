@@ -44,6 +44,12 @@ export default async function BlogPage() {
   );
   const products = getProducts();
 
+  // Transform posts to serializable format for client components
+  const serializablePosts = posts.map(post => {
+    const { body, ...serializablePost } = post;
+    return serializablePost;
+  });
+
   return (
     <>
       <SeparatorHorizontal borderTop={false} />
@@ -52,7 +58,7 @@ export default async function BlogPage() {
         textStyleClassName="text-2xl font-bold sm:text-3xl"
       />
       <SeparatorHorizontal short={true} />
-      <BlogPostList posts={posts} />
+      <BlogPostList posts={serializablePosts} />
       <SeparatorHorizontal short={true} />
       <FeaturedProductsSection products={products} />
       <SeparatorHorizontal short={true} />
