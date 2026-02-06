@@ -29,6 +29,7 @@ export function buildMerchantReturnPolicy(): MerchantReturnPolicy {
     merchantReturnDays: 30,
     returnMethod: "https://schema.org/ReturnByMail",
     returnFees: "https://schema.org/FreeReturn",
+    applicableCountry: "US",
   };
 }
 

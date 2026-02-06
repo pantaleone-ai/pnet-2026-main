@@ -14,6 +14,12 @@ export function convertShopProductToMerchantProduct(
   });
   if (images.length === 0) images.push("/summary_large_image.png");
 
+  const defaultPriceValidUntil = new Date(
+    Date.now() + 365 * 24 * 60 * 60 * 1000,
+  )
+    .toISOString()
+    .split("T")[0];
+
   return {
     name: product.title,
     description: product.description,
@@ -23,7 +29,7 @@ export function convertShopProductToMerchantProduct(
       priceCurrency: product.currency || "USD",
       availability: product.inventory === 0 ? "OutOfStock" : "InStock",
       itemCondition: product.itemCondition || "NewCondition",
-      priceValidUntil: product.priceValidUntil,
+      priceValidUntil: product.priceValidUntil || defaultPriceValidUntil,
       url: canonicalUrl,
       hasMerchantReturnPolicy: {
         "@type": "MerchantReturnPolicy",
@@ -38,6 +44,7 @@ export function convertShopProductToMerchantProduct(
         merchantReturnDays: 30,
         returnMethod: "https://schema.org/ReturnByMail",
         returnFees: "https://schema.org/FreeReturn",
+        applicableCountry: "US",
       },
       shippingDetails: !product.isDigital
         ? {
@@ -59,9 +66,6 @@ export function convertShopProductToMerchantProduct(
     gtin: product.gtin,
     weight: product.weight,
     weightUnit: "LBS",
-    aggregateRating: undefined,
-    inProductGroupWithID: undefined,
-    isVariantOf: undefined,
   };
 }
 
