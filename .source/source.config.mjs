@@ -59,14 +59,20 @@ var shopProductSchema = frontmatterSchema.extend({
   price: z.number(),
   currency: z.string().default("USD"),
   sku: z.string().optional(),
+  mpn: z.string().optional(),
+  // Manufacturer Part Number
+  gtin: z.string().optional(),
+  // UPC/EAN/GTIN for product feeds
   inventory: z.number().optional(),
   purchaseUrl: z.string().optional(),
   imageUrl: z.string().optional(),
   imageAlt: z.string().optional(),
-  additionalImages: z.array(z.object({
-    url: z.string(),
-    alt: z.string().optional()
-  })).optional(),
+  additionalImages: z.array(
+    z.object({
+      url: z.string(),
+      alt: z.string().optional()
+    })
+  ).optional(),
   featured: z.boolean().default(false),
   isDigital: z.boolean().default(true),
   fromDate: z.string().optional(),
@@ -76,7 +82,12 @@ var shopProductSchema = frontmatterSchema.extend({
   videoEmbedUrl: z.string().optional(),
   videoEmbedAlt: z.string().optional(),
   techStacks: z.array(z.string()).optional(),
-  weight: z.number().optional()
+  weight: z.number().optional(),
+  itemCondition: z.enum(["NewCondition", "UsedCondition", "RefurbishedCondition"]).optional(),
+  priceValidUntil: z.string().optional(),
+  // ISO date string for sale expiration
+  brandLogo: z.string().optional()
+  // URL to brand logo image
 });
 
 // source.config.ts

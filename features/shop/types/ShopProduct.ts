@@ -25,6 +25,7 @@ type ShopProduct = {
   price: number;
   currency: string;
   sku?: string;
+  mpn?: string; // Manufacturer Part Number
   inventory?: number;
   purchaseUrl?: string;
   stripeProductId?: string;
@@ -51,6 +52,9 @@ type ShopProduct = {
   readingTime?: string;
   readingTimeMinutes?: number;
   gtin?: string; // UPC/EAN/GTIN for product feeds
+  itemCondition?: "NewCondition" | "UsedCondition" | "RefurbishedCondition";
+  priceValidUntil?: string; // ISO date string for sale expiration
+  brandLogo?: string; // URL to brand logo image
 };
 
 export type { ShopProduct };
