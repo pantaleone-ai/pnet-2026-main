@@ -63,6 +63,12 @@ export function Pre(props: ComponentProps<"pre">) {
     <pre
       {...props}
       className={cn("min-w-full w-full *:flex *:flex-col", props.className)}
+      style={{
+        whiteSpace: "pre-wrap",
+        wordBreak: "break-all",
+        overflowWrap: "break-word",
+        ...props.style,
+      }}
     >
       {props.children}
     </pre>
