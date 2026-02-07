@@ -133,13 +133,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html
       lang="en"
-      className={`${fontSans.variable} ${fontMono.variable}`}
+      className={`dark ${fontSans.variable} ${fontMono.variable}`}
       suppressHydrationWarning
     >
       <head>
-        <script
-          dangerouslySetInnerHTML={{ __html: darkModeScript }}
-        />
+        <script dangerouslySetInnerHTML={{ __html: darkModeScript }} />
         <Script
           id="theme-script"
           strategy="beforeInteractive"
@@ -159,7 +157,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
           }}
         />
       </head>
-      <body suppressHydrationWarning className="min-h-screen bg-background font-sans antialiased">
+      <body
+        suppressHydrationWarning
+        className="min-h-screen bg-background font-sans antialiased"
+      >
         <SkipToMain />
         <Providers>
           <NuqsAdapter>
