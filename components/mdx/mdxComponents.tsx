@@ -60,8 +60,8 @@ function Image(
 
 function Table(props: TableHTMLAttributes<HTMLTableElement>) {
   return (
-    <div className="not-prose my-10 overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-950 shadow-2xl">
-      <table className="w-full text-sm" {...props} />
+    <div className="my-10 overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-950 shadow-2xl">
+      <table className="w-full text-sm text-zinc-300" {...props} />
     </div>
   );
 }

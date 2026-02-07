@@ -1,13 +1,13 @@
 // @ts-nocheck
-import * as __fd_glob_55 from "../features/shop/content/ai-workflows/100k-ai-prompts-pack.mdx?collection=shop"
-import * as __fd_glob_54 from "../features/shop/content/ai-apps/vision-deck-custom-ppt-platform-mdx.mdx?collection=shop"
-import * as __fd_glob_53 from "../features/shop/content/ai-apps/skillsnap-guide.mdx?collection=shop"
-import * as __fd_glob_52 from "../features/shop/content/ai-apps/qr-generator-tool.mdx?collection=shop"
-import * as __fd_glob_51 from "../features/shop/content/ai-apps/profitsignals-app.mdx?collection=shop"
-import * as __fd_glob_50 from "../features/shop/content/ai-apps/nextjs-ai-starter-app.mdx?collection=shop"
-import * as __fd_glob_49 from "../features/shop/content/ai-apps/mixphd-app.mdx?collection=shop"
-import * as __fd_glob_48 from "../features/shop/content/ai-apps/migratecms-tool.mdx?collection=shop"
-import * as __fd_glob_47 from "../features/shop/content/ai-apps/imgsquash-tool.mdx?collection=shop"
+import * as __fd_glob_55 from "../features/shop/content/ai-apps/vision-deck-custom-ppt-platform-mdx.mdx?collection=shop"
+import * as __fd_glob_54 from "../features/shop/content/ai-apps/skillsnap-guide.mdx?collection=shop"
+import * as __fd_glob_53 from "../features/shop/content/ai-apps/qr-generator-tool.mdx?collection=shop"
+import * as __fd_glob_52 from "../features/shop/content/ai-apps/profitsignals-app.mdx?collection=shop"
+import * as __fd_glob_51 from "../features/shop/content/ai-apps/nextjs-ai-starter-app.mdx?collection=shop"
+import * as __fd_glob_50 from "../features/shop/content/ai-apps/mixphd-app.mdx?collection=shop"
+import * as __fd_glob_49 from "../features/shop/content/ai-apps/migratecms-tool.mdx?collection=shop"
+import * as __fd_glob_48 from "../features/shop/content/ai-apps/imgsquash-tool.mdx?collection=shop"
+import * as __fd_glob_47 from "../features/shop/content/ai-workflows/100k-ai-prompts-pack.mdx?collection=shop"
 import * as __fd_glob_46 from "../features/about/content/web-apps/portfolio-website-v3.mdx?collection=about"
 import * as __fd_glob_45 from "../features/about/content/web-apps/portfolio-website-v2.mdx?collection=about"
 import * as __fd_glob_44 from "../features/about/content/web-apps/portfolio-website-v1.mdx?collection=about"
@@ -152,6 +152,6 @@ export const privacy = await create.docs("privacy", "features/privacy/content", 
 
 export const projects = await create.docs("projects", "features/projects/content", {}, {"ai-saas-starter-nextjs-betterauth-supabase-free-boilerplate.mdx": __fd_glob_30, "imgsquash.mdx": __fd_glob_31, "migratecms-migrate-anycms-to-nextjs.mdx": __fd_glob_32, "mixphd.mdx": __fd_glob_33, "pantaleonenet.mdx": __fd_glob_34, "profitsignals-ai-chat-agent.mdx": __fd_glob_35, "qrcode-generator-free-nextjs15-tailwind.mdx": __fd_glob_36, "skillsnap-increase-ai-skills.mdx": __fd_glob_37, });
 
-export const shop = await create.docs("shop", "features/shop/content", {}, {"ai-apps/imgsquash-tool.mdx": __fd_glob_47, "ai-apps/migratecms-tool.mdx": __fd_glob_48, "ai-apps/mixphd-app.mdx": __fd_glob_49, "ai-apps/nextjs-ai-starter-app.mdx": __fd_glob_50, "ai-apps/profitsignals-app.mdx": __fd_glob_51, "ai-apps/qr-generator-tool.mdx": __fd_glob_52, "ai-apps/skillsnap-guide.mdx": __fd_glob_53, "ai-apps/vision-deck-custom-ppt-platform-mdx.mdx": __fd_glob_54, "ai-workflows/100k-ai-prompts-pack.mdx": __fd_glob_55, });
+export const shop = await create.docs("shop", "features/shop/content", {}, {"ai-workflows/100k-ai-prompts-pack.mdx": __fd_glob_47, "ai-apps/imgsquash-tool.mdx": __fd_glob_48, "ai-apps/migratecms-tool.mdx": __fd_glob_49, "ai-apps/mixphd-app.mdx": __fd_glob_50, "ai-apps/nextjs-ai-starter-app.mdx": __fd_glob_51, "ai-apps/profitsignals-app.mdx": __fd_glob_52, "ai-apps/qr-generator-tool.mdx": __fd_glob_53, "ai-apps/skillsnap-guide.mdx": __fd_glob_54, "ai-apps/vision-deck-custom-ppt-platform-mdx.mdx": __fd_glob_55, });
 
 export const webApps = await create.docs("webApps", "features/about/content/web-apps", {}, {"full-stack-blog-app.mdx": __fd_glob_38, "portfolio-website-v1.mdx": __fd_glob_39, "portfolio-website-v2.mdx": __fd_glob_40, "portfolio-website-v3.mdx": __fd_glob_41, });

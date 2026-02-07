@@ -7,11 +7,13 @@
 **Problem:** Google was showing "Missing field 'priceValidUntil' (in 'offers')" warning
 
 **Solution Implemented:**
+
 - Added 1-year default expiration date for all products
 - Formula: `Date.now() + 365 days` formatted as `YYYY-MM-DD`
 - Preserves existing `priceValidUntil` if set in MDX
 
 **Code Changes:**
+
 ```typescript
 // lib/schema/product-converter.ts
 const defaultPriceValidUntil = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
@@ -22,6 +24,7 @@ priceValidUntil: product.priceValidUntil || defaultPriceValidUntil,
 ```
 
 **Why This Works:**
+
 - Google expects `priceValidUntil` for sale pricing
 - Without it, they can't determine if sale price is still valid
 - 1-year default ensures compliance without requiring manual MDX updates
@@ -32,11 +35,13 @@ priceValidUntil: product.priceValidUntil || defaultPriceValidUntil,
 **Problem:** Google was showing "Missing field 'aggregateRating'" warning
 
 **Solution Implemented:**
+
 - Removed hardcoded `aggregateRating: undefined` from converter
 - Schema builder still supports aggregateRating if data exists
 - No errors when field is absent (it's optional for Merchant Listings)
 
 **Code Changes:**
+
 ```typescript
 // lib/schema/product-converter.ts
 // REMOVED:
@@ -48,6 +53,7 @@ priceValidUntil: product.priceValidUntil || defaultPriceValidUntil,
 ```
 
 **Why This Works:**
+
 - Google's "missing" warning for aggregateRating is informational
 - Field is NOT required for Merchant Listing compliance
 - Removing undefined values cleans up the schema
@@ -58,10 +64,12 @@ priceValidUntil: product.priceValidUntil || defaultPriceValidUntil,
 **Problem:** Google's NEW 2025 requirement for `applicableCountry` in MerchantReturnPolicy
 
 **Solution Implemented:**
+
 - Added `applicableCountry: "US"` to MerchantReturnPolicy
 - ISO 3166-1 alpha-2 country code format
 
 **Code Changes:**
+
 ```typescript
 // lib/schema/merchant-builder.ts & product-converter.ts
 export function buildMerchantReturnPolicy(): MerchantReturnPolicy {
@@ -79,6 +87,7 @@ export function buildMerchantReturnPolicy(): MerchantReturnPolicy {
 ```
 
 **Why This Works:**
+
 - Google updated requirements in March 2025
 - Must specify country code for return policies
 - ISO format required (e.g., "US", "GB", "CA")
@@ -100,11 +109,13 @@ export function buildMerchantReturnPolicy(): MerchantReturnPolicy {
 **URL:** https://search.google.com/test/rich-results
 
 **Test Product URLs:**
+
 1. https://pantaleone.net/shop/ai-apps/profitsignals-app
 2. https://pantaleone.net/shop/ai-apps/nextjs-ai-starter-app
 3. https://pantaleone.net/shop/ai-workflows/100k-ai-prompts-pack
 
 **Expected Results:**
+
 ```
 ✅ Product detected
 ✅ name: "ProfitSignals.xyz"
@@ -123,6 +134,7 @@ export function buildMerchantReturnPolicy(): MerchantReturnPolicy {
 ```
 
 **Validation Checklist:**
+
 - [ ] Product schema detected
 - [ ] All required fields present (name, image, offers)
 - [ ] priceValidUntil present in offers
@@ -135,6 +147,7 @@ export function buildMerchantReturnPolicy(): MerchantReturnPolicy {
 **URL:** https://search.google.com/search-console
 
 **Actions:**
+
 1. Go to "Shopping" tab in Search Console
 2. Check "Product snippets" section
 3. Check "Merchant listings" section
@@ -144,6 +157,7 @@ export function buildMerchantReturnPolicy(): MerchantReturnPolicy {
    - [ ] No "aggregateRating" warnings
 
 **Expected Behavior:**
+
 - Previous warnings should disappear
 - New "Errors" count: 0
 - "Warnings" count: 0 (for aggregateRating)
@@ -153,11 +167,13 @@ export function buildMerchantReturnPolicy(): MerchantReturnPolicy {
 **URL:** https://validator.schema.org/
 
 **Actions:**
+
 1. Enter product URL
 2. Check for any warnings
 3. Verify JSON-LD is valid
 
 **Expected Results:**
+
 ```
 ✅ Valid JSON-LD
 ✅ Product type recognized
@@ -169,6 +185,7 @@ export function buildMerchantReturnPolicy(): MerchantReturnPolicy {
 ### Step 5: Verify Structured Data in Page Source
 
 **Actions:**
+
 1. Open any product page
 2. View page source (Cmd+Opt+U on Mac)
 3. Search for `application/ld+json`
@@ -180,6 +197,7 @@ export function buildMerchantReturnPolicy(): MerchantReturnPolicy {
 ### Step 6: Monitor for 24-48 Hours
 
 **What to Check:**
+
 1. Google Search Console updated errors
 2. Rich Results Test tool still passes
 3. Product search results show:
@@ -188,6 +206,7 @@ export function buildMerchantReturnPolicy(): MerchantReturnPolicy {
    - [ ] No missing field warnings
 
 **Expected Timeline:**
+
 - **0-24 hours:** Google re-crawls updated pages
 - **24-48 hours:** Search Console reflects changes
 - **48-72 hours:** Rich snippets update in search results
@@ -197,6 +216,7 @@ export function buildMerchantReturnPolicy(): MerchantReturnPolicy {
 ## 📊 Pre-Fix vs Post-Fix Comparison
 
 ### Before (What Google Saw)
+
 ```json
 {
   "@type": "Product",
@@ -216,6 +236,7 @@ export function buildMerchantReturnPolicy(): MerchantReturnPolicy {
 ```
 
 ### After (What Google Will See)
+
 ```json
 {
   "@type": "Product",
@@ -238,22 +259,22 @@ export function buildMerchantReturnPolicy(): MerchantReturnPolicy {
 
 ## 🎯 Google Merchant Listing Compliance Status
 
-| Field | Status | Before | After |
-|--------|---------|---------|--------|
-| name | ✅ Required | Present | Present |
-| image | ✅ Required | Present | Present |
-| offers.price | ✅ Required | Present | Present |
-| offers.priceCurrency | ✅ Required | Present | Present |
-| offers.availability | ✅ Recommended | Present | Present |
-| **offers.priceValidUntil** | ❌ Missing | ❌ MISSING | ✅ FIXED |
-| offers.url | ✅ Recommended | Present | Present |
-| offers.itemCondition | ✅ Recommended | Present | Present |
-| offers.hasMerchantReturnPolicy | ✅ Recommended | Present | Present |
-| **hasMerchantReturnPolicy.applicableCountry** | ❌ Missing | ❌ MISSING | ✅ FIXED |
-| brand.name | ✅ Recommended | Present | Present |
-| sku | ✅ Recommended | Present | Present |
-| mpn | ✅ Optional | Present | Present |
-| gtin | ✅ Recommended | Present | Present |
+| Field                                         | Status         | Before     | After    |
+| --------------------------------------------- | -------------- | ---------- | -------- |
+| name                                          | ✅ Required    | Present    | Present  |
+| image                                         | ✅ Required    | Present    | Present  |
+| offers.price                                  | ✅ Required    | Present    | Present  |
+| offers.priceCurrency                          | ✅ Required    | Present    | Present  |
+| offers.availability                           | ✅ Recommended | Present    | Present  |
+| **offers.priceValidUntil**                    | ❌ Missing     | ❌ MISSING | ✅ FIXED |
+| offers.url                                    | ✅ Recommended | Present    | Present  |
+| offers.itemCondition                          | ✅ Recommended | Present    | Present  |
+| offers.hasMerchantReturnPolicy                | ✅ Recommended | Present    | Present  |
+| **hasMerchantReturnPolicy.applicableCountry** | ❌ Missing     | ❌ MISSING | ✅ FIXED |
+| brand.name                                    | ✅ Recommended | Present    | Present  |
+| sku                                           | ✅ Recommended | Present    | Present  |
+| mpn                                           | ✅ Optional    | Present    | Present  |
+| gtin                                          | ✅ Recommended | Present    | Present  |
 
 ---
 
@@ -264,6 +285,7 @@ export function buildMerchantReturnPolicy(): MerchantReturnPolicy {
 When you have actual customer reviews, add:
 
 **Update Schema:**
+
 ```typescript
 // lib/schema/merchant-types.ts
 export interface ProductReview {
@@ -287,6 +309,7 @@ export interface MerchantProduct {
 ```
 
 **Update MDX Frontmatter:**
+
 ```yaml
 ---
 reviews:
@@ -305,6 +328,7 @@ aggregateRating:
 If you want to offer sale prices:
 
 **Update MDX Frontmatter:**
+
 ```yaml
 ---
 price: 750
@@ -314,10 +338,11 @@ priceValidUntil: "2025-03-31"
 ```
 
 **Update Converter:**
+
 ```typescript
 offers: {
   price: product.salePrice || product.price,
-  priceValidUntil: product.salePrice ? 
+  priceValidUntil: product.salePrice ?
     product.priceValidUntil : undefined,
 }
 ```
@@ -327,6 +352,7 @@ offers: {
 For products with multiple options (color, size):
 
 **Update MDX Frontmatter:**
+
 ```yaml
 ---
 productGroup: "AI Agent Kit"
@@ -349,6 +375,7 @@ variants:
 Use this checklist after deployment:
 
 ### Immediate Testing (0-2 hours)
+
 - [ ] Rich Results Test: https://search.google.com/test/rich-results
 - [ ] Test 3 product URLs
 - [ ] All 3 show: "Product detected"
@@ -357,6 +384,7 @@ Use this checklist after deployment:
 - [ ] No "aggregateRating" warnings
 
 ### Search Console (24-48 hours)
+
 - [ ] Login to https://search.google.com/search-console
 - [ ] Check "Shopping" > "Product snippets"
 - [ ] Check "Shopping" > "Merchant listings"
@@ -364,6 +392,7 @@ Use this checklist after deployment:
 - [ ] Warnings count = 0
 
 ### Live Search Results (48-72 hours)
+
 - [ ] Google "ProfitSignals.xyz pantaleone"
 - [ ] Verify price displays
 - [ ] Verify availability displays
@@ -371,6 +400,7 @@ Use this checklist after deployment:
 - [ ] No error messages
 
 ### Schema Validation (Anytime)
+
 - [ ] https://validator.schema.org/
 - [ ] Test product URL
 - [ ] Check for warnings
@@ -439,6 +469,7 @@ If issues persist after 48 hours:
 4. Run `npm run build` locally to verify
 
 **Success Criteria:**
+
 - Rich Results Test: ✅ Product detected, no errors
 - Search Console: ✅ 0 errors, 0 warnings
 - Live Search: ✅ Price/availability visible, no error messages

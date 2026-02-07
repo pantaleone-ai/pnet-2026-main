@@ -441,22 +441,28 @@
 }
 
 /* TABLES — exact Kimi dark card look */
-.prose :where(table) {
+.prose :where(table),
+table {
   @apply my-8 w-full overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-950 shadow-2xl;
 }
 
-.prose :where(thead th) {
-  @apply border-b border-zinc-800 bg-zinc-900 px-6 py-4 text-left text-sm font-semibold uppercase tracking-widest text-zinc-400;
+.prose :where(thead th),
+thead th {
+  @apply border-b border-zinc-800 bg-zinc-900 px-6 py-4 text-left text-sm font-semibold uppercase tracking-widest text-zinc-300;
 }
 
-.prose :where(tbody td) {
-  @apply border-b border-zinc-800 px-6 py-4 text-sm text-zinc-300;
+.prose :where(tbody td),
+tbody td {
+  @apply border-b border-zinc-800 px-6 py-4 text-sm text-zinc-200;
 }
 
-.prose :where(tbody tr:hover) {
+.prose :where(tbody tr:hover),
+tbody tr:hover {
   @apply bg-zinc-900/50;
 }
-.prose :where(tbody tr:nth-child(even)) {
+
+.prose :where(tbody tr:nth-child(even)),
+tbody tr:nth-child(even) {
   @apply bg-zinc-950;
 }
 
