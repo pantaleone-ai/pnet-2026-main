@@ -4,130 +4,97 @@ import { createMDX } from "fumadocs-mdx/next";
 const config = {
   reactStrictMode: true,
   experimental: {
-    optimizePackageImports: ['lucide-react', '@radix-ui/react-*', 'react-icons', 'date-fns'],
+    optimizePackageImports: [
+      "lucide-react",
+      "@radix-ui/react-*",
+      "react-icons",
+      "date-fns",
+    ],
   },
   async redirects() {
     return [
       {
-        source: '/blog/post/:slug*',
-        destination: '/blog/:slug*',
+        source: "/blog/post/:slug*",
+        destination: "/blog/:slug*",
         permanent: true, // 301 redirect
       },
       {
-        source: '/about',
-        destination: 'https://pantaleone.net',
+        source: "/about",
+        destination: "https://pantaleone.net",
         permanent: true, // 301 redirect
       },
       {
-        source: '/education',
-        destination: 'https://pantaleone.net',
+        source: "/education",
+        destination: "https://pantaleone.net",
         permanent: true, // 301 redirect
       },
       {
-        source: '/experience',
-        destination: 'https://pantaleone.net',
+        source: "/experience",
+        destination: "https://pantaleone.net",
         permanent: true, // 301 redirect
       },
       // Feed redirects to RSS XML
       {
-        source: '/feed',
-        destination: '/rss.xml',
+        source: "/feed",
+        destination: "/rss.xml",
         permanent: true,
       },
       {
-        source: '/feed/',
-        destination: '/rss.xml',
+        source: "/feed/",
+        destination: "/rss.xml",
         permanent: true,
       },
       // Directory redirects to homepage
       {
-        source: '/digital-asset-nft-tag/:slug*',
-        destination: '/',
+        source: "/digital-asset-nft-tag/:slug*",
+        destination: "/",
         permanent: true,
       },
       {
-        source: '/grid',
-        destination: '/',
+        source: "/grid",
+        destination: "/",
         permanent: true,
       },
       {
-        source: '/sets',
-        destination: '/',
+        source: "/sets",
+        destination: "/",
         permanent: true,
       },
       {
-        source: '/tag/:slug*',
-        destination: '/',
+        source: "/tag/:slug*",
+        destination: "/",
         permanent: true,
       },
       {
-        source: '/p/:slug*',
-        destination: '/',
+        source: "/p/:slug*",
+        destination: "/",
         permanent: true,
       },
       {
-        source: '/nft-art/:slug*',
-        destination: '/',
+        source: "/nft-art/:slug*",
+        destination: "/",
         permanent: true,
       },
       {
-        source: '/product/:slug*',
-        destination: '/',
+        source: "/product/:slug*",
+        destination: "/",
         permanent: true,
       },
       {
-        source: '/buy-nfts-and-custom-artwork',
-        destination: '/',
+        source: "/buy-nfts-and-custom-artwork",
+        destination: "/",
         permanent: true,
       },
       {
-        source: '/buy-nfts-and-custom-artwork/',
-        destination: '/',
+        source: "/buy-nfts-and-custom-artwork/",
+        destination: "/",
         permanent: true,
       },
     ];
   },
   images: {
-    formats: ["image/avif", "image/webp"],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    minimumCacheTTL: 60,
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "pbs.twimg.com",
-      },
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
-      {
-        protocol: "https",
-        hostname: "i.ytimg.com",
-      },
-      {
-        protocol: "https",
-        hostname: "img.youtube.com",
-      },
-      {
-        protocol: "https",
-        hostname: "unavatar.io",
-      },
-      {
-        protocol: 'https',
-        hostname: 'pantaleone-net.s3.us-west-1.amazonaws.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: "https",
-        hostname: "i.ebayimg.com",
-      },
-      {
-        protocol: "https",
-        hostname: "ebayimg.com",
-      },
-    ],
+    loader: "default", // Prevents Vercel's optimization
+    unoptimized: true, // Disables all image optimizations globally
   },
   async headers() {
     return [
