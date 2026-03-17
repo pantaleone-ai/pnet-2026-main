@@ -143,7 +143,7 @@ export const metadata: Metadata = {
     siteName: siteConfig.name,
     images: [
       {
-        url: siteConfig.ogImage,
+        url: "/summary_large_image.png",
         width: 1200,
         height: 630,
         alt: siteConfig.name,
@@ -156,8 +156,13 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: siteConfig.name,
     description: siteConfig.description,
-    images: [siteConfig.ogImage],
+    images: ["/summary_large_image.png"],
     creator: "@m_pantaleone",
+  },
+
+  // Additional meta tags
+  other: {
+    "og:logo": "summary_large_image.png",
   },
 
   icons: {

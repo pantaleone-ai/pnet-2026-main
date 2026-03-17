@@ -100,6 +100,9 @@ export async function generateMetadata({
       description: data.description?.slice(0, 100) + ("..." as string),
       images: data.image ? [data.image] : undefined,
     },
+    other: {
+      "og:logo": "summary_large_image.png",
+    },
   };
 }
 

@@ -35,6 +35,34 @@ export const metadata: Metadata = {
   alternates: {
     canonical: getBaseUrl(page?.slug),
   },
+
+  // OpenGraph - preserved original behavior
+  openGraph: {
+    type: "website",
+    title: page?.title,
+    description: page?.description,
+    images: [
+      {
+        url: "https://pantaleone.net/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: page?.title,
+      },
+    ],
+  },
+
+  // Twitter - preserved original behavior
+  twitter: {
+    card: "summary_large_image",
+    title: page?.title,
+    description: page?.description,
+    images: ["https://pantaleone.net/opengraph-image"],
+  },
+
+  // Additional meta tags
+  other: {
+    "og:logo": "summary_large_image.png",
+  },
 };
 
 export default async function BlogPage() {
@@ -45,7 +73,7 @@ export default async function BlogPage() {
   const products = getProducts();
 
   // Transform posts to serializable format for client components
-  const serializablePosts = posts.map(post => {
+  const serializablePosts = posts.map((post) => {
     const { body, ...serializablePost } = post;
     return serializablePost;
   });
