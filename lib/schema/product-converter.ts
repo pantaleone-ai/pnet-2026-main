@@ -42,16 +42,14 @@ export function convertShopProductToMerchantProduct(
         returnFees: "https://schema.org/FreeReturn",
         applicableCountry: "US",
       },
-      shippingDetails: !product.isDigital
-        ? {
-            shippingRate: 0,
-            shippingCurrency: product.currency || "USD",
-            deliveryTime: {
-              businessDays: 5,
-              handlingTime: 1,
-            },
-          }
-        : undefined,
+      shippingDetails: {
+        shippingRate: 0,
+        shippingCurrency: product.currency || "USD",
+        deliveryTime: {
+          businessDays: product.isDigital ? 0 : 5,
+          handlingTime: 1,
+        },
+      },
     },
     brand: {
       name: "Pantaleone Digital Services",

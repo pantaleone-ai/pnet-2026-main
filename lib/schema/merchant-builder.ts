@@ -36,6 +36,9 @@ export function buildMerchantReturnPolicy(): MerchantReturnPolicy {
 export function buildShippingDetails(offer: MerchantOffer) {
   if (!offer.shippingDetails) return undefined;
 
+  const transitDays = offer.shippingDetails.deliveryTime.businessDays;
+  const isDigital = transitDays === 0;
+
   return {
     "@type": "OfferShippingDetails",
     shippingRate: {
@@ -43,36 +46,42 @@ export function buildShippingDetails(offer: MerchantOffer) {
       value: offer.shippingDetails.shippingRate,
       currency: offer.shippingDetails.shippingCurrency,
     },
-    shippingDestination: {
-      "@type": "DefinedRegion",
-      addressCountry: "US",
-    },
+    shippingDestination: isDigital
+      ? undefined
+      : {
+          "@type": "DefinedRegion",
+          addressCountry: "US",
+        },
     deliveryTime: {
       "@type": "ShippingDeliveryTime",
-      businessDays: {
-        "@type": "OpeningHoursSpecification",
-        dayOfWeek: [
-          "https://schema.org/Monday",
-          "https://schema.org/Tuesday",
-          "https://schema.org/Wednesday",
-          "https://schema.org/Thursday",
-          "https://schema.org/Friday",
-        ],
-      },
+      businessDays: isDigital
+        ? undefined
+        : {
+            "@type": "OpeningHoursSpecification",
+            dayOfWeek: [
+              "https://schema.org/Monday",
+              "https://schema.org/Tuesday",
+              "https://schema.org/Wednesday",
+              "https://schema.org/Thursday",
+              "https://schema.org/Friday",
+            ],
+          },
       handlingTime: {
         "@type": "QuantitativeValue",
         minValue: 0,
         maxValue: offer.shippingDetails.deliveryTime.handlingTime,
         unitCode: "DAY",
       },
-      transitTime: {
-        "@type": "QuantitativeValue",
-        minValue:
-          offer.shippingDetails.deliveryTime.businessDays -
-          offer.shippingDetails.deliveryTime.handlingTime,
-        maxValue: offer.shippingDetails.deliveryTime.businessDays,
-        unitCode: "DAY",
-      },
+      transitTime: isDigital
+        ? undefined
+        : {
+            "@type": "QuantitativeValue",
+            minValue:
+              offer.shippingDetails.deliveryTime.businessDays -
+              offer.shippingDetails.deliveryTime.handlingTime,
+            maxValue: offer.shippingDetails.deliveryTime.businessDays,
+            unitCode: "DAY",
+          },
     },
   } as any;
 }
