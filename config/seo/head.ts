@@ -4,32 +4,38 @@ import type { HeadType } from "@/types";
 const HEAD: HeadType[] = [
   {
     page: "Home",
-    title: truncateTitle("Pantaleone.net | Forward Deployed AI Engineer"),
+    title: truncateTitle(
+      "Pantaleone.ai | AI Engineering & Agentic Automation Strategy",
+    ),
     description: truncateDescription(
-      "Specializing in Forward Deployed AI, autonomous workflows, and enterprise automation. Building scalable AI-driven solutions at Pantaleone Digital Services.",
+      "Forward-deployed AI engineer specializing in agentic AI, business automation strategy, and autonomous workflows. Build scalable AI systems with enterprise-grade automation.",
     ),
     slug: "/",
   },
   {
     page: "About",
-    title: truncateTitle("About | Matt Pantaleone | AI & Automation Expert"),
+    title: truncateTitle(
+      "About Matt Pantaleone | AI Strategy & Automation Engineering Expert",
+    ),
     description: truncateDescription(
-      "Founder of Pantaleone Digital Services LLC. Engineering custom LLM integrations and high-scale digital infrastructure.",
+      "AI strategy consultant and forward-deployed engineer building agentic AI systems, automation architectures, and custom LLM integrations for enterprise businesses.",
     ),
     slug: "/about",
   },
   {
     page: "Experience",
-    title: truncateTitle("Experience | AI Engineering & Technical Strategy"),
+    title: truncateTitle("Experience | AI Engineering & Automation Strategy"),
     description: truncateDescription(
-      "Professional history in Forward Deployed AI, automation architecture, and digital transformation.",
+      "Professional history in forward-deployed AI engineering, automation architecture, agentic AI development, and digital transformation strategy.",
     ),
     slug: "/experience",
   },
   {
     page: "Education",
     title: truncateTitle("Education | Technical Foundations in AI & Dev"),
-    description: truncateDescription("Academic background and certifications in software engineering and AI technologies."),
+    description: truncateDescription(
+      "Academic background and certifications in software engineering and AI technologies.",
+    ),
     slug: "/education",
   },
   {
@@ -58,9 +64,11 @@ const HEAD: HeadType[] = [
   },
   {
     page: "Contact",
-    title: truncateTitle("Contact | Hire for AI Engineering & Consulting"),
+    title: truncateTitle(
+      "Hire AI Engineer | Automation Consulting & Strategy Services",
+    ),
     description: truncateDescription(
-      "Inquiries for AI automation, forward deployed engineering, and digital strategy. Let's build your AI roadmap.",
+      "Contact for AI engineering, automation strategy implementation, and agentic workflow development. Get expert consultation on business automation solutions.",
     ),
     slug: "/contact",
   },

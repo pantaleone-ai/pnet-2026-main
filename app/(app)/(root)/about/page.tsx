@@ -8,6 +8,36 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Web from "@/features/about/components/Web";
 import LastModified from "@/components/LastModified";
+import { siteConfig } from "@/config/site";
+
+function getMemberJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: "Matt Pantaleone",
+    jobTitle: "Senior AI Engineer & Automation Strategist",
+    url: getBaseUrl("/about"),
+    image: `${siteConfig.url}/images/horizontal-profile-about.jpg`,
+    worksFor: {
+      "@type": "Organization",
+      name: "Pantaleone Digital Services LLC",
+      url: siteConfig.url,
+    },
+    knowsAbout: [
+      "Agentic AI",
+      "Business Automation",
+      "AI Strategy Consulting",
+      "Enterprise Automation",
+      "LLM Integration",
+      "Workflow Orchestration",
+    ],
+    sameAs: [
+      siteConfig.links.twitter,
+      siteConfig.links.linkedin,
+      siteConfig.links.github,
+    ].filter(Boolean),
+  };
+}
 
 // Validate SEO configuration to ensure all required fields are present
 // This helps catch missing or incomplete SEO setup early
@@ -36,7 +66,6 @@ export const metadata: Metadata = {
   },
 };
 
-
 export default async function AboutMePage() {
   const defaultImage = "/images/horizontal-profile-about.jpg";
   const imageAlt =
@@ -45,6 +74,12 @@ export default async function AboutMePage() {
   return (
     <>
       <SeparatorHorizontal borderTop={false} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(getMemberJsonLd()),
+        }}
+      />
       <main className="mx-auto flex flex-col">
         <div className="relative">
           {/* Mobile Image */}
@@ -83,13 +118,74 @@ export default async function AboutMePage() {
           <div className="prose dark:prose-invert mx-auto max-w-3xl px-6 py-8">
             <h2 className="text-2xl font-semibold mb-4">About Me</h2>
             <p className="mb-4">
-              I'm a passionate developer with expertise in building modern web applications.
-              My journey in software development has led me to work on various exciting projects.
+              I'm a passionate developer with expertise in building modern web
+              applications. My journey in software development has led me to
+              work on various exciting projects.
             </p>
             <p className="mb-6">
               Below you can explore some of the web applications I've developed:
             </p>
             <Web />
+          </div>
+        </div>
+
+        <SeparatorHorizontal short={true} />
+
+        <div className="border-border relative min-h-52 max-w-full">
+          <div className="prose dark:prose-invert mx-auto max-w-3xl px-6 py-8">
+            <h2 className="text-2xl font-semibold mb-4">
+              AI Strategy & Automation Engineering
+            </h2>
+            <p className="mb-4">
+              I'm a forward-deployed AI engineer specializing in building
+              autonomous agentic systems and enterprise automation strategies.
+              My work focuses on bridging the gap between cutting-edge AI
+              capabilities and practical business implementation.
+            </p>
+            <p className="mb-4">
+              As an AI strategy consultant, I help organizations identify
+              high-impact automation opportunities, design agentic workflows,
+              and deploy scalable AI solutions that drive measurable business
+              outcomes.
+            </p>
+
+            <h2 className="text-2xl font-semibold mb-4 mt-8">Core Expertise</h2>
+            <ul className="list-disc pl-6 mb-6 space-y-2">
+              <li>
+                <strong>Agentic AI Development</strong> — Building autonomous
+                agents that handle complex workflows
+              </li>
+              <li>
+                <strong>Business Automation Strategy</strong> — Identifying and
+                implementing automation opportunities
+              </li>
+              <li>
+                <strong>LLM Integration</strong> — Custom large language model
+                deployments and fine-tuning
+              </li>
+              <li>
+                <strong>Workflow Orchestration</strong> — N8N, LangChain, and
+                custom automation pipelines
+              </li>
+            </ul>
+
+            <h2 className="text-2xl font-semibold mb-4 mt-8">
+              AI Engineering Approach
+            </h2>
+            <p className="mb-4">
+              I believe in practical AI solutions that solve real business
+              problems. Every automation strategy starts with understanding your
+              unique operational challenges, then applying the right combination
+              of agentic AI, predictive models, and workflow optimization.
+            </p>
+            <p className="mb-6">
+              My background in systems architecture combined with hands-on AI
+              engineering allows me to deliver solutions that are both
+              technically sound and commercially viable. Whether you are looking
+              to automate repetitive tasks, implement intelligent document
+              processing, or build complete AI-powered business systems, I can
+              help you navigate the complexity of modern AI implementation.
+            </p>
           </div>
         </div>
       </main>

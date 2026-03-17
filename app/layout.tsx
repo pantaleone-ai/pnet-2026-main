@@ -61,6 +61,44 @@ function getPersonJsonLd(): WithContext<Person> {
   };
 }
 
+// 3. JSON-LD: Organization + LocalBusiness (simplified for type safety)
+function getOrganizationJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": ["Organization", "LocalBusiness"],
+    name: "Pantaleone Digital Services LLC",
+    url: siteConfig.url,
+    logo: `${siteConfig.url}/logo.png`,
+    description:
+      "AI engineering and automation strategy consultancy specializing in agentic AI, business automation, and enterprise AI solutions.",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "New York",
+      addressRegion: "NY",
+      addressCountry: "US",
+    },
+    areaServed: ["United States", "Canada", "Europe"],
+    sameAs: [
+      siteConfig.links.twitter,
+      siteConfig.links.github,
+      siteConfig.links.linkedin,
+    ].filter(Boolean),
+  };
+}
+
+// 4. JSON-LD: ProfessionalService (simplified for type safety)
+function getProfessionalServiceJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    name: "Pantaleone Digital Services",
+    image: siteConfig.ogImage,
+    priceRange: "$$$",
+    description:
+      "AI engineering and automation strategy services for enterprise businesses.",
+  };
+}
+
 // Script to handle initial theme state (prevents flash of wrong theme)
 const darkModeScript = `
   try {
@@ -154,6 +192,18 @@ export default function RootLayout({ children }: RootLayoutProps) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(getPersonJsonLd()),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(getOrganizationJsonLd()),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(getProfessionalServiceJsonLd()),
           }}
         />
       </head>
