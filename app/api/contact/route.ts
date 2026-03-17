@@ -5,7 +5,13 @@ import { escape } from "html-escaper";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResendClient() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error("RESEND_API_KEY is not configured");
+  }
+  return new Resend(apiKey);
+}
 
 // Rate limiter: 5 requests per minute per IP
 const limiter = rateLimit({
@@ -57,6 +63,7 @@ export async function POST(request: Request) {
     const sanitizedEmail = escape(email);
     const sanitizedMessage = escape(message);
 
+    const resend = getResendClient();
     const { data, error } = await resend.emails.send({
       from: "Portfolio Contact <contact@hiretimsf.com>",
       to: process.env.CONTACT_EMAIL || "hiretimsf@gmail.com",
