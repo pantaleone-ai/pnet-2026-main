@@ -14,11 +14,7 @@ export function convertShopProductToMerchantProduct(
   });
   if (images.length === 0) images.push("/summary_large_image.png");
 
-  const defaultPriceValidUntil = new Date(
-    Date.now() + 365 * 24 * 60 * 60 * 1000,
-  )
-    .toISOString()
-    .split("T")[0];
+  const defaultPriceValidUntil = "2026-12-31";
 
   return {
     name: product.title,
@@ -51,7 +47,7 @@ export function convertShopProductToMerchantProduct(
             shippingRate: 0,
             shippingCurrency: product.currency || "USD",
             deliveryTime: {
-              businessDays: 7,
+              businessDays: 5,
               handlingTime: 1,
             },
           }
