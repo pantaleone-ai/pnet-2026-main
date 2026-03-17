@@ -1,34 +1,79 @@
 ---
 title: MigrateCMS Tool
 description: >-
-  Developer kit for building browser-based content migration apps from various
-  CMS platforms to Next.js with SEO optimization
+  Production-ready developer kit for building browser-based CMS migration apps.
+  Converts WordPress, Shopify, Wix, Squarespace, and Webflow exports to SEO-optimized
+  MDX for Next.js—preserving rankings while stripping bloat.
 category: Apps
 price: 330
 currency: USD
 featured: true
 isDigital: true
-imageUrl: 'https://pantaleone-net.s3.us-west-1.amazonaws.com/migratecms1.webp'
+imageUrl: "https://pantaleone-net.s3.us-west-1.amazonaws.com/migratecms1.webp"
 imageAlt: MigrateCMS Tool interface for content conversion
 additionalImages:
-  - url: 'https://pantaleone-net.s3.us-west-1.amazonaws.com/migratecms2.webp'
+  - url: "https://pantaleone-net.s3.us-west-1.amazonaws.com/migratecms2.webp"
     alt: Export selection screen
-  - url: 'https://pantaleone-net.s3.us-west-1.amazonaws.com/migratecms3.webp'
+  - url: "https://pantaleone-net.s3.us-west-1.amazonaws.com/migratecms3.webp"
     alt: MDX output preview
 sku: MIGRATECMS-TOOL-001
-purchaseUrl: 'https://migratecms.vercel.app/'
+purchaseUrl: "https://migratecms.vercel.app/"
 techStacks:
   - Next.js
   - MDX
   - Client-side JavaScript
 stripeProductId: prod_TllYbl55Wr6iFp
 stripePriceId: price_1SoE3NA6IHcdPSqU75Ntn0V0
-stripePaymentLink: 'https://buy.stripe.com/9B6fZg6QR32yb8YaPke7m03'
+stripePaymentLink: "https://buy.stripe.com/9B6fZg6QR32yb8YaPke7m03"
+timeToValue: 25
+targetKeywords:
+  - "WordPress to Next.js migration tool"
+  - "CMS to MDX converter"
+  - "SEO-preserving content migration"
+  - "Headless CMS migration kit"
+  - "Static site generator content transfer"
+coreStack:
+  - Next.js 16
+  - React 19
+  - Client-side JavaScript
+  - Node.js
+primaryLibraries:
+  - MDX
+  - DOM Parser
+  - XML Parser
+  - CSV Parser
+infrastructureRequirements:
+  - Vercel
+  - Browser-only (no server)
+documentationUrl: "https://docs.pantaleone.net/docs/migratecms-tool"
+architectureDiagram: |
+  ```mermaid
+  graph LR
+    A[CMS Export] --> B[Upload Interface]
+    B --> C{Parse Format}
+    C -->|XML| D[WordPress Parser]
+    C -->|CSV| E[Shopify Parser]
+    C -->|HTML| F[Wix/Squarespace Parser]
+    D --> G[Content Normalizer]
+    E --> G
+    F --> G
+    G --> H[SEO Optimizer]
+    H --> I[MDX Generator]
+    I --> J[Download ZIP]
+    style A fill:#e1f5fe
+    style I fill:#e8f5e9
+    style J fill:#fff3e0
+  ```
 ---
+
 ## MigrateCMS Tool
+
 ### Developer Kit for CMS Migration Apps
+
 With this product, any developer can build a fully functioning content migration app that converts exports from WordPress, Shopify, Wix, Squarespace, and Webflow to SEO-optimized MDX for Next.js—preserving rankings, stripping bloat, and boosting performance, all in-browser.
+
 ### Key Features
+
 - **Platform Support**: Handles WordPress (XML), Shopify (CSV), Wix/Squarespace/Webflow (HTML feeds), RSS
 - **SEO Optimization**: Preserves slugs, dates, tags, meta descriptions; enables 301 redirects and sitemap generation
 - **Data Cleanup**: Strips Liquid tags, shortcodes, messy HTML for clean output
@@ -36,22 +81,30 @@ With this product, any developer can build a fully functioning content migration
 - **Performance Gains**: Optimizes for Next.js SSR/SSG, Core Web Vitals improvements (3x faster loads)
 - **Headless Integration**: MDX output with frontmatter for easy pairing with Sanity.io, Strapi, Contentful
 - **Migration Checklist**: Built-in guides for pre-audit, metadata transfer, redirect setup
+
 ### Technical Specifications
+
 - **Input Formats**: XML (WordPress), CSV (Shopify), HTML (Wix/Squarespace/Webflow), RSS
 - **Output Format**: MDX with frontmatter (title, date, slug, tags, meta)
 - **Framework/Engine**: Next.js 16, React 19, client-side JavaScript parsing
 - **Compatibility**: Works with any MDX-compatible static site generators
 - **Limitations**: Requires manual export from source CMS; no dynamic DB handling; post-migration redirects manual
+
 ### Ideal For
+
 - Developers crafting migration tools for Next.js upgrades
 - Builders integrating into headless CMS workflows
 - Devs enhancing e-commerce or site rebuild pipelines
 - Any dev embedding SEO-preserving content transfers
+
 ### What's Included
+
 - Browser-based upload and parsing interface code
 - Normalization and cleanup logic
 - MDX generation modules with frontmatter
 - SEO checklist and guide components
 - Output download features
+
 ### Get Started Fast
+
 Hook this kit into your stack—migrate content seamlessly, ditch legacy bloat, and build faster foundations without the SEO hit. Execute clean.

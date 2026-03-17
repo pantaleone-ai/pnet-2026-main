@@ -1,25 +1,25 @@
 ---
 title: Next.js AI Starter App
 description: >-
-  Developer kit / premium boilerplate for building AI-powered SaaS apps on
-  Next.js 15 (App Router + Server Components) with TypeScript, Tailwind,
-  shadcn/ui, theming, and production-ready foundations
+  Production-ready boilerplate for building AI-powered SaaS applications with 
+  Next.js 15, Server Components, TypeScript, Tailwind CSS v4, and shadcn/ui. 
+  Skip 40+ hours of auth boilerplate and focus on your AI logic.
 category: Apps
 price: 49.99
 currency: USD
 featured: true
 isDigital: true
-imageUrl: 'https://pantaleone-net.s3.us-west-1.amazonaws.com/saas1.webp'
+imageUrl: "https://pantaleone-net.s3.us-west-1.amazonaws.com/saas1.webp"
 imageAlt: Next.js AI Starter App preview showing modern UI components
 additionalImages:
-  - url: 'https://pantaleone-net.s3.us-west-1.amazonaws.com/saas2.webp'
+  - url: "https://pantaleone-net.s3.us-west-1.amazonaws.com/saas2.webp"
     alt: Nextjs Boilerplate
-  - url: 'https://pantaleone-net.s3.us-west-1.amazonaws.com/saas3.webp'
+  - url: "https://pantaleone-net.s3.us-west-1.amazonaws.com/saas3.webp"
     alt: Mobile responsive design on smartphone
-  - url: 'https://pantaleone-net.s3.us-west-1.amazonaws.com/saas4.webp'
+  - url: "https://pantaleone-net.s3.us-west-1.amazonaws.com/saas4.webp"
     alt: Admin panel with user management
 sku: NEXTJS-AI-STARTER-001
-purchaseUrl: 'https://gumroad.com/l/nextjs-ai-starter'
+purchaseUrl: "https://gumroad.com/l/nextjs-ai-starter"
 techStacks:
   - Next.js 15
   - TypeScript
@@ -28,36 +28,86 @@ techStacks:
   - Server Components
 stripeProductId: prod_TllW0OSW2tYD4Y
 stripePriceId: price_1SoDzaA6IHcdPSqUnYwwQK9t
-stripePaymentLink: 'https://buy.stripe.com/6oU14m8YZ46Cela2iOe7m00'
+stripePaymentLink: "https://buy.stripe.com/6oU14m8YZ46Cela2iOe7m00"
+timeToValue: 40
+targetKeywords:
+  - "Next.js 15 AI SaaS starter kit"
+  - "Production-ready AI app boilerplate"
+  - "Next.js Server Components auth template"
+  - "shadcn/ui Next.js dashboard starter"
+  - "AI chatbot Next.js boilerplate"
+coreStack:
+  - Node.js 22
+  - Next.js 15
+  - TypeScript (strict)
+  - React 19
+primaryLibraries:
+  - shadcn/ui
+  - next-themes
+  - Zod
+  - Tailwind CSS v4
+  - Server Actions
+infrastructureRequirements:
+  - Vercel
+  - Docker (optional)
+  - PostgreSQL (optional)
+documentationUrl: "https://docs.pantaleone.net/docs/nextjs-ai-starter"
+architectureDiagram: |
+  ```mermaid
+  graph TD
+    A[User] -->|HTTP| B[Next.js 15 App Router]
+    B -->|Server Component| C[API Routes]
+    C -->|AI Provider| D[OpenAI / Anthropic / Grok]
+    B -->|Auth| E[NextAuth.js]
+    B -->|Database| F[PostgreSQL / Prisma]
+    G[Admin Dashboard] -->|SSR| B
+    H[AI Chat Interface] -->|Streaming| C
+    style A fill:#e1f5fe
+    style D fill:#fff3e0
+    style F fill:#e8f5e9
+  ```
 ---
+
 ## Next.js AI Starter App
+
 ### Developer Boilerplate for AI SaaS Builds
+
 With this kit, any dev can fork and launch a production-grade AI SaaS fast—Next.js 15 App Router + Server Components as the rock-solid base. Skip the weekend of wiring auth, themes, dashboards, and responsive layouts. Focus on your AI logic—streaming responses, agents, whatever—while the frontend doesn't fight you.
+
 ### Key Features
+
 - **Modern Stack**: Next.js 15 App Router, full Server Components leverage
 - **Type Safety Locked**: Strict TypeScript everywhere—no loose ends
 - **UI Foundation**: shadcn/ui + Tailwind v4—customizable, copy-paste, zero bloat
 - **Runtime Theming**: Dark/light modes, multi-scheme switching via next-themes
 - **Production Patterns**: Dynamic dashboards, pricing tables, real-time chat UIs ready to hook AI streams
 - **Responsive Core**: Mobile-first layouts that hold up on any device
+
 ### Technical Specifications
+
 - **Framework**: Next.js 15 (App Router + Server Components)
 - **Language**: TypeScript (strict mode enforced)
 - **Styling**: Tailwind CSS v4 + shadcn/ui primitives
 - **Theming**: next-themes for seamless dark/light + custom schemes
 - **Architecture**: Server-first where it counts, client hydration minimal
 - **Extensibility**: Plug in any AI provider (OpenAI, Anthropic, Grok, etc.) via API routes or server actions
+
 ### Ideal For
+
 - Builders shipping AI chatbots, assistants, analyzers, generators
 - Devs tired of reinventing auth/UI boilerplate every project
 - Teams needing scalable, maintainable SaaS foundations
 - Anyone who values execution speed over starting from create-next-app
+
 ### What's Included
+
 - Full project structure with best-practice routing & components
 - Pre-wired shadcn/ui + custom components (dashboards, forms, tables, chat)
 - Complete theme system (dark/light + runtime switches)
 - Responsive layout templates (landing, admin, pricing, etc.)
 - Setup docs + extension guides
 - Example patterns for AI API integrations (streaming, error handling)
+
 ### Get Started Fast
+
 Fork this, wire your AI endpoint in one file, deploy to Vercel. No more crumbling setups from outdated starters. Build the real thing—fast, clean, yours.

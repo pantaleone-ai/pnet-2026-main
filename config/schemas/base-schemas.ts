@@ -97,5 +97,12 @@ export const shopProductSchema = frontmatterSchema.extend({
     .enum(["NewCondition", "UsedCondition", "RefurbishedCondition"])
     .optional(),
   priceValidUntil: z.string().optional(), // ISO date string for sale expiration
-  brandLogo: z.string().optional(), // URL to brand logo image
+  brandLogo: z.string().optional(),
+  timeToValue: z.number().optional(),
+  targetKeywords: z.array(z.string()).optional(),
+  documentationUrl: z.string().optional(),
+  architectureDiagram: z.string().optional(),
+  coreStack: z.array(z.string()).optional(),
+  primaryLibraries: z.array(z.string()).optional(),
+  infrastructureRequirements: z.array(z.string()).optional(),
 });

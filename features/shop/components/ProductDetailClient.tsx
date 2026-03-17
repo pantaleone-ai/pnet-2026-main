@@ -13,6 +13,10 @@ import {
   Cpu,
   ChevronRight,
   Info,
+  Clock,
+  BookOpen,
+  Server,
+  Cloud,
 } from "lucide-react";
 import { ProductImageGallery } from "@/features/shop/components/ProductImageGallery";
 import ProductCard from "./ProductCard";
@@ -20,31 +24,69 @@ import { track } from "@/lib/analytics";
 import type { Product, WithContext } from "schema-dts";
 import type { ShopProduct } from "@/features/shop/types/ShopProduct";
 
-/** * Structured Data - Enhanced for Google Product Snippets */
+function getSoftwareApplicationJsonLd(
+  product: ShopProduct,
+  canonicalUrl: string,
+): any {
+  const images: string[] = [];
+  if (product.imageUrl) images.push(product.imageUrl);
+  const additionalImages = product.additionalImages ?? [];
+  additionalImages.forEach((img) => {
+    if (!images.includes(img.url)) images.push(img.url);
+  });
+  if (images.length === 0) images.push("/summary_large_image.png");
+
+  const softwareApp: any = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: product.title,
+    description: product.description,
+    image: images,
+    applicationCategory: "DeveloperApplication",
+    operatingSystem: "Web Browser, Node.js, Next.js",
+    offers: {
+      "@type": "Offer",
+      price: product.price,
+      priceCurrency: product.currency || "USD",
+      availability:
+        product.inventory === 0
+          ? "https://schema.org/OutOfStock"
+          : "https://schema.org/InStock",
+      url: canonicalUrl,
+    },
+    author: {
+      "@type": "Organization",
+      name: "Pantaleone Digital Services",
+      url: "https://pantaleone.net",
+    },
+  };
+
+  if (product.sku) softwareApp.sku = product.sku;
+  if (product.coreStack?.length) {
+    softwareApp.softwareVersion = product.coreStack.join(", ");
+  }
+  if (product.targetKeywords?.length) {
+    softwareApp.keywords = product.targetKeywords.join(", ");
+  }
+  if (product.timeToValue) {
+    softwareApp.timeToValue = product.timeToValue;
+  }
+
+  return softwareApp;
+}
+
 function getProductJsonLd(
   product: ShopProduct,
   canonicalUrl: string,
 ): WithContext<Product> {
-  // Build image array with multiple formats for better Google display
   const images: string[] = [];
-  if (product.imageUrl) {
-    images.push(product.imageUrl);
-  }
-  // Add additional images if available
+  if (product.imageUrl) images.push(product.imageUrl);
   const additionalImages = product.additionalImages ?? [];
-  if (additionalImages.length > 0) {
-    additionalImages.forEach((img) => {
-      if (!images.includes(img.url)) {
-        images.push(img.url);
-      }
-    });
-  }
-  // Fallback to default image if no images
-  if (images.length === 0) {
-    images.push("/summary_large_image.png");
-  }
+  additionalImages.forEach((img) => {
+    if (!images.includes(img.url)) images.push(img.url);
+  });
+  if (images.length === 0) images.push("/summary_large_image.png");
 
-  // Build offer object
   const offer: any = {
     "@type": "Offer",
     price: product.price,
@@ -53,30 +95,19 @@ function getProductJsonLd(
       product.inventory === 0
         ? "https://schema.org/OutOfStock"
         : "https://schema.org/InStock",
-    url: canonicalUrl, // Product page URL, not purchase link
+    url: canonicalUrl,
   };
 
-  // Add optional offer fields
-  if (product.priceValidUntil) {
-    offer.priceValidUntil = product.priceValidUntil;
-  }
+  if (product.priceValidUntil) offer.priceValidUntil = product.priceValidUntil;
   if (product.itemCondition) {
     offer.itemCondition = `https://schema.org/${product.itemCondition}`;
   } else if (product.isDigital !== false) {
-    // Default to NewCondition for digital products
     offer.itemCondition = "https://schema.org/NewCondition";
   }
 
-  // Build brand object
-  const brand: any = {
-    "@type": "Brand",
-    name: "Pantaleone Digital Services",
-  };
-  if (product.brandLogo) {
-    brand.logo = product.brandLogo;
-  }
+  const brand: any = { "@type": "Brand", name: "Pantaleone Digital Services" };
+  if (product.brandLogo) brand.logo = product.brandLogo;
 
-  // Build product object
   const productData: any = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -88,18 +119,10 @@ function getProductJsonLd(
     category: product.category,
   };
 
-  // Add optional product fields
-  if (product.sku) {
-    productData.sku = product.sku;
-  }
-  if (product.mpn) {
-    productData.mpn = product.mpn;
-  }
-  if (product.gtin) {
-    productData.gtin = product.gtin;
-  }
+  if (product.sku) productData.sku = product.sku;
+  if (product.mpn) productData.mpn = product.mpn;
+  if (product.gtin) productData.gtin = product.gtin;
 
-  // Add additional properties (tech stacks)
   const techStacks = product.techStacks ?? [];
   if (techStacks.length > 0) {
     productData.additionalProperty = techStacks.map((tech: string) => ({
@@ -160,14 +183,17 @@ export default function ProductDetailClient({
   // Build canonical URL for product page
   const canonicalUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://pantaleone.net"}/shop/${category}/${product.slug}`;
 
+  // Use SoftwareApplication schema for Apps, Product for others
+  const jsonLdData = categoryName.toLowerCase().includes("app")
+    ? getSoftwareApplicationJsonLd(product, canonicalUrl)
+    : getProductJsonLd(product, canonicalUrl);
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
-            getProductJsonLd(product, canonicalUrl),
-          ).replace(/</g, "\\u003c"),
+          __html: JSON.stringify(jsonLdData).replace(/</g, "\\u003c"),
         }}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
@@ -264,6 +290,179 @@ export default function ProductDetailClient({
 
             {/* Product Content */}
             <section className="pt-10 border-t">{children}</section>
+
+            {/* Technical Manifest Section */}
+            {(product.timeToValue ||
+              product.coreStack ||
+              product.primaryLibraries ||
+              product.infrastructureRequirements ||
+              product.targetKeywords) && (
+              <section className="pt-10 border-t space-y-8">
+                <div className="space-y-2">
+                  <h2 className="text-2xl font-black tracking-tight">
+                    Technical Manifest
+                  </h2>
+                  <p className="text-muted-foreground">
+                    Complete technical specifications for this product
+                  </p>
+                </div>
+
+                {/* Time-to-Value Metric */}
+                {product.timeToValue && (
+                  <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6">
+                    <div className="flex items-start gap-4">
+                      <div className="p-3 bg-primary/10 rounded-xl">
+                        <Clock className="h-6 w-6 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold mb-1">
+                          Time-to-Value
+                        </h3>
+                        <p className="text-3xl font-black text-primary">
+                          Saves ~{product.timeToValue} hours
+                        </p>
+                        <p className="text-sm text-muted-foreground mt-2">
+                          of manual boilerplate and configuration work
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Core Stack */}
+                {product.coreStack && product.coreStack.length > 0 && (
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 bg-secondary rounded-lg mt-1">
+                      <Server className="h-5 w-5 text-secondary-foreground" />
+                    </div>
+                    <div className="text-left">
+                      <h4 className="font-bold mb-3">Core Stack</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {product.coreStack.map((tech) => (
+                          <span
+                            key={tech}
+                            className="px-3 py-1.5 rounded-md text-sm font-semibold bg-secondary text-secondary-foreground border"
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Primary Libraries */}
+                {product.primaryLibraries &&
+                  product.primaryLibraries.length > 0 && (
+                    <div className="flex items-start gap-4">
+                      <div className="p-2 bg-secondary rounded-lg mt-1">
+                        <Box className="h-5 w-5 text-secondary-foreground" />
+                      </div>
+                      <div className="text-left">
+                        <h4 className="font-bold mb-3">Primary Libraries</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {product.primaryLibraries.map((lib) => (
+                            <span
+                              key={lib}
+                              className="px-3 py-1.5 rounded-md text-sm font-semibold bg-secondary text-secondary-foreground border"
+                            >
+                              {lib}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                {/* Infrastructure Requirements */}
+                {product.infrastructureRequirements &&
+                  product.infrastructureRequirements.length > 0 && (
+                    <div className="flex items-start gap-4">
+                      <div className="p-2 bg-secondary rounded-lg mt-1">
+                        <Cloud className="h-5 w-5 text-secondary-foreground" />
+                      </div>
+                      <div className="text-left">
+                        <h4 className="font-bold mb-3">
+                          Infrastructure Requirements
+                        </h4>
+                        <div className="flex flex-wrap gap-2">
+                          {product.infrastructureRequirements.map((req) => (
+                            <span
+                              key={req}
+                              className="px-3 py-1.5 rounded-md text-sm font-semibold bg-secondary text-secondary-foreground border"
+                            >
+                              {req}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                {/* Target Keywords */}
+                {product.targetKeywords &&
+                  product.targetKeywords.length > 0 && (
+                    <div className="flex items-start gap-4">
+                      <div className="p-2 bg-secondary rounded-lg mt-1">
+                        <BookOpen className="h-5 w-5 text-secondary-foreground" />
+                      </div>
+                      <div className="text-left">
+                        <h4 className="font-bold mb-3">Target Keywords</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {product.targetKeywords.map((kw) => (
+                            <span
+                              key={kw}
+                              className="px-3 py-1.5 rounded-md text-sm font-semibold bg-muted text-muted-foreground border"
+                            >
+                              {kw}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                {/* Documentation Link - Technical Magnet Strategy */}
+                {product.documentationUrl && (
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 bg-secondary rounded-lg mt-1">
+                      <ExternalLink className="h-5 w-5 text-secondary-foreground" />
+                    </div>
+                    <div className="text-left">
+                      <h4 className="font-bold mb-3">Documentation Hub</h4>
+                      <a
+                        href={product.documentationUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center text-primary hover:underline font-medium"
+                      >
+                        View Technical Documentation
+                        <ExternalLink className="h-4 w-4 ml-2" />
+                      </a>
+                    </div>
+                  </div>
+                )}
+              </section>
+            )}
+
+            {/* Architecture Diagram */}
+            {product.architectureDiagram && (
+              <section className="pt-10 border-t">
+                <div className="space-y-2 mb-6">
+                  <h2 className="text-2xl font-black tracking-tight">
+                    Architecture Overview
+                  </h2>
+                  <p className="text-muted-foreground">
+                    Visual representation of product integration
+                  </p>
+                </div>
+                <div className="bg-muted/30 rounded-2xl p-6 overflow-x-auto">
+                  <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap">
+                    {product.architectureDiagram}
+                  </pre>
+                </div>
+              </section>
+            )}
 
             {product.videoEmbedUrl && (
               <section className="pt-10 border-t">

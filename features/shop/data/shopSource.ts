@@ -22,7 +22,11 @@ function getProduct(page: Page, index: number): ShopProduct {
   };
 
   // Generate slug from page slugs or title - use only the filename part
-  const slug = page.slugs.length > 0 ? page.slugs[page.slugs.length - 1]?.replace(/\.mdx?$/, '') || data.title.toLowerCase().replace(/\s+/g, '-') : data.title.toLowerCase().replace(/\s+/g, '-');
+  const slug =
+    page.slugs.length > 0
+      ? page.slugs[page.slugs.length - 1]?.replace(/\.mdx?$/, "") ||
+        data.title.toLowerCase().replace(/\s+/g, "-")
+      : data.title.toLowerCase().replace(/\s+/g, "-");
 
   // Get file path for reading content
   const pageWithFile = page as Page & { file: { path: string } };
@@ -34,11 +38,7 @@ function getProduct(page: Page, index: number): ShopProduct {
       pageWithFile.file.path,
     );
   } else if (slug) {
-    filePath = path.join(
-      process.cwd(),
-      "features/shop/content",
-      `${slug}.mdx`,
-    );
+    filePath = path.join(process.cwd(), "features/shop/content", `${slug}.mdx`);
   }
 
   // Read and process MDX content
@@ -55,11 +55,11 @@ function getProduct(page: Page, index: number): ShopProduct {
 
   // Parse additionalImages if it's a JSON string
   let parsedAdditionalImages = data.additionalImages;
-  if (typeof data.additionalImages === 'string') {
+  if (typeof data.additionalImages === "string") {
     try {
       parsedAdditionalImages = JSON.parse(data.additionalImages);
     } catch (error) {
-      console.error('Error parsing additionalImages JSON:', error);
+      console.error("Error parsing additionalImages JSON:", error);
       parsedAdditionalImages = [];
     }
   }
@@ -128,10 +128,20 @@ function getProduct(page: Page, index: number): ShopProduct {
     content: contentStr,
     readingTime: readingTimeText,
     readingTimeMinutes: readingTimeMinutes,
+    timeToValue: data.timeToValue,
+    targetKeywords: data.targetKeywords,
+    documentationUrl: data.documentationUrl,
+    architectureDiagram: data.architectureDiagram,
+    coreStack: data.coreStack,
+    primaryLibraries: data.primaryLibraries,
+    infrastructureRequirements: data.infrastructureRequirements,
   };
 }
 
-function getProductWithBody(page: Page, index: number): ShopProduct & {
+function getProductWithBody(
+  page: Page,
+  index: number,
+): ShopProduct & {
   body: React.ComponentType<object>;
 } {
   const baseProduct = getProduct(page, index);
@@ -167,10 +177,10 @@ export function getProductsByCategory(category: string): ShopProduct[] {
   try {
     // Map URL slugs to actual product categories
     const categoryMapping: Record<string, string> = {
-      'ai-apps': 'Apps',
-      'ai-workflows': 'Ai Workflows',
-      'Ai Apps': 'Apps', // Handle formatted category names from URL
-      'Ai Workflows': 'Ai Workflows', // Handle formatted category names from URL
+      "ai-apps": "Apps",
+      "ai-workflows": "Ai Workflows",
+      "Ai Apps": "Apps", // Handle formatted category names from URL
+      "Ai Workflows": "Ai Workflows", // Handle formatted category names from URL
       // Add more mappings as needed for future categories
     };
 
@@ -178,11 +188,12 @@ export function getProductsByCategory(category: string): ShopProduct[] {
     const mappedCategory = categoryMapping[category] || category;
 
     // If no mapping found, try to normalize the input
-    const normalizedCategory = mappedCategory === category
-      ? category
-          .replace(/-/g, ' ')
-          .replace(/\b\w/g, (char) => char.toUpperCase())
-      : mappedCategory;
+    const normalizedCategory =
+      mappedCategory === category
+        ? category
+            .replace(/-/g, " ")
+            .replace(/\b\w/g, (char) => char.toUpperCase())
+        : mappedCategory;
 
     return getProducts().filter((product) => {
       return product.category === normalizedCategory;
@@ -205,7 +216,9 @@ export function getFeaturedProducts(): ShopProduct[] {
 export function getCategories(): string[] {
   try {
     const products = getProducts();
-    const categories = Array.from(new Set(products.map((product) => product.category)));
+    const categories = Array.from(
+      new Set(products.map((product) => product.category)),
+    );
     return categories.sort();
   } catch (error) {
     console.error("Error getting categories:", error);
@@ -213,16 +226,21 @@ export function getCategories(): string[] {
   }
 }
 
-export function getProductBySlug(category: string, slug: string): (ShopProduct & {
-  body: React.ComponentType<object>;
-}) | null {
+export function getProductBySlug(
+  category: string,
+  slug: string,
+):
+  | (ShopProduct & {
+      body: React.ComponentType<object>;
+    })
+  | null {
   try {
     // Map URL slugs to actual product categories (same mapping as getProductsByCategory)
     const categoryMapping: Record<string, string> = {
-      'ai-apps': 'Apps',
-      'ai-workflows': 'Ai Workflows',
-      'Ai Apps': 'Apps', // Handle formatted category names from URL
-      'Ai Workflows': 'Ai Workflows', // Handle formatted category names from URL
+      "ai-apps": "Apps",
+      "ai-workflows": "Ai Workflows",
+      "Ai Apps": "Apps", // Handle formatted category names from URL
+      "Ai Workflows": "Ai Workflows", // Handle formatted category names from URL
       // Add more mappings as needed for future categories
     };
 
@@ -230,23 +248,28 @@ export function getProductBySlug(category: string, slug: string): (ShopProduct &
     const mappedCategory = categoryMapping[category] || category;
 
     // If no mapping found, try to normalize the input
-    const normalizedCategory = mappedCategory === category
-      ? category
-          .replace(/-/g, ' ')
-          .replace(/\b\w/g, (char) => char.toUpperCase())
-      : mappedCategory;
+    const normalizedCategory =
+      mappedCategory === category
+        ? category
+            .replace(/-/g, " ")
+            .replace(/\b\w/g, (char) => char.toUpperCase())
+        : mappedCategory;
 
     // Find the page that matches the category and slug
     const page = shopSource.getPages().find((page) => {
       const data = page.data as unknown as ShopProduct;
-      const pageSlug = page.slugs.length > 0 ? page.slugs[page.slugs.length - 1]?.replace(/\.mdx?$/, '') || data.title.toLowerCase().replace(/\s+/g, '-') : data.title.toLowerCase().replace(/\s+/g, '-');
+      const pageSlug =
+        page.slugs.length > 0
+          ? page.slugs[page.slugs.length - 1]?.replace(/\.mdx?$/, "") ||
+            data.title.toLowerCase().replace(/\s+/g, "-")
+          : data.title.toLowerCase().replace(/\s+/g, "-");
       return data.category === normalizedCategory && pageSlug === slug;
     });
 
     if (!page) return null;
 
     // Get the index for the product ID
-    const index = shopSource.getPages().findIndex(p => p === page);
+    const index = shopSource.getPages().findIndex((p) => p === page);
     return getProductWithBody(page, index);
   } catch (error) {
     console.error("Error getting product by slug:", error);

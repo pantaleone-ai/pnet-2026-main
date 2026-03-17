@@ -160,10 +160,14 @@ const shopProductSchema = frontmatterSchema.extend({
   stripePaymentLink: z.string().optional(),
   imageUrl: z.string().optional(),
   imageAlt: z.string().optional(),
-  additionalImages: z.array(z.object({
-    url: z.string(),
-    alt: z.string().optional(),
-  })).optional(),
+  additionalImages: z
+    .array(
+      z.object({
+        url: z.string(),
+        alt: z.string().optional(),
+      }),
+    )
+    .optional(),
   featured: z.boolean().default(false),
   isDigital: z.boolean().default(true),
   fromDate: z.string().default(""),
@@ -174,6 +178,13 @@ const shopProductSchema = frontmatterSchema.extend({
   videoEmbedAlt: z.string().optional(),
   techStacks: z.array(z.string()).optional(),
   weight: z.number().optional(),
+  timeToValue: z.number().optional(),
+  targetKeywords: z.array(z.string()).optional(),
+  documentationUrl: z.string().optional(),
+  architectureDiagram: z.string().optional(),
+  coreStack: z.array(z.string()).optional(),
+  primaryLibraries: z.array(z.string()).optional(),
+  infrastructureRequirements: z.array(z.string()).optional(),
 });
 
 export const shop = defineDocs({
@@ -184,7 +195,6 @@ export const shop = defineDocs({
     schema: shopProductSchema,
   }),
 });
-
 
 export default defineConfig({
   plugins: [lastModified()],

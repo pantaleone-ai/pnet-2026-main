@@ -54,7 +54,14 @@ type ShopProduct = {
   gtin?: string; // UPC/EAN/GTIN for product feeds
   itemCondition?: "NewCondition" | "UsedCondition" | "RefurbishedCondition";
   priceValidUntil?: string; // ISO date string for sale expiration
-  brandLogo?: string; // URL to brand logo image
+  brandLogo?: string;
+  timeToValue?: number;
+  targetKeywords?: string[];
+  documentationUrl?: string;
+  architectureDiagram?: string;
+  coreStack?: string[];
+  primaryLibraries?: string[];
+  infrastructureRequirements?: string[];
 };
 
 export type { ShopProduct };
