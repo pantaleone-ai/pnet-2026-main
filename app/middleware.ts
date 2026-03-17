@@ -2,17 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
-  const { pathname, hostname } = request.nextUrl;
-
-  const isWWW = hostname.startsWith("www.");
-  const isHTTP = hostname.startsWith("http://");
-
-  if (isWWW || isHTTP) {
-    const newUrl = new URL(request.url);
-    newUrl.hostname = "pantaleone.net";
-    newUrl.protocol = "https://";
-    return NextResponse.redirect(newUrl, 301);
-  }
+  const { pathname } = request.nextUrl;
 
   const redirectToHome = (_path: string) => {
     return NextResponse.redirect(new URL("/", request.url), 301);
