@@ -148,6 +148,27 @@ export function buildProductSchema(
       worstRating: product.aggregateRating.worstRating || 1,
     };
   }
+  if (product.reviews && product.reviews.length > 0) {
+    (productSchema as any).review = product.reviews.map((review) => ({
+      "@type": "Review",
+      author: {
+        "@type": "Person",
+        name: review.author,
+      },
+      publisher: {
+        "@type": "Organization",
+        name: review.publisher,
+      },
+      reviewRating: {
+        "@type": "Rating",
+        ratingValue: review.reviewRating.ratingValue,
+        bestRating: review.reviewRating.bestRating,
+      },
+      ...(review.datePublished && { datePublished: review.datePublished }),
+      ...(review.name && { name: review.name }),
+      ...(review.reviewBody && { reviewBody: review.reviewBody }),
+    }));
+  }
   if (product.inProductGroupWithID)
     (productSchema as any).inProductGroupWithID = product.inProductGroupWithID;
   if (product.isVariantOf) {

@@ -18,6 +18,18 @@ export interface MerchantOffer {
   };
 }
 
+export interface MerchantReview {
+  author: string;
+  publisher: string;
+  reviewRating: {
+    ratingValue: number;
+    bestRating: number;
+  };
+  datePublished?: string;
+  name?: string;
+  reviewBody?: string;
+}
+
 export interface MerchantProduct {
   name: string;
   description: string;
@@ -43,6 +55,7 @@ export interface MerchantProduct {
     bestRating?: number;
     worstRating?: number;
   };
+  reviews?: MerchantReview[];
   inProductGroupWithID?: string;
   isVariantOf?: {
     name: string;

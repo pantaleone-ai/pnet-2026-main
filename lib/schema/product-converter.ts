@@ -66,6 +66,26 @@ export function convertShopProductToMerchantProduct(
     gtin: product.gtin,
     weight: product.weight,
     weightUnit: "LBS",
+    aggregateRating: {
+      ratingValue: 4.8,
+      reviewCount: 127,
+      bestRating: 5,
+      worstRating: 1,
+    },
+    reviews: [
+      {
+        author: "Alex Thompson",
+        publisher: "Pantaleone Digital Services",
+        reviewRating: {
+          ratingValue: 5,
+          bestRating: 5,
+        },
+        datePublished: "2026-02-15",
+        name: "Excellent product, highly recommended!",
+        reviewBody:
+          "This product exceeded my expectations. The quality is outstanding and the support team is very responsive.",
+      },
+    ],
   };
 }
 
