@@ -4,6 +4,7 @@ import HeadingTitle from "@/components/HeadingTitle";
 // import ContactMe from "@/components/ContactMe";
 import FeaturedApps from "@/features/home/components/FeaturedApps";
 import FeaturedProducts from "@/features/home/components/FeaturedProducts";
+import FeaturedStoriesWrapper from "@/features/home/components/FeaturedStoriesWrapper";
 // import { WhatPeopleSay } from "@/features/home/components/WhatPeopleSay";
 // import { FaqSection } from "@/features/home/components/FAQ";
 import LatestBlogPosts from "@/features/home/components/LatestBlogPosts";
@@ -16,9 +17,11 @@ export default function Home() {
       <SeparatorHorizontal short={true} />
       <HeadingTitle title="AI Agents, Workflows & Apps" />
       <SeparatorHorizontal short={true} />
+      <FeaturedStoriesWrapper />
+      <SeparatorHorizontal short={true} />
       <FeaturedProducts />
       <SeparatorHorizontal short={true} />
-      <HeadingTitle title="Pantaleone AI Projects"/>
+      <HeadingTitle title="Pantaleone AI Projects" />
       <SeparatorHorizontal short={true} />
       <FeaturedApps />
       <SeparatorHorizontal short={true} />
