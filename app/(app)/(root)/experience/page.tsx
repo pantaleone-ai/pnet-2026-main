@@ -1,4 +1,3 @@
-import ContactMe from "@/components/ContactMe";
 import HeadingTitle from "@/components/HeadingTitle";
 import LastModified from "@/components/LastModified";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
@@ -47,19 +46,23 @@ export default async function ExperiencePage() {
         <SeparatorHorizontal short={true} />
         <div className="border-border relative min-h-52 max-w-full">
           <div className="prose dark:prose-invert mx-auto max-w-3xl px-6 py-8">
-            <h2 className="text-2xl font-semibold mb-4">Professional Experience</h2>
+            <h2 className="text-2xl font-semibold mb-4">
+              Professional Experience
+            </h2>
             <p className="mb-4">
-              I have extensive experience in software development, with a focus on building
-              modern web applications and working with cutting-edge technologies.
+              I have extensive experience in software development, with a focus
+              on building modern web applications and working with cutting-edge
+              technologies.
             </p>
             <p className="mb-4">
-              My professional journey includes working on various projects that have
-              honed my skills in frontend development, backend integration, and full-stack
-              application architecture.
+              My professional journey includes working on various projects that
+              have honed my skills in frontend development, backend integration,
+              and full-stack application architecture.
             </p>
             <p className="mb-4">
-              While specific work history details are not available at this time, I bring
-              a wealth of practical knowledge and expertise to every project I undertake.
+              While specific work history details are not available at this
+              time, I bring a wealth of practical knowledge and expertise to
+              every project I undertake.
             </p>
           </div>
         </div>
@@ -67,7 +70,6 @@ export default async function ExperiencePage() {
       <SeparatorHorizontal short={true} />
       <LastModified lastModified={new Date().toISOString()} />
       <SeparatorHorizontal short={true} />
-      <ContactMe />
       <SeparatorHorizontal borderBottom={false} />
     </>
   );

@@ -1,4 +1,3 @@
-import ContactMe from "@/components/ContactMe";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
 import ShopCategoryProducts from "@/features/shop/components/ShopCategoryProducts";
@@ -44,12 +43,12 @@ export default async function ShopCategoryPage({
     // First decode the URL-encoded slug
     const decodedSlug = decodeURIComponent(slug);
     return decodedSlug
-      .replace(/-/g, ' ')
+      .replace(/-/g, " ")
       .replace(/\b\w/g, (char) => char.toUpperCase());
   };
 
   const { category } = await params;
-  const categoryName = category ? formatCategoryName(category) : '';
+  const categoryName = category ? formatCategoryName(category) : "";
 
   return (
     <>
@@ -58,7 +57,6 @@ export default async function ShopCategoryPage({
       <SeparatorHorizontal short={true} />
       <ShopCategoryProducts category={categoryName} />
       <SeparatorHorizontal short={true} />
-      <ContactMe />
       <SeparatorHorizontal borderBottom={false} />
     </>
   );

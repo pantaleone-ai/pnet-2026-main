@@ -1,4 +1,3 @@
-import ContactMe from "@/components/ContactMe";
 import { DocsLayout } from "@/components/fuma/fuma-layout";
 import { DocsBody, DocsPage } from "@/components/fuma/fuma-page";
 import LastModified from "@/components/LastModified";
@@ -212,7 +211,6 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
       <SeparatorHorizontal short={true} />
       <FeaturedProductsSection products={products} />
       <SeparatorHorizontal short={true} />
-      <ContactMe />
       <SeparatorHorizontal borderBottom={false} />
     </>
   );

@@ -1,4 +1,3 @@
-import ContactMe from "@/components/ContactMe";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
 import ProjectList from "@/features/projects/components/ProjectList";
@@ -42,7 +41,6 @@ export default async function ProjectsPage() {
       <SeparatorHorizontal short={true} />
       <ProjectList />
       <SeparatorHorizontal short={true} />
-      <ContactMe />
       <SeparatorHorizontal borderBottom={false} />
     </>
   );

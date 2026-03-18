@@ -1,4 +1,3 @@
-import ContactMe from "@/components/ContactMe";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
 import ShopHero from "@/features/shop/components/ShopHero";
@@ -45,7 +44,6 @@ export default async function ShopPage() {
       <SeparatorHorizontal short={true} />
       <ShopCategories />
       <SeparatorHorizontal short={true} />
-      <ContactMe />
       <SeparatorHorizontal borderBottom={false} />
     </>
   );

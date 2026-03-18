@@ -1,4 +1,3 @@
-import ContactMe from "@/components/ContactMe";
 import HeadingTitle from "@/components/HeadingTitle";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
@@ -90,7 +89,6 @@ export default async function BlogPage() {
       <SeparatorHorizontal short={true} />
       <FeaturedProductsSection products={products} />
       <SeparatorHorizontal short={true} />
-      <ContactMe />
       <SeparatorHorizontal borderBottom={false} />
     </>
   );

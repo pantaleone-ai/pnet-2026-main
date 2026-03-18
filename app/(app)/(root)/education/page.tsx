@@ -1,4 +1,3 @@
-import ContactMe from "@/components/ContactMe";
 import HeadingTitle from "@/components/HeadingTitle";
 import LastModified from "@/components/LastModified";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
@@ -49,13 +48,14 @@ export default async function EducationPage() {
           <div className="prose dark:prose-invert mx-auto max-w-3xl px-6 py-8">
             <h2 className="text-2xl font-semibold mb-4">My Education</h2>
             <p className="mb-4">
-              I have a strong foundation in computer science and software development.
-              My educational background has equipped me with the skills to build modern web applications.
+              I have a strong foundation in computer science and software
+              development. My educational background has equipped me with the
+              skills to build modern web applications.
             </p>
             <p className="mb-4">
-              While specific academic details are not available at this time, I continuously
-              learn and stay updated with the latest technologies and best practices in
-              the software development industry.
+              While specific academic details are not available at this time, I
+              continuously learn and stay updated with the latest technologies
+              and best practices in the software development industry.
             </p>
           </div>
         </div>
@@ -63,7 +63,6 @@ export default async function EducationPage() {
       <SeparatorHorizontal short={true} />
       <LastModified lastModified={new Date().toISOString()} />
       <SeparatorHorizontal short={true} />
-      <ContactMe />
       <SeparatorHorizontal borderBottom={false} />
     </>
   );

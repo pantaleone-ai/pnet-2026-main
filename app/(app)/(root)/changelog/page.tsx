@@ -1,4 +1,3 @@
-import ContactMe from "@/components/ContactMe";
 import { DocsLayout } from "@/components/fuma/fuma-layout";
 import { DocsBody, DocsPage } from "@/components/fuma/fuma-page";
 import HeadingTitle from "@/components/HeadingTitle";
@@ -88,7 +87,6 @@ export default async function ChangelogPage() {
         lastModified={pageData.lastModified ?? new Date().toISOString()}
       />
       <SeparatorHorizontal short={true} />
-      <ContactMe />
       <SeparatorHorizontal borderBottom={false} />
     </>
   );

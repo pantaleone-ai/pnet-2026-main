@@ -1,3 +1,4 @@
+/*
 import HeadingTitle from "@/components/HeadingTitle";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
@@ -55,3 +56,4 @@ export default async function ContactPage() {
     </>
   );
 }
+*/

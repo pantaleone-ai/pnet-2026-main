@@ -1,4 +1,3 @@
-import ContactMe from "@/components/ContactMe";
 import Heading from "@/components/HeadingTitle";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
@@ -192,7 +191,6 @@ export default async function AboutMePage() {
       <SeparatorHorizontal short={true} />
       <LastModified lastModified={new Date().toISOString()} />
       <SeparatorHorizontal short={true} />
-      <ContactMe />
       <SeparatorHorizontal borderBottom={false} />
     </>
   );

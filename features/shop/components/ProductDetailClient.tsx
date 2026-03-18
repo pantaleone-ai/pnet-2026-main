@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect } from "react";
-import ContactMe from "@/components/ContactMe";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -620,10 +619,6 @@ export default function ProductDetailClient({
             </div>
           </section>
         )}
-
-        <div className="mt-32 border-t pt-20">
-          <ContactMe />
-        </div>
       </div>
     </>
   );
