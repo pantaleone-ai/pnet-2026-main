@@ -1,0 +1,68 @@
+#!/usr/bin/expect -f
+
+set timeout 180
+
+# Set variables
+set n8n_host "https://n8n.rapigent.com"
+set api_key "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxODI3NTkyZi0xYzA4LTRkMzktYjcyMi05MDIzN2M1NTUxNDEiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwianRpIjoiNTk5MDBkYmUtNTJiMC00OGQxLWFjZGMtZGRiZDJhOTZkMWZkIiwiaWF0IjoxNzczMzM1MTM2fQ.WSU71IWi9P3QdASvC-J-TbJINqelj6wHA0ZMW3MtQSk"
+set sync_folder "./workflows"
+
+# Run n8nac init
+spawn n8nac init
+
+# Wait for n8n host prompt and enter URL
+expect {
+    "n8n instance URL" {
+        send "$n8n_host\r"
+    }
+    -re "Enter your.*URL" {
+        send "$n8n_host\r"
+    }
+    timeout {
+        puts "Timeout waiting for n8n host prompt"
+        exit 1
+    }
+}
+
+# Wait for API key prompt and enter key
+expect {
+    "API Key" {
+        send "$api_key\r"
+    }
+    -re "Enter your.*key" {
+        send "$api_key\r"
+    }
+    timeout {
+        puts "Timeout waiting for API Key prompt"
+        exit 1
+    }
+}
+
+# Wait for sync folder prompt and enter folder
+expect {
+    -re "(folder|directory|path)" {
+        send "$sync_folder\r"
+    }
+    timeout {
+        puts "Timeout waiting for sync folder prompt"
+        exit 1
+    }
+}
+
+# Wait for project selection prompt - look for list of projects
+expect {
+    -re "project|Select" {
+        # Send enter to select first/default project
+        sleep 1
+        send "\r"
+    }
+    timeout {
+        puts "Timeout waiting for project selection"
+        exit 1
+    }
+}
+
+# Wait for completion
+expect eof
+
+puts "\n\nn8nac init completed!"

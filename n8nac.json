@@ -1,0 +1,7 @@
+{
+  "host": "https://n8n.rapigent.com",
+  "syncFolder": "./workflows",
+  "projectId": "lKC3oFGINXF60CVL",
+  "projectName": "matt pantaleone <mattpantaleone@gmail.com>",
+  "apiKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxODI3NTkyZi0xYzA4LTRkMzktYjcyMi05MDIzN2M1NTUxNDEiLCJpc3MiOiJuOG4iLCJhdWQiOiJwdWJsaWMtYXBpIiwianRpIjoiNTk5MDBkYmUtNTJiMC00OGQxLWFjZGMtZGRiZDJhOTZkMWZkIiwiaWF0IjoxNzczMzM1MTM2fQ.WSU71IWi9P3QdASvC-J-TbJINqelj6wHA0ZMW3MtQSk"
+}
