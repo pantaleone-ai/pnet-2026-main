@@ -57,3 +57,7 @@ export default async function ContactPage() {
   );
 }
 */
+
+export default function ContactPage() {
+  return null;
+}
