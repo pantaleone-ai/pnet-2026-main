@@ -7,7 +7,7 @@ import {
   // FileTextIcon as ExperienceIcon,
   HomeIcon,
   ArchiveIcon as ProjectsIcon,
-  MailIcon as ContactIcon,
+  // MailIcon as ContactIcon,
   ShoppingCartIcon as ShopIcon,
   BrainIcon,
   WorkflowIcon,
@@ -81,11 +81,11 @@ const NAVIGATION_LINKS: NavigationLinkType[] = [
     href: "/blog",
     label: "Blog",
   },
-  {
-    icon: ContactIcon,
-    href: "/contact",
-    label: "Contact",
-  },
+  // {
+  //   icon: ContactIcon,
+  //   href: "/contact",
+  //   label: "Contact",
+  // },
 ];
 
 export default NAVIGATION_LINKS;
