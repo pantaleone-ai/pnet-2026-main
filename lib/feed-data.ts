@@ -9,6 +9,7 @@ export interface FeedProduct {
   image_link: string;
   price: string; // "49.99 USD"
   availability: "in_stock" | "out_of_stock" | "preorder";
+  quantity: number; // Inventory count (999 for unlimited digital products)
   brand?: string;
   gtin?: string; // UPC/EAN
   google_product_category?: string; // For Google Merchant Center
@@ -40,6 +41,8 @@ export async function getFeedProducts(): Promise<FeedProduct[]> {
       price: `${p.price} ${p.currency}`,
       // Digital products are always in stock
       availability: "in_stock",
+      // 999 for unlimited digital inventory
+      quantity: 999,
       brand: "Pantaleone",
       gtin: p.gtin || "", // GTIN/UPC from product data
       google_product_category: "Software > Computer Software", // Category for digital software
