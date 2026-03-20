@@ -19,21 +19,14 @@ export async function GET(request: NextRequest) {
     const cartOrigin = searchParams.get("cart_origin") || undefined;
 
     if (!productsParam) {
-      return NextResponse.json(
-        { error: "Missing products parameter" },
-        { status: 400 },
-      );
+      return NextResponse.redirect(`${APP_URL}/shop`);
     }
 
     const parsedItems = parseProductsParam(productsParam);
     const validation = validateCart(parsedItems);
 
     if (!validation.success || validation.items.length === 0) {
-      const errorMsg =
-        validation.errors.length > 0
-          ? validation.errors.join(", ")
-          : "Invalid cart";
-      return NextResponse.json({ error: errorMsg }, { status: 400 });
+      return NextResponse.redirect(`${APP_URL}/shop`);
     }
 
     const stripe = getStripeClient();
@@ -66,17 +59,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const acceptHeader = request.headers.get("accept");
-    if (acceptHeader?.includes("text/html")) {
-      return NextResponse.redirect(session.url!);
-    }
-
-    return NextResponse.json({ url: session.url });
+    return NextResponse.redirect(session.url);
   } catch (error) {
     console.error("Checkout session error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return NextResponse.redirect(`${APP_URL}/shop`);
   }
 }

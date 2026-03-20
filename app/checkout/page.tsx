@@ -1,11 +1,5 @@
 import { redirect } from "next/navigation";
 import { getProductByFeedId } from "@/features/shop/data/shopSource";
-import { getStripeClient } from "@/lib/stripe";
-import {
-  parseProductsParam,
-  validateCart,
-  getCartMetadata,
-} from "@/lib/cart-utils";
 
 interface CheckoutPageProps {
   searchParams: Promise<{
@@ -15,8 +9,6 @@ interface CheckoutPageProps {
     cart_origin?: string;
   }>;
 }
-
-const APP_URL = process.env.APP_URL || "https://pantaleone.net";
 
 export async function generateMetadata() {
   return {
@@ -32,48 +24,12 @@ export default async function CheckoutPage({
   const { product_id, products, coupon, cart_origin } = params;
 
   if (products) {
-    const parsedItems = parseProductsParam(products);
-    const validation = validateCart(parsedItems);
+    const searchParams = new URLSearchParams();
+    searchParams.set("products", products);
+    if (coupon) searchParams.set("coupon", coupon);
+    if (cart_origin) searchParams.set("cart_origin", cart_origin);
 
-    if (!validation.success || validation.items.length === 0) {
-      redirect("/shop");
-    }
-
-    const stripe = getStripeClient();
-
-    const lineItems = validation.items.map((item) => ({
-      price: item.product.stripePriceId!,
-      quantity: item.quantity,
-    }));
-
-    const sessionParams: {
-      mode: "payment";
-      line_items: typeof lineItems;
-      success_url: string;
-      cancel_url: string;
-      metadata: ReturnType<typeof getCartMetadata>;
-      allow_promotion_codes: boolean;
-      discounts?: { coupon: string }[];
-    } = {
-      mode: "payment",
-      line_items: lineItems,
-      success_url: `${APP_URL}/shop?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${APP_URL}/shop?checkout=cancelled`,
-      metadata: getCartMetadata(cart_origin, coupon),
-      allow_promotion_codes: true,
-    };
-
-    if (coupon) {
-      sessionParams.discounts = [{ coupon }];
-    }
-
-    const session = await stripe.checkout.sessions.create(sessionParams);
-
-    if (session.url) {
-      redirect(session.url);
-    }
-
-    redirect("/shop");
+    redirect(`/api/checkout/session?${searchParams.toString()}`);
   }
 
   if (!product_id) {
