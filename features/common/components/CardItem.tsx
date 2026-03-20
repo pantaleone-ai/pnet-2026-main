@@ -47,14 +47,16 @@ export default function CardItem({ index, item, type, sizes }: CardItemProps) {
         "group h-full gap-0 rounded-lg border border-border/50 bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-xl hover:shadow-black/5 hover:border-primary/20 hover:bg-card/80",
         "hover:-translate-y-1",
       )}
-      style={{ contentVisibility: index > 2 ? 'auto' : 'visible' }}
+      style={{ contentVisibility: index > 2 ? "auto" : "visible" }}
       role="article"
       aria-labelledby={`card-title-${index}`}
     >
       <CoverImage
         index={index}
         type={type}
-        imageUrl={isBlog ? item.image : isProduct ? item.imageUrl : item.imageUrl}
+        imageUrl={
+          isBlog ? item.image : isProduct ? item.imageUrl : item.imageUrl
+        }
         imageAlt={item.imageAlt || item.title}
         href={href}
         sizes={sizes}
@@ -261,30 +263,6 @@ const ProjectContent = ({
             </Link>
           </Button>
         )}
-        {item.githubUrl && (
-          <Button
-            asChild
-            className="w-full"
-            onClick={() => {
-              trackEvent({
-                name: "project_github_clicked",
-                properties: {
-                  project_title: item.title,
-                  github_url: item.githubUrl ?? "",
-                },
-              });
-            }}
-          >
-            <Link
-              target="_blank"
-              rel="noopener noreferrer"
-              href={item.githubUrl}
-            >
-              GitHub
-              <span className="sr-only"> repository for {item.title}</span>
-            </Link>
-          </Button>
-        )}
       </div>
     </div>
   );
@@ -307,7 +285,9 @@ const ProductContent = ({
           {item.title}
         </CardTitle>
         <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground font-mono">{item.category}</span>
+          <span className="text-muted-foreground font-mono">
+            {item.category}
+          </span>
           <span className="font-bold text-foreground">
             ${item.price} {item.currency}
           </span>
@@ -332,7 +312,9 @@ const ProductContent = ({
           </Button>
         )}
         <Button variant="outline" asChild className="w-full">
-          <Link href={`/shop/${getProductCategorySlug(item.category)}/${item.slug}`}>
+          <Link
+            href={`/shop/${getProductCategorySlug(item.category)}/${item.slug}`}
+          >
             View Details
             <span className="sr-only"> about {item.title}</span>
           </Link>

@@ -7,7 +7,6 @@ import Link from "next/link";
 import {
   ShoppingCart,
   ExternalLink,
-  Github,
   Box,
   Cpu,
   ChevronRight,
@@ -420,27 +419,6 @@ export default function ProductDetailClient({
                       </div>
                     </div>
                   )}
-
-                {/* Documentation Link - Technical Magnet Strategy */}
-                {product.documentationUrl && (
-                  <div className="flex items-start gap-4">
-                    <div className="p-2 bg-secondary rounded-lg mt-1">
-                      <ExternalLink className="h-5 w-5 text-secondary-foreground" />
-                    </div>
-                    <div className="text-left">
-                      <h4 className="font-bold mb-3">Documentation Hub</h4>
-                      <a
-                        href={product.documentationUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center text-primary hover:underline font-medium"
-                      >
-                        View Technical Documentation
-                        <ExternalLink className="h-4 w-4 ml-2" />
-                      </a>
-                    </div>
-                  </div>
-                )}
               </section>
             )}
 
@@ -523,7 +501,7 @@ export default function ProductDetailClient({
                         </Link>
                       </Button>
                     )}
-                    <div className="grid grid-cols-2 gap-4 pl-4">
+                    <div className="grid grid-cols-1 gap-4 pl-4">
                       {product.websiteUrl && (
                         <Button
                           variant="secondary"
@@ -533,18 +511,6 @@ export default function ProductDetailClient({
                         >
                           <Link href={product.websiteUrl} target="_blank">
                             <ExternalLink className="mr-2 h-4 w-4" /> Live Demo
-                          </Link>
-                        </Button>
-                      )}
-                      {product.githubUrl && (
-                        <Button
-                          variant="secondary"
-                          size="lg"
-                          className="font-semibold"
-                          asChild
-                        >
-                          <Link href={product.githubUrl} target="_blank">
-                            <Github className="mr-2 h-4 w-4" /> Repository
                           </Link>
                         </Button>
                       )}
