@@ -36,52 +36,38 @@ export function buildMerchantReturnPolicy(): MerchantReturnPolicy {
 export function buildShippingDetails(offer: MerchantOffer) {
   if (!offer.shippingDetails) return undefined;
 
-  const transitDays = offer.shippingDetails.deliveryTime.businessDays;
-  const isDigital = transitDays === 0;
+  const deliveryTime = offer.shippingDetails.deliveryTime;
+  const isDigital = deliveryTime?.businessDays === 0;
 
   return {
     "@type": "OfferShippingDetails",
     shippingRate: {
       "@type": "MonetaryAmount",
-      value: offer.shippingDetails.shippingRate,
-      currency: offer.shippingDetails.shippingCurrency,
+      value: offer.shippingDetails.shippingRate ?? 0,
+      currency: offer.shippingDetails.shippingRateCurrency ?? "USD",
     },
-    shippingDestination: isDigital
-      ? undefined
-      : {
-          "@type": "DefinedRegion",
-          addressCountry: "US",
-        },
+    shippingDestination: {
+      "@type": "DefinedRegion",
+      addressCountry:
+        offer.shippingDetails.shippingDestination?.addressCountry ||
+        "WORLDWIDE",
+    },
     deliveryTime: {
       "@type": "ShippingDeliveryTime",
-      businessDays: isDigital
-        ? undefined
-        : {
-            "@type": "OpeningHoursSpecification",
-            dayOfWeek: [
-              "https://schema.org/Monday",
-              "https://schema.org/Tuesday",
-              "https://schema.org/Wednesday",
-              "https://schema.org/Thursday",
-              "https://schema.org/Friday",
-            ],
-          },
-      handlingTime: {
+      handlingTime: deliveryTime?.handlingTime ?? {
         "@type": "QuantitativeValue",
         minValue: 0,
-        maxValue: offer.shippingDetails.deliveryTime.handlingTime,
+        maxValue: 1,
         unitCode: "DAY",
       },
       transitTime: isDigital
         ? undefined
-        : {
+        : (deliveryTime?.transitTime ?? {
             "@type": "QuantitativeValue",
-            minValue:
-              offer.shippingDetails.deliveryTime.businessDays -
-              offer.shippingDetails.deliveryTime.handlingTime,
-            maxValue: offer.shippingDetails.deliveryTime.businessDays,
+            minValue: 0,
+            maxValue: 2,
             unitCode: "DAY",
-          },
+          }),
     },
   } as any;
 }

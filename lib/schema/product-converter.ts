@@ -43,11 +43,28 @@ export function convertShopProductToMerchantProduct(
         applicableCountry: "US",
       },
       shippingDetails: {
+        "@type": "OfferShippingDetails",
         shippingRate: 0,
-        shippingCurrency: product.currency || "USD",
+        shippingRateCurrency: product.currency || "USD",
+        shippingDestination: {
+          "@type": "DefinedRegion",
+          addressCountry: "WORLDWIDE",
+        },
         deliveryTime: {
+          "@type": "ShippingDeliveryTime",
           businessDays: product.isDigital ? 0 : 5,
-          handlingTime: 1,
+          handlingTime: {
+            "@type": "QuantitativeValue",
+            minValue: 0,
+            maxValue: 1,
+            unitCode: "DAY",
+          },
+          transitTime: {
+            "@type": "QuantitativeValue",
+            minValue: 0,
+            maxValue: 2,
+            unitCode: "DAY",
+          },
         },
       },
     },

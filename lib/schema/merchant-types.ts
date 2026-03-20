@@ -9,11 +9,28 @@ export interface MerchantOffer {
   url: string;
   hasMerchantReturnPolicy?: MerchantReturnPolicy;
   shippingDetails?: {
-    shippingRate: number;
-    shippingCurrency: string;
-    deliveryTime: {
-      businessDays: number;
-      handlingTime: number;
+    "@type": "OfferShippingDetails";
+    shippingRate?: number;
+    shippingRateCurrency?: string;
+    shippingDestination?: {
+      "@type": "DefinedRegion";
+      addressCountry: string;
+    };
+    deliveryTime?: {
+      "@type": "ShippingDeliveryTime";
+      businessDays?: number;
+      handlingTime?: {
+        "@type": "QuantitativeValue";
+        minValue: number;
+        maxValue: number;
+        unitCode: string;
+      };
+      transitTime?: {
+        "@type": "QuantitativeValue";
+        minValue: number;
+        maxValue: number;
+        unitCode: string;
+      };
     };
   };
 }
