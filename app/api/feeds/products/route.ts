@@ -5,7 +5,8 @@ import { unstable_cache } from "next/cache";
 const getCachedXmlFeed = unstable_cache(
   async () => {
     const products = await getFeedProducts();
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://pantaleone.net";
+    const baseUrl =
+      process.env.NEXT_PUBLIC_BASE_URL || "https://pantaleone.net";
 
     const xmlHeader = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
@@ -15,7 +16,9 @@ const getCachedXmlFeed = unstable_cache(
     <description>Product feed for Google Merchant Center, Facebook, Instagram, Pinterest, and X</description>
 `;
 
-    const items = products.map((product) => `
+    const items = products
+      .map(
+        (product) => `
     <item>
         <g:id><![CDATA[${product.id}]]></g:id>
         <g:title><![CDATA[${product.title}]]></g:title>
@@ -28,9 +31,12 @@ const getCachedXmlFeed = unstable_cache(
         <g:brand><![CDATA[${product.brand}]]></g:brand>
         ${product.gtin ? `<g:gtin>${product.gtin}</g:gtin>` : ""}
         ${product.google_product_category ? `<g:google_product_category><![CDATA[${product.google_product_category}]]></g:google_product_category>` : ""}
-        <g:identifier_exists>${product.gtin ? 'yes' : 'no'}</g:identifier_exists>
+        <g:identifier_exists>${product.gtin ? "yes" : "no"}</g:identifier_exists>
+        ${product.checkout_link ? `<g:checkout_link>${product.checkout_link}</g:checkout_link>` : ""}
     </item>
-`).join("");
+`,
+      )
+      .join("");
 
     const xmlFooter = `
 </channel>
@@ -39,7 +45,7 @@ const getCachedXmlFeed = unstable_cache(
     return xmlHeader + items + xmlFooter;
   },
   ["product-feed-xml"], // Cache tag
-  { revalidate: 3600 } // Revalidate every hour
+  { revalidate: 3600 }, // Revalidate every hour
 );
 
 export async function GET() {

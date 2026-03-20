@@ -12,6 +12,7 @@ export interface FeedProduct {
   brand?: string;
   gtin?: string; // UPC/EAN
   google_product_category?: string; // For Google Merchant Center
+  checkout_link?: string; // Stripe payment link for checkout
 }
 
 export async function getFeedProducts(): Promise<FeedProduct[]> {
@@ -21,12 +22,14 @@ export async function getFeedProducts(): Promise<FeedProduct[]> {
   return products.map((p: ShopProduct) => {
     // Map category names to URL slugs (consistent with other components)
     const categoryMapping: Record<string, string> = {
-      'Apps': 'ai-apps',
-      'Ai Workflows': 'ai-workflows',
+      Apps: "ai-apps",
+      "Ai Workflows": "ai-workflows",
       // Add more mappings as needed for future categories
     };
 
-    const categorySlug = categoryMapping[p.category] || p.category.toLowerCase().replace(/\s+/g, '-');
+    const categorySlug =
+      categoryMapping[p.category] ||
+      p.category.toLowerCase().replace(/\s+/g, "-");
 
     return {
       id: p.sku || `product-${p.id}`,
@@ -40,6 +43,7 @@ export async function getFeedProducts(): Promise<FeedProduct[]> {
       brand: "Pantaleone",
       gtin: p.gtin || "", // GTIN/UPC from product data
       google_product_category: "Software > Computer Software", // Category for digital software
+      checkout_link: p.stripePaymentLink, // Stripe payment link for Google checkout
     };
   });
 }
