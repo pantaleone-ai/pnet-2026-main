@@ -8,6 +8,7 @@ import type { Person, WebSite, WithContext } from "schema-dts";
 import ConsentManager from "@/components/ConsentManager";
 import { Providers } from "@/components/Providers";
 import { SkipToMain } from "@/components/SkipToMain";
+import { PageTracker } from "@/hooks/usePageTracking";
 
 // --- CHANGED: Now importing from your new unified config ---
 import { siteConfig } from "@/config/site";
@@ -223,7 +224,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
           </NuqsAdapter>
         </Providers>
 
-        {/* Google Analytics - Only loads when consent is given */}
+        {/* Page tracking for SPA route changes */}
+        <PageTracker />
+
+        {/* Google Analytics - Always loads, events gated by consent */}
         {analyticsConfig.googleAnalytics.enabled && (
           <>
             <Script
@@ -248,26 +252,37 @@ export default function RootLayout({ children }: RootLayoutProps) {
           </>
         )}
 
-        {/* Meta Pixel - Only loads when consent is given */}
+        {/* Meta Pixel - Always loads, events gated by consent */}
         {analyticsConfig.metaPixel.enabled && (
-          <Script
-            id="meta-pixel"
-            strategy="afterInteractive"
-            dangerouslySetInnerHTML={{
-              __html: `
-                !function(f,b,e,v,n,t,s)
-                {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-                n.queue=[];t=b.createElement(e);t.async=!0;
-                t.src=v;s=b.getElementsByTagName(e)[0];
-                s.parentNode.insertBefore(t,s)}(window, document,'script',
-                'https://connect.facebook.net/en_US/fbevents.js');
-                fbq('init', '${analyticsConfig.metaPixel.id}');
-                fbq('track', 'PageView');
-              `,
-            }}
-          />
+          <>
+            <Script
+              id="meta-pixel"
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `
+                  !function(f,b,e,v,n,t,s)
+                  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                  n.queue=[];t=b.createElement(e);t.async=!0;
+                  t.src=v;s=b.getElementsByTagName(e)[0];
+                  s.parentNode.insertBefore(t,s)}(window, document,'script',
+                  'https://connect.facebook.net/en_US/fbevents.js');
+                  fbq('init', '${analyticsConfig.metaPixel.id}');
+                  fbq('track', 'PageView');
+                `,
+              }}
+            />
+            <noscript>
+              <img
+                height="1"
+                width="1"
+                style={{ display: "none" }}
+                src={`https://www.facebook.com/tr?id=${analyticsConfig.metaPixel.id}&ev=PageView&noscript=1`}
+                alt=""
+              />
+            </noscript>
+          </>
         )}
       </body>
     </html>
