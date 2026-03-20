@@ -43,7 +43,7 @@ export async function getFeedProducts(): Promise<FeedProduct[]> {
       brand: "Pantaleone",
       gtin: p.gtin || "", // GTIN/UPC from product data
       google_product_category: "Software > Computer Software", // Category for digital software
-      checkout_link: p.stripePaymentLink, // Stripe payment link for Google checkout
+      checkout_link: `${baseUrl}/checkout?product_id=${p.sku || `product-${p.id}`}`, // URL template for Google checkout
     };
   });
 }
