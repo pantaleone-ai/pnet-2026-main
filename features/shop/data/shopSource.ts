@@ -276,3 +276,23 @@ export function getProductBySlug(
     return null;
   }
 }
+
+export function getProductByFeedId(feedId: string): ShopProduct | null {
+  try {
+    const products = getProducts();
+
+    // Feed ID format: sku || `product-${id}`
+    // First try exact match on SKU
+    const bySku = products.find((p) => p.sku === feedId);
+    if (bySku) return bySku;
+
+    // Try match on product-{id} format
+    const byProductId = products.find((p) => `product-${p.id}` === feedId);
+    if (byProductId) return byProductId;
+
+    return null;
+  } catch (error) {
+    console.error("Error getting product by feed ID:", error);
+    return null;
+  }
+}
