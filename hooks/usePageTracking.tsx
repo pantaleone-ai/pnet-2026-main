@@ -2,27 +2,21 @@
 
 import { Suspense, useEffect } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { isAnalyticsEnabled } from "@/lib/analytics";
 
 function PageTrackingInner() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (!isAnalyticsEnabled()) return;
-
     const url =
       pathname +
       (searchParams?.toString() ? `?${searchParams.toString()}` : "");
 
-    if (window.gtag) {
+    // Google Analytics page tracking (no consent required)
+    if (window.gtag && process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID) {
       window.gtag("config", process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID, {
         page_path: url,
       });
-    }
-
-    if (window.fbq) {
-      window.fbq("track", "PageView");
     }
   }, [pathname, searchParams]);
 

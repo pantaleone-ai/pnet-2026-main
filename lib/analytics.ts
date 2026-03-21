@@ -63,11 +63,10 @@ export interface SearchResultClickEvent {
   resultTitle: string;
 }
 
-// Check if analytics is enabled and user has consented
+// Check if PostHog/enhanced tracking is enabled (requires consent)
 export function isAnalyticsEnabled(): boolean {
   if (typeof window === "undefined") return false;
 
-  // Check PostHog consent (our primary consent mechanism)
   try {
     return posthog.has_opted_in_capturing();
   } catch {
@@ -75,11 +74,25 @@ export function isAnalyticsEnabled(): boolean {
   }
 }
 
+// Check if Google Analytics is configured (does not require consent)
+export function isGaEnabled(): boolean {
+  if (typeof window === "undefined") return false;
+  return (
+    !!(window as any).gtag && !!process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID
+  );
+}
+
+// Check if Meta Pixel is configured (requires consent)
+export function isMetaPixelEnabled(): boolean {
+  if (typeof window === "undefined") return false;
+  return !!(window as any).fbq && !!process.env.NEXT_PUBLIC_META_PIXEL_ID;
+}
+
 // Google Analytics 4 E-commerce Tracking
 export const ga4 = {
   // Product impressions (when products are viewed in a list)
   viewItemList: (products: ProductEvent[], listName?: string) => {
-    if (!isAnalyticsEnabled() || !(window as any).gtag) return;
+    if (!isGaEnabled()) return;
 
     (window as any).gtag("event", "view_item_list", {
       items: products.map((product, index) => ({
@@ -97,7 +110,7 @@ export const ga4 = {
 
   // Individual product view
   viewItem: (product: ProductEvent) => {
-    if (!isAnalyticsEnabled() || !(window as any).gtag) return;
+    if (!isGaEnabled()) return;
 
     (window as any).gtag("event", "view_item", {
       currency: product.currency || "USD",
@@ -117,7 +130,7 @@ export const ga4 = {
 
   // Add to cart
   addToCart: (product: ProductEvent) => {
-    if (!isAnalyticsEnabled() || !(window as any).gtag) return;
+    if (!isGaEnabled()) return;
 
     (window as any).gtag("event", "add_to_cart", {
       currency: product.currency || "USD",
@@ -138,7 +151,7 @@ export const ga4 = {
 
   // Begin checkout (when user clicks payment link)
   beginCheckout: (product: ProductEvent) => {
-    if (!isAnalyticsEnabled() || !(window as any).gtag) return;
+    if (!isGaEnabled()) return;
 
     (window as any).gtag("event", "begin_checkout", {
       currency: product.currency || "USD",
@@ -159,7 +172,7 @@ export const ga4 = {
 
   // Purchase completion (server-side tracking via webhook)
   purchase: (purchase: PurchaseEvent) => {
-    if (!isAnalyticsEnabled() || !(window as any).gtag) return;
+    if (!isGaEnabled()) return;
 
     (window as any).gtag("event", "purchase", {
       transaction_id: purchase.transactionId,
@@ -249,7 +262,7 @@ export const posthogAnalytics = {
 export const metaPixel = {
   // View content (product detail page)
   viewContent: (product: ProductEvent) => {
-    if (!isAnalyticsEnabled() || !(window as any).fbq) return;
+    if (!isMetaPixelEnabled()) return;
 
     (window as any).fbq("track", "ViewContent", {
       content_type: "product",
@@ -263,7 +276,7 @@ export const metaPixel = {
 
   // Add to cart
   addToCart: (product: ProductEvent) => {
-    if (!isAnalyticsEnabled() || !(window as any).fbq) return;
+    if (!isMetaPixelEnabled()) return;
 
     (window as any).fbq("track", "AddToCart", {
       content_ids: [product.id],
@@ -276,7 +289,7 @@ export const metaPixel = {
 
   // Initiate checkout
   initiateCheckout: (product: ProductEvent) => {
-    if (!isAnalyticsEnabled() || !(window as any).fbq) return;
+    if (!isMetaPixelEnabled()) return;
 
     (window as any).fbq("track", "InitiateCheckout", {
       content_ids: [product.id],
@@ -290,7 +303,7 @@ export const metaPixel = {
 
   // Purchase
   purchase: (purchase: PurchaseEvent) => {
-    if (!isAnalyticsEnabled() || !(window as any).fbq) return;
+    if (!isMetaPixelEnabled()) return;
 
     (window as any).fbq("track", "Purchase", {
       content_ids: purchase.products.map((p) => p.id),
@@ -357,35 +370,42 @@ export const blogAnalytics = {
 
 // Unified tracking functions
 export const track = {
-  // Product interactions
+  // Product interactions - GA fires without consent, PostHog/Meta require consent
   productImpression: (products: ProductEvent[], listName?: string) => {
     ga4.viewItemList(products, listName);
-    // PostHog doesn't have a direct equivalent for impressions
   },
 
   productView: (product: ProductEvent) => {
     ga4.viewItem(product);
-    posthogAnalytics.productViewed(product);
-    metaPixel.viewContent(product);
+    if (isAnalyticsEnabled()) {
+      posthogAnalytics.productViewed(product);
+      metaPixel.viewContent(product);
+    }
   },
 
   addToCart: (product: ProductEvent) => {
     ga4.addToCart(product);
-    posthogAnalytics.addToCart(product);
-    metaPixel.addToCart(product);
+    if (isAnalyticsEnabled()) {
+      posthogAnalytics.addToCart(product);
+      metaPixel.addToCart(product);
+    }
   },
 
   beginCheckout: (product: ProductEvent) => {
     ga4.beginCheckout(product);
-    posthogAnalytics.checkoutStarted(product);
-    metaPixel.initiateCheckout(product);
+    if (isAnalyticsEnabled()) {
+      posthogAnalytics.checkoutStarted(product);
+      metaPixel.initiateCheckout(product);
+    }
   },
 
   // Purchase completion (typically called server-side via webhook)
   purchase: (purchase: PurchaseEvent) => {
     ga4.purchase(purchase);
-    posthogAnalytics.purchaseCompleted(purchase);
-    metaPixel.purchase(purchase);
+    if (isAnalyticsEnabled()) {
+      posthogAnalytics.purchaseCompleted(purchase);
+      metaPixel.purchase(purchase);
+    }
   },
 
   // Blog interactions
@@ -403,21 +423,21 @@ export const track = {
 
   // Search interactions
   searchPerformed: (search: SearchEvent) => {
-    if (!isAnalyticsEnabled()) return;
+    if (isAnalyticsEnabled()) {
+      posthog.capture("search_performed", {
+        query: search.query,
+        result_count: search.resultCount,
+        filters: search.filters,
+        search_type: search.searchType,
+        $set: {
+          last_search_date: new Date().toISOString(),
+          search_queries: search.query,
+        },
+      });
+    }
 
-    posthog.capture("search_performed", {
-      query: search.query,
-      result_count: search.resultCount,
-      filters: search.filters,
-      search_type: search.searchType,
-      $set: {
-        last_search_date: new Date().toISOString(),
-        search_queries: search.query, // This will be appended to user properties
-      },
-    });
-
-    // Google Analytics search tracking
-    if ((window as any).gtag) {
+    // Google Analytics search tracking (no consent required)
+    if (isGaEnabled()) {
       (window as any).gtag("event", "search", {
         search_term: search.query,
         results_count: search.resultCount,
@@ -426,18 +446,18 @@ export const track = {
   },
 
   searchResultClicked: (click: SearchResultClickEvent) => {
-    if (!isAnalyticsEnabled()) return;
+    if (isAnalyticsEnabled()) {
+      posthog.capture("search_result_clicked", {
+        query: click.query,
+        result_position: click.resultPosition,
+        result_type: click.resultType,
+        result_id: click.resultId,
+        result_title: click.resultTitle,
+      });
+    }
 
-    posthog.capture("search_result_clicked", {
-      query: click.query,
-      result_position: click.resultPosition,
-      result_type: click.resultType,
-      result_id: click.resultId,
-      result_title: click.resultTitle,
-    });
-
-    // Google Analytics event for search result clicks
-    if ((window as any).gtag) {
+    // Google Analytics event for search result clicks (no consent required)
+    if (isGaEnabled()) {
       (window as any).gtag("event", "select_content", {
         content_type: click.resultType,
         content_id: click.resultId,
