@@ -1,1173 +1,1318 @@
 ---
-title: "The Ultimate Nano Banana Pro Prompt Collection: 50+ Expert Examples"
-description: "Master AI image generation with Nano Banana Pro. Curated prompts for photorealism, creative experiments, e-commerce, and more. Copy-paste ready."
-image: "https://pantaleone-net.s3.us-west-1.amazonaws.com/nano-banana-prompts.webp"
+title: "The Ultimate Multimodal Prompt Collection: Nano Banana, Lyria & Veo 3.1 — 75+ Expert Examples"
+description: "Master AI content creation across text, image, audio, and video. Curated prompts for Nano Banana (photorealism, Weavy workflows), Lyria (music/sound design), and Veo 3.1 (cinematic video). Copy-paste ready."
+image: "https://storage.googleapis.com/gweb-cloudblog-publish/images/0_hero.max-2000x2000.png"
 created: "2026-03-21"
+lastUpdated: "2026-03-22"
 author: "Matt Pantaleone"
 authorAvatar: "/images/avatar.jpg"
 tags:
   - Nano Banana
+  - Lyria
+  - Veo 3.1
   - AI Image Generation
+  - AI Audio Generation
+  - AI Video Generation
   - Prompt Engineering
   - Gemini
   - AI Art
   - AI Photography
+  - AI Music
   - Prompt Templates
+  - Multimodal AI
   - AI Workflow
 category: "AI Tools & Automation"
 seo:
   - Nano Banana prompts
+  - Veo 3.1 prompting guide
+  - Lyria music generation prompts
   - Gemini AI image generation
   - AI art prompts
   - Prompt engineering guide
   - Nano Banana Pro examples
+  - multimodal AI prompts
+  - AI video generation
+  - AI music prompting
 ---
 
-# The Ultimate Nano Banana Pro Prompt Collection
+# The Ultimate Multimodal Prompt Collection
 
-Nano Banana Pro (also known as Nano Banana 2) represents Google's most advanced AI image generation capability, integrated into the Gemini ecosystem. This curated collection brings together the **best prompts** from the community—sourced from X (Twitter), WeChat, and top prompt engineers—organized into actionable categories for your projects.
+The generative AI landscape has evolved far beyond single-modality image generation. With the **Gemini 3 family of models**, Google DeepMind has delivered a unified creative stack that spans every medium: **Nano Banana** for hyper-realistic image generation and editing, **Lyria** for high-fidelity music and audio composition, and **Veo 3.1** for cinematic video with synchronous audio.
 
-Whether you're creating **photorealistic portraits**, **stylized aesthetics**, or **complex creative experiments**, these prompts will help you unlock the full potential of the model.
-
----
-
-## 1. Photorealism & Portraits
-
-The following prompts demonstrate Nano Banana Pro's ability to render complex lighting, textures, and era-specific atmosphere with stunning fidelity.
-
-### 1.1 Celebrity Crowd Composition
-
-Generate complex compositions with multiple recognizable faces and specific lighting conditions.
-
-<img
-  src="https://github.com/pantaleone-ai/awesome-nanobanana-pro/raw/main/assets/celebrity-crowd.png"
-  alt="Celebrity Crowd"
-
-/>
-
-```text
-Create a hyper-realistic, ultraSharp, full-color large-format image featuring a massive group of celebrities from different eras, all standing together in a single wide cinematic frame. The image must look like a perfectly photographed editorial cover with impeccable lighting, lifelike skin texture, micro-details of hair, pores, reflections, and fabric fibers.
-
-GENERAL STYLE & MOOD: Photorealistic, 8k, shallow depth of field, soft natural fill light + strong golden rim light. High dynamic range, calibrated color grading. Skin tones perfectly accurate. Crisp fabric detail with individual threads visible. Balanced composition, slightly wide-angle lens (35mm), center-weighted. All celebrities interacting naturally, smiling, posing, or conversing.
-
-THE ENVIRONMENT: A luxurious open-air rooftop terrace at sunset overlooking a modern city skyline. Elements include: Warm golden light wrapping around silhouettes. Polished marble.
-```
-
-_Source: [@SebJefferies](https://x.com/SebJefferies/status/1991531687147360728)_
-
-### 1.2 2000s Mirror Selfie
-
-Generate an authentic early-2000s aesthetic with flash photography and nostalgic elements using structured JSON prompting.
-
-<img
-  src="https://pbs.twimg.com/media/G6x00O_XIAA_byvr?format=jpg&name=large"
-  alt="2000s Mirror Selfie"
-
-/>
-
-```json
-{
-  "subject": {
-    "description": "A young woman taking a mirror selfie with very long voluminous dark waves and soft wispy bangs",
-    "age": "young adult",
-    "expression": "confident and slightly playful",
-    "hair": {
-      "color": "dark",
-      "style": "very long, voluminous waves with soft wispy bangs"
-    },
-    "clothing": {
-      "top": {
-        "type": "fitted cropped t-shirt",
-        "color": "cream white",
-        "details": "features a large cute anime-style cat face graphic with big blue eyes, whiskers, and a small pink mouth"
-      }
-    },
-    "face": {
-      "preserve_original": true,
-      "makeup": "natural glam makeup with soft pink dewy blush and glossy red pouty lips"
-    }
-  },
-  "photography": {
-    "camera_style": "early-2000s digital camera aesthetic",
-    "lighting": "harsh super-flash with bright blown-out highlights but subject still visible",
-    "angle": "mirror selfie",
-    "texture": "subtle grain, retro highlights, V6 realism, crisp details, soft shadows"
-  },
-  "background": {
-    "setting": "nostalgic early-2000s bedroom",
-    "elements": [
-      "chunky wooden dresser",
-      "CD player",
-      "posters of 2000s pop icons",
-      "hanging beaded door curtain",
-      "cluttered vanity with lip glosses"
-    ]
-  }
-}
-```
-
-_Source: [@ZaraIrahh](https://x.com/ZaraIrahh/status/1991681614368436468)_
-
-### 1.3 Victoria's Secret Style Photoshoot
-
-Create high-glamour, backstage-style fashion photography with intricate costume details.
-
-<img
-  src="https://pbs.twimg.com/media/G7Ah9SIbIAAeYcE?format=jpg&name=large"
-  alt="Victoria's Secret Photoshoot"
-
-/>
-
-```text
-Create a glamorous photoshoot in the style of Victoria's Secret. A young woman (Keep the face of the person 100% accurate from the reference image) stands almost sideways, slightly bent forward, during the final preparation for the show. Makeup artists apply lipstick to her (only her hands are visible in the frame). She is wearing a corset decorated with beaded embroidery and crystals with a short fluffy skirt, as well as large feather wings. The image has a "backstage" effect.
-
-The background is a darkly lit room, probably under the podium. The main emphasis is on the girl's face and the details of her costume. Emphasize the expressiveness of the gaze and the luxurious look of the outfit. The photo is lit by a flash from the camera, which emphasizes the shine of the beads and crystals on the corset, as well as the girl's shiny skin. Victoria's Secret style: sensuality, luxury, glamour. Very detailed.
-```
-
-_Source: [@NanoBanana_labs](https://x.com/NanoBanana_labs/status/1991947916479762788)_
-
-### 1.4 Silicon Valley Business Headshot
-
-Transform casual photos into professional studio headshots using specific camera and lighting specifications.
-
-<img
-  src="https://pbs.twimg.com/media/G6x00O_XIAA_byvr?format=jpg&name=medium"
-  alt="Business Headshot"
-
-/>
-
-```text
-Keep the facial features of the person in the uploaded image exactly consistent. Dress them in a professional navy blue business suit with a white shirt. Background: Place the subject against a clean, solid dark gray studio photography backdrop with a subtle gradient, slightly lighter behind the subject and darker towards the edges (vignette effect).
-
-Photography Style: Shot on a Sony A7III with an 85mm f/1.4 lens, creating a flattering portrait compression.
-
-Lighting: Use a classic three-point lighting setup. The main key light should create soft, defining shadows on the face. A subtle rim light should separate the subject's shoulders and hair from the dark background.
-
-Crucial Details: Render natural skin texture with visible pores, not an airbrushed look. Add natural catchlights to the eyes. The fabric of the suit should show a subtle wool texture. Final image should be an ultra-realistic, 8k professional headshot.
-```
-
-_Source: [WeChat Article](https://mp.weixin.qq.com/s/lrYNbs4rGs3KOqewoZ6aNQ)_
-
-### 1.5 Emotional Film Photography
-
-Create a cinematic, nostalgic "Kodak Portra" look while maintaining facial consistency.
-
-<img
-  src="https://pbs.twimg.com/media/G6y0DcaWwAAkZFQ?format=jpg&name=medium"
-  alt="Emotional Film Photography"
-
-/>
-
-```text
-Keep the facial features of the person in the uploaded image exactly consistent.
-
-Style: A cinematic, emotional portrait shot on Kodak Portra 400 film.
-
-Setting: An urban street coffee shop window at Golden Hour (sunset). Warm, nostalgic lighting hitting the side of the face.
-
-Atmosphere: Apply a subtle film grain and soft focus to create a dreamy, storytelling vibe.
-
-Action: The subject is looking slightly away from the camera, holding a coffee cup, with a relaxed, candid expression.
-
-Details: High quality, depth of field, bokeh background of city lights.
-```
-
-_Source: [WeChat Article](https://mp.weixin.qq.com/s/lrYNbs4rGs3KOqewoZ6aNQ)_
-
-### 1.6 Professional Headshot Creator
-
-Generate a polished profile photo with studio-quality specifications.
-
-```text
-A professional, high-resolution profile photo, maintaining the exact facial structure, identity, and key features of the person in the input image. The subject is framed from the chest up, with ample headroom. The person looks directly at the camera. They are styled for a professional photo studio shoot, wearing a premium smart casual blazer in a subtle charcoal gray. The background is a solid '#562226' neutral studio color. Shot from a high angle with bright and airy soft, diffused studio lighting, gently illuminating the face and creating a subtle catchlight in the eyes. Captured on an 85mm f/1.8 lens with a shallow depth of field, exquisite focus on the eyes, and beautiful, soft bokeh. Observe crisp detail on the fabric texture of the blazer, individual strands of hair, and natural, realistic skin texture.
-```
-
-_Source: [@PavolRusnak](https://x.com/PavolRusnak/status/1994097306526994558)_
-
-### 1.7 Hyperrealistic Anime Portrait
-
-Create dramatic spotlight-lit anime-style portraits with high contrast.
-
-<img
-  src="https://pbs.twimg.com/media/G7Ah9SIbIAAGlyu?format=jpg&name=900x900"
-  alt="Anime Portrait"
-
-/>
-
-```text
-Generate a hyperrealistic realistic-anime portrait of a female character standing in a completely black background.
-
-Lighting: use a **narrow beam spotlight** focused only on the center of the face. The edges of the light must be sharp and dramatic. All areas outside the spotlight should fall quickly into deep darkness (high falloff shadow), almost blending into the black background.
-
-Hair: long dark hair with some strands falling over the face. The lower parts of the hair should fade into the shadows.
-
-Pose: one hand raised gently to the lips in a shy, hesitant gesture. Eyes looking directly at the camera with a mysterious mood.
-
-Clothing: black long-sleeve knit sweater; the sweater and body should mostly disappear into the darkness with minimal detail.
-
-Overall tone: dark, moody, dramatic, mysterious. High-contrast only in the lit portion of the face.
-```
-
-_Source: [@SimplyAnnisa](https://x.com/SimplyAnnisa/status/1995131975351562274)_
-
-### 1.8 Museum Art Exhibition Photo
-
-Create a commercial-grade photograph with classical oil painting fusion.
-
-<img
-  src="https://pbs.twimg.com/media/G7N2KUIbMAAspf6?format=jpg&name=900x900"
-  alt="Museum Art Exhibition"
-
-/>
-
-```text
-A commercial grade photograph of [uploaded reference image] posing inside a high-end museum exhibition space.
-
-Behind them hangs a large, ornate framed classical oil painting. The painting depicts the same person but rendered in a rich, traditional oil painting style with thick, visible impasto brushstrokes, deep textures, and rich color palettes on canvas. Gallery spotlights hit the textured paint surface.
-
-Masterpiece, ultra-detailed, cinematic lighting, strong contrast, dramatic shadows, 8K UHD, highly detailed textures, professional photography.
-```
-
-_Source: [@brad_zhang2024](https://x.com/brad_zhang2024/status/1996072707348201827)_
-
-### 1.9 Luxury Product Photography
-
-Create floating luxury product shots with sophisticated lighting.
-
-```text
-Product: [BRAND] [PRODUCT NAME] - [bottle shape], [label description], [liquid color]
-
-Scene: Luxury product shot floating on dark water with [flower type] in [colors] arranged around it. [Lighting style] creates reflections and ripples across the water.
-
-Mood & Style: [Adjectives], high-end commercial photography, [camera angle], shallow depth of field with soft bokeh background
-```
-
-_Source: [@AmirMushich](https://x.com/AmirMushich/status/1974767431714304456)_
-
-### 1.10 Compact Camera Screen Display
-
-Create nostalgic photos displayed on vintage compact digital camera screens.
-
-<img
-  src="https://pbs.twimg.com/media/G7NVohbbgAcUFBe?format=jpg&name=900x900"
-  alt="Camera Screen Display"
-
-/>
-
-```text
-Use facial feature of attached photo. A close-up shot of a young woman displayed on the screen of a compact Canon digital camera. The camera body surrounds the image with its buttons, dials, and textured surface visible, including the FUNC/SET wheel, DISP button, and the "IMAGE STABILIZER" label along the side.
-
-The photo on the screen shows the woman indoors at night, illuminated by a bright built-in flash that creates sharp highlights on her face and hair. The flash accentuates her features against a dim, cluttered kitchen background. The mood is candid, raw, nostalgic, and reminiscent of early 2000s digital camera snapshots. Colors are slightly muted with cool undertones, strong flash contrast, and natural grain from the display.
-
-Scale ratio: 4:5 vertical
-Camera: compact digital camera simulation
-Lens: equivalent to 28-35mm, Aperture: f/2.8, ISO: 400
-```
-
-_Source: [@kingofdairyque](https://x.com/kingofdairyque/status/1996033217795903655)_
+This collection is the definitive prompting guide for that entire stack. Sourced from Google's official documentation, the **NanoPrompts.org** community library, and **Chase Jarvis's** professional workflows, it covers every modality with **Before/After** prompt examples that demonstrate the difference between amateur and expert prompting.
 
 ---
 
-## 2. Creative Visual Experiments
+## Introduction: The Multimodal Ecosystem
 
-Push the boundaries of composition, crowd generation, minimalism, and conceptual visualization.
+Nano Banana models are advanced image generation and editing systems built on the Gemini 3 family. They apply deep reasoning capabilities to fully understand prompts before generating output, delivering precise, rich visual results.
 
-### 2.1 Star Wars "Where's Waldo"
+**Nano Banana 2** (Gemini 3.1 Flash Image) brings real-time web search integration, fast generation, and Pro-level features like text rendering and upscaling to 2K/4K. **Nano Banana Pro** (Gemini 3 Pro Image) delivers the highest quality with the largest context window.
 
-Test the model's ability to handle dense crowds and specific character recognition.
+**Lyria** generates high-fidelity music and audio with control over genre, tempo, instrumentation, dynamics, and vocals. It supports text-to-music and image-to-music prompting.
 
-<img
-  src="https://pbs.twimg.com/media/G7LmGCQWYAAfp47?format=jpg&name=medium"
-  alt="Star Wars Crowd"
+**Veo 3.1** is the latest evolution in video generation, featuring professional-grade creative controls, multiple aspect ratios, rich synchronous audio, and cinematic camera movement — all driven by structured prompting.
 
-/>
+> [!TIP]
+> The models are designed to work together. Generate a keyframe with Nano Banana, animate it with Veo 3.1, and score it with Lyria — all in a single production pipeline.
 
-```text
-A where is waldo image showing all Star Wars characters on Tatooine. First one to pull this off. First take. Even Waldo is there.
-```
+### Model Comparison
 
-_Source: [@creacas](https://x.com/creacas/status/1991585587548348513)_
-
-### 2.2 Recursive Visuals (Droste Effect)
-
-Generate infinite loop logic with self-referential imagery.
-
-<img
-  src="https://pbs.twimg.com/media/G7OpzpjbAAArAAS?format=jpg&name=900x900"
-  alt="Recursive Image"
-
-/>
-
-```text
-recursive image of an orange cat sitting in an office chair holding up an iPad. On the iPad is the same cat in the same scene holding up the same iPad. Repeated on each iPad.
-```
-
-_Source: [@venturetwins](https://x.com/venturetwins/status/1993174445515772086)_
-
-### 2.3 Coordinate Visualization
-
-Generate specific locations and times based purely on latitude/longitude coordinates.
-
-```text
-35.6586° N, 139.7454° E at 19:00
-```
-
-_Source: [Replicate](https://replicate.com/)_
-
-### 2.4 Conceptual Visualization
-
-Interpret how specific groups visualize famous landmarks.
-
-```text
-How engineers see the San Francisco Bridge
-```
-
-_Source: [Replicate](https://replicate.com/)_
-
-### 2.5 Split View 3D Render
-
-Create 3D renders with realistic left half and wireframe right half.
-
-<img
-  src="https://pbs.twimg.com/media/G7LmGCQWYAAfp47?format=jpg&name=small"
-  alt="Split View 3D"
-
-/>
-
-```text
-Create a high-quality, realistic 3D render of exactly one instance of the object: [Orange iPhone 17 Pro].
-
-Left Half - Full Realism: The left half of the object should appear exactly as it looks in real life - accurate materials, colors, textures, reflections, and proportions. This half must be completely opaque with no transparency and no wireframe overlay.
-
-Right Half - Hard Cut Wireframe Interior: The right half must switch cleanly to a wireframe interior diagram. The boundary between the two halves must be a perfectly vertical, perfectly sharp, crisp cut line. The wireframe must use only two line colors: Primary: white (~80% of all lines), Secondary: a color sampled from the dominant color of the realistic half (<20% of lines).
-
-Strict Single-Object Rule: Render only ONE object in the entire frame.
-```
-
-_Source: [@michalmalewicz](https://x.com/michalmalewicz/status/1995910758169752059)_
-
-### 2.6 USA 3D Diorama
-
-Create isometric 3D dioramas of US landmarks.
-
-<img
-  src="https://pbs.twimg.com/media/G7LGpq0XAAAxcIP?format=jpg&name=medium"
-  alt="USA 3D Diorama"
-
-/>
-
-```text
-Create a high-detail 3D isometric diorama of the entire United States, where each state is represented as its own miniature platform. Inside each state, place a stylized, small-scale 3D model of that state's most iconic landmark. Use the same visual style as a cute, polished 3D city diorama: soft pastel colors, clean materials, smooth rounded forms, gentle shadows, and subtle reflections.
-
-Each landmark should look like a miniature model, charming, simplified, but clearly recognizable. Arrange the states in accurate geographical layout, with consistent lighting and perspective. Include state labels and landmark labels in a clean, modern font.
-```
-
-_Source: [@DataExec](https://x.com/DataExec/status/1995876348879937648)_
-
-### 2.7 US Map Made of Famous Foods
-
-Create maps where each US state is made from its most iconic food.
-
-<img
-  src="https://pbs.twimg.com/media/G7I5dbiWwAAYOox?format=jpg&name=medium"
-  alt="US Food Map"
-
-/>
-
-```text
-create a map of the US where every state is made out of its most famous food (the states should actually look like they are made of the food, not a picture of the food). Check carefully to make sure each state is right.
-```
-
-_Source: [@emollick](https://x.com/emollick/status/1995720976068137048)_
-
-### 2.8 3D Isometric Home Office
-
-Generate 3D isometric illustrations of home office environments.
-
-<img
-  src="https://pbs.twimg.com/media/G7MEwTWWEAA1DkO?format=jpg&name=medium"
-  alt="3D Home Office"
-
-/>
-
-```text
-Based on you know about me, generate a 3D isometric colored illustration of me working from home, filled with various interior details. The visual style should be rounded, polished, and playful. --ar 1:1
-
-[Additional details: a bichon frise and 3 monitors]
-```
-
-_Source: [@dotey](https://x.com/dotey/status/1995944319677554985)_
-
-### 2.9 Emoji Combination
-
-Combine emojis in a Google-style design aesthetic.
-
-<img
-  src="https://pbs.twimg.com/media/G7PmjRBXgAAVKXd?format=jpg&name=medium"
-  alt="Emoji Combination"
-
-/>
-
-```text
-combine these emojis: 🍌 + 😎, on a white background as a google emoji design
-```
-
-_Source: [@NanoBanana](https://x.com/NanoBanana/status/1996193397913317384)_
-
-### 2.10 Floating Country Island
-
-Create hyper-realistic floating miniature islands shaped like countries.
-
-```text
-Create an ultra-HD, hyper-realistic digital poster of a floating miniature island shaped like [COUNTRY], resting on white clouds in the sky. Blend iconic landmarks, natural landscapes (like forests, mountains, or beaches), and cultural elements unique to [COUNTRY]. Carve "[COUNTRY]" into the terrain using large white 3D letters. Add artistic details like birds (native to [COUNTRY]), cinematic lighting, vivid colors, aerial perspective, and sun reflections to enhance realism.
-```
-
-_Source: [@TechieBySA](https://x.com/TechieBySA/status/1999110884879221052)_
+| Feature                | Nano Banana 2 | Nano Banana Pro | Lyria 3 |      Veo 3.1      |
+| ---------------------- | :-----------: | :-------------: | :-----: | :---------------: |
+| Output Type            | Text + Image  |  Text + Image   |  Audio  |   Video + Audio   |
+| Resolution             |  512px - 4K   |     1K - 4K     |   N/A   |   720p - 1080p    |
+| Context Window         |  131K tokens  |   65K tokens    |   N/A   |        N/A        |
+| Max Reference Images   |      14       |       14        |    1    |  4 (ingredients)  |
+| Aspect Ratios          |      10+      |       10+       |   N/A   |    16:9, 9:16     |
+| Clip Length            |      N/A      |       N/A       |   N/A   |    4s, 6s, 8s     |
+| Audio Output           |      No       |       No        |   Yes   | Yes (synchronous) |
+| Text Rendering         |   Excellent   |    Excellent    |   N/A   |        N/A        |
+| Web Search Integration |      Yes      |       Yes       |   N/A   |        N/A        |
+| C2PA / SynthID         |      Yes      |       Yes       |   Yes   |        Yes        |
 
 ---
 
-## 3. Advanced Use Cases
+## Part 1: Text & Image — Nano Banana Pro
 
-Structured prompts for specific professional applications.
-
-### 3.1 Ukiyoe Flash Card Design
-
-Create Japanese-style collectible trading cards with holographic effects.
-
-<img
-  src="https://github.com/pantaleone-ai/Awesome-Nano-Banana-images/raw/main/images/pro_case1/output.jpg"
-  alt="Ukiyoe Flash Card"
-
-/>
-
-```text
-Core Instruction: A Japanese Ukiyoe style collectible trading card design, vertical composition. The illustration style needs to closely mimic the visual aesthetics of "Demon Slayer", features include: ink outlines with varying thickness, traditional woodblock print color schemes, and dramatic dynamic composition.
-
-Subject Description: The card protagonist is {Character Name} (Title: {Hashira Name/Title}), in a dynamic fighting pose, holding {Weapon Description}. The character is performing {Breathing Style Move Name}, surrounded by {Visual Effect Description}, these effects need to be presented in Traditional Japanese Sumi-e style.
-
-Background and Material: The background needs to blend textured Holographic Foil effect, shimmering beneath the traditional ink elements.
-
-Border: The image should have a decorative border composed of Traditional Japanese Patterns (such as Seigaiha or Asanoha). At the bottom, there is a stylized banner with "{Japanese Kanji Name}" written in ancient Japanese calligraphy.
-```
-
-_Source: [@MANISH1027512](https://x.com/MANISH1027512/status/1992529793519120763)_
-
-### 3.2 Generate Image from Coordinates
-
-Generate historical moments or specific locations from coordinates and time.
-
-<img
-  src="https://github.com/pantaleone-ai/Awesome-Nano-Banana-images/raw/main/images/pro_case2/output.jpg"
-  alt="Generate Image from Coordinates"
-
-/>
-
-```text
-Create an image at 40.7128° N, 74.0060° W, on September 11, 2001, at 08:46
-```
-
-_Source: [@TechieBySA](https://x.com/TechieBySA/status/1992947742948442516)_
-
-### 3.3 Character Cloning
-
-Place multiple instances of a character in realistic environments.
-
-<img
-  src="https://github.com/pantaleone-ai/Awesome-Nano-Banana-images/raw/main/images/pro_case3/output.jpg"
-  alt="Character Cloning"
-
-/>
-
-```text
-Based on the uploaded reference character, shoot a real-life scene in a spacious Tokyo girl's apartment—a bright, lived-in studio, spatial proportions close to 1LDK. The room should contain white walls, warm wooden floors, beige curtains, a low bed with soft bedding, a desk with cosmetics, bookshelves, plants, a standing mirror, a rug, scattered personal items, and a compact kitchen area at the back of the room.
-
-Place about thirty characters identical to the reference character (face, hairstyle, clothing all identical to the reference character) in the room, each in a different action or interaction state. Ensure strong layering occlusion: foreground figures partially obscure middle ground figures, background figures appear smaller and present natural perspective falloff.
-```
-
-_Source: [@tapehead_Lab](https://x.com/tapehead_Lab/status/1991805336274055588)_
-
-### 3.4 Generate Flowchart from Document
-
-Visualize academic papers or technical documents as diagrams.
-
-<img
-  src="https://github.com/pantaleone-ai/Awesome-Nano-Banana-images/raw/main/images/pro_case4/output.jpg"
-  alt="Generate Flowchart from Document"
-
-/>
-
-```text
-The diagram illustrates the process of constructing a Dyson swarm based on the paper Armstrong, S., & Sandberg, A. (2013). Eternity in six hours: Intergalactic spreading of intelligent life and sharpening the Fermi paradox. Acta Astronautica, 89, 1-13.
-```
-
-_Source: [@anderssandberg](https://x.com/anderssandberg/status/1992259420118724677)_
-
-### 3.5 Toy Disassembly Display
-
-Create exploded view diagrams of toys with transparent shells.
-
-<img
-  src="https://github.com/pantaleone-ai/Awesome-Nano-Banana-images/raw/main/images/pro_case11/output.jpg"
-  alt="Toy Disassembly Display"
-
-/>
-
-```text
-There is only one [Astro Boy] toy on the table. The toy is displayed split in half, left and right. The left half of the toy is the normal toy image, and the right half is a transparent shell, clearly showing the internal structure inside, with white lines pointing out what each part is. On the desktop, bright background, blurred table.
-```
-
-_Source: [@ZeroZ_JQ](https://x.com/ZeroZ_JQ/status/1992881685978059235)_
-
-### 3.6 Fluffy Plush Toy
-
-Convert flat vector logos into soft, fluffy 3D objects.
-
-<img
-  src="https://github.com/pantaleone-ai/Awesome-Nano-Banana-images/raw/main/images/pro_case12/output.jpg"
-  alt="Fluffy Plush Toy"
-
-/>
-
-```text
-Convert a simple flat vector logo into a soft, fluffy 3D object. Use original colors. The object is completely covered in fur, with hyper-realistic fur texture and soft shadows. It is located in the center of a clean light gray background, floating gently in the air. The style is surreal, tactile and modern, creating a comfortable and playful feeling. Use studio lighting and high-resolution rendering.
-```
-
-_Source: [@toolfolio](https://x.com/toolfolio/status/1992847853212012705)_
-
-### 3.7 Crystal Texture Emoji
-
-Create photorealistic objects rendered in crystal/glass materials.
-
-<img
-  src="https://github.com/pantaleone-ai/Awesome-Nano-Banana-images/raw/main/images/pro_case13/output.jpg"
-  alt="Crystal Texture Emoji"
-
-/>
-
-```text
-A photorealistic, highly detailed image featuring [a 3D Polaroid camera] rendered in clear, highly polished transparent glass or crystal material. All edges are treated with rounded chamfers and smooth curved surfaces, creating elegant refraction effects under light. The camera is placed slightly tilted, as if floating above a clean, flawless, seamless pale beige or very light gray studio background.
-
-Lighting is bright, clean professional studio light, focusing on highlighting the transparency, specular reflection and refraction characteristics of the glass material. Sharp and delicate highlights appear on the body chamfers, film slot edges and lens rings.
-```
-
-_Source: [@ZHO_ZHO_ZHO](https://x.com/ZHO_ZHO_ZHO/status/1992891830208508130)_
-
-### 3.8 Fluffy Inflatable Toy
-
-Create inflatable-looking toys with soft matte textures.
-
-<img
-  src="https://github.com/pantaleone-ai/Awesome-Nano-Banana-images/raw/main/images/pro_case14/output.jpg"
-  alt="Fluffy Inflatable Toy"
-
-/>
-
-```text
-Create a high-resolution 3D rendering of the logo in the attachment, the shape should be an inflatable fluffy object. The shape should appear soft and full, like a plush balloon or inflatable toy. Use a smooth matte texture and add subtle fabric folds and stitching to highlight the inflatable effect. Place it on a simple background (light gray).
-```
-
-_Source: [@gizakdag](https://x.com/gizakdag/status/1992847853212012705)_
-
-### 3.9 Children's Literacy Newsletter
-
-Generate educational content with Chinese pinyin annotations.
-
-<img
-  src="https://github.com/pantaleone-ai/Awesome-Nano-Banana-images/raw/main/images/pro_case8/output.jpg"
-  alt="Children's Literacy Newsletter"
-
-/>
-
-```text
-Please generate a children's literacy newsletter "Amusement Park", vertical A4, learning newsletter layout, suitable for 5-9 year old children to recognize words and identify objects from pictures.
-
-Newsletter Title: "Amusement Park Literacy Newsletter" - Style: Cross newsletter / Children's learning paper feel, Large, eye-catching, cartoon handwritten font, colorful outline
-
-Center of the picture is a Cartoon Illustration style "Amusement Park" scene with clear object boundaries. Include core activities, supporting facilities, and environmental background.
-
-Must-Draw Objects with Chinese literacy labels (format: Pinyin + Simplified Chinese characters): gōng zuò rén yuán Staff, shòu piào chù Ticket Booth, guò shān chē Roller Coaster, mó tiān lún Ferris Wheel, etc.
-
-Style: Children's picture book style, High Saturation, Warm Tone, 8k resolution, high detail, vector illustration style.
-```
-
-_Source: [@lxfater](https://x.com/lxfater/status/1993238777033105634)_
-
-### 3.10 Golden Quote Card
-
-Create elegant celebrity quote cards with gradient transitions.
-
-<img
-  src="https://github.com/pantaleone-ai/Awesome-Nano-Banana-images/raw/main/images/pro_case25/output.jpg"
-  alt="Golden Quote Card"
-
-/>
-
-```text
-A wide celebrity quote card, brown background, serif light gold "Stay Hungry, Stay Foolish", small text "——Steve Jobs", a large faint quotation mark in front of the text, character portrait on the left, text on the right, text occupies 2/3 of the picture, character occupies 1/3, character has a gradient transition feeling.
-```
-
-_Source: [@stark_nico99](https://x.com/stark_nico99/status/1991718646570426763)_
-
-### 3.11 Qingming Shanghe Tu Style
-
-Transform modern scenes into traditional Chinese ink painting style.
-
-<img
-  src="https://github.com/pantaleone-ai/Awesome-Nano-Banana-images/raw/main/images/pro_case26/output.jpg"
-  alt="Qingming Shanghe Tu Style"
-
-/>
-
-```text
-A magnificent, highly detailed traditional Chinese ink and color handscroll painting on ancient silk, perfectly mimicking the artistic style, brushwork, and scattered perspective of Zhang Zeduan's masterpiece "Along the River During the Qingming Festival".
-
-Center Scene: Overlooking the bustling modern Chicago Riverwalk. The focus is the massive steel bascule bridge with traffic, countless cars, yellow taxis, and CTA buses shuttling across, all depicted with precise traditional brushstrokes.
-
-Environmental Details: On the Chicago River below, modern architectural style cruise ships, water taxis, and kayaks. Wrigley Building and Tribune Tower-style skyscrapers lined along the riverbanks, painted using traditional "Jiehua" architectural painting techniques.
-
-Human Activity: The Riverwalk and sidewalks are crowded with hundreds of small figures in modern casual wear. The whole scene is rich in detail, slightly chaotic, and presented in soft retro earth tones.
-```
-
-_Source: [@dotey](https://x.com/dotey/status/1992469131438719122)_
-
-### 3.12 Character Deconstruction
-
-Create fashion concept breakdown diagrams with detailed annotations.
-
-<img
-  src="https://github.com/pantaleone-ai/Awesome-Nano-Banana-images/raw/main/images/pro_case6/output.jpg"
-  alt="Character Deconstruction"
-
-/>
-
-```text
-Hand-drawn style fashion concept breakdown diagram.
-
-Center: A full-body shot of a stylish, confident, slightly sexy (but not explicit) female character, with a natural and energetic pose.
-
-Surrounding: Structured layout of her key elements:
-- Clothing layers—showing coat, underwear, leggings (lace, tulle material), shapewear, and zooming in on detail patterns
-- Expression sheet—3-4 facial expressions (neutral, shy, surprised, focused)
-- Close-up shots—fabric fold textures, skin details, hand gestures
-- Lifestyle and accessories—opened handbag containing daily items: lipstick, perfume, compact powder, hand cream, diary, health supplements
-- Material annotations—handwritten style notes next to each item (e.g., "soft lace", "matte leather", "shade #520")
-
-Background: Soft beige or parchment texture, creating a design sketch atmosphere.
-
-Output: 4K HD 2D illustration, combining sexiness and fashion sense. Language: Chinese and English labels.
-```
-
-_Source: [@cheerselflin](https://x.com/cheerselflin/status/1992877077570453712)_
+Nano Banana Pro excels at photorealistic rendering, character consistency, structured JSON prompting, and professional commercial output. This section covers the **frameworks, techniques, and curated prompts** that unlock its full potential.
 
 ---
 
-## 4. Image Editing & Manipulation
+### 1.1 The 5-Part Prompting Formula
 
-Transform existing images with AI-powered editing capabilities.
+The most reliable structure for Nano Banana generation follows a five-part formula. Start with a **strong verb** that tells the model the primary operation, then layer in specifics.
 
-### 4.1 Anime to Real Coser
+**Formula:** `[Subject] + [Action] + [Location/Context] + [Composition] + [Style]`
 
-Convert anime characters to realistic cosplay photographs.
-
-```text
-Transform anime characters into realistic human cosplay photos while maintaining character identity and costume details.
-```
-
-_Source: [@ZHO_ZHO_ZHO](https://x.com/ZHO_ZHO_ZHO)_
-
-### 4.2 Old Photo Colorization
-
-Restore and colorize vintage black and white photographs.
-
-```text
-Colorize this old black and white photograph with historically accurate colors. Maintain the original composition and atmosphere while adding natural-looking color to people, objects, and backgrounds.
-```
-
-_Source: [GeminiApp](https://gemini.google.com/app)_
-
-### 4.3 Google Maps View of Middle-earth
-
-Transform fictional locations into map-style visuals.
-
-```text
-Create a Google Maps style view of Middle-earth showing the major locations from Lord of the Rings with accurate geography and iconic landmarks rendered in the characteristic map style.
-```
-
-_Source: [@TechHallo](https://x.com/TechHallo)_
-
-### 4.4 Minecraft-Style Scene Generation
-
-Create blocky, voxel-style renders of any scene.
-
-```text
-Create a Minecraft-style 3D isometric view of [scene description]. Use the characteristic blocky aesthetic, pixel textures, and recognizable game elements. Include appropriate terrain, structures, and characters in the iconic Minecraft visual style.
-```
-
-_Source: [@tetumemo](https://x.com/tetumemo)_
-
-### 4.5 Character Pose Modification
-
-Edit character poses while maintaining style consistency.
-
-```text
-Keep the character's appearance, clothing, and art style exactly the same. Reposition them into [new pose description] while maintaining anatomical correctness and consistent shading.
-```
-
-_Source: [@arrakis_ai](https://x.com/arrakis_ai)_
-
-### 4.6 Virtual Makeup Try-On
-
-Apply virtual makeup while preserving natural skin texture.
-
-```text
-Apply the following makeup look to this portrait: [makeup description]. Maintain natural skin texture, realistic lighting, and preserve the subject's facial features and bone structure.
-```
-
-_Source: [@ZHO_ZHO_ZHO](https://x.com/ZHO_ZHO_ZHO)_
-
-### 4.7 LEGO Minifigure
-
-Create custom LEGO minifigures from character references.
-
-```text
-Create a detailed LEGO minifigure based on [character description]. Include the characteristic LEGO styling: cylindrical head, simple face with printed features, torso with printed clothing, arms in standard pose, and legs with printed pants. Use accurate LEGO color palette and include any accessories or props the character would carry.
-```
-
-_Source: [@ZHO_ZHO_ZHO](https://x.com/ZHO_ZHO_ZHO)_
-
-### 4.8 Gundam Model Figure
-
-Generate detailed Gundam-style mecha model figures.
-
-```text
-Create a detailed Gundam model figure in the style of Bandai's High Grade or Master Grade kits. Include characteristic mecha design elements: V-fin antenna, gundam head with face mask, articulated joints, panel line details, and dynamic pose. Use the signature color scheme of [character/model name] with appropriate markers and water slides.
-```
-
-_Source: [@ZHO_ZHO_ZHO](https://x.com/ZHO_ZHO_ZHO)_
-
-### 4.9 Floor Plan 3D Render
-
-Convert architectural floor plans into 3D visualizations.
-
-```text
-Generate a photorealistic 3D render of this floor plan. Show it as a clean architectural visualization with realistic materials, furniture placement, and proper lighting. Style: modern minimalist interior design.
-```
-
-_Source: [@op7418](https://x.com/op7418/status/1993159387796718006)_
-
-### 4.10 Custom Claw Machine
-
-Create detailed claw machine designs with custom prizes.
-
-```text
-Design a custom Japanese UFO catcher (claw machine) featuring [character/theme description]. Include the characteristic glass display case, mechanical claw arm, prize compartment filled with plush toys, ticket dispenser, and illuminated marquee. Style it with [color scheme] and [decorative elements].
-```
-
-_Source: [@googlejapan](https://x.com/googlejapan)_
-
----
-
-## 5. Product & Commercial Use
-
-Professional applications for business and marketing.
-
-### 5.1 Product Packaging Generation
-
-Create detailed product packaging designs.
+> [!EXAMPLE]
+> **Before:** "A fashion photo"
+>
+> **After:** "A striking fashion model wearing a tailored brown dress, sleek boots, and holding a structured handbag. Posing with a confident, statuesque stance, slightly turned. On a seamless, deep cherry red studio backdrop. Medium-full shot, center-framed. Fashion magazine style editorial, shot on medium-format analog film, pronounced grain, high saturation, cinematic lighting effect."
+>
+> _Source: Google Cloud Blog_
 
 <img
-  src="https://github.com/pantaleone-ai/Awesome-Nano-Banana-images/raw/main/images/case_41_output.jpg"
-  alt="Product Packaging"
-
+  src="https://storage.googleapis.com/gweb-cloudblog-publish/images/1_u1Xks1L.max-1400x1400.png"
+  alt="Nano Banana Pro fashion editorial generated with 5-part formula"
 />
 
-```text
-Create a professional product packaging design for [product name] with the following specifications:
-- Product type: [cosmetics/skincare/food/beverage]
-- Brand aesthetic: [luxury/minimalist/playful]
-- Primary colors: [color palette]
-- Include: front label, back label with ingredients, barcode area, logo placement
-- Material finish: [glossy/matte/soft-touch]
-- Style: photorealistic product mockup on clean white background
+### 1.2 Pseudo-Code Prompting (Chase Jarvis Technique)
+
+Most people prompt like they're describing a dream — wandering sentences that lead to drift. The professional alternative is **Pseudo-Code Prompting**: define variables as distinct assets, then instruct the model how to combine them.
+
+**Why it works:** You separate _what_ from _how_. When iterating, you only change one variable — the model understands everything else must remain constant.
+
+**The Structure:**
+
+```
+[VARIABLES]
+SUBJECT_A = "Professional female model, mid-30s, sharp features,
+  wearing a structured oversized beige blazer, silk texture."
+LOCATION_B = "Brutalist architecture interior, concrete walls,
+  sharp geometric shadows."
+LIGHTING_C = "High-contrast rim lighting, cool blue fill from
+  the left, warm key light from the right."
+CAM_SETTINGS = "Phase One XF, 80mm lens, f/2.8, ISO 100,
+  sharp focus on eyes."
+
+[EXECUTION]
+Render SUBJECT_A standing in LOCATION_B. Apply LIGHTING_C to
+emphasize the texture of the blazer. Use CAM_SETTINGS for
+a hyper-realistic commercial fashion look.
 ```
 
-_Source: [@ZHO_ZHO_ZHO](https://x.com/ZHO_ZHO_ZHO)_
+> [!TIP]
+> Use the "Thinking" or "Reasoning" mode for complex physics-based lighting. Add `[REASONING: Calculate true light paths based on light source position]` to force physics validation.
 
-### 5.2 ID Photo Creation
+### 1.3 JSON Structured Prompting
 
-Generate professional ID photos from casual selfies.
+For complex compositions where you need precise control over multiple elements, use structured JSON. Nano Banana's reasoning engine recognizes this logic and applies it consistently.
 
-```text
-Create a professional ID photo from this selfie. Subject should have neutral expression, natural appearance, solid colored background (white or light blue), proper lighting with no shadows on face or background. Follow standard ID photo guidelines: frontal view, eyes open, natural color, no glasses, head centered with appropriate spacing.
-```
+> [!EXAMPLE]
+> **Before:** "A young woman taking a mirror selfie, 2000s aesthetic"
+>
+> **After:**
+>
+> ```json
+> {
+>   "subject": {
+>     "description": "A young woman taking a mirror selfie with
+>       very long voluminous dark waves and soft wispy bangs",
+>     "age": "young adult",
+>     "expression": "confident and slightly playful",
+>     "hair": {
+>       "color": "dark",
+>       "style": "very long, voluminous waves with soft wispy bangs"
+>     },
+>     "clothing": {
+>       "top": {
+>         "type": "fitted cropped t-shirt",
+>         "color": "cream white",
+>         "details": "features a large cute anime-style cat face graphic"
+>       }
+>     }
+>   },
+>   "photography": {
+>     "camera_style": "early-2000s digital camera aesthetic",
+>     "lighting": "harsh super-flash with bright blown-out highlights",
+>     "angle": "mirror selfie",
+>     "texture": "subtle grain, retro highlights, V6 realism"
+>   },
+>   "background": {
+>     "setting": "nostalgic early-2000s bedroom",
+>     "elements": ["chunky wooden dresser", "CD player",
+>       "hanging beaded door curtain"]
+>   }
+> }
+> ```
+>
+> _Source: [@ZaraIrahh](https://x.com/ZaraIrahh/status/1991681614368436468)_
 
-_Source: [@songguoxiansen](https://x.com/songguoxiansen)_
+### 1.4 Positive Framing & Negative Prompting
 
-### 5.3 Design a Chess Set
+Nano Banana understands what you want _better_ when you describe the positive outcome rather than the negative.
 
-Create themed chess sets with custom pieces.
-
-```text
-Design a [theme] themed chess set. The King should be [character/design], the Queen should be [character/design], bishops as [design], knights as stylized [animal/design], rooks as [structure], and pawns as [smaller version of theme]. Include a checkered game board with [material/pattern] texture. Style: collectible chess set photography.
-```
-
-_Source: [@Gdgtify](https://x.com/Gdgtify)_
-
-### 5.4 Movie Poster Creation
-
-Generate professional movie poster designs.
-
-```text
-Create a professional movie poster for [movie title]. Include:
-- Main title in cinematic typography
-- Key art featuring [main character/scene description]
-- Tagline: "[tagline]"
-- Studio logos placeholder area
-- Cast section: [actor names]
-- Release date: [date]
-- Style: Hollywood theatrical poster, dramatic lighting, high contrast
-```
-
-_Source: [@aiehon_aya](https://x.com/aiehon_aya)_
-
-### 5.5 Merchandise Design
-
-Create branded merchandise with product mockups.
-
-```text
-Design merchandise items featuring [brand/character] including:
-- T-shirt with front and back design
-- Tote bag
-- Phone case
-- Keychain
-- Magnet
-
-Style: clean product mockup photography on white or neutral background with soft shadows. Use [color scheme]. Include realistic fabric textures and product details.
-```
-
-_Source: [@0xFramer](https://x.com/0xFramer)_
-
-### 5.6 Jewelry Collection Design
-
-Create photorealistic jewelry collection visuals.
-
-```text
-Create a luxury jewelry collection featuring [pieces]. Include:
-- Diamond/N gemstone engagement ring
-- Pearl necklace
-- Gold bracelet
-- Sapphire earrings
-- Diamond stud earrings
-
-Style: high-end jewelry photography, soft studio lighting, white or velvet background, realistic metal reflections and gemstone sparkle, macro detail shots.
-```
-
-_Source: [@Gdgtify](https://x.com/Gdgtify)_
-
-### 5.7 Split-Contrast Style Photo
-
-Create dramatic split-toning effects.
-
-```text
-Create a split-contrast style portrait with [left side description] transitioning to [right side description]. The transition should be clean and precise, with distinct lighting and color grading on each side. Style: high-end editorial photography with dramatic contrast.
-```
-
-_Source: [@fofrAI](https://x.com/fofrAI)_
+> [!EXAMPLE]
+> **Before:** "A street with no people, no cars, no modern buildings"
+>
+> **After:** "A desolate cobblestone street at dawn, bathed in warm golden light. The storefronts are shuttered. No people, no vehicles. Atmospheric fog lingers near the ground."
+>
+> **Before:** "Remove the red car"
+>
+> **After:** "Replace the red car with a gray van that matches the lighting and perspective of the street. The van should appear parked, stationary, blending seamlessly with the ambient shadows."
+>
+> _Source: Google Cloud Blog_
 
 ---
 
-## 6. Gaming & Entertainment
+### 1.5 Lighting & Camera Controls
 
-Gaming-related visual content creation.
+Nano Banana speaks the language of lenses and light. Use specific photographic and cinematic terminology to control depth, distortion, perspective, and mood.
 
-### 6.1 Character Relationship Chart
+#### 1.5.1 Photography Terminology
 
-Create visual relationship diagrams for games or stories.
+| Control Type   | Example Prompt                                                                                                             |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **Wide Angle** | "Shot on Leica SL2 with a 24mm lens. Exaggerate foreground features. Vertical distortion on architectural elements."       |
+| **Portrait**   | "Shot on Canon R5 with an 85mm f/1.2 lens. Extremely shallow depth of field. Bokeh should be creamy and circular."         |
+| **Macro**      | "100mm Macro lens. 1:1 magnification. Focus stacking simulation for edge-to-edge sharpness on the product texture."        |
+| **Low Angle**  | "Low angle shot, looking up at the subject against an overcast sky. Wide-angle perspective to emphasize height and drama." |
+
+> [!EXAMPLE]
+> **Before:** "Close-up portrait"
+>
+> **After:** "Close-up portrait of a weathered sailor, shot on Fujifilm GFX 100 with a 110mm f/2 lens. The lens creates natural background compression. Skin texture must be visible — pores, fine lines, sun damage. Catchlights present in the eyes. Dramatic chiaroscuro lighting from a single window on the left."
+>
+> _Source: Chase Jarvis_
+
+#### 1.5.2 Lighting Ratios
+
+Nano Banana's reasoning engine calculates light bounces with surprising accuracy. Define the behavior of light explicitly.
+
+| Lighting Style  | Prompt Description                                                                                                                                                 |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Rembrandt**   | "Classic Rembrandt lighting. Key light at 45 degrees elevation, 45 degrees horizontal. Triangle of light on the shadowed cheek. Deep shadow density ratio of 3:1." |
+| **Commercial**  | "High-key commercial lighting. Large softbox source overhead. White bounce cards filling shadows. Even, flattering illumination. Catchlights in both eyes."        |
+| **Chiaroscuro** | "Dramatic chiaroscuro. Single directional source from above-right. Harsh shadows, high contrast. Key-to-fill ratio of 8:1."                                        |
+| **Three-Point** | "Three-point lighting: key light at 45 degrees, fill at 90 degrees at 50% power, rim light behind subject at full power creating edge separation."                 |
+
+> [!EXAMPLE]
+> **Before:** "Well-lit portrait"
+>
+> **After:** "Three-point studio lighting. Key light: 90cm octabank, camera left, 70% power, creating soft shadows on the right cheek. Fill light: 60cm softbox, camera right, 35% power, lifting shadows to a 2:1 ratio. Rim light: narrow strip light behind subject, full power, separating hair from background. Deep charcoal gray seamless backdrop."
+>
+> _Source: Google Cloud Blog_
+
+#### 1.5.3 Film Stock & Color Grading
+
+Specify film stock, color science, or grading styles to control the emotional texture of the output.
+
+> [!EXAMPLE]
+> **Before:** "A nostalgic photo"
+>
+> **After:** "Kodak Portra 400 film aesthetic. Warm, nostalgic color science with slightly lifted blacks. The green channel pushed toward yellow. Skin tones with a peachy warmth. Subtle film grain, halation around highlights, soft contrast curve."
+>
+> **Before:** "Cinematic look"
+>
+> **After:** "Cinematic color grading with muted teal tones in shadows and warm orange in highlights. Teal shadows, orange highlights (the classic teal-orange grade). Desaturated blacks with crushed blacks in the background. Slight vignette."
+>
+> _Source: Google Cloud Blog_
+
+---
+
+### 1.6 Reference Stack Workflows
+
+The 14-reference-image limit is Nano Banana's most powerful professional feature. Use it strategically for campaign-scale consistency.
+
+> [!NOTE]
+> Nano Banana supports up to 14 reference images in a single prompt. Recommended slot allocation: **Slots 1-3** for character turnarounds, **Slots 4-5** for brand assets (logo, color palette), **Slots 6-10** for style and mood references.
+
+#### 1.6.1 The 14-Slot Reference Stack
+
+```
+[SLOT 1-3] Character Turnaround: front view, 3/4 view, side view
+[SLOT 4]  Brand Logo: transparent PNG, primary color palette
+[SLOT 5]  Color Swatches: exact hex values for campaign colors
+[SLOT 6-8] Lighting References: mood board images defining the light quality
+[SLOT 9-10] Style References: photography style, texture direction
+[SLOT 11-14] Environment/Prop References: setting details, key props
+
+Prompt:
+"Using the character defined in Slots 1-3, place them into the
+location described in Slot 11. Apply the lighting quality from
+Slot 6. Ensure the brand logo from Slot 4 is visible on the
+clothing. Maintain facial structure from Slot 1 exactly. Use
+the color grading from Slot 9."
+```
+
+#### 1.6.2 Weavy Pose-Change Technique
+
+Using the **Weavy** node interface, you can decouple a subject's identity from their pose — transferring the geometry from one image to another.
+
+> [!TIP]
+> Run the generation **3-4 times**. If anatomy breaks (fingers, knees), swap the pose reference for a clearer image.
+
+**Inputs:**
+
+- **Top Node (Pose):** A reference image with the desired geometry — stock photo, sketch, or 3D block-out
+- **Bottom Node (Subject):** Your target subject with the appearance you need to preserve
+
+**The Pose-Transfer Prompt:**
+
+```text
+[@img1 is the pose reference]
+[@img2 is the character reference]
+
+First, examine img1 and extract the subject's pose, including
+the position of all limbs, torso angle, and head orientation.
+
+The objective is to transfer the subject's pose from img1 to img2.
+
+Create an image of the content as shown in img2, but with the
+main character of img2 posed in the same way as the character
+of img1.
+
+Keep everything else about img2 the same — medium, color,
+saturation, lighting quality, background.
+
+Don't change the background or contents of img2. Only transfer
+the pose from img1's subject to img2's subject.
+```
+
+**Output:** The subject from img2 rendered in the exact pose from img1.
+
+> [!NOTE]
+> This technique works with sketches and 3D block-outs as the pose reference — not just photographs. Concept artists use this to turn napkin sketches into photorealistic assets.
 
 <img
-  src="https://github.com/pantaleone-ai/Awesome-Nano-Banana-images/raw/main/images/pro_case19/output.jpg"
-  alt="Character Relationship Chart"
-
+  src="https://chasejarvis.com/wp-content/uploads/2025/12/weavy-nano-banana-pose-transfer.webp"
+  alt="Weavy pose-transfer workflow: transferring pose geometry to a character reference"
 />
 
-```text
-[Japanese Dating Sim Game] Character Relationship Chart. Includes character names, relationship arrows, affection levels, conflict points. [Romantic Comedy Style]. Total 7 characters.
-```
+#### 1.6.3 Weavy Style-Cloning Technique
 
-_Source: [@KanaWorks_AI](https://x.com/KanaWorks_AI/status/1993223720954155229)_
+Apply the complete _aesthetic_ of one image to the _subject_ of another — without blending the content.
 
-### 6.2 Otome Game Setting Collection
+> [!NOTE]
+> The model doesn't just slap a filter on. It re-renders the subject from the ground up using the physics of the style reference.
 
-Generate visual backgrounds for visual novels.
+**Inputs:**
 
-```text
-A set of background information for setting the protagonist and supporting characters of an Otome game. Include:
-- Main character outfit variations
-- Love interest character designs
-- Key location backgrounds
-- CG scene compositions
-- UI elements and choice menus
-```
+- **Style Reference (img1):** The "vibe" — defines lighting, texture, color palette, rendering technique
+- **Content Reference (img2):** The "subject" — the person, product, or scene you need
 
-_Source: [@KanaWorks_AI](https://x.com/KanaWorks_AI/status/1993489493756964978)_
-
-### 6.3 RPG Character Status UI
-
-Create video game-style character stat screens.
+**The Style-Clone Prompt:**
 
 ```text
-Create an RPG character status screen for [character name]. Include:
-- Character portrait (full body illustration)
-- Stats display: HP bar, MP bar, STR, DEX, INT, VIT, LUK
-- Equipment slots: weapon, armor, accessory
-- Skills/abilities list with icons
-- Character level and experience bar
-- Equipment stats summary
+Create an image of the content as shown in [@img2] but with the
+same medium, color palette, mood, rendering technique, saturation
+level, textures, and overall style of [@img1].
 
-Style: Japanese RPG UI with modern minimalist design, dark theme with accent colors.
+Extract ONLY the aesthetic qualities from img1 — do not include
+any objects, subjects, or compositions from img1.
+
+Apply the extracted style to img2's subject while preserving
+img2's subject identity and composition.
 ```
 
-_Source: [@AI_Kei75](https://x.com/AI_Kei75)_
+**Output:** The subject from img2 rendered with the lighting, texture, and color science of img1.
 
-### 6.4 Fighting Game Interface
+> [!EXAMPLE]
+> Style Reference: A glowing, subsurface-scattering orange illustration of cats on a blue background.
+> Content Reference: A standard photograph of a king cobra.
+> Result: The cobra re-rendered with the translucent orange glow and lighting physics of the cat illustration — without becoming a cat.
 
-Create arcade-style fighting game character select screens.
-
-```text
-Create a fighting game character select screen featuring [character]. Include:
-- Character silhouette with glow effect
-- Portrait in fighting stance
-- Health bar, special meter
-- Round counter
-- Character name plate with nationality/fighting style
-- VS screen backdrop
-
-Style: classic arcade fighting game aesthetic with modern polish.
-```
-
-_Source: [@NanoBanana_labs](https://x.com/NanoBanana_labs)_
-
-### 6.5 Pixar-Style Portrait
-
-Convert photos into Pixar-style 3D character renders.
-
-```text
-Transform this portrait into a Pixar-style 3D animated character. Maintain recognizable features while applying characteristic Pixar styling: large expressive eyes, smooth skin, characteristic lighting, and the studio's signature color palette and rendering style.
-```
-
-_Source: [@NanoBanana_labs](https://x.com/NanoBanana_labs)_
+<img
+  src="https://chasejarvis.com/wp-content/uploads/2025/11/style-transfer-row.webp"
+  alt="Weavy style-cloning: transferring lighting and texture from one image to another"
+/>
 
 ---
 
-## 7. Creative & Artistic Applications
+### 1.7 Text Rendering & Typography
 
-### 7.1 LINE Stamp Image
+Nano Banana is the first AI image model with **reliable typography** — rendering sharp, legible text on posters, packaging, and product mockups. It supports multilingual text in 10+ languages.
 
-Create custom LINE sticker packs.
+> [!TIP]
+> **Text-first hack:** When generating text-heavy images, first converse with the model to generate the text concepts, then request the final image with that text embedded. This ensures the model gets the text right before worrying about composition.
 
-```text
-Create a set of LINE stamp characters featuring [character/theme]. Include various expressions and poses:
-- Happy, excited
-- Sad, crying
-- Angry, frustrated
-- Surprised, shocked
-- Sleeping, tired
-- Eating, drinking
-- Dancing, celebrating
+**Rules for text rendering:**
 
-Style: cute Japanese mobile sticker aesthetic with clean lines, pastel colors, and transparent backgrounds.
-```
+| Rule                         | Example                                                        |
+| ---------------------------- | -------------------------------------------------------------- |
+| Use quotes around text       | `"CREATIVE FUTURE"` in bold white sans-serif (Helvetica style) |
+| Describe the font explicitly | "Century Gothic 12px font" or "flowing Brush Script"           |
+| Specify placement            | "Title text at top, subtitle below, 2/3 text area"             |
+| Define layering              | "Text acts as a cut-out window over the subject"               |
 
-_Source: [@emakiscroll](https://x.com/emakiscroll)_
-
-### 7.2 Typography Logo Design
-
-Create typographic logo designs.
-
-```text
-Design a typography-based logo for [brand name]. Style: [modern/minimalist/vintage/decorative]. Include the text in [font style] with [effects]. Use color palette: [colors]. Include variations for light and dark backgrounds.
-```
-
-_Source: [@aziz4ai](https://x.com/aziz4ai)_
-
-### 7.3 Typographic Illustration
-
-Create text-based artistic illustrations.
-
-```text
-Create a typographic illustration where the word [word] is formed using [objects/animals/elements]. The objects should naturally form the letter shapes while maintaining their recognizable appearance. Style: creative typography, high detail, professional design portfolio piece.
-```
-
-_Source: [@Umesh](https://x.com/umesh)_
-
-### 7.4 Manga Composition
-
-Create manga-style panel layouts.
-
-```text
-Create a manga-style comic panel featuring [scene description]. Include:
-- Main action panel with dynamic composition
-- Character close-ups with dramatic angles
-- Speed lines and action effects
-- Background art with proper perspective
-- Sound effect typography (onomatopoeia)
-
-Style: shonen manga with dynamic poses, dramatic lighting, high-quality illustration.
-```
-
-_Source: [@namaedousiyoka](https://x.com/namaedousiyoka)_
-
-### 7.5 Pirate Wanted Poster
-
-Create vintage wanted poster designs.
-
-```text
-Create an old west style wanted poster for [character]. Include:
-- Aged paper texture with coffee stains and wear
-- Hand-drawn portrait in woodcut style
-- "WANTED DEAD OR ALIVE" text
-- Bounty amount: $[amount]
-- Crime description
-- "REWARD" stamp
-- Western typography and decorative elements
-
-Style: realistic aged paper, authentic historical styling.
-```
-
-_Source: [@AI_Kei75](https://x.com/AI_Kei75)_
-
-### 7.6 Educational Comic
-
-Create educational content in comic format.
-
-```text
-Create an educational comic strip explaining [topic]. Style: educational manga/manhua hybrid. Include:
-- Friendly character guide/narrator
-- Clear visual explanations of concepts
-- Step-by-step process illustrations
-- Quiz/review section at end
-- Age-appropriate art style
-
-Format: multi-panel vertical scroll or page format.
-```
-
-_Source: [@op7418](https://x.com/op7418)_
-
-### 7.7 Glass Bottle Souvenir
-
-Create photorealistic glass bottle souvenirs.
-
-```text
-Create a photorealistic glass bottle souvenir featuring [design/theme]. Include:
-- Transparent glass material with realistic refraction
-- Liquid fill level with appropriate color
-- Custom label with [design elements]
-- Cap or cork detail
-- Condensation droplets on surface
-- Soft shadow and studio lighting
-
-Style: high-end product photography.
-```
-
-_Source: [@NanoBanana_labs](https://x.com/NanoBanana_labs)_
-
-### 7.8 Therapy for Childhood Self
-
-Create poignant self-reflective imagery.
-
-```text
-Create a heartfelt image showing [adult description] meeting [child description] (childhood version of yourself). Scene: [location from childhood memory]. The child should be wearing [clothing description]. Both versions should have matching [facial features]. Style: warm, nostalgic, emotional, soft lighting like a treasured photograph.
-```
-
-_Source: [@samann_ai](https://x.com/samann_ai)_
+> [!EXAMPLE]
+> **Before:** "A poster that says Creative Future"
+>
+> **After:** "A typographic poster with a solid black background. The words 'CREATIVE FUTURE' in bold white Helvetica Neue font, filling the center of the frame. The text acts as a cut-out window. A photograph of a misty mountain landscape is visible ONLY inside the letterforms, with soft bokeh in the background."
+>
+> _Source: Google Cloud Blog_
 
 ---
 
-## Quick Reference: Top 10 Prompts to Try First
+### 1.8 Real-Time Web Search Integration
 
-For those ready to experiment immediately, here are the most versatile prompts:
+Nano Banana 2 is powered by real-time information from web search. Instead of describing a fictional scene, instruct the model to retrieve current data and visualize it.
 
-1. **Business Headshot**
+**The Formula:** `[Search/Source Request] + [Analytical Task] + [Visual Translation]`
 
-   ```text
-   Professional studio headshot, Sony A7III 85mm f/1.4, three-point lighting, navy suit, dark gray backdrop, natural skin texture, 8K
-   ```
+> [!EXAMPLE]
+> **Before:** "The weather in San Francisco today"
+>
+> **After:**
+>
+> ```
+> Search for current weather conditions, date, and time in San Francisco.
+> Analytically, use this data to modify the scene: if it's raining,
+> render the city with overcast skies and wet reflective streets.
+> If it's sunny, render warm golden light washing over the buildings.
+> Visualize this as a miniature city-in-a-cup concept embedded within
+> a realistic, modern smartphone UI. The miniature city should reflect
+> the actual current weather of San Francisco.
+> ```
+>
+> _Source: Google Cloud Blog_
 
-2. **3D Product Shot**
+---
 
-   ```text
-   Luxury product shot floating on dark water with [flower] arranged around, studio lighting, high-end commercial photography
-   ```
+### 1.9 Expert Prompt Collection — Text & Image
 
-3. **Anime Portrait**
+The following prompts represent battle-tested techniques from the NanoPrompts.org community, Google Cloud documentation, and Chase Jarvis's professional workflows.
 
-   ```text
-   Hyperrealistic anime portrait, narrow beam spotlight, dark background, mysterious mood, high contrast
-   ```
+#### 1.9.1 Hyperrealistic Celebrity Crowd
 
-4. **Recursive Image**
+> [!EXAMPLE]
+>
+> ```text
+> Create a hyper-realistic, ultraSharp, full-color large-format
+> image featuring a massive group of celebrities from different eras,
+> all standing together in a single wide cinematic frame. The image
+> must look like a perfectly photographed editorial cover with impeccable
+> lighting, lifelike skin texture, micro-details of hair, pores,
+> reflections, and fabric fibers.
+>
+> GENERAL STYLE & MOOD: Photorealistic, 8k, shallow depth of field,
+> soft natural fill light + strong golden rim light. High dynamic range,
+> calibrated color grading. Skin tones perfectly accurate. Crisp fabric
+> detail with individual threads visible. Balanced composition,
+> slightly wide-angle lens (35mm), center-weighted.
+>
+> THE ENVIRONMENT: A luxurious open-air rooftop terrace at sunset
+> overlooking a modern city skyline. Warm golden light wrapping around
+> silhouettes. Polished marble surfaces reflecting ambient light.
+> ```
+>
+> _Source: [@SebJefferies](https://x.com/SebJefferies/status/1991531687147360728)_
 
-   ```text
-   recursive image of [subject] holding an iPad showing the same image
-   ```
+#### 1.9.2 Lightbox Pre-Visualization
 
-5. **Character Cloning**
+Simulate complex studio setups before renting gear — a pre-visualization tool that saves studio time.
 
-   ```text
-   [X] copies of the same character in [location], each in different pose, soft natural lighting
-   ```
+> [!EXAMPLE]
+>
+> ```text
+> [SETUP]
+> Subject in center, looking at camera.
+> Light 1: 10ft octabank, camera left, 50% power, creating soft
+>   wrap-around shadows.
+> Light 2: Snooted kicker, camera right rear, 100% power, teal gel
+>   creating colored edge light on hair and shoulder.
+> Light 3: Ring light fill, on-axis, 25% power, lifting shadow
+>   density under the nose.
+> Background: seamless gray paper, lit evenly.
+>
+> Render this as a photorealistic simulation of the above lighting
+> diagram. The subject is a professional male model, mid-40s, wearing
+> a navy wool suit.
+> ```
+>
+> _Source: Chase Jarvis_
 
-6. **Toy Disassembly**
+#### 1.9.3 Museum Art Exhibition Fusion
 
-   ```text
-   [Toy name] split in half, left normal, right transparent showing internal structure
-   ```
+> [!EXAMPLE]
+>
+> ```text
+> A commercial grade photograph of [uploaded reference image] posing
+> inside a high-end museum exhibition space.
+>
+> Behind them hangs a large, ornate framed classical oil painting.
+> The painting depicts the same person but rendered in a rich,
+> traditional oil painting style with thick, visible impasto
+> brushstrokes, deep textures, and rich color palettes on canvas.
+> Gallery spotlights hit the textured paint surface.
+>
+> Masterpiece, ultra-detailed, cinematic lighting, strong contrast,
+> dramatic shadows, 8K UHD, highly detailed textures,
+> professional photography.
+> ```
+>
+> _Source: [@brad_zhang2024](https://x.com/brad_zhang2024/status/1996072707348201827)_
 
-7. **Quote Card**
+#### 1.9.4 Product Shot with Luxury Lighting
 
-   ```text
-   [Quote text] on elegant quote card, serif font, [color] background, character portrait, gradient transition
-   ```
+> [!EXAMPLE]
+>
+> ```text
+> Product: [BRAND] [PRODUCT NAME] - [bottle shape],
+>   [label description], [liquid color]
+>
+> Scene: Luxury product shot floating on dark water with
+>   [flower type] in [colors] arranged around it.
+>   [Lighting style] creates reflections and ripples
+>   across the water.
+>
+> Mood & Style: [Adjectives], high-end commercial photography,
+>   [camera angle], shallow depth of field with soft bokeh
+>   background
+> ```
+>
+> _Source: [@AmirMushich](https://x.com/AmirMushich/status/1974767431714304456)_
 
-8. **LEGO Figure**
+#### 1.9.5 Coordinate-to-Image Generation
 
-   ```text
-   LEGO minifigure of [character], standard pose, [color scheme], realistic LEGO styling
-   ```
+Generate specific locations at specific times using latitude/longitude coordinates.
 
-9. **Food Map**
+> [!EXAMPLE]
+> **Before:** "A famous location"
+>
+> **After:** "Create an image at 35.6586 degrees N, 139.7454 degrees E (Tokyo) at 19:00. Golden hour has just passed. The Tokyo Tower is illuminated in orange against a deep blue twilight sky. Cherry blossoms are in full bloom along the walkway. Steam rises from street food vendors. Cinematic composition, wide-angle establishing shot."
+>
+> _Source: Google Cloud Blog (coordinates from Replicate)_
 
-   ```text
-   US map where each state is made of its most famous food
-   ```
+---
 
-10. **Vintage Photo**
-    ```text
-    1990s style portrait, 35mm flash, [era] aesthetic, nostalgic glow
-    ```
+## Part 2: Music & Audio — Lyria
+
+Lyria generates high-fidelity music and audio from text prompts and images. Built for creators who need **production-ready tracks** — not loops — Lyria gives you control over every dimension of a musical arrangement.
+
+---
+
+### 2.1 Prompting Architecture
+
+Lyria prompting follows a layered structure. Each layer builds on the last: **Genre** establishes the foundation, **Tempo** sets the pace, **Instruments** fill the arrangement, **Dynamics** shape the flow, and **Vocals** carry the melody.
+
+> [!NOTE]
+> Lyria supports **image-to-music**: upload any image and describe its mood to generate a matching soundtrack. Think about the subject, location, lighting, and atmosphere — Lyria interprets these visual cues musically.
+
+#### 2.1.1 Genre & Era Control
+
+Define the primary genre and optionally blend eras or styles.
+
+> [!EXAMPLE]
+> **Before:** "A rock song"
+>
+> **After:** "1980s arena rock anthem. Heavy kick drum with double-pedal speed. Thick, gated-reverb snare cracking on beats 2 and 4. Distorted power chords in drop-D tuning. Emotive male tenor lead vocal with long sustained notes. Analog synthesizer pads in the background. Stadium reverb on the entire mix."
+>
+> _Source: DeepMind Lyria Prompt Guide_
+
+**Genre Blending Examples:**
+
+| Prompt                                         | Result                                                                               |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------ |
+| "K-pop with a Motown edge"                     | Contemporary K-pop production values with classic soul vocal phrasing and brass hits |
+| "Classical violins merged into a funk track"   | Funk rhythm section with orchestral string arrangements overlaid                     |
+| "Early 90s hip-hop with 808s and jazz samples" | Boom-bap drums, warm vinyl texture, jazz piano loops                                 |
+
+#### 2.1.2 Tempo Specification
+
+Specify tempo directly (BPM) or indirectly (descriptive terms).
+
+> [!EXAMPLE]
+> **Before:** "A fast song"
+>
+> **After:** "170 BPM drum and bass track. Rapid-fire hi-hat pattern at 16th notes. Fast-attack synthesizers. Energetic, urgent atmosphere."
+>
+> **Before:** "A slow song"
+>
+> **After:** "62 BPM slow soul ballad. Spacious drums with long decays. Relaxed tempo that allows each note to breathe."
+>
+> _Source: DeepMind Lyria Prompt Guide_
+
+#### 2.1.3 Instrument Selection
+
+Add specific instruments to shape the sonic character. If you don't specify, Lyria auto-selects instruments to suit the genre.
+
+> [!EXAMPLE]
+> **Before:** "A jazz song"
+>
+> **After:** "Quintessential 1970s Motown soul. Lush, orchestral R&B production. Warm bassline with melodic fills, locked into a steady drum groove with crisp snare and tambourine. Vintage organ harmonic bed. Three-piece brass section. Gritty, gospel-tinged male tenor lead vocal."
+>
+> _Source: DeepMind Lyria Prompt Guide_
+
+| Instrument Control              | Example                                                                                                        |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| **Add unexpected instruments**  | "1990s R&B with 80s synth" — adds analog synth textures to contemporary production                             |
+| **Specify instrument behavior** | "Clean funk-style guitar rhythm, staccato chord stabs on the upbeat, warm wah-wah pedal swells, no distortion" |
+| **Layer textures**              | "Dense orchestral arrangement: string quartet, brass quintet, harp, tubular bells"                             |
+
+#### 2.1.4 Dynamics & Arrangement
+
+Define how music flows between sections — builds, drops, instrumental breaks, and dynamic swells.
+
+> [!EXAMPLE]
+> **Before:** "A song with a loud part"
+>
+> **After:** "Wistful and airy. Soft, breathy female vocals with intimacy. The track builds slowly from a quiet piano intro into an explosive chorus at 1:30, with full drum kit, swelling strings, and layered backing vocals. After the chorus, it returns to the quiet piano arrangement with only vocals and soft synth pads."
+>
+> **Before:** "A song with background music"
+>
+> **After:** "Nocturnal aesthetic with cinematic forward motion. The track opens with ambient synth pads for 8 bars, then introduces a driving 16th-note analog synthesizer bass arpeggio. Percussion anchored by a powerful snare with 1980s gated reverb. Swelling cinematic pads build throughout. Male vocalist with soaring vocal lines enters at bar 16."
+>
+> _Source: DeepMind Lyria Prompt Guide_
+
+---
+
+### 2.2 Vocals & Lyrics
+
+Lyria supports vocal generation with control over gender, range, timbre, language, and lyric content.
+
+#### 2.2.1 Vocal Profiles
+
+Define the singer's characteristics explicitly.
+
+| Vocal Trait        | Prompt Example                                                                                       |
+| ------------------ | ---------------------------------------------------------------------------------------------------- |
+| **Gender + Range** | "Rich female alto, commanding baritone vocals, clear and high soprano range"                         |
+| **Timbre**         | "Gravelly, soulful, breathy, bright, warm, nasally"                                                  |
+| **Language**       | "Singing in English, French, Korean, Japanese"                                                       |
+| **Vocal Pattern**  | "Fast-paced rap verses, laid-back melodic chorus, call-and-response between lead and backing vocals" |
+
+> [!EXAMPLE]
+> **Before:** "A song with a singer"
+>
+> **After:** "A breathy soprano with intimate, hushed delivery. The voice sits low in the mix, almost whispering. Occasional falsetto runs. No vibrato, no ornamentation — pure, raw emotion. Like a late-night confessional."
+>
+> _Source: DeepMind Lyria Prompt Guide_
+
+#### 2.2.2 Custom Lyrics Syntax
+
+Write specific lyrics using the `Lyrics:` prefix. Add backing vocal echoes in parentheses.
+
+> [!EXAMPLE]
+>
+> ```text
+> Lyrics: The city lights are bleeding through the rain,
+> We're dancing in the memories left behind.
+> Running at the speed of a whispered name,
+> Caught in a rhythm only we can find.
+>
+> (Letra: Las luces de la ciudad sangran a través de la lluvia,
+> Bailamos en los recuerdos que dejamos atrás.)
+> ```
+>
+> _Source: DeepMind Lyria Prompt Guide_
+
+#### 2.2.3 Thematic Lyrics
+
+Let Lyria generate lyrics by describing the emotional theme clearly.
+
+> [!EXAMPLE]
+> **Before:** "A song"
+>
+> **After:**
+>
+> - "A love song about finding yourself after a breakup — bittersweet, hopeful, anthemic"
+> - "A new happy birthday song for your best friend — playful, warm, acoustic guitar-driven"
+> - "An instrumental track evoking the quiet atmosphere of a Rio beach at sunset — gentle bossa nova rhythm, warm nylon guitar, soft wave sounds"
+>
+> _Source: DeepMind Lyria Prompt Guide_
+
+---
+
+### 2.3 Image-to-Music Prompts
+
+Upload any image to generate music that matches its mood. Think about three dimensions:
+
+| Image Dimension | What to Describe                     | Musical Translation                     |
+| --------------- | ------------------------------------ | --------------------------------------- |
+| **Subject**     | Who or what is the focus?            | Genre, vocal gender, energy level       |
+| **Location**    | Indoor/outdoor, city/nature, setting | Instrumentation, ambient sounds, tempo  |
+| **Atmosphere**  | Happy, sad, tense, calm              | Key, dynamics, tempo, chord progression |
+
+> [!EXAMPLE]
+> **Image:** A proud-looking ginger cat sitting on a blanket draped over a cozy armchair. Soft light streams through a window, illuminating a coffee table with a cup and several stacked books. The cat's eyes are semi-closed — relaxed and sleepy.
+>
+> **Prompt:** "A lazy Sunday afternoon. Relaxed acoustic guitar strumming a fingerpicked pattern. Soft jazz piano chords in the background. The sound of a gentle rain on glass. Warm, nostalgic, peaceful. No vocals — pure instrumental atmosphere."
+>
+> _Source: DeepMind Lyria Prompt Guide_
+
+---
+
+### 2.4 Expert Prompt Collection — Music & Audio
+
+#### 2.4.1 Cinematic Rock Anthem
+
+> [!EXAMPLE]
+>
+> ```text
+> This is a massive, anthemic Alternative Rock chorus in the style
+> of Post-Grunge and Arena Rock. The foundation is a thunderous,
+> powerful drum kit: a heavy kick drum hits while a thick,
+> gated-reverb snare cracks on beats 2 and 4. A driving, melodic
+> bass line propels the harmony forward, acting as a crucial melodic
+> anchor.
+>
+> Layered electric guitars play palm-muted power chords with
+> aggressive distortion. A lead guitar soars with a sustained
+> pentatonic solo over the final 8 bars. The mix is thick and dense,
+> with reverbs reaching 2-3 seconds on the drums.
+>
+> Floating powerfully over this dense instrumental wall is an emotive
+> male tenor lead vocal, belting at full chest voice. Backing vocals
+> harmonize in thirds. The chorus ends with a dramatic drum fill.
+>
+> Tempo: 128 BPM. Key: E minor.
+> ```
+>
+> _Source: DeepMind Lyria Prompt Guide_
+
+#### 2.4.2 Bossa Nova Sunset
+
+> [!EXAMPLE]
+>
+> ```text
+> An intimate, sophisticated Brazilian Bossa Nova track evoking the
+> quiet atmosphere of a Rio beach at sunset. The tempo is a gentle
+> 78 BPM. A nylon-string acoustic guitar plays the characteristic
+> syncopated bossa nova rhythm — staccato chords on beats 2 and 4.
+> A upright bass walks a relaxed melodic line.
+>
+> Gentle female vocals in Portuguese, breathy and intimate,
+> with natural room ambience. The melody floats above the
+> arrangement with subtle reverb. Soft shakers and a nylon guitar
+> provide the rhythmic pulse. Gentle wave sounds blend into the
+> mix as ambient texture.
+>
+> The arrangement is sparse — only guitar, bass, vocals, and subtle
+> percussion. Warm, romantic, nostalgic.
+> ```
+>
+> _Source: DeepMind Lyria Prompt Guide_
+
+#### 2.4.3 Electronic Dance Floor
+
+> [!EXAMPLE]
+>
+> ```text
+> Driving electronic dance music at 128 BPM. Four-on-the-floor
+> kick drum with crisp transient attack. Layered hi-hats — closed
+> on the 8th notes, open on the off-beats. Sidechained synth
+> pads pumping in sync with the kick.
+>
+> A catchy melodic hook played on a warm analog supersaw
+> synthesizer. Filter sweeps automate on every 8 bars. The bass
+> is a thick sawtooth wave with moderate compression.
+>
+> Breakdown at 1:30: all elements drop except a filtered
+> arpeggiated synth and single kick. Build-up reintroduces
+> elements one by one. Full release at 2:00 with all elements
+> at maximum volume. No vocals — pure instrumental energy.
+> ```
+>
+> _Source: DeepMind Lyria Prompt Guide_
+
+#### 2.4.4 Lo-Fi Hip-Hop Study Session
+
+> [!EXAMPLE]
+>
+> ```text
+> A lo-fi hip-hop instrumental for studying. 85 BPM. Vinyl-warmed
+> sampled drums with a heavily compressed kick and snare. The hi-hat
+> pattern is swung slightly. A looped jazz piano sample plays a
+> minor-key chord progression with natural reverb decay. A warm
+> vinyl crackle sits at -24 dB in the background.
+>
+> A double bass plays a walking line that steps through the chord
+> changes. The entire sample is processed through a low-pass filter
+> that opens slightly during the chorus section. The mix is warm
+> and slightly muddy — intentionally lo-fi. No vocals.
+>
+> Total runtime: 3 minutes, seamless loop.
+> ```
+>
+> _Source: DeepMind Lyria Prompt Guide_
+
+#### 2.4.5 Celtic Folk Ballad
+
+> [!EXAMPLE]
+>
+> ```text
+> A Celtic folk ballad. Solo acoustic guitar in DADGAD tuning,
+> fingerpicked in a traditional Celtic style. The melody is
+> played on a tin whistle with natural vibrato. Occasional
+> violin (fiddle) enters during the chorus, playing a mournful
+> melody in A minor.
+>
+> A bodhran drum provides a steady pulse. Male vocalist sings
+> in a traditional Irish folk style — slight nasality, strong
+> projection, no vibrato. The lyrics tell a story of a sailor
+> lost at sea.
+>
+> The arrangement grows organically: guitar solo intro,
+> whistle joins at verse 2, full ensemble by the final chorus.
+> Gentle room reverb. Recorded to sound like a live pub session.
+> ```
+>
+> _Source: DeepMind Lyria Prompt Guide_
+
+---
+
+### 2.5 Audio Parameter Quick Reference
+
+| Parameter       | Values / Range            | Prompt Example                                        |
+| --------------- | ------------------------- | ----------------------------------------------------- |
+| **Tempo**       | 40-220 BPM                | "150 BPM drum and bass", "62 BPM slow ballad"         |
+| **Key**         | All major/minor keys      | "E minor", "Bb major", "C# minor"                     |
+| **Dynamics**    | pp to ff                  | "Crescendo into a fortissimo release"                 |
+| **Genre**       | Any music genre           | "Late 70s disco with funk bass", "Shoegaze dream pop" |
+| **Instruments** | Any                       | "Mellotron strings, Rickenbacker 12-string guitar"    |
+| **Vocals**      | Male/Female, any language | "Breathy female alto, singing in Japanese"            |
+| **Lyrics**      | Custom or thematic        | "Lyrics: [your lyrics]", "A love song about loss"     |
+| **Mix Style**   | Wet/Dry, lo-fi/wide       | "Wet, cavernous reverb, 1970s analog warmth"          |
+
+---
+
+## Part 3: Video & Motion — Veo 3.1
+
+Veo 3.1 is Google's state-of-the-art video generation model. It brings **professional-grade creative controls**, multiple aspect ratios, **rich synchronous audio**, and **cinematic camera movement** to a prompting-driven workflow.
+
+---
+
+### 3.1 Core Capabilities & Tech Specs
+
+| Feature                  | Specification                                            |
+| ------------------------ | -------------------------------------------------------- |
+| **Resolution**           | 720p or 1080p                                            |
+| **Aspect Ratios**        | 16:9, 9:16                                               |
+| **Clip Length**          | 4s, 6s, or 8s                                            |
+| **Audio**                | Synchronous, multi-person dialogue, SFX, ambient         |
+| **Image-to-Video**       | Stronger prompt adherence than Veo 3                     |
+| **Ingredients to Video** | Up to 4 reference images for character/scene consistency |
+| **First/Last Frame**     | Seamless transition between start and end images         |
+| **Add/Remove Object**    | Modify generated videos (Veo 2 engine, no audio)         |
+| **Watermarking**         | SynthID on all outputs                                   |
+
+> [!WARNING]
+> Veo 3.1 **Add/Remove object** currently uses the Veo 2 model internally and does not generate audio.
+
+---
+
+### 3.2 The 5-Part Cinematic Formula
+
+The Veo 3.1 prompting formula mirrors the image formula but adds temporal and audio dimensions.
+
+**Formula:** `[Cinematography] + [Subject] + [Action] + [Context] + [Style & Ambiance] + [Audio]`
+
+> [!EXAMPLE]
+> **Before:** "A person working in an office"
+>
+> **After:** "Medium shot, a tired corporate worker rubbing his temples in exhaustion, in front of a bulky 1980s computer in a cluttered office late at night. The scene is lit by harsh fluorescent overhead lights and the green glow of the monochrome monitor. Retro aesthetic, shot as if on 1980s color film, slightly grainy. Ambient: the hum of old CRT monitors and the click of a mechanical keyboard."
+>
+> _Source: Google Cloud Blog_
+
+---
+
+### 3.3 Camera Movement Language
+
+The `[Cinematography]` element is the most powerful tool for conveying tone and emotion. Use specific terms from professional filmmaking.
+
+#### Camera Movement Reference Table
+
+| Movement          | Description                              | Prompt Example                                                          |
+| ----------------- | ---------------------------------------- | ----------------------------------------------------------------------- |
+| **Dolly shot**    | Camera moves toward or away from subject | "Slow dolly in toward the character's face, revealing their expression" |
+| **Tracking shot** | Camera follows subject horizontally      | "Tracking shot following the explorer as she steps into the clearing"   |
+| **Crane shot**    | Camera moves up/down on a crane          | "Crane shot starting low, ascending high, revealing the vast canyon"    |
+| **Aerial view**   | Drone-style overhead shot                | "Aerial view from 200 meters, slowly orbiting the castle"               |
+| **Slow pan**      | Horizontal rotation                      | "Slow pan left to reveal the city skyline emerging from fog"            |
+| **POV shot**      | First-person perspective                 | "POV shot from behind the singer, looking out at a cheering crowd"      |
+| **Dutch angle**   | Tilted frame for tension                 | "Dutch angle, tilted 15 degrees, to convey disorientation"              |
+
+> [!EXAMPLE]
+> **Before:** "Video of a canyon"
+>
+> **After:** "Crane shot starting low on a lone hiker and ascending high above, revealing they are standing on the edge of a colossal, mist-filled canyon at sunrise, epic fantasy style, awe-inspiring, soft morning light."
+>
+> _Source: Google Cloud Blog_
+
+#### Composition & Lens Controls
+
+| Control             | Description                | Prompt Example                                                  |
+| ------------------- | -------------------------- | --------------------------------------------------------------- |
+| **Wide shot**       | Full environmental context | "Wide shot revealing the vast temple complex from above"        |
+| **Close-up**        | Isolated detail focus      | "Extreme close-up on weathered hands tracing ancient carvings"  |
+| **Low angle**       | Looking up, empowering     | "Low angle, upward tilt, emphasizing the skyscraper's height"   |
+| **Shallow DOF**     | Blurred background         | "Close-up with very shallow depth of field, soft bokeh"         |
+| **Wide-angle lens** | Exaggerated perspective    | "GoPro-style wide-angle, immersive distorted action feel"       |
+| **Deep focus**      | Everything in sharp focus  | "Deep focus, every element sharp from foreground to background" |
+
+> [!EXAMPLE]
+> **Before:** "A woman on a bus"
+>
+> **After:** "Close-up with very shallow depth of field, a young woman's face, looking out a bus window at the passing city lights with her reflection faintly visible on the glass, inside a bus at night during a rainstorm, melancholic mood with cool blue tones, moody, cinematic."
+>
+> _Source: Google Cloud Blog_
+
+<img
+  src="https://storage.googleapis.com/gweb-cloudblog-publish/images/maxresdefault_5resomk.max-1300x1300.jpg"
+  alt="Veo 3.1 cinematic shot with shallow depth of field"
+/>
+
+---
+
+### 3.4 Sound Design Controls
+
+Veo 3.1 generates complete, synchronized soundtracks based on text instructions.
+
+| Audio Type              | Syntax                     | Example                                                              |
+| ----------------------- | -------------------------- | -------------------------------------------------------------------- |
+| **Dialogue**            | Quotation marks for speech | 'A woman says, "We have to leave now."'                              |
+| **Sound Effects (SFX)** | Describe sounds precisely  | "SFX: thunder cracks in the distance, followed by heavy rain"        |
+| **Ambient Noise**       | Define the soundscape      | "Ambient: the quiet hum of a starship bridge, distant console beeps" |
+| **Music**               | Describe the score         | "Swell to a cinematic orchestral score with rising strings"          |
+
+> [!EXAMPLE]
+> **Before:** "Add some sound effects"
+>
+> **After:**
+>
+> ```
+> [00:00-00:02] Medium shot of a woman entering a dark forest.
+> SFX: crunching dry leaves underfoot, wind rustling through branches.
+> Ambient: distant owl calls, the sound of the forest settling for night.
+>
+> [00:02-00:04] Close-up of the woman's face, eyes widening in fear.
+> SFX: a sudden snap of a twig nearby. Heartbeat sound effect begins.
+>
+> [00:04-00:06] Wide shot revealing what she sees: ancient stone ruins.
+> Music: a single cello note, low and foreboding, sustained for 3 seconds.
+> ```
+>
+> _Source: Google Cloud Blog_
+
+---
+
+### 3.5 Negative Prompting for Video
+
+Refine your video output by describing exclusions with precision.
+
+> [!EXAMPLE]
+> **Before:** "No bad things in the video"
+>
+> **After:**
+>
+> - "A desolate landscape with no buildings, no roads, no vehicles, no modern infrastructure — only wilderness"
+> - "A crowd scene with no blurred faces, no duplicate characters, no distorted hands"
+> - "An underwater scene with no visible camera equipment, no bubbles from artificial sources, no anachronistic objects"
+
+> [!NOTE]
+> For video, negative prompting is especially useful for: **motion artifacts** ("no jittering, no motion blur on static objects"), **continuity errors** ("the time of day remains consistent throughout"), and **visual noise** ("no flicker, no frame drops").
+
+---
+
+### 3.6 Advanced Creative Workflows
+
+#### 3.6.1 Workflow: First and Last Frame Transitions
+
+Create controlled camera movements or transformations between two distinct images using the **First/Last Frame** feature.
+
+**Step 1 — Generate the starting frame with Nano Banana:**
+
+```
+Medium shot of a female pop star singing passionately into a vintage
+microphone. She is on a dark stage, lit by a single, dramatic
+spotlight from the front. She has her eyes closed, capturing an
+emotional moment. Photorealistic, cinematic, shot on medium-format
+camera, 85mm lens, shallow depth of field.
+```
+
+<img
+  src="https://storage.googleapis.com/gweb-cloudblog-publish/images/4_k5TSJwO.max-1400x1400.jpg"
+  alt="Veo 3.1 first frame: female pop star on dark stage"
+/>
+
+**Step 2 — Generate the ending frame with Nano Banana:**
+
+```
+POV shot from behind the singer on stage, looking out at a large,
+cheering crowd. The stage lights are bright, creating lens flare.
+You can see the back of the singer's head and shoulders in the
+foreground. The audience is a sea of lights and silhouettes.
+Energetic atmosphere. Photorealistic, cinematic.
+```
+
+<img
+  src="https://storage.googleapis.com/gweb-cloudblog-publish/images/5_hJExmgF.max-1100x1100.png"
+  alt="Veo 3.1 last frame: POV from stage looking at audience"
+/>
+
+**Step 3 — Animate with Veo 3.1:**
+
+```
+The camera performs a smooth 180-degree arc shot, starting with
+the front-facing view of the singer and circling around her to
+seamlessly end on the POV shot from behind her on stage. The
+singer sings "when you look me in the eyes, I can see a million
+stars." SFX: crowd cheering, stage lights humming. Music: swelling
+arena rock anthem.
+```
+
+> [!TIP]
+> The transition prompt should describe the _camera movement_ and _what happens between_ the two frames, not just repeat the images.
+
+#### 3.6.2 Workflow: Ingredients to Video (Character Consistency)
+
+Generate multi-shot scenes with consistent characters using the **Ingredients to Video** feature with up to 4 reference images.
+
+**Step 1 — Generate your ingredients with Nano Banana:**
+
+Create reference images for each character and the setting (up to 4 total).
+
+**Step 2 — Compose the scene:**
+
+```
+Using the provided images for the detective, the woman, and the
+office setting, create a medium shot of the detective behind his
+desk. He looks up at the woman and says in a weary voice,
+"Of all the offices in this town, you had to walk into mine."
+SFX: the creak of an old office chair, rain on glass outside.
+Ambient: the muffled sound of city traffic, distant thunder.
+```
+
+<img
+  src="https://storage.googleapis.com/gweb-cloudblog-publish/images/8_AmMaGWn.max-1900x1900.png"
+  alt="Veo 3.1 ingredients-to-video: detective dialogue scene"
+/>
+
+```
+Using the provided images for the detective, the woman, and the
+office setting, create a shot focusing on the woman. A slight,
+mysterious smile plays on her lips as she replies, "You were
+highly recommended." Camera slowly dollies toward her face.
+Lighting: a desk lamp creates a pool of warm light, the rest
+of the office fades into shadow.
+```
+
+> [!NOTE]
+> The **Ingredients to Video** feature now supports **audio generation** alongside the consistent character visuals. Each shot can have its own dialogue, SFX, and ambient audio.
+
+#### 3.6.3 Workflow: Timestamp Prompting
+
+Direct a complete multi-shot sequence with precise cinematic pacing — all within a single generation.
+
+> [!EXAMPLE]
+> **Before:** Single paragraph prompt
+>
+> **After:**
+>
+> ```
+> [00:00-00:02] Medium shot from behind a young female explorer
+> with a leather satchel and messy brown hair in a ponytail, as she
+> pushes aside a large jungle vine to reveal a hidden path.
+> Camera: slow dolly forward.
+>
+> [00:02-00:04] Reverse shot of the explorer's freckled face,
+> her expression filled with awe as she gazes upon ancient,
+> moss-covered ruins in the background.
+> SFX: The rustle of dense leaves, distant exotic bird calls.
+>
+> [00:04-00:06] Tracking shot following the explorer as she
+> steps into the clearing and runs her hand over the intricate
+> carvings on a crumbling stone wall. Emotion: Wonder and reverence.
+>
+> [00:06-00:08] Wide, high-angle crane shot, revealing the
+> lone explorer standing small in the center of the vast,
+> forgotten temple complex, half-swallowed by the jungle.
+> SFX: A swelling, gentle orchestral score begins to play.
+> Ambient: the sound of wind through ancient stone corridors.
+> ```
+>
+> _Source: Google Cloud Blog_
+
+---
+
+### 3.7 Expert Prompt Collection — Video & Motion
+
+#### 3.7.1 Cinematic Restaurant Scene
+
+> [!EXAMPLE]
+>
+> ```text
+> Slow dolly shot, wide angle, inside a candlelit Italian restaurant
+> at night. A couple sits at a corner table, engaged in quiet
+> conversation. Waiters move gracefully between tables carrying
+> plates of pasta. Warm amber light from candles and Edison bulbs
+> creates intimate pools of light. The background dining room
+> softens into bokeh.
+>
+> Camera slowly tracks toward the couple as one of them reaches
+> across the table. Dialogue: "You know, I've never told anyone
+> this before..."
+>
+> SFX: the gentle clink of wine glasses, soft jazz from a corner
+> quartet, the murmur of other diners.
+>
+> Style: romantic cinema, warm color grade, lens flare from candle
+> light, shallow depth of field, 24fps cinematic motion.
+> ```
+>
+> _Source: Google Cloud Blog (inspired by Veo 3.1 recipe)_
+
+#### 3.7.2 Cyberpunk Street Chase
+
+> [!EXAMPLE]
+>
+> ```text
+> POV shot running through rain-slicked neon-lit cyberpunk alleyways.
+> The camera bobs and weaves with the runner's pace — handheld
+> aesthetic, wide-angle lens, fast motion blur on rain drops.
+> Holographic advertisements flicker in multiple languages.
+> Steam rises from vents in the pavement.
+>
+> Cut to: Low angle tracking shot, following the runner's boots
+> slapping through puddles of neon reflections — pink, cyan, amber.
+> SFX: footsteps echoing, distant sirens, rain hitting metal.
+> Ambient: an AI-generated city soundscape, distant chatter in
+> Japanese and English, hovering vehicle hums overhead.
+>
+> Style: Blade Runner 2049 meets Akira. High contrast, teal shadows,
+> orange/amber highlights. Slight film grain. Cinematic letterboxing.
+> ```
+>
+> _Source: Google Cloud Blog (inspired by Veo 3.1 recipe)_
+
+#### 3.7.3 Underwater documentary
+
+> [!EXAMPLE]
+>
+> ```text
+> Wide establishing shot of a coral reef at midday. Sunlight
+> shafts pierce the water surface from above, creating god rays.
+> Schools of colorful fish move in synchronized patterns.
+> A sea turtle glides slowly through the frame.
+>
+> Camera slowly pushes in toward a coral formation, revealing
+> intricate detail. Macro lens simulation, deep focus.
+> The scene transitions to: Close-up of a tiny clownfish hiding
+> among an anemone's tentacles.
+>
+> SFX: Bubbles rising steadily, the muffled sounds of the ocean
+> surface above, whale song in the distant background.
+> Ambient: A gentle, orchestral underwater documentary score —
+> soft strings, woodwinds, sustained cello notes.
+>
+> Style: BBC nature documentary, vibrant color saturation,
+> natural lighting, smooth camera movements, 30fps.
+> ```
+>
+> _Source: Google Cloud Blog (inspired by Veo 3.1 recipe)_
+
+#### 3.7.4 Live Concert — Three-Shot Sequence
+
+> [!EXAMPLE]
+>
+> ```text
+> Shot 1 [00:00-00:02]: Wide shot of a packed outdoor festival
+> at dusk. Thousands of people raise their phones recording the
+> main stage. Pyrotechnics erupt behind the headline act.
+> Camera: static wide, crowd fills the frame.
+>
+> Shot 2 [00:02-00:05]: Medium shot of the lead singer at
+> center stage, microphone in hand, belting into the crowd.
+> Stage lights in every color of the spectrum. Camera: slow
+> dolly toward the singer. Dialogue: the singer shouts,
+> "San Francisco, make some noise!"
+>
+> Shot 3 [00:05-00:08]: Extreme close-up on the singer's face,
+> sweat on the skin, eyes closed, pure emotion. Lens flares
+> from stage lights. Music: the band launches into the final
+> chorus — thunderous drums, distorted guitars, crowd roaring.
+> ```
+>
+> _Source: Google Cloud Blog (inspired by Veo 3.1 recipe)_
+
+#### 3.7.5 Cozy Coffee Shop Interior
+
+> [!EXAMPLE]
+>
+> ```text
+> Medium shot of a cozy independent coffee shop on a rainy
+> afternoon. A young woman sits at a window table, typing on
+> a laptop, a latte and open book beside her. Rain streaks
+> down the window. String lights hang above the counter.
+>
+> Camera: static medium shot, shallow depth of field on the
+> woman, the background café activity soft but present.
+> SFX: the hiss of the espresso machine, gentle rain on glass,
+> soft indie folk music playing from overhead speakers.
+>
+> Style: Wes Anderson meets lo-fi aesthetic. Warm amber and
+> teal color palette. Slightly desaturated. 24fps with gentle
+> motion. The entire scene feels like a warm hug.
+> ```
+>
+> _Source: Google Cloud Blog (inspired by Veo 3.1 recipe)_
+
+---
+
+### 3.8 Veo 3.1 Parameter Quick Reference
+
+| Parameter           | Options                                        | Prompt Syntax                                                      |
+| ------------------- | ---------------------------------------------- | ------------------------------------------------------------------ |
+| **Resolution**      | 720p, 1080p                                    | Set in Vertex AI console                                           |
+| **Aspect Ratio**    | 16:9 (landscape), 9:16 (portrait)              | Set in Vertex AI console                                           |
+| **Clip Length**     | 4s, 6s, 8s                                     | Set in Vertex AI console                                           |
+| **Camera Movement** | Dolly, tracking, crane, aerial, pan, tilt, POV | "Slow dolly in", "tracking shot following", "crane shot ascending" |
+| **Lens**            | Wide, portrait, macro, fisheye                 | "Wide-angle lens", "85mm portrait lens simulation"                 |
+| **Depth of Field**  | Shallow, deep, bokeh                           | "Very shallow depth of field", "everything in focus"               |
+| **Frame Rate Feel** | Cinematic 24fps, smooth 60fps                  | "Cinematic 24fps motion", "slow-motion 60fps"                      |
+| **Lighting**        | Golden hour, harsh flash, studio, ambient      | "Harsh fluorescent overhead lights", "warm golden hour backlight"  |
+| **Film Stock**      | 1980s color film, noir, modern digital         | "Shot as if on 1980s color film, slightly grainy"                  |
+| **Dialogue**        | Quoted speech                                  | "She says, 'We need to go.'"                                       |
+| **SFX**             | Described sounds                               | "SFX: thunder crack, glass breaking"                               |
+| **Ambient**         | Soundscape                                     | "Ambient: ocean waves, distant seagulls"                           |
+
+---
+
+## Part 4: Cross-Modal Production Workflows
+
+The Gemini 3 family of models is designed to work as an **integrated production pipeline**. Here's how to connect them.
+
+---
+
+### 4.1 Nano Banana to Veo 3.1 — Keyframe Workflow
+
+The most powerful video production workflow starts with **Nano Banana** generating a storyboard of keyframes, then **Veo 3.1** animating between them.
+
+**Step 1:** Generate your keyframes with Nano Banana Pro (use the timestamp formula from Section 3.6.3).
+
+**Step 2:** Load the start and end frames into Veo 3.1's **First/Last Frame** feature.
+
+**Step 3:** Write a Veo 3.1 prompt that describes the camera movement and audio between the two frames.
+
+**Step 4:** Add Lyria-generated music to score the final video.
+
+---
+
+### 4.2 Nano Banana to Lyria — Image-to-Music
+
+Upload any Nano Banana-generated image to Lyria and describe its mood for a matching soundtrack.
+
+> [!EXAMPLE]
+> **Nano Banana generates:** A misty mountain landscape at dawn, a lone hiker silhouetted against an orange sky.
+>
+> **Lyria prompt:** "A cinematic ambient soundtrack for a mountain landscape. Solo acoustic guitar playing a contemplative fingerpicked pattern. The sound of wind through pine trees. A single bird call in the distance. No vocals. Expansive, peaceful, meditative. 70 BPM."
+>
+> _Source: DeepMind Lyria Prompt Guide_
+
+---
+
+### 4.3 Veo 3.1 + Lyria — Full Production Pipeline
+
+For complete productions, use all three models in sequence:
+
+1. **Nano Banana** generates concept art and keyframes
+2. **Veo 3.1** animates the keyframes with synchronous audio
+3. **Lyria** generates a custom score that layers with or replaces the Veo 3.1 audio
+
+> [!TIP]
+> Use Lyria's stem controls to layer music _under_ Veo 3.1's dialogue and SFX. Prompt Lyria with: "Background instrumental only, designed to sit beneath dialogue and sound effects. Tempo: 95 BPM, unobtrusive acoustic arrangement."
+
+---
+
+## Quick Reference: Top 20 Expert Prompts
+
+### Top 10 — Nano Banana (Text & Image)
+
+| #   | Prompt Description                                                                                                         | Category   |
+| --- | -------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| 1   | "Professional studio headshot, Sony A7III 85mm f/1.4, three-point lighting, navy suit, natural skin texture, 8K"           | Portrait   |
+| 2   | "Pseudo-code: SUBJECT_A (model in blazer) + LOCATION_B (brutalist interior) + LIGHTING_C (rim lighting) — hyper-realistic" | Technique  |
+| 3   | "JSON: Celebrity crowd at sunset rooftop, 35mm, ultraSharp, 8k photorealistic, rim light"                                  | Complex    |
+| 4   | "[@img1=pose] [@img2=character] Transfer pose from img1 to img2, preserve lighting"                                        | Weavy      |
+| 5   | "[@img1=style] [@img2=subject] Apply same medium, texture, color palette from img1 to img2"                                | Weavy      |
+| 6   | "Lightbox simulation: octabank key, teal gel kicker, ring fill, seamless gray backdrop"                                    | Studio     |
+| 7   | "Text rendering: 'CREATIVE FUTURE' in bold white Helvetica, typographic poster, black background"                          | Typography |
+| 8   | "Coordinate visualization: 40.7128 degrees N, 74.0060 degrees W, September 11 2001, 08:46"                                 | Creative   |
+| 9   | "Kodak Portra 400 film aesthetic, warm nostalgic color, golden hour backlight, film grain"                                 | Film Style |
+| 10  | "Luxury product shot floating on dark water with orchids, reflection ripples, soft bokeh"                                  | Product    |
+
+### Top 5 — Lyria (Music & Audio)
+
+| #   | Prompt Description                                                                              | Genre      |
+| --- | ----------------------------------------------------------------------------------------------- | ---------- |
+| 1   | "1980s arena rock anthem, heavy kick, gated reverb snare, emotive male tenor, 128 BPM E minor"  | Rock       |
+| 2   | "Brazilian Bossa Nova, 78 BPM, nylon guitar, upright bass, breathy female vocals in Portuguese" | Bossa Nova |
+| 3   | "Lo-fi hip-hop study track, 85 BPM, vinyl-warmed sampled drums, jazz piano loop, vinyl crackle" | Lo-Fi      |
+| 4   | "Cinematic orchestral score, 95 BPM, cello and violin, designed to sit beneath dialogue"        | Cinematic  |
+| 5   | "170 BPM drum and bass, rapid-fire hi-hats, analog synth arpeggio, atmospheric pads, no vocals" | Electronic |
+
+### Top 5 — Veo 3.1 (Video & Motion)
+
+| #   | Prompt Description                                                                                                 | Technique            |
+| --- | ------------------------------------------------------------------------------------------------------------------ | -------------------- |
+| 1   | "Crane shot ascending from lone hiker to reveal mist-filled canyon at sunrise"                                     | Camera Movement      |
+| 2   | "[00:00-00:02] Wide jungle reveal [00:02-00:04] Reverse on face [00:04-00:06] Tracking [00:06-00:08] Crane reveal" | Timestamp            |
+| 3   | "First frame: singer at microphone. Last frame: POV from stage. 180-degree arc shot, crowd cheering"               | First/Last Frame     |
+| 4   | "Medium shot, detective says 'Of all the offices in this town...' using provided ingredient images"                | Ingredients to Video |
+| 5   | "POV running through neon cyberpunk alleys, handheld wide-angle, rain-slicked reflections, SFX footsteps"          | Cinematic            |
 
 ---
 
 ## Conclusion
 
-Nano Banana Pro represents a significant advancement in AI image generation, particularly excelling at:
+The Gemini 3 multimodal stack represents a new era of AI content creation — one where **text, image, audio, and video** are no longer separate disciplines but a unified creative language.
 
-- **Photorealistic rendering** with precise lighting and texture control
-- **Character consistency** across multiple generations
-- **Structured prompting** using JSON for complex compositions
-- **Creative visualization** of abstract concepts and fictional settings
-- **Professional output** suitable for commercial applications
+The key principles that run across all three modalities:
 
-The prompts in this collection have been battle-tested by the community and represent the most effective approaches to leveraging Nano Banana Pro's capabilities. Start with the Quick Reference section and work your way through the categories as you become more comfortable with the model's strengths.
+- **Be specific.** Concrete details outperform vague descriptions in every model.
+- **Start with a verb.** Tell the model the primary operation before describing the content.
+- **Use structured formats.** Pseudo-code, JSON, timestamp notation — structure gives the model clear constraints.
+- **Reference stacks are your power tool.** Up to 14 images for Nano Banana, 4 for Veo 3.1. Use them.
+- **Iterate.** Run generations 3-4 times. The first output is rarely the best — refinement is part of the creative process.
+- **Combine modalities.** Nano Banana keyframes + Veo 3.1 animation + Lyria scoring = professional-grade productions.
 
 ---
 
 ## Resources
 
-- [Awesome Nano Banana Pro Repository](https://github.com/pantaleone-ai/awesome-nanobanana-pro) - Full prompt collection
-- [Nano Banana Images Gallery](https://github.com/pantaleone-ai/Awesome-Nano-Banana-images) - Example outputs
-- [Nano-consistent-150k Dataset](https://huggingface.co/datasets/Yejy53/Nano-consistent-150k) - Identity-consistent training data
+- [Awesome Nano Banana Pro Repository](https://github.com/pantaleone-ai/awesome-nanobanana-pro) — Full prompt collection
+- [Nano Banana Images Gallery](https://github.com/pantaleone-ai/Awesome-Nano-Banana-images) — Example outputs
+- [NanoPrompts.org](https://nanoprompts.org/) — 400+ curated prompts and workflows
+- [Nano-consistent-150k Dataset](https://huggingface.co/datasets/Yejy53/Nano-consistent-150k) — Identity-consistent training data
+- [Google Cloud — Ultimate Nano Banana Prompting Guide](https://cloud.google.com/blog/products/ai-machine-learning/ultimate-prompting-guide-for-nano-banana)
+- [Google Cloud — Ultimate Veo 3.1 Prompting Guide](https://cloud.google.com/blog/products/ai-machine-learning/ultimate-prompting-guide-for-veo-3-1)
+- [Google DeepMind — Lyria Prompt Guide](https://deepmind.google/models/lyria/prompt-guide/)
+- [Chase Jarvis — Nano Banana Pro Guide](https://chasejarvis.com/blog/nano-banana-prompts/)
+- [Chase Jarvis — Weavy Pose-Change](https://chasejarvis.com/blog/change-the-pose-of-any-photo-with-nano-banana-weavy/)
+- [Chase Jarvis — Weavy Style Cloning](https://chasejarvis.com/blog/how-to-clone-any-image-style-with-nano-banana-pro-weavy/)
 
 ---
 
-_This collection is curated from community contributions on X (Twitter), WeChat, and other platforms. All prompts retain their original sources for attribution._
+_This collection is curated from Google Cloud Blog, Google DeepMind documentation, NanoPrompts.org, Chase Jarvis's professional workflow guides, and community contributions on X (Twitter), WeChat, and other platforms. All prompts retain their original sources for attribution._
