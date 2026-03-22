@@ -94,6 +94,17 @@ function getProductJsonLd(
         ? "https://schema.org/OutOfStock"
         : "https://schema.org/InStock",
     url: canonicalUrl,
+    shippingDetails: {
+      "@type": "OfferShippingDetails",
+      deliveryTime: {
+        "@type": "ShippingDeliveryTime",
+        transitTime: {
+          "@type": "QuantitativeValue",
+          value: 1,
+          unitCode: "DAY",
+        },
+      },
+    },
   };
 
   if (product.priceValidUntil) offer.priceValidUntil = product.priceValidUntil;
