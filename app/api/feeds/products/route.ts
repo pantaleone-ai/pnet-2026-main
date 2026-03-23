@@ -33,6 +33,7 @@ const getCachedXmlFeed = unstable_cache(
         ${product.google_product_category ? `<g:google_product_category><![CDATA[${product.google_product_category}]]></g:google_product_category>` : ""}
         <g:identifier_exists>${product.gtin ? "yes" : "no"}</g:identifier_exists>
         <g:quantity>${product.quantity}</g:quantity>
+        ${product.excluded_destination ? `<g:excluded_destination>${product.excluded_destination}</g:excluded_destination>` : ""}
         ${product.checkout_link ? `<g:checkout_link>${product.checkout_link}</g:checkout_link>` : ""}
     </item>
 `,

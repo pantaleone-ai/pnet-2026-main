@@ -14,6 +14,7 @@ export interface FeedProduct {
   gtin?: string; // UPC/EAN
   google_product_category?: string; // For Google Merchant Center
   checkout_link?: string; // Stripe payment link for checkout
+  excluded_destination?: string; // Exclude from local inventory ads (digital products)
 }
 
 export async function getFeedProducts(): Promise<FeedProduct[]> {
@@ -46,6 +47,8 @@ export async function getFeedProducts(): Promise<FeedProduct[]> {
       brand: "Pantaleone",
       gtin: p.gtin || "", // GTIN/UPC from product data
       google_product_category: "Software > Computer Software", // Category for digital software
+      // Exclude digital products from local inventory - they don't have physical store inventory
+      excluded_destination: "local_product_inventory,local_inventory_ads",
       checkout_link: `${baseUrl}/checkout?product_id=${p.sku || `product-${p.id}`}`, // URL template for Google checkout
     };
   });
