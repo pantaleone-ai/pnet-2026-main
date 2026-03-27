@@ -49,8 +49,7 @@ export function buildShippingDetails(offer: MerchantOffer) {
     shippingDestination: {
       "@type": "DefinedRegion",
       addressCountry:
-        offer.shippingDetails.shippingDestination?.addressCountry ||
-        "WORLDWIDE",
+        offer.shippingDetails.shippingDestination?.addressCountry || "US",
     },
     deliveryTime: {
       "@type": "ShippingDeliveryTime",

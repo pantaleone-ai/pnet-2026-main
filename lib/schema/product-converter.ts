@@ -48,7 +48,7 @@ export function convertShopProductToMerchantProduct(
         shippingRateCurrency: product.currency || "USD",
         shippingDestination: {
           "@type": "DefinedRegion",
-          addressCountry: "WORLDWIDE",
+          addressCountry: "US",
         },
         deliveryTime: {
           "@type": "ShippingDeliveryTime",
