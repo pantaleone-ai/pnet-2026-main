@@ -37,7 +37,6 @@ export function buildShippingDetails(offer: MerchantOffer) {
   if (!offer.shippingDetails) return undefined;
 
   const deliveryTime = offer.shippingDetails.deliveryTime;
-  const isDigital = deliveryTime?.businessDays === 0;
 
   return {
     "@type": "OfferShippingDetails",
@@ -59,14 +58,12 @@ export function buildShippingDetails(offer: MerchantOffer) {
         maxValue: 1,
         unitCode: "DAY",
       },
-      transitTime: isDigital
-        ? undefined
-        : (deliveryTime?.transitTime ?? {
-            "@type": "QuantitativeValue",
-            minValue: 0,
-            maxValue: 2,
-            unitCode: "DAY",
-          }),
+      transitTime: deliveryTime?.transitTime ?? {
+        "@type": "QuantitativeValue",
+        minValue: 0,
+        maxValue: 2,
+        unitCode: "DAY",
+      },
     },
   } as any;
 }
