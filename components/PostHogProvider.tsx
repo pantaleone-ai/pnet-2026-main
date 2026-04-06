@@ -1,14 +1,18 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import posthog from "posthog-js";
 import { PostHogProvider as PHProvider } from "posthog-js/react";
 
 export function PostHogProvider({ children }: { children: React.ReactNode }) {
+  const initialized = useRef(false);
+
   useEffect(() => {
+    if (initialized.current) return;
+    initialized.current = true;
+
     if (
-      process.env.NODE_ENV === "production" &&
       process.env.NEXT_PUBLIC_POSTHOG_KEY &&
       process.env.NEXT_PUBLIC_POSTHOG_HOST
     ) {
@@ -23,8 +27,6 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
           disable_session_recording: true,
           advanced_disable_decide: true,
         });
-
-        posthog.has_opted_out_capturing();
       } catch (error) {
         console.warn("PostHog initialization failed:", error);
       }

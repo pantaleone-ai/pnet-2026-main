@@ -336,35 +336,60 @@ export const blogAnalytics = {
     });
   },
 
-  // Individual blog post view
-  postViewed: (post: BlogPostEvent) => {
-    if (!isAnalyticsEnabled()) return;
-
-    posthog.capture("blog_post_viewed", {
-      post_id: post.id,
-      title: post.title,
-      category: post.category,
-      author: post.author,
-      published_at: post.publishedAt,
-      read_time: post.readTime,
-      tags: post.tags,
-      $set: {
-        last_blog_read: post.publishedAt,
-        blog_categories_read: post.category, // This will be appended to user properties
-      },
-    });
-  },
-
   // Blog engagement (scroll depth, time on page)
   postEngaged: (engagement: BlogEngagementEvent) => {
-    if (!isAnalyticsEnabled()) return;
+    // PostHog tracking (requires consent)
+    if (isAnalyticsEnabled()) {
+      posthog.capture("blog_post_engaged", {
+        post_id: engagement.postId,
+        scroll_depth: engagement.scrollDepth,
+        time_on_page: engagement.timeOnPage,
+        read_complete: engagement.readComplete,
+      });
+    }
 
-    posthog.capture("blog_post_engaged", {
-      post_id: engagement.postId,
-      scroll_depth: engagement.scrollDepth,
-      time_on_page: engagement.timeOnPage,
-      read_complete: engagement.readComplete,
-    });
+    // Google Analytics blog engagement (no consent required)
+    if (isGaEnabled()) {
+      (window as any).gtag("event", "scroll", {
+        event_category: "blog_engagement",
+        post_id: engagement.postId,
+        scroll_depth: engagement.scrollDepth,
+        time_on_page: engagement.timeOnPage,
+        read_complete: engagement.readComplete,
+      });
+    }
+  },
+
+  // Blog post view
+  postViewed: (post: BlogPostEvent) => {
+    // PostHog tracking (requires consent)
+    if (isAnalyticsEnabled()) {
+      posthog.capture("blog_post_viewed", {
+        post_id: post.id,
+        title: post.title,
+        category: post.category,
+        author: post.author,
+        published_at: post.publishedAt,
+        read_time: post.readTime,
+        tags: post.tags,
+        $set: {
+          last_blog_read: post.publishedAt,
+          blog_categories_read: post.category,
+        },
+      });
+    }
+
+    // Google Analytics blog post view (no consent required)
+    if (isGaEnabled()) {
+      (window as any).gtag("event", "view_item", {
+        item_id: post.id,
+        item_name: post.title,
+        item_category: post.category,
+        author: post.author,
+        value: 1,
+        currency: "USD",
+      });
+    }
   },
 };
 
@@ -462,6 +487,48 @@ export const track = {
         content_type: click.resultType,
         content_id: click.resultId,
         search_term: click.query,
+      });
+    }
+  },
+
+  // CTA button clicks (Buy Now, Contact Me, etc.)
+  ctaClicked: (ctaType: string, ctaLabel: string, destinationUrl?: string) => {
+    // PostHog tracking (requires consent)
+    if (isAnalyticsEnabled()) {
+      posthog.capture("cta_clicked", {
+        cta_type: ctaType,
+        cta_label: ctaLabel,
+        destination_url: destinationUrl,
+      });
+    }
+
+    // Google Analytics generate_lead for contact CTAs (no consent required)
+    if (isGaEnabled() && ctaType === "contact") {
+      (window as any).gtag("event", "generate_lead", {
+        cta_type: ctaType,
+        cta_label: ctaLabel,
+        destination_url: destinationUrl,
+      });
+    }
+  },
+
+  // Outbound link clicks
+  outboundLinkClicked: (url: string, linkText: string) => {
+    // PostHog tracking (requires consent)
+    if (isAnalyticsEnabled()) {
+      posthog.capture("outbound_link_clicked", {
+        url: url,
+        link_text: linkText,
+      });
+    }
+
+    // Google Analytics outbound link tracking (no consent required)
+    if (isGaEnabled()) {
+      (window as any).gtag("event", "click", {
+        event_category: "outbound",
+        event_label: linkText,
+        transport_type: "beacon",
+        href: url,
       });
     }
   },

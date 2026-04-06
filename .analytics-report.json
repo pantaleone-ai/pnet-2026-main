@@ -1,0 +1,447 @@
+{
+  "timestamp": "2026-04-06T21:49:17.682Z",
+  "summary": {
+    "total": 34,
+    "passed": 32,
+    "failed": 2,
+    "critical": 0,
+    "high": 0
+  },
+  "events": [
+    {
+      "name": "page_view",
+      "ga4": true,
+      "posthog": true,
+      "meta": true,
+      "location": "hooks/usePageTracking.tsx"
+    },
+    {
+      "name": "view_item_list",
+      "ga4": true,
+      "posthog": false,
+      "meta": false,
+      "location": "lib/analytics.ts:97"
+    },
+    {
+      "name": "view_item",
+      "ga4": true,
+      "posthog": true,
+      "meta": true,
+      "location": "lib/analytics.ts:115"
+    },
+    {
+      "name": "add_to_cart",
+      "ga4": true,
+      "posthog": true,
+      "meta": true,
+      "location": "lib/analytics.ts:135"
+    },
+    {
+      "name": "begin_checkout",
+      "ga4": true,
+      "posthog": true,
+      "meta": true,
+      "location": "lib/analytics.ts:156"
+    },
+    {
+      "name": "purchase",
+      "ga4": true,
+      "posthog": true,
+      "meta": true,
+      "location": "lib/analytics.ts:177"
+    },
+    {
+      "name": "search",
+      "ga4": true,
+      "posthog": true,
+      "meta": false,
+      "location": "lib/analytics.ts:441"
+    },
+    {
+      "name": "select_content",
+      "ga4": true,
+      "posthog": true,
+      "meta": false,
+      "location": "lib/analytics.ts:461"
+    },
+    {
+      "name": "page_title",
+      "ga4": true,
+      "posthog": true,
+      "meta": false,
+      "location": "hooks/usePageTracking.tsx"
+    },
+    {
+      "name": "cta_click",
+      "ga4": true,
+      "posthog": true,
+      "meta": false,
+      "location": "lib/analytics.ts (track.ctaClicked)"
+    },
+    {
+      "name": "contact_form",
+      "ga4": true,
+      "posthog": true,
+      "meta": false,
+      "location": "app/api/contact/route.ts"
+    },
+    {
+      "name": "blog_post_view",
+      "ga4": true,
+      "posthog": true,
+      "meta": false,
+      "location": "lib/analytics.ts (postViewed)"
+    },
+    {
+      "name": "blog_engagement",
+      "ga4": true,
+      "posthog": true,
+      "meta": false,
+      "location": "lib/analytics.ts (postEngaged)"
+    },
+    {
+      "name": "outbound_link",
+      "ga4": true,
+      "posthog": true,
+      "meta": false,
+      "location": "lib/analytics.ts (track.outboundLinkClicked)"
+    },
+    {
+      "name": "generate_lead",
+      "ga4": true,
+      "posthog": false,
+      "meta": false,
+      "location": "lib/analytics.ts (ctaClicked for contact)"
+    }
+  ],
+  "results": [
+    {
+      "test": "Event: page_view",
+      "passed": true,
+      "message": "Tracked in all platforms",
+      "details": {
+        "location": "hooks/usePageTracking.tsx",
+        "ga4": true,
+        "posthog": true,
+        "meta": true
+      },
+      "severity": "critical"
+    },
+    {
+      "test": "Event: view_item_list",
+      "passed": true,
+      "message": "GA4: ✅, PostHog: ❌",
+      "details": {
+        "location": "lib/analytics.ts:97",
+        "ga4": true,
+        "posthog": false,
+        "meta": false
+      },
+      "severity": "low"
+    },
+    {
+      "test": "Event: view_item",
+      "passed": true,
+      "message": "Tracked in all platforms",
+      "details": {
+        "location": "lib/analytics.ts:115",
+        "ga4": true,
+        "posthog": true,
+        "meta": true
+      },
+      "severity": "critical"
+    },
+    {
+      "test": "Event: add_to_cart",
+      "passed": true,
+      "message": "Tracked in all platforms",
+      "details": {
+        "location": "lib/analytics.ts:135",
+        "ga4": true,
+        "posthog": true,
+        "meta": true
+      },
+      "severity": "critical"
+    },
+    {
+      "test": "Event: begin_checkout",
+      "passed": true,
+      "message": "Tracked in all platforms",
+      "details": {
+        "location": "lib/analytics.ts:156",
+        "ga4": true,
+        "posthog": true,
+        "meta": true
+      },
+      "severity": "low"
+    },
+    {
+      "test": "Event: purchase",
+      "passed": true,
+      "message": "Tracked in all platforms",
+      "details": {
+        "location": "lib/analytics.ts:177",
+        "ga4": true,
+        "posthog": true,
+        "meta": true
+      },
+      "severity": "critical"
+    },
+    {
+      "test": "Event: search",
+      "passed": true,
+      "message": "Tracked in all platforms",
+      "details": {
+        "location": "lib/analytics.ts:441",
+        "ga4": true,
+        "posthog": true,
+        "meta": false
+      },
+      "severity": "low"
+    },
+    {
+      "test": "Event: select_content",
+      "passed": true,
+      "message": "Tracked in all platforms",
+      "details": {
+        "location": "lib/analytics.ts:461",
+        "ga4": true,
+        "posthog": true,
+        "meta": false
+      },
+      "severity": "low"
+    },
+    {
+      "test": "Event: page_title",
+      "passed": true,
+      "message": "Tracked in all platforms",
+      "details": {
+        "location": "hooks/usePageTracking.tsx",
+        "ga4": true,
+        "posthog": true,
+        "meta": false
+      },
+      "severity": "high"
+    },
+    {
+      "test": "Event: cta_click",
+      "passed": true,
+      "message": "Tracked in all platforms",
+      "details": {
+        "location": "lib/analytics.ts (track.ctaClicked)",
+        "ga4": true,
+        "posthog": true,
+        "meta": false
+      },
+      "severity": "high"
+    },
+    {
+      "test": "Event: contact_form",
+      "passed": true,
+      "message": "Tracked in all platforms",
+      "details": {
+        "location": "app/api/contact/route.ts",
+        "ga4": true,
+        "posthog": true,
+        "meta": false
+      },
+      "severity": "low"
+    },
+    {
+      "test": "Event: blog_post_view",
+      "passed": true,
+      "message": "Tracked in all platforms",
+      "details": {
+        "location": "lib/analytics.ts (postViewed)",
+        "ga4": true,
+        "posthog": true,
+        "meta": false
+      },
+      "severity": "medium"
+    },
+    {
+      "test": "Event: blog_engagement",
+      "passed": true,
+      "message": "Tracked in all platforms",
+      "details": {
+        "location": "lib/analytics.ts (postEngaged)",
+        "ga4": true,
+        "posthog": true,
+        "meta": false
+      },
+      "severity": "low"
+    },
+    {
+      "test": "Event: outbound_link",
+      "passed": true,
+      "message": "Tracked in all platforms",
+      "details": {
+        "location": "lib/analytics.ts (track.outboundLinkClicked)",
+        "ga4": true,
+        "posthog": true,
+        "meta": false
+      },
+      "severity": "medium"
+    },
+    {
+      "test": "Event: generate_lead",
+      "passed": true,
+      "message": "GA4: ✅, PostHog: ❌",
+      "details": {
+        "location": "lib/analytics.ts (ctaClicked for contact)",
+        "ga4": true,
+        "posthog": false,
+        "meta": false
+      },
+      "severity": "high"
+    },
+    {
+      "test": "Page title in GA4 config",
+      "passed": true,
+      "message": "Page title tracked in GA4",
+      "details": {
+        "ga4": true
+      },
+      "severity": "critical"
+    },
+    {
+      "test": "Page title in PostHog",
+      "passed": true,
+      "message": "Page title tracked in PostHog",
+      "details": {
+        "posthog": true
+      },
+      "severity": "high"
+    },
+    {
+      "test": "CTA event defined",
+      "passed": true,
+      "message": "CTA contact event exists in PostHog",
+      "severity": "high"
+    },
+    {
+      "test": "CTA tracking in GA4",
+      "passed": true,
+      "message": "CTA tracked in GA4",
+      "severity": "high"
+    },
+    {
+      "test": "Buy Now CTA tracking",
+      "passed": true,
+      "message": "Buy Now button tracks begin_checkout",
+      "severity": "critical"
+    },
+    {
+      "test": "Consent manager present",
+      "passed": true,
+      "message": "Consent manager component exists",
+      "severity": "critical"
+    },
+    {
+      "test": "PostHog loads in dev and prod",
+      "passed": true,
+      "message": "PostHog loads in all environments (dev + prod)",
+      "severity": "high"
+    },
+    {
+      "test": "GA4 loads without consent",
+      "passed": true,
+      "message": "GA4 loads without consent (correct)",
+      "severity": "high"
+    },
+    {
+      "test": "GA4 event sending gated by consent check",
+      "passed": true,
+      "message": "GA4 has isGaEnabled check",
+      "severity": "medium"
+    },
+    {
+      "test": "SPA route tracking",
+      "passed": true,
+      "message": "SPA route changes tracked",
+      "severity": "critical"
+    },
+    {
+      "test": "Analytics file: lib/analytics.ts",
+      "passed": true,
+      "message": "File exists",
+      "details": {
+        "path": "/Users/hal10k/Documents/dev/pnet-2026-main/lib/analytics.ts"
+      },
+      "severity": "low"
+    },
+    {
+      "test": "Analytics file: lib/events.ts",
+      "passed": true,
+      "message": "File exists",
+      "details": {
+        "path": "/Users/hal10k/Documents/dev/pnet-2026-main/lib/events.ts"
+      },
+      "severity": "low"
+    },
+    {
+      "test": "Analytics file: app/api/stripe/webhooks/route.ts",
+      "passed": true,
+      "message": "File exists",
+      "details": {
+        "path": "/Users/hal10k/Documents/dev/pnet-2026-main/app/api/stripe/webhooks/route.ts"
+      },
+      "severity": "low"
+    },
+    {
+      "test": "Analytics file: features/shop/components/ProductDetailClient.tsx",
+      "passed": true,
+      "message": "File exists",
+      "details": {
+        "path": "/Users/hal10k/Documents/dev/pnet-2026-main/features/shop/components/ProductDetailClient.tsx"
+      },
+      "severity": "low"
+    },
+    {
+      "test": "Analytics file: hooks/usePageTracking.tsx",
+      "passed": true,
+      "message": "File exists",
+      "details": {
+        "path": "/Users/hal10k/Documents/dev/pnet-2026-main/hooks/usePageTracking.tsx"
+      },
+      "severity": "low"
+    },
+    {
+      "test": "Analytics file: components/PostHogProvider.tsx",
+      "passed": true,
+      "message": "File exists",
+      "details": {
+        "path": "/Users/hal10k/Documents/dev/pnet-2026-main/components/PostHogProvider.tsx"
+      },
+      "severity": "low"
+    },
+    {
+      "test": "Analytics file: components/ConsentManagerClient.tsx",
+      "passed": true,
+      "message": "File exists",
+      "details": {
+        "path": "/Users/hal10k/Documents/dev/pnet-2026-main/components/ConsentManagerClient.tsx"
+      },
+      "severity": "low"
+    },
+    {
+      "test": "Environment variable: NEXT_PUBLIC_GOOGLE_ANALYTICS_ID",
+      "passed": false,
+      "message": "Variable not set (optional for development)",
+      "details": {
+        "optional": true
+      },
+      "severity": "medium"
+    },
+    {
+      "test": "Environment variable: NEXT_PUBLIC_POSTHOG_KEY",
+      "passed": false,
+      "message": "Variable not set (optional for development)",
+      "details": {
+        "optional": true
+      },
+      "severity": "medium"
+    }
+  ],
+  "recommendations": []
+}
