@@ -1,8 +1,22 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow: /_next/static/
-Disallow: /_next/data/
-Disallow: /*.js$
-Disallow: /*.json$
+Disallow: /_next/
+Disallow: /_vercel/
 Disallow: /api/
 Disallow: /checkout
+Disallow: /admin
+Disallow: /*.js$
+Disallow: /*.json$
+Disallow: /*.css$
+Disallow: /*.map$
+Disallow: /sitemap.xml
+Disallow: /manifest.webmanifest
+
+# Google specific
+User-agent: Googlebot
+Disallow: /_next/static/
+Disallow: /*?dpl=*
+Disallow: /*&dpl=*
+
+User-agent: Googlebot-Image
+Disallow: /

@@ -143,6 +143,46 @@ const config = {
           },
         ],
       },
+      {
+        // Block indexing of _next static files
+        source: "/_next/static/:path*",
+        headers: [
+          {
+            key: "X-Robots-Template",
+            value: "noindex",
+          },
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        // Block indexing of URLs with dpl query params (Vercel cache busting)
+        source: "/:path*",
+        headers: [
+          {
+            key: "X-Robots-Template",
+            value: "noindex",
+          },
+        ],
+        has: [
+          {
+            key: "dpl",
+            type: "query",
+          },
+        ],
+      },
+      {
+        // Block indexing of _vercel files
+        source: "/_vercel/:path*",
+        headers: [
+          {
+            key: "X-Robots-Template",
+            value: "noindex",
+          },
+        ],
+      },
     ];
   },
 };
