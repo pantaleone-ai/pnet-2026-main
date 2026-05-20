@@ -22,21 +22,24 @@ type CardItemProps =
       type: "project";
       item: ProjectType;
       sizes?: string;
+      listName?: string;
     }
   | {
       index: number;
       type: "blog";
       item: Omit<BlogPostType, "body">;
       sizes?: string;
+      listName?: string;
     }
   | {
       index: number;
       type: "product";
       item: ShopProduct;
       sizes?: string;
+      listName?: string;
     };
 
-export default function CardItem({ index, item, type, sizes }: CardItemProps) {
+export default function CardItem({ index, item, type, sizes, listName }: CardItemProps) {
   const isBlog = type === "blog";
   const isProduct = type === "product";
   const href = isBlog ? `/blog/${item.slug}` : undefined;
@@ -67,7 +70,7 @@ export default function CardItem({ index, item, type, sizes }: CardItemProps) {
           {isBlog ? (
             <BlogContent item={item} index={index} />
           ) : isProduct ? (
-            <ProductContent item={item} index={index} />
+            <ProductContent item={item} index={index} listName={listName} />
           ) : (
             <ProjectContent item={item} index={index} />
           )}
@@ -271,10 +274,30 @@ const ProjectContent = ({
 const ProductContent = ({
   item,
   index,
+  listName,
 }: {
   item: ShopProduct;
   index: number;
+  listName?: string;
 }) => {
+  const categorySlug = getProductCategorySlug(item.category);
+  const productHref = `/shop/${categorySlug}/${item.slug}`;
+
+  const handleSelect = () => {
+    trackEvent({
+      name: "select_item",
+      properties: {
+        item_id: String(item.id),
+        item_name: item.title,
+        item_category: item.category,
+        price: item.price,
+        currency: item.currency || "USD",
+        item_list_name: listName || `${categorySlug}-products`,
+        index,
+      },
+    });
+  };
+
   return (
     <div className="p-4 space-y-3">
       <div>
@@ -305,6 +328,7 @@ const ProductContent = ({
               target="_blank"
               rel="noopener noreferrer"
               href={item.stripePaymentLink || item.purchaseUrl || "#"}
+              onClick={handleSelect}
             >
               Buy Now - ${item.price}
               <span className="sr-only"> purchase {item.title}</span>
@@ -312,9 +336,7 @@ const ProductContent = ({
           </Button>
         )}
         <Button variant="outline" asChild className="w-full">
-          <Link
-            href={`/shop/${getProductCategorySlug(item.category)}/${item.slug}`}
-          >
+          <Link href={productHref} onClick={handleSelect}>
             View Details
             <span className="sr-only"> about {item.title}</span>
           </Link>

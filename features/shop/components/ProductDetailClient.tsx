@@ -179,6 +179,14 @@ export default function ProductDetailClient({
 
   // Handle payment link click tracking
   const handlePaymentClick = () => {
+    track.addToCart({
+      id: String(product.id || product.slug || "unknown"),
+      name: product.title,
+      category: category,
+      price: product.price,
+      currency: product.currency || "USD",
+      brand: "Pantaleone Digital Services",
+    });
     track.beginCheckout({
       id: String(product.id || product.slug || "unknown"),
       name: product.title,
@@ -590,8 +598,8 @@ export default function ProductDetailClient({
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-              {relatedProducts.slice(0, 3).map((rp) => (
-                <ProductCard key={rp.id} product={rp} categorySlug={category} />
+              {relatedProducts.slice(0, 3).map((rp, idx) => (
+                <ProductCard key={rp.id} product={rp} categorySlug={category} listName="related-products" index={idx} />
               ))}
             </div>
           </section>

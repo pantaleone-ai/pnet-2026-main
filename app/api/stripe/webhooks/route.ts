@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { track } from '@/lib/analytics';
+import { track, serverTrack } from '@/lib/analytics';
 import { headers } from 'next/headers';
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -55,6 +55,10 @@ export async function POST(request: NextRequest) {
 
       case 'charge.succeeded':
         await handleChargeSucceeded(event.data.object as Stripe.Charge);
+        break;
+
+      case 'charge.refunded':
+        await handleChargeRefunded(event.data.object as Stripe.Charge);
         break;
 
       default:
@@ -112,9 +116,16 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
       })
     };
 
-    // Track purchase in all analytics platforms
+    // Track purchase in all analytics platforms (client-side)
     console.log('Tracking purchase:', purchaseData);
     track.purchase(purchaseData);
+
+    // Server-side tracking via GA4 Measurement Protocol and Meta CAPI
+    const clientId = session.customer as string || 'anonymous';
+    await Promise.all([
+      serverTrack.purchase(purchaseData, clientId),
+      serverTrack.purchaseMeta(purchaseData, session.id),
+    ]);
 
     // Additional server-side logging for revenue tracking
     console.log(`💰 Purchase completed: $${purchaseData.value} ${purchaseData.currency} - ${purchaseData.products.length} items`);
@@ -158,6 +169,13 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
     };
 
     track.purchase(purchaseData);
+
+    // Server-side tracking
+    await Promise.all([
+      serverTrack.purchase(purchaseData, paymentIntent.customer as string || 'anonymous'),
+      serverTrack.purchaseMeta(purchaseData, paymentIntent.id),
+    ]);
+
     console.log(`💰 Payment intent tracked: $${purchaseData.value} ${purchaseData.currency}`);
 
   } catch (error) {
@@ -192,5 +210,40 @@ async function handleChargeSucceeded(charge: Stripe.Charge) {
 
   } catch (error) {
     console.error('Error processing charge:', error);
+  }
+}
+
+/**
+ * Handle charge refunded (refund tracking)
+ */
+async function handleChargeRefunded(charge: Stripe.Charge) {
+  try {
+    console.log('Processing charge.refunded:', charge.id);
+
+    if (!charge.amount_refunded) {
+      return;
+    }
+
+    const refundData = {
+      transactionId: charge.id,
+      value: charge.amount_refunded / 100,
+      currency: charge.currency?.toUpperCase() || 'USD',
+      products: [{
+        id: charge.metadata?.product_id || 'unknown',
+        name: charge.metadata?.product_name || 'Digital Product',
+        quantity: 1,
+      }]
+    };
+
+    const clientId = charge.customer as string || 'anonymous';
+    await Promise.all([
+      serverTrack.refund(refundData, clientId),
+      serverTrack.refundMeta(refundData, `refund_${charge.id}`),
+    ]);
+
+    console.log(`💸 Refund processed: $${refundData.value} ${refundData.currency} - ${charge.id}`);
+
+  } catch (error) {
+    console.error('Error processing refund:', error);
   }
 }

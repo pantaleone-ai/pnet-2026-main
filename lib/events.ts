@@ -20,6 +20,7 @@ const eventSchema = z.object({
     "application_error",
     "error_retry_clicked",
     "featured_story_read_more_clicked",
+    "select_item",
   ]),
   properties: z
     .record(

@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
 import { Clock } from "lucide-react";
+import { track } from "@/lib/analytics";
 
 interface ProductCardProps {
   product: {
@@ -15,16 +18,39 @@ interface ProductCardProps {
     timeToValue?: number;
   };
   categorySlug: string;
+  listName?: string;
+  index?: number;
 }
 
 export default function ProductCard({
   product,
   categorySlug,
+  listName,
+  index = 0,
 }: ProductCardProps) {
+  const handleSelect = () => {
+    track.selectItem(
+      {
+        id: String(product.id),
+        name: product.title,
+        category: product.category,
+        price: product.price,
+        currency: product.currency || "USD",
+        brand: "Pantaleone Digital Services",
+        index,
+      },
+      listName || `${categorySlug}-products`,
+    );
+  };
+
   return (
     <div className="group block">
       <article className="h-full space-y-4">
-        <Link href={`/shop/${categorySlug}/${product.slug}`} className="block">
+        <Link
+          href={`/shop/${categorySlug}/${product.slug}`}
+          className="block"
+          onClick={handleSelect}
+        >
           <div className="relative aspect-video overflow-hidden rounded-2xl border border-transparent group-hover:border-primary/20 transition-all cursor-pointer">
             {product.timeToValue && (
               <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 px-2.5 py-1.5 bg-primary/90 backdrop-blur-sm rounded-full text-xs font-bold text-primary-foreground shadow-lg">
@@ -40,7 +66,11 @@ export default function ProductCard({
             />
           </div>
         </Link>
-        <Link href={`/shop/${categorySlug}/${product.slug}`} className="block">
+        <Link
+          href={`/shop/${categorySlug}/${product.slug}`}
+          className="block"
+          onClick={handleSelect}
+        >
           <div className="space-y-2 text-left">
             <div className="flex justify-between items-center">
               <h3 className="font-bold text-xl tracking-tight group-hover:text-primary transition-colors">

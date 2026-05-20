@@ -5,7 +5,6 @@
 
 import { posthog } from "posthog-js";
 
-// Analytics event types
 export interface ProductEvent {
   id: string;
   name: string;
@@ -13,6 +12,16 @@ export interface ProductEvent {
   price: number;
   currency?: string;
   brand?: string;
+  index?: number;
+  coupon?: string;
+  discount?: number;
+  affiliation?: string;
+  itemVariant?: string;
+  itemCategory2?: string;
+  itemCategory3?: string;
+  itemCategory4?: string;
+  itemCategory5?: string;
+  quantity?: number;
 }
 
 export interface PurchaseEvent {
@@ -21,6 +30,7 @@ export interface PurchaseEvent {
   currency: string;
   tax?: number;
   shipping?: number;
+  coupon?: string;
   products: Array<{
     id: string;
     name: string;
@@ -28,6 +38,29 @@ export interface PurchaseEvent {
     price: number;
     quantity: number;
     brand?: string;
+    coupon?: string;
+    discount?: number;
+  }>;
+}
+
+export interface PromotionEvent {
+  promotionId: string;
+  promotionName: string;
+  creativeName?: string;
+  creativeSlot?: string;
+}
+
+export interface RefundEvent {
+  transactionId: string;
+  value: number;
+  currency: string;
+  tax?: number;
+  shipping?: number;
+  coupon?: string;
+  products: Array<{
+    id: string;
+    name: string;
+    quantity: number;
   }>;
 }
 
@@ -63,10 +96,8 @@ export interface SearchResultClickEvent {
   resultTitle: string;
 }
 
-// Check if PostHog/enhanced tracking is enabled (requires consent)
 export function isAnalyticsEnabled(): boolean {
   if (typeof window === "undefined") return false;
-
   try {
     return posthog.has_opted_in_capturing();
   } catch {
@@ -74,26 +105,19 @@ export function isAnalyticsEnabled(): boolean {
   }
 }
 
-// Check if Google Analytics is configured (does not require consent)
 export function isGaEnabled(): boolean {
   if (typeof window === "undefined") return false;
-  return (
-    !!(window as any).gtag && !!process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID
-  );
+  return !!(window as any).gtag && !!process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
 }
 
-// Check if Meta Pixel is configured (requires consent)
 export function isMetaPixelEnabled(): boolean {
   if (typeof window === "undefined") return false;
   return !!(window as any).fbq && !!process.env.NEXT_PUBLIC_META_PIXEL_ID;
 }
 
-// Google Analytics 4 E-commerce Tracking
 export const ga4 = {
-  // Product impressions (when products are viewed in a list)
   viewItemList: (products: ProductEvent[], listName?: string) => {
     if (!isGaEnabled()) return;
-
     (window as any).gtag("event", "view_item_list", {
       items: products.map((product, index) => ({
         item_id: product.id,
@@ -108,10 +132,8 @@ export const ga4 = {
     });
   },
 
-  // Individual product view
   viewItem: (product: ProductEvent) => {
     if (!isGaEnabled()) return;
-
     (window as any).gtag("event", "view_item", {
       currency: product.currency || "USD",
       value: product.price,
@@ -128,10 +150,8 @@ export const ga4 = {
     });
   },
 
-  // Add to cart
   addToCart: (product: ProductEvent) => {
     if (!isGaEnabled()) return;
-
     (window as any).gtag("event", "add_to_cart", {
       currency: product.currency || "USD",
       value: product.price,
@@ -149,10 +169,8 @@ export const ga4 = {
     });
   },
 
-  // Begin checkout (when user clicks payment link)
   beginCheckout: (product: ProductEvent) => {
     if (!isGaEnabled()) return;
-
     (window as any).gtag("event", "begin_checkout", {
       currency: product.currency || "USD",
       value: product.price,
@@ -170,16 +188,15 @@ export const ga4 = {
     });
   },
 
-  // Purchase completion (server-side tracking via webhook)
   purchase: (purchase: PurchaseEvent) => {
     if (!isGaEnabled()) return;
-
     (window as any).gtag("event", "purchase", {
       transaction_id: purchase.transactionId,
       currency: purchase.currency,
       value: purchase.value,
       tax: purchase.tax,
       shipping: purchase.shipping,
+      coupon: purchase.coupon,
       items: purchase.products.map((product) => ({
         item_id: product.id,
         item_name: product.name,
@@ -187,18 +204,193 @@ export const ga4 = {
         price: product.price,
         currency: purchase.currency,
         quantity: product.quantity,
+        coupon: product.coupon,
+        discount: product.discount,
         item_brand: product.brand || "Pantaleone Digital Services",
+      })),
+    });
+  },
+
+  removeFromCart: (product: ProductEvent) => {
+    if (!isGaEnabled()) return;
+    (window as any).gtag("event", "remove_from_cart", {
+      currency: product.currency || "USD",
+      value: product.price,
+      items: [
+        {
+          item_id: product.id,
+          item_name: product.name,
+          item_category: product.category,
+          price: product.price,
+          currency: product.currency || "USD",
+          quantity: product.quantity || 1,
+          item_brand: product.brand || "Pantaleone Digital Services",
+        },
+      ],
+    });
+  },
+
+  viewCart: (products: ProductEvent[], total: number) => {
+    if (!isGaEnabled()) return;
+    (window as any).gtag("event", "view_cart", {
+      currency: products[0]?.currency || "USD",
+      value: total,
+      items: products.map((product, index) => ({
+        item_id: product.id,
+        item_name: product.name,
+        item_category: product.category,
+        price: product.price,
+        currency: product.currency || "USD",
+        quantity: product.quantity || 1,
+        index: index + 1,
+        item_brand: product.brand || "Pantaleone Digital Services",
+      })),
+    });
+  },
+
+  addToWishlist: (product: ProductEvent) => {
+    if (!isGaEnabled()) return;
+    (window as any).gtag("event", "add_to_wishlist", {
+      currency: product.currency || "USD",
+      value: product.price,
+      items: [
+        {
+          item_id: product.id,
+          item_name: product.name,
+          item_category: product.category,
+          price: product.price,
+          currency: product.currency || "USD",
+          quantity: 1,
+          item_brand: product.brand || "Pantaleone Digital Services",
+        },
+      ],
+    });
+  },
+
+  addShippingInfo: (product: ProductEvent, shippingTier: string) => {
+    if (!isGaEnabled()) return;
+    (window as any).gtag("event", "add_shipping_info", {
+      currency: product.currency || "USD",
+      value: product.price,
+      shipping_tier: shippingTier,
+      items: [
+        {
+          item_id: product.id,
+          item_name: product.name,
+          item_category: product.category,
+          price: product.price,
+          currency: product.currency || "USD",
+          quantity: 1,
+          item_brand: product.brand || "Pantaleone Digital Services",
+        },
+      ],
+    });
+  },
+
+  addPaymentInfo: (product: ProductEvent, paymentType: string) => {
+    if (!isGaEnabled()) return;
+    (window as any).gtag("event", "add_payment_info", {
+      currency: product.currency || "USD",
+      value: product.price,
+      payment_type: paymentType,
+      items: [
+        {
+          item_id: product.id,
+          item_name: product.name,
+          item_category: product.category,
+          price: product.price,
+          currency: product.currency || "USD",
+          quantity: 1,
+          item_brand: product.brand || "Pantaleone Digital Services",
+        },
+      ],
+    });
+  },
+
+  selectItem: (product: ProductEvent, listName: string) => {
+    if (!isGaEnabled()) return;
+    (window as any).gtag("event", "select_item", {
+      item_list_name: listName,
+      items: [
+        {
+          item_id: product.id,
+          item_name: product.name,
+          item_category: product.category,
+          price: product.price,
+          currency: product.currency || "USD",
+          index: product.index || 0,
+          item_brand: product.brand || "Pantaleone Digital Services",
+          item_list_name: listName,
+        },
+      ],
+    });
+  },
+
+  viewPromotion: (promotion: PromotionEvent, product?: ProductEvent) => {
+    if (!isGaEnabled()) return;
+    (window as any).gtag("event", "view_promotion", {
+      creative_name: promotion.creativeName,
+      creative_slot: promotion.creativeSlot,
+      promotion_id: promotion.promotionId,
+      promotion_name: promotion.promotionName,
+      items: product
+        ? [
+            {
+              item_id: product.id,
+              item_name: product.name,
+              item_category: product.category,
+              price: product.price,
+              currency: product.currency || "USD",
+              item_brand: product.brand || "Pantaleone Digital Services",
+            },
+          ]
+        : [],
+    });
+  },
+
+  selectPromotion: (promotion: PromotionEvent, product?: ProductEvent) => {
+    if (!isGaEnabled()) return;
+    (window as any).gtag("event", "select_promotion", {
+      creative_name: promotion.creativeName,
+      creative_slot: promotion.creativeSlot,
+      promotion_id: promotion.promotionId,
+      promotion_name: promotion.promotionName,
+      items: product
+        ? [
+            {
+              item_id: product.id,
+              item_name: product.name,
+              item_category: product.category,
+              price: product.price,
+              currency: product.currency || "USD",
+              item_brand: product.brand || "Pantaleone Digital Services",
+            },
+          ]
+        : [],
+    });
+  },
+
+  refund: (refund: RefundEvent) => {
+    if (!isGaEnabled()) return;
+    (window as any).gtag("event", "refund", {
+      currency: refund.currency,
+      value: refund.value,
+      transaction_id: refund.transactionId,
+      tax: refund.tax,
+      shipping: refund.shipping,
+      coupon: refund.coupon,
+      items: refund.products.map((product) => ({
+        item_id: product.id,
+        item_name: product.name,
+        quantity: product.quantity,
       })),
     });
   },
 };
 
-// PostHog E-commerce Tracking
 export const posthogAnalytics = {
-  // Product viewed
   productViewed: (product: ProductEvent) => {
     if (!isAnalyticsEnabled()) return;
-
     posthog.capture("product_viewed", {
       product_id: product.id,
       product_name: product.name,
@@ -209,10 +401,8 @@ export const posthogAnalytics = {
     });
   },
 
-  // Add to cart (click on payment link)
   addToCart: (product: ProductEvent) => {
     if (!isAnalyticsEnabled()) return;
-
     posthog.capture("add_to_cart", {
       product_id: product.id,
       product_name: product.name,
@@ -224,10 +414,8 @@ export const posthogAnalytics = {
     });
   },
 
-  // Checkout started
   checkoutStarted: (product: ProductEvent) => {
     if (!isAnalyticsEnabled()) return;
-
     posthog.capture("checkout_started", {
       product_id: product.id,
       product_name: product.name,
@@ -239,10 +427,8 @@ export const posthogAnalytics = {
     });
   },
 
-  // Purchase completed
   purchaseCompleted: (purchase: PurchaseEvent) => {
     if (!isAnalyticsEnabled()) return;
-
     posthog.capture("purchase_completed", {
       transaction_id: purchase.transactionId,
       revenue: purchase.value,
@@ -252,18 +438,15 @@ export const posthogAnalytics = {
       products: purchase.products,
       $set: {
         last_purchase_date: new Date().toISOString(),
-        total_revenue: purchase.value, // This will be merged with user properties
+        total_revenue: purchase.value,
       },
     });
   },
 };
 
-// Meta Pixel Commerce Events
 export const metaPixel = {
-  // View content (product detail page)
   viewContent: (product: ProductEvent) => {
     if (!isMetaPixelEnabled()) return;
-
     (window as any).fbq("track", "ViewContent", {
       content_type: "product",
       content_ids: [product.id],
@@ -274,10 +457,8 @@ export const metaPixel = {
     });
   },
 
-  // Add to cart
   addToCart: (product: ProductEvent) => {
     if (!isMetaPixelEnabled()) return;
-
     (window as any).fbq("track", "AddToCart", {
       content_ids: [product.id],
       content_name: product.name,
@@ -287,10 +468,8 @@ export const metaPixel = {
     });
   },
 
-  // Initiate checkout
   initiateCheckout: (product: ProductEvent) => {
     if (!isMetaPixelEnabled()) return;
-
     (window as any).fbq("track", "InitiateCheckout", {
       content_ids: [product.id],
       content_name: product.name,
@@ -301,10 +480,8 @@ export const metaPixel = {
     });
   },
 
-  // Purchase
   purchase: (purchase: PurchaseEvent) => {
     if (!isMetaPixelEnabled()) return;
-
     (window as any).fbq("track", "Purchase", {
       content_ids: purchase.products.map((p) => p.id),
       content_type: "product",
@@ -313,14 +490,97 @@ export const metaPixel = {
       num_items: purchase.products.reduce((sum, p) => sum + p.quantity, 0),
     });
   },
+
+  search: (query: string, value?: number, currency?: string) => {
+    if (!isMetaPixelEnabled()) return;
+    (window as any).fbq("track", "Search", {
+      search_string: query,
+      value: value,
+      currency: currency || "USD",
+    });
+  },
+
+  addToWishlist: (product: ProductEvent) => {
+    if (!isMetaPixelEnabled()) return;
+    (window as any).fbq("track", "AddToWishlist", {
+      content_ids: [product.id],
+      content_name: product.name,
+      content_category: product.category,
+      value: product.price,
+      currency: product.currency || "USD",
+    });
+  },
+
+  viewCart: (products: ProductEvent[], total: number) => {
+    if (!isMetaPixelEnabled()) return;
+    (window as any).fbq("track", "ViewCart", {
+      content_ids: products.map((p) => p.id),
+      content_type: "product",
+      value: total,
+      currency: products[0]?.currency || "USD",
+      num_items: products.reduce((sum, p) => sum + (p.quantity || 1), 0),
+    });
+  },
+
+  removeFromCart: (product: ProductEvent) => {
+    if (!isMetaPixelEnabled()) return;
+    (window as any).fbq("track", "RemoveFromCart", {
+      content_ids: [product.id],
+      content_name: product.name,
+      content_category: product.category,
+      value: product.price,
+      currency: product.currency || "USD",
+    });
+  },
+
+  addPaymentInfo: (product: ProductEvent, paymentType: string) => {
+    if (!isMetaPixelEnabled()) return;
+    (window as any).fbq("track", "AddPaymentInfo", {
+      content_ids: [product.id],
+      content_name: product.name,
+      content_category: product.category,
+      value: product.price,
+      currency: product.currency || "USD",
+      payment_type: paymentType,
+    });
+  },
+
+  addShippingInfo: (product: ProductEvent, shippingTier: string) => {
+    if (!isMetaPixelEnabled()) return;
+    (window as any).fbq("track", "AddShippingInfo", {
+      content_ids: [product.id],
+      content_name: product.name,
+      content_category: product.category,
+      value: product.price,
+      currency: product.currency || "USD",
+      shipping_tier: shippingTier,
+    });
+  },
+
+  contact: (contentName: string, contentCategory?: string) => {
+    if (!isMetaPixelEnabled()) return;
+    (window as any).fbq("track", "Contact", {
+      content_name: contentName,
+      content_category: contentCategory,
+    });
+  },
+
+  refund: (refund: RefundEvent) => {
+    if (!isMetaPixelEnabled()) return;
+    (window as any).fbq("track", "Refund", {
+      content_ids: refund.products.map((p) => p.id),
+      content_type: "product",
+      value: refund.value,
+      currency: refund.currency,
+      num_items: refund.products.reduce((sum, p) => sum + p.quantity, 0),
+      transaction_id: refund.transactionId,
+    });
+  },
 };
 
-// Blog Analytics Tracking
 export const blogAnalytics = {
-  // Blog post impressions (when posts are viewed in a list)
   postImpressions: (posts: BlogPostEvent[], listName?: string) => {
     if (!isAnalyticsEnabled()) return;
-
     posthog.capture("blog_posts_impressed", {
       posts: posts.map((post) => ({
         post_id: post.id,
@@ -336,9 +596,7 @@ export const blogAnalytics = {
     });
   },
 
-  // Blog engagement (scroll depth, time on page)
   postEngaged: (engagement: BlogEngagementEvent) => {
-    // PostHog tracking (requires consent)
     if (isAnalyticsEnabled()) {
       posthog.capture("blog_post_engaged", {
         post_id: engagement.postId,
@@ -347,8 +605,6 @@ export const blogAnalytics = {
         read_complete: engagement.readComplete,
       });
     }
-
-    // Google Analytics blog engagement (no consent required)
     if (isGaEnabled()) {
       (window as any).gtag("event", "scroll", {
         event_category: "blog_engagement",
@@ -360,9 +616,7 @@ export const blogAnalytics = {
     }
   },
 
-  // Blog post view
   postViewed: (post: BlogPostEvent) => {
-    // PostHog tracking (requires consent)
     if (isAnalyticsEnabled()) {
       posthog.capture("blog_post_viewed", {
         post_id: post.id,
@@ -378,8 +632,6 @@ export const blogAnalytics = {
         },
       });
     }
-
-    // Google Analytics blog post view (no consent required)
     if (isGaEnabled()) {
       (window as any).gtag("event", "view_item", {
         item_id: post.id,
@@ -393,9 +645,7 @@ export const blogAnalytics = {
   },
 };
 
-// Unified tracking functions
 export const track = {
-  // Product interactions - GA fires without consent, PostHog/Meta require consent
   productImpression: (products: ProductEvent[], listName?: string) => {
     ga4.viewItemList(products, listName);
   },
@@ -424,7 +674,6 @@ export const track = {
     }
   },
 
-  // Purchase completion (typically called server-side via webhook)
   purchase: (purchase: PurchaseEvent) => {
     ga4.purchase(purchase);
     if (isAnalyticsEnabled()) {
@@ -433,7 +682,60 @@ export const track = {
     }
   },
 
-  // Blog interactions
+  removeFromCart: (product: ProductEvent) => {
+    ga4.removeFromCart(product);
+    if (isAnalyticsEnabled()) {
+      metaPixel.removeFromCart(product);
+    }
+  },
+
+  viewCart: (products: ProductEvent[], total: number) => {
+    ga4.viewCart(products, total);
+    if (isAnalyticsEnabled()) {
+      metaPixel.viewCart(products, total);
+    }
+  },
+
+  addToWishlist: (product: ProductEvent) => {
+    ga4.addToWishlist(product);
+    if (isAnalyticsEnabled()) {
+      metaPixel.addToWishlist(product);
+    }
+  },
+
+  addShippingInfo: (product: ProductEvent, shippingTier: string) => {
+    ga4.addShippingInfo(product, shippingTier);
+    if (isAnalyticsEnabled()) {
+      metaPixel.addShippingInfo(product, shippingTier);
+    }
+  },
+
+  addPaymentInfo: (product: ProductEvent, paymentType: string) => {
+    ga4.addPaymentInfo(product, paymentType);
+    if (isAnalyticsEnabled()) {
+      metaPixel.addPaymentInfo(product, paymentType);
+    }
+  },
+
+  selectItem: (product: ProductEvent, listName: string) => {
+    ga4.selectItem(product, listName);
+  },
+
+  viewPromotion: (promotion: PromotionEvent, product?: ProductEvent) => {
+    ga4.viewPromotion(promotion, product);
+  },
+
+  selectPromotion: (promotion: PromotionEvent, product?: ProductEvent) => {
+    ga4.selectPromotion(promotion, product);
+  },
+
+  refund: (refund: RefundEvent) => {
+    ga4.refund(refund);
+    if (isAnalyticsEnabled()) {
+      metaPixel.refund(refund);
+    }
+  },
+
   blogPostImpression: (posts: BlogPostEvent[], listName?: string) => {
     blogAnalytics.postImpressions(posts, listName);
   },
@@ -446,7 +748,6 @@ export const track = {
     blogAnalytics.postEngaged(engagement);
   },
 
-  // Search interactions
   searchPerformed: (search: SearchEvent) => {
     if (isAnalyticsEnabled()) {
       posthog.capture("search_performed", {
@@ -459,9 +760,8 @@ export const track = {
           search_queries: search.query,
         },
       });
+      metaPixel.search(search.query);
     }
-
-    // Google Analytics search tracking (no consent required)
     if (isGaEnabled()) {
       (window as any).gtag("event", "search", {
         search_term: search.query,
@@ -480,8 +780,6 @@ export const track = {
         result_title: click.resultTitle,
       });
     }
-
-    // Google Analytics event for search result clicks (no consent required)
     if (isGaEnabled()) {
       (window as any).gtag("event", "select_content", {
         content_type: click.resultType,
@@ -491,9 +789,7 @@ export const track = {
     }
   },
 
-  // CTA button clicks (Buy Now, Contact Me, etc.)
   ctaClicked: (ctaType: string, ctaLabel: string, destinationUrl?: string) => {
-    // PostHog tracking (requires consent)
     if (isAnalyticsEnabled()) {
       posthog.capture("cta_clicked", {
         cta_type: ctaType,
@@ -501,8 +797,6 @@ export const track = {
         destination_url: destinationUrl,
       });
     }
-
-    // Google Analytics generate_lead for contact CTAs (no consent required)
     if (isGaEnabled() && ctaType === "contact") {
       (window as any).gtag("event", "generate_lead", {
         cta_type: ctaType,
@@ -510,19 +804,18 @@ export const track = {
         destination_url: destinationUrl,
       });
     }
+    if (isMetaPixelEnabled() && ctaType === "contact") {
+      metaPixel.contact(ctaLabel);
+    }
   },
 
-  // Outbound link clicks
   outboundLinkClicked: (url: string, linkText: string) => {
-    // PostHog tracking (requires consent)
     if (isAnalyticsEnabled()) {
       posthog.capture("outbound_link_clicked", {
         url: url,
         link_text: linkText,
       });
     }
-
-    // Google Analytics outbound link tracking (no consent required)
     if (isGaEnabled()) {
       (window as any).gtag("event", "click", {
         event_category: "outbound",
@@ -530,6 +823,155 @@ export const track = {
         transport_type: "beacon",
         href: url,
       });
+    }
+  },
+};
+
+export const serverTrack = {
+  purchase: async (purchase: PurchaseEvent, clientId?: string) => {
+    const measurementId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
+    const apiSecret = process.env.GA_API_SECRET;
+    if (!measurementId || !apiSecret) return;
+    try {
+      const payload = {
+        client_id: clientId || "anonymous",
+        events: [
+          {
+            name: "purchase",
+            params: {
+              transaction_id: purchase.transactionId,
+              currency: purchase.currency,
+              value: purchase.value,
+              tax: purchase.tax,
+              shipping: purchase.shipping,
+              coupon: purchase.coupon,
+              items: purchase.products.map((product) => ({
+                item_id: product.id,
+                item_name: product.name,
+                item_category: product.category,
+                price: product.price,
+                quantity: product.quantity,
+                coupon: product.coupon,
+                discount: product.discount,
+                item_brand: product.brand || "Pantaleone Digital Services",
+              })),
+            },
+          },
+        ],
+      };
+      await fetch(
+        `https://www.google-analytics.com/mp/collect?measurement_id=${measurementId}&api_secret=${apiSecret}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+      );
+    } catch (error) {
+      console.error("GA4 Measurement Protocol purchase error:", error);
+    }
+  },
+
+  refund: async (refund: RefundEvent, clientId?: string) => {
+    const measurementId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
+    const apiSecret = process.env.GA_API_SECRET;
+    if (!measurementId || !apiSecret) return;
+    try {
+      const payload = {
+        client_id: clientId || "anonymous",
+        events: [
+          {
+            name: "refund",
+            params: {
+              currency: refund.currency,
+              value: refund.value,
+              transaction_id: refund.transactionId,
+              tax: refund.tax,
+              shipping: refund.shipping,
+              coupon: refund.coupon,
+              items: refund.products.map((product) => ({
+                item_id: product.id,
+                item_name: product.name,
+                quantity: product.quantity,
+              })),
+            },
+          },
+        ],
+      };
+      await fetch(
+        `https://www.google-analytics.com/mp/collect?measurement_id=${measurementId}&api_secret=${apiSecret}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+      );
+    } catch (error) {
+      console.error("GA4 Measurement Protocol refund error:", error);
+    }
+  },
+
+  purchaseMeta: async (purchase: PurchaseEvent, eventId?: string) => {
+    const pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+    const accessToken = process.env.META_ACCESS_TOKEN;
+    if (!pixelId || !accessToken) return;
+    try {
+      const eventData = {
+        event_name: "Purchase",
+        event_time: Math.floor(Date.now() / 1000),
+        action_source: "website",
+        event_id: eventId || purchase.transactionId,
+        custom_data: {
+          content_ids: purchase.products.map((p) => p.id),
+          content_type: "product",
+          value: purchase.value,
+          currency: purchase.currency,
+          num_items: purchase.products.reduce((sum, p) => sum + p.quantity, 0),
+          transaction_id: purchase.transactionId,
+        },
+      };
+      await fetch(`https://graph.facebook.com/v18.0/${pixelId}/events`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          data: [eventData],
+          access_token: accessToken,
+        }),
+      });
+    } catch (error) {
+      console.error("Meta CAPI purchase error:", error);
+    }
+  },
+
+  refundMeta: async (refund: RefundEvent, eventId?: string) => {
+    const pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+    const accessToken = process.env.META_ACCESS_TOKEN;
+    if (!pixelId || !accessToken) return;
+    try {
+      const eventData = {
+        event_name: "Refund",
+        event_time: Math.floor(Date.now() / 1000),
+        action_source: "website",
+        event_id: eventId || `refund_${refund.transactionId}`,
+        custom_data: {
+          content_ids: refund.products.map((p) => p.id),
+          content_type: "product",
+          value: refund.value,
+          currency: refund.currency,
+          num_items: refund.products.reduce((sum, p) => sum + p.quantity, 0),
+          transaction_id: refund.transactionId,
+        },
+      };
+      await fetch(`https://graph.facebook.com/v18.0/${pixelId}/events`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          data: [eventData],
+          access_token: accessToken,
+        }),
+      });
+    } catch (error) {
+      console.error("Meta CAPI refund error:", error);
     }
   },
 };

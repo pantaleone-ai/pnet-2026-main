@@ -39,11 +39,13 @@ export default function FeaturedProductsSection({ products }: FeaturedProductsSe
       <section>
         <h2 className="text-xl font-semibold mb-6">Featured Products</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
-          {featuredProducts.slice(0, 3).map((product) => (
+          {featuredProducts.slice(0, 3).map((product, index) => (
             <ProductCard
               key={product.id}
               product={product}
               categorySlug={product.category.toLowerCase().replace(/\s+/g, '-')}
+              listName="featured-products"
+              index={index}
             />
           ))}
         </div>
