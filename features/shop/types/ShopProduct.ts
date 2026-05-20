@@ -5,7 +5,15 @@ export const shopProductSchema = baseProjectSchema.extend({
   price: z.number(),
   currency: z.string().default("USD"),
   sku: z.string().optional(),
-  inventory: z.number().optional(),
+  mpn: z.string().optional(),
+  gtin: z.string().optional(),
+  inventory: z.number().default(9999),
+  availability: z.string().default("in_stock"),
+  condition: z.string().default("new"),
+  brand: z.string().default("Pantaleone Digital Services"),
+  googleProductCategory: z.string().optional(),
+  productType: z.string().optional(),
+  identifierExists: z.boolean().default(false),
   purchaseUrl: z.string().optional(),
   stripeProductId: z.string().optional(),
   stripePriceId: z.string().optional(),
@@ -14,7 +22,6 @@ export const shopProductSchema = baseProjectSchema.extend({
   featured: z.boolean().default(false),
   isDigital: z.boolean().default(true),
   weight: z.number().optional(),
-  gtin: z.string().optional(), // UPC/EAN/GTIN for product feeds
 });
 
 type ShopProduct = {
@@ -25,8 +32,15 @@ type ShopProduct = {
   price: number;
   currency: string;
   sku?: string;
-  mpn?: string; // Manufacturer Part Number
-  inventory?: number;
+  mpn?: string;
+  gtin?: string;
+  inventory: number;
+  availability: string;
+  condition: string;
+  brand: string;
+  googleProductCategory?: string;
+  productType?: string;
+  identifierExists: boolean;
   purchaseUrl?: string;
   stripeProductId?: string;
   stripePriceId?: string;
@@ -51,9 +65,8 @@ type ShopProduct = {
   content?: string;
   readingTime?: string;
   readingTimeMinutes?: number;
-  gtin?: string; // UPC/EAN/GTIN for product feeds
   itemCondition?: "NewCondition" | "UsedCondition" | "RefurbishedCondition";
-  priceValidUntil?: string; // ISO date string for sale expiration
+  priceValidUntil?: string;
   brandLogo?: string;
   timeToValue?: number;
   targetKeywords?: string[];

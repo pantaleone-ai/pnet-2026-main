@@ -89,18 +89,20 @@ function getProductJsonLd(
     "@type": "Offer",
     price: product.price,
     priceCurrency: product.currency || "USD",
-    availability:
-      product.inventory === 0
+    availability: product.isDigital
+      ? "https://schema.org/InStock"
+      : product.inventory === 0
         ? "https://schema.org/OutOfStock"
         : "https://schema.org/InStock",
     url: canonicalUrl,
+    itemCondition: "https://schema.org/NewCondition",
     shippingDetails: {
       "@type": "OfferShippingDetails",
       deliveryTime: {
         "@type": "ShippingDeliveryTime",
         transitTime: {
           "@type": "QuantitativeValue",
-          value: 1,
+          value: 0,
           unitCode: "DAY",
         },
       },

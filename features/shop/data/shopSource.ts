@@ -98,6 +98,16 @@ function getProduct(page: Page, index: number): ShopProduct {
   //   }
   // }
 
+  const gmcCategoryMap: Record<string, string> = {
+    "Apps": "319",
+    "Ai Workflows": "319",
+  };
+
+  const productTypeMap: Record<string, string> = {
+    "Apps": "Software & Apps > AI Applications",
+    "Ai Workflows": "Software & Apps > AI Workflows & Automation",
+  };
+
   return {
     id: index,
     title: data.title,
@@ -106,7 +116,15 @@ function getProduct(page: Page, index: number): ShopProduct {
     price: data.price,
     currency: data.currency ?? "USD",
     sku: data.sku,
-    inventory: data.inventory,
+    mpn: data.mpn,
+    gtin: data.gtin,
+    inventory: data.inventory ?? 9999,
+    availability: data.availability ?? "in_stock",
+    condition: data.condition ?? "new",
+    brand: data.brand ?? "Pantaleone Digital Services",
+    googleProductCategory: data.googleProductCategory ?? gmcCategoryMap[data.category] ?? "319",
+    productType: data.productType ?? productTypeMap[data.category] ?? "Software & Apps",
+    identifierExists: data.identifierExists ?? !data.gtin,
     purchaseUrl: data.purchaseUrl,
     stripeProductId: data.stripeProductId,
     stripePriceId: data.stripePriceId,

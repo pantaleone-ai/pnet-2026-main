@@ -69,9 +69,15 @@ export const shopProductSchema = frontmatterSchema.extend({
   price: z.number(),
   currency: z.string().default("USD"),
   sku: z.string().optional(),
-  mpn: z.string().optional(), // Manufacturer Part Number
-  gtin: z.string().optional(), // UPC/EAN/GTIN for product feeds
-  inventory: z.number().optional(),
+  mpn: z.string().optional(),
+  gtin: z.string().optional(),
+  inventory: z.number().default(9999),
+  availability: z.string().default("in_stock"),
+  condition: z.string().default("new"),
+  brand: z.string().default("Pantaleone Digital Services"),
+  googleProductCategory: z.string().optional(),
+  productType: z.string().optional(),
+  identifierExists: z.boolean().default(false),
   purchaseUrl: z.string().optional(),
   imageUrl: z.string().optional(),
   imageAlt: z.string().optional(),
@@ -96,7 +102,7 @@ export const shopProductSchema = frontmatterSchema.extend({
   itemCondition: z
     .enum(["NewCondition", "UsedCondition", "RefurbishedCondition"])
     .optional(),
-  priceValidUntil: z.string().optional(), // ISO date string for sale expiration
+  priceValidUntil: z.string().optional(),
   brandLogo: z.string().optional(),
   timeToValue: z.number().optional(),
   targetKeywords: z.array(z.string()).optional(),
