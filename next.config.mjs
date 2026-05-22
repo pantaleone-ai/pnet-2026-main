@@ -148,7 +148,7 @@ const config = {
         source: "/_next/static/:path*",
         headers: [
           {
-            key: "X-Robots-Template",
+            key: "X-Robots-Tag",
             value: "noindex",
           },
           {
@@ -158,11 +158,21 @@ const config = {
         ],
       },
       {
+        // Block indexing of all _next paths (static, data, chunks, etc.)
+        source: "/_next/:path*",
+        headers: [
+          {
+            key: "X-Robots-Tag",
+            value: "noindex, nofollow",
+          },
+        ],
+      },
+      {
         // Block indexing of URLs with dpl query params (Vercel cache busting)
         source: "/:path*",
         headers: [
           {
-            key: "X-Robots-Template",
+            key: "X-Robots-Tag",
             value: "noindex",
           },
         ],
@@ -178,7 +188,7 @@ const config = {
         source: "/_vercel/:path*",
         headers: [
           {
-            key: "X-Robots-Template",
+            key: "X-Robots-Tag",
             value: "noindex",
           },
         ],
