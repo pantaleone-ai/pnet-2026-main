@@ -9,6 +9,8 @@ import Web from "@/features/about/components/Web";
 import LastModified from "@/components/LastModified";
 import { siteConfig } from "@/config/site";
 
+export const dynamic = "force-static";
+
 function getMemberJsonLd() {
   return {
     "@context": "https://schema.org",

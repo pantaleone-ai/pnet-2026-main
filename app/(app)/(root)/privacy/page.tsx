@@ -13,6 +13,8 @@ import { notFound } from "next/navigation";
 import type { ComponentType } from "react";
 import LastModified from "@/components/LastModified";
 
+export const dynamic = "force-static";
+
 // Validate SEO configuration to ensure all required fields are present
 // This helps catch missing or incomplete SEO setup early
 if (!HEAD || HEAD.length === 0) {

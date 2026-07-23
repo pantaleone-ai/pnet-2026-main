@@ -47,7 +47,7 @@ const getCachedXmlFeed = unstable_cache(
     return xmlHeader + items + xmlFooter;
   },
   ["product-feed-xml"], // Cache tag
-  { revalidate: 3600 }, // Revalidate every hour
+  { revalidate: 86400 }, // Revalidate every 24 hours
 );
 
 export async function GET() {
@@ -57,7 +57,7 @@ export async function GET() {
     return new Response(xml, {
       headers: {
         "Content-Type": "application/xml; charset=utf-8",
-        "Cache-Control": "s-maxage=3600, stale-while-revalidate",
+        "Cache-Control": "s-maxage=86400, stale-while-revalidate",
       },
     });
   } catch (error) {
