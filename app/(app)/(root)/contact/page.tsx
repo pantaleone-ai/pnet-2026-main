@@ -8,6 +8,8 @@ import type { Metadata } from "next";
 import { ContactForm } from "@/features/contact/ContactForm";
 import ContactMe from "@/components/ContactMe";
 
+export const dynamic = "force-static";
+
 // Validate SEO configuration to ensure all required fields are present
 // This helps catch missing or incomplete SEO setup early
 if (!HEAD || HEAD.length === 0) {
@@ -57,6 +59,8 @@ export default async function ContactPage() {
   );
 }
 */
+
+export const dynamic = "force-static";
 
 export default function ContactPage() {
   return null;

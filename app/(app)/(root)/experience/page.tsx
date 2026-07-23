@@ -6,6 +6,8 @@ import { getBaseUrl } from "@/lib/helpers";
 import type { HeadType } from "@/types";
 import type { Metadata } from "next";
 
+export const dynamic = "force-static";
+
 // Validate SEO configuration to ensure all required fields are present
 // This helps catch missing or incomplete SEO setup early
 if (!HEAD || HEAD.length === 0) {
