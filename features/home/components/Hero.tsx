@@ -15,14 +15,13 @@ function HeroContent() {
         HELLO
       </p> */}
       <h1 className="text-foreground px-4 text-[32px] font-semibold tracking-tight sm:text-[40px] sm:text-left py-2">
-        {/* <span className="sm:hidden">Hey!</span> */}
-        We Create the Future
+        AI systems that run themselves.
       </h1>
 
       <p className="text-foreground/80 px-4 text-lg/8 text-left py-4 pb-8">
-        We help forward-thinking businesses and leaders architect the future through AI, automation, agentic workflows, and proprietary digital platforms.  
+        We design and deploy autonomous agents, workflow automation, and AI-powered platforms for companies that need operations to scale without adding headcount.
       </p>
-      <p className="text-foreground/80 px-4 text-lg/8 text-left py-4 pb-10">With nearly 20 years of experience optimizing the largest businesses in the world, we drive transformative change to businesses and governments.</p>
+      <p className="text-foreground/80 px-4 text-lg/8 text-left py-4 pb-10">N8N workflows. LangChain pipelines. Custom LLM integrations. Built to ship, not to demo.</p>
 
       <ul
         className="text-foreground space-y-2 divide-y divide-dashed divide-border-edge"
