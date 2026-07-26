@@ -16,7 +16,7 @@ if (!HEAD || HEAD.length === 0) {
 }
 
 // Define the current page for SEO configuration
-const PAGE = "AI Tech & Automation Blog";
+const PAGE = "Blog";
 
 // Get SEO configuration for the current page from the HEAD array
 const page = HEAD.find((page: HeadType) => page.page === PAGE) as HeadType;
@@ -81,7 +81,7 @@ export default async function BlogPage() {
     <>
       <SeparatorHorizontal borderTop={false} />
       <HeadingTitle
-        title="AI Tech & Automation Blog"
+        title="Blog"
         textStyleClassName="text-2xl font-bold sm:text-3xl"
       />
       <SeparatorHorizontal short={true} />

@@ -38,7 +38,7 @@ export default async function ShopPage() {
   return (
     <>
       <SeparatorHorizontal borderTop={false} />
-      <HeadingTitle title="Shop AI Products, Services, Apps & Artwork" />
+      <HeadingTitle title="Shop" />
       <SeparatorHorizontal short={true} />
       <ShopHero />
       <SeparatorHorizontal short={true} />

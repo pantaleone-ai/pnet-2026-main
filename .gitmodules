@@ -1,3 +1,6 @@
 [submodule "scripts/halai-agents"]
 	path = scripts/halai-agents
 	url = https://github.com/pantaleone-ai/pantaleone-halai-central
+[submodule "skills/hallmark"]
+	path = skills/hallmark
+	url = https://github.com/pantaleone-ai/hallmark

@@ -1,20 +1,20 @@
 import type { SkillType } from "@/features/home/types/SkillType";
 
 export const SKILLS: SkillType[] = [
-  // { 
-  //   name: "Forward Deployed AI", 
-  //   description: "Integrating custom AI solutions directly into enterprise infrastructure." 
-  // },
   { 
-    name: "Automation", 
-    description: "Building autonomous agents." 
+    name: "Agentic AI", 
+    description: "Autonomous agents that handle multi-step workflows — from data extraction to customer support to internal tooling." 
   },
   { 
-    name: "AI Products", 
-    description: "AI platforms and workflows." 
+    name: "Workflow Automation", 
+    description: "N8N, LangChain, and custom pipelines that connect your stack and run without intervention." 
   },
   { 
-    name: "16+ Years", 
-    description: "of diverse AI consulting experience." 
+    name: "LLM Integration", 
+    description: "Fine-tuning, RAG pipelines, and custom model deployments for production use cases." 
+  },
+  { 
+    name: "AI Strategy", 
+    description: "From audit to deployment — identifying where AI saves time, cuts cost, or unlocks new revenue." 
   },
 ];

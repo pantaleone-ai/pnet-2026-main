@@ -5,70 +5,68 @@ const HEAD: HeadType[] = [
   {
     page: "Home",
     title: truncateTitle(
-      "Pantaleone.ai | AI Engineering & Agentic Automation Strategy",
+      "Pantaleone.ai | AI Systems, Automation & LLM Integration",
     ),
     description: truncateDescription(
-      "Forward-deployed AI engineer specializing in agentic AI, business automation strategy, and autonomous workflows. Build scalable AI systems with enterprise-grade automation.",
+      "We design and deploy autonomous agents, workflow automation, and AI-powered platforms for companies that need operations to scale without adding headcount.",
     ),
     slug: "/",
   },
   {
     page: "About",
     title: truncateTitle(
-      "About Matt Pantaleone | AI Strategy & Automation Engineering Expert",
+      "About Matt Pantaleone | AI Engineering & Automation",
     ),
     description: truncateDescription(
-      "AI strategy consultant and forward-deployed engineer building agentic AI systems, automation architectures, and custom LLM integrations for enterprise businesses.",
+      "Matt Pantaleone builds autonomous agents, LLM integrations, and production automation systems for startups and enterprises.",
     ),
     slug: "/about",
   },
   {
     page: "Experience",
-    title: truncateTitle("Experience | AI Engineering & Automation Strategy"),
+    title: truncateTitle("Experience | AI Engineering & Automation Work"),
     description: truncateDescription(
-      "Professional history in forward-deployed AI engineering, automation architecture, agentic AI development, and digital transformation strategy.",
+      "Professional history in AI systems, automation engineering, LLM integration, and full-stack development.",
     ),
     slug: "/experience",
   },
   {
     page: "Education",
-    title: truncateTitle("Education | Technical Foundations in AI & Dev"),
+    title: truncateTitle("Education | Computer Science & AI Engineering"),
     description: truncateDescription(
-      "Academic background and certifications in software engineering and AI technologies.",
+      "Computer science background with hands-on specialization in AI systems, LLM deployment, and production automation.",
     ),
     slug: "/education",
   },
   {
     page: "Blog",
-    title: truncateTitle("Blog | AI Workflows & Automation Insights"),
+    title: truncateTitle("Blog | AI Workflows & Automation Notes"),
     description: truncateDescription(
-      "Expert analysis on LLM implementation, agentic workflows, and the future of AI engineering.",
+      "Writing on LLM implementation, agentic workflows, and building production AI systems.",
     ),
     slug: "/blog",
   },
   {
     page: "Projects",
-    title: truncateTitle("Projects | AI Platforms, Rapigent, & AICEO"),
+    title: truncateTitle("Projects | AI Platforms & Automation Tools"),
     description: truncateDescription(
-      "Showcasing enterprise AI tools, autonomous agent workflows, and full-stack AI applications.",
+      "AI tools and platforms built for production: autonomous agents, LLM pipelines, and full-stack applications.",
     ),
     slug: "/projects",
   },
   {
     page: "Shop",
-    title: truncateTitle("Shop | AI Apps, Workflows, Services & Artwork"),
+    title: truncateTitle("Shop | AI Workflows, Apps & Services"),
     description: truncateDescription(
-      "Explore AI applications, N8N workflows, AI services, and digital artwork for purchase.",
+      "N8N workflows, AI applications, and consulting services for teams building automation systems.",
     ),
     slug: "/shop",
   },
   {
     page: "Contact",
-    title: truncateTitle(
-      "Hire AI Engineer | Automation Consulting & Strategy Services",
-    ),
+    title: truncateTitle("Contact | AI Engineering & Automation Consulting"),
     description: truncateDescription(
-      "Contact for AI engineering, automation strategy implementation, and agentic workflow development. Get expert consultation on business automation solutions.",
+      "Hire Matt Pantaleone for AI engineering, automation strategy, and LLM integration projects.",
     ),
     slug: "/contact",
   },
@@ -90,7 +88,7 @@ const HEAD: HeadType[] = [
   // },
   {
     page: "Changelog",
-    title: truncateTitle("Changelog | Platform Evolution & Updates"),
+    title: truncateTitle("Changelog | Platform Updates & Development"),
     description: truncateDescription(
       "Development history and technical updates for the Pantaleone Digital ecosystem.",
     ),

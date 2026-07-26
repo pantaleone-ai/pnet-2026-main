@@ -52,19 +52,16 @@ export default async function ExperiencePage() {
               Professional Experience
             </h2>
             <p className="mb-4">
-              I have extensive experience in software development, with a focus
-              on building modern web applications and working with cutting-edge
-              technologies.
+              Most of my career has been spent building and shipping software
+              — frontend, backend, and the infrastructure in between. Recent
+              years have focused almost entirely on AI systems: autonomous
+              agents, LLM integrations, and production automation.
             </p>
             <p className="mb-4">
-              My professional journey includes working on various projects that
-              have honed my skills in frontend development, backend integration,
-              and full-stack application architecture.
-            </p>
-            <p className="mb-4">
-              While specific work history details are not available at this
-              time, I bring a wealth of practical knowledge and expertise to
-              every project I undertake.
+              I've worked with clients ranging from startups to large
+              enterprises, building things like document processing pipelines,
+              conversational agents, and internal tooling that runs without
+              human intervention.
             </p>
           </div>
         </div>
