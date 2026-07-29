@@ -64,7 +64,7 @@ export default async function EducationPage() {
         </div>
       </main>
       <SeparatorHorizontal short={true} />
-      <LastModified lastModified={new Date().toISOString()} />
+      <LastModified lastModified="2026-07-29" />
       <SeparatorHorizontal short={true} />
       <SeparatorHorizontal borderBottom={false} />
     </>

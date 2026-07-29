@@ -206,7 +206,7 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
       </main>
       <SeparatorHorizontal short={true} />
       <LastModified
-        lastModified={post.lastUpdated ?? new Date().toISOString()}
+        lastModified={post.lastUpdated ?? post.created ?? "2026-07-29"}
       />
       <SeparatorHorizontal short={true} />
       <FeaturedProductsSection products={products} />

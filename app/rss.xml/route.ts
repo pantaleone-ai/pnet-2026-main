@@ -3,6 +3,11 @@ import { getProducts } from "@/features/shop/data/shopSource";
 import { getBaseUrl } from "@/lib/helpers";
 import { Feed } from "feed";
 
+export const revalidate = 86400; // 24 hours
+
+// Fixed date to avoid non-deterministic ISR output
+const BUILD_DATE = new Date("2026-07-29");
+
 export async function GET() {
   const posts = getBlogPosts().sort(
     (a, b) => new Date(b.created).getTime() - new Date(a.created).getTime(),
@@ -16,8 +21,8 @@ export async function GET() {
     language: "en",
     image: getBaseUrl("/favicons/favicon-32x32.png"),
     favicon: getBaseUrl("/favicons/favicon.ico"),
-    copyright: `All rights reserved ${new Date().getFullYear()}`,
-    updated: new Date(),
+    copyright: `All rights reserved ${BUILD_DATE.getFullYear()}`,
+    updated: BUILD_DATE,
   });
 
   posts.forEach((post) => {
@@ -44,7 +49,7 @@ export async function GET() {
       link: getBaseUrl(`/shop/${categorySlug}/${product.slug}`),
       description: product.description,
       content: product.description,
-      date: new Date(),
+      date: BUILD_DATE,
     });
   });
 
