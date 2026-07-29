@@ -4,30 +4,36 @@ import { getBlogPosts } from "@/features/blog/data/blogSource";
 import { getProducts } from "@/features/shop/data/shopSource";
 import { getBaseUrl } from "@/lib/helpers";
 
+// Fixed date to avoid non-deterministic ISR output.
+// Updated manually or via CI when content changes.
+const LAST_MODIFIED = "2026-07-29";
+
+export const revalidate = 86400; // 24 hours
+
 export default function sitemap(): MetadataRoute.Sitemap {
   // Define static pages with their configurations
   const staticPages = [
     {
       url: getBaseUrl(),
-      lastModified: new Date(),
+      lastModified: LAST_MODIFIED,
       changeFrequency: "daily" as const,
-      priority: 1.0, // Homepage gets highest priority
+      priority: 1.0,
     },
     {
       url: getBaseUrl("/projects"),
-      lastModified: new Date(),
+      lastModified: LAST_MODIFIED,
       changeFrequency: "weekly" as const,
       priority: 0.9,
     },
     {
       url: getBaseUrl("/blog"),
-      lastModified: new Date(),
+      lastModified: LAST_MODIFIED,
       changeFrequency: "daily" as const,
       priority: 0.9,
     },
     {
       url: getBaseUrl("/contact"),
-      lastModified: new Date(),
+      lastModified: LAST_MODIFIED,
       changeFrequency: "monthly" as const,
       priority: 0.8,
     },
@@ -35,9 +41,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const blogPosts = getBlogPosts().map((post) => ({
     url: getBaseUrl(`/blog/${post.slug}`),
-    lastModified: post.lastUpdated
-      ? new Date(post.lastUpdated)
-      : new Date(post.created || new Date()),
+    lastModified: post.lastUpdated || post.created || LAST_MODIFIED,
     changeFrequency: "weekly" as const,
     priority: 0.8,
   }));
@@ -45,7 +49,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   // Add shop main page
   const shopMainPage = {
     url: getBaseUrl("/shop"),
-    lastModified: new Date(),
+    lastModified: LAST_MODIFIED,
     changeFrequency: "weekly" as const,
     priority: 0.9,
   };
@@ -54,13 +58,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const shopCategories = [
     {
       url: getBaseUrl("/shop/ai-apps"),
-      lastModified: new Date(),
+      lastModified: LAST_MODIFIED,
       changeFrequency: "weekly" as const,
       priority: 0.8,
     },
     {
       url: getBaseUrl("/shop/ai-workflows"),
-      lastModified: new Date(),
+      lastModified: LAST_MODIFIED,
       changeFrequency: "weekly" as const,
       priority: 0.8,
     },
@@ -74,7 +78,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
                         product.category.toLowerCase().replace(/\s+/g, '-');
     return {
       url: getBaseUrl(`/shop/${categorySlug}/${product.slug}`),
-      lastModified: new Date(),
+      lastModified: LAST_MODIFIED,
       changeFrequency: "weekly" as const,
       priority: 0.7,
     };

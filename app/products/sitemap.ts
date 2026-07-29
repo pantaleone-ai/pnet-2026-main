@@ -3,6 +3,10 @@ import type { MetadataRoute } from "next";
 import { getProducts } from "@/features/shop/data/shopSource";
 import { getBaseUrl } from "@/lib/helpers";
 
+const LAST_MODIFIED = "2026-07-29";
+
+export const revalidate = 86400; // 24 hours
+
 export default function sitemap(): MetadataRoute.Sitemap {
   // Add shop product pages - use directory-based category URLs
   const shopProducts = getProducts().map((product) => {
@@ -13,9 +17,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
     return {
       url: getBaseUrl(`/shop/${categorySlug}/${product.slug}`),
-      lastModified: new Date(),
+      lastModified: LAST_MODIFIED,
       changeFrequency: "weekly" as const,
-      priority: 0.8, // Higher priority for product pages in dedicated sitemap
+      priority: 0.8,
     };
   });
 

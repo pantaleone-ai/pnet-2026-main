@@ -86,7 +86,7 @@ export default async function ChangelogPage() {
       </main>
       <SeparatorHorizontal short={true} />
       <LastModified
-        lastModified={pageData.lastModified ?? new Date().toISOString()}
+        lastModified={pageData.lastModified ?? "2026-07-29"}
       />
       <SeparatorHorizontal short={true} />
       <SeparatorHorizontal borderBottom={false} />
