@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import type { FC } from "react";
 import React, { memo, useCallback } from "react";
 import NavigationAbout from "./navigations/about/NavigationAbout";
+import NavigationConsulting from "./navigations/consulting/NavigationConsulting";
 import NavigationShop from "./navigations/shop/NavigationShop";
 interface Props {
   activePath: string;
@@ -30,6 +31,7 @@ const navItemStyles = {
 
 const navigationComponents: Record<string, React.ComponentType> = {
   About: NavigationAbout,
+  Consulting: NavigationConsulting,
   Shop: NavigationShop,
 };
 

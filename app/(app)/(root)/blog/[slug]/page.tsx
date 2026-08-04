@@ -11,6 +11,8 @@ import BlogPostAnalytics from "@/features/blog/components/BlogPostAnalytics";
 import { blogSource, getBlogPosts } from "@/features/blog/data/blogSource";
 import { getProducts } from "@/features/shop/data/shopSource";
 import FeaturedProductsSection from "@/features/shop/components/FeaturedProductsSection";
+import NewsletterSignup from "@/components/newsletter/NewsletterSignup";
+import { ConsultationCTA } from "@/components/mdx/ConsultationCTA";
 import type { BlogPostFrontmatter } from "@/features/blog/types/BlogPostFrontmatter";
 import type { BlogPostType } from "@/features/blog/types/BlogPostType";
 import { getBaseUrl } from "@/lib/helpers";
@@ -202,12 +204,19 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
               </DocsBody>
             </DocsPage>
           </DocsLayout>
+          <div className="mx-auto w-full max-w-3xl px-6 py-8">
+            <ConsultationCTA />
+          </div>
         </div>
       </main>
       <SeparatorHorizontal short={true} />
       <LastModified
         lastModified={post.lastUpdated ?? post.created ?? "2026-07-29"}
       />
+      <SeparatorHorizontal short={true} />
+      <div className="mx-auto w-full max-w-3xl px-6 py-8">
+        <NewsletterSignup />
+      </div>
       <SeparatorHorizontal short={true} />
       <FeaturedProductsSection products={products} />
       <SeparatorHorizontal short={true} />

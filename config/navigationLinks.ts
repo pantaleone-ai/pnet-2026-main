@@ -12,6 +12,9 @@ import {
   BrainIcon,
   WorkflowIcon,
   StoreIcon,
+  BriefcaseIcon,
+  FileTextIcon,
+  CalendarIcon,
 } from "lucide-react";
 
 const NAVIGATION_LINKS: NavigationLinkType[] = [
@@ -45,6 +48,37 @@ const NAVIGATION_LINKS: NavigationLinkType[] = [
   //     },
   //   ],
   // },
+  {
+    icon: BriefcaseIcon,
+    href: "/services",
+    label: "Consulting",
+    subNavigationLinks: [
+      {
+        href: "/services",
+        label: "Services",
+        description: truncateDescription("AI consulting & implementation", 30),
+        icon: BriefcaseIcon,
+      },
+      {
+        href: "/b2b",
+        label: "B2B Solutions",
+        description: truncateDescription("Enterprise AI transformation", 30),
+        icon: BriefcaseIcon,
+      },
+      {
+        href: "/resources/ai-readiness-guide",
+        label: "AI Readiness Guide",
+        description: truncateDescription("Free assessment & roadmap", 30),
+        icon: FileTextIcon,
+      },
+      {
+        href: "/contact?book=true",
+        label: "Book Consultation",
+        description: truncateDescription("Schedule a strategy call", 30),
+        icon: CalendarIcon,
+      },
+    ],
+  },
   {
     icon: ShopIcon,
     href: "/shop",
