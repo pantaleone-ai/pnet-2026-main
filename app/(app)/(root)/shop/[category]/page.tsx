@@ -1,7 +1,8 @@
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
 import ShopCategoryProducts from "@/features/shop/components/ShopCategoryProducts";
-import { getBaseUrl } from "@/lib/helpers";
+import { getCategories } from "@/features/shop/data/shopSource";
+import { getBaseUrl, getProductCategorySlug } from "@/lib/helpers";
 import type { HeadType } from "@/types";
 import type { Metadata } from "next";
 import HeadingTitle from "@/components/HeadingTitle";
@@ -32,6 +33,14 @@ export const metadata: Metadata = {
     canonical: getBaseUrl(page.slug),
   },
 };
+
+// Categories are derived from static content, so pre-render them at build
+// time instead of server-rendering on every request.
+export function generateStaticParams() {
+  return getCategories().map((category) => ({
+    category: getProductCategorySlug(category),
+  }));
+}
 
 export default async function ShopCategoryPage({
   params,

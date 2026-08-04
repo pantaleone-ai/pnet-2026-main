@@ -3,7 +3,7 @@ import BackgroundDots from "@/features/common/components/BackgroundDots";
 import CardItem from "@/features/common/components/CardItem";
 import { slugify } from "@/lib/helpers";
 
-export default function LatestBlogPosts() {
+export default async function LatestBlogPosts() {
   const blogPosts = getBlogPosts();
   const latestPosts = blogPosts
     .sort(

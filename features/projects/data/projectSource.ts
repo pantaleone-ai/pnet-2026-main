@@ -4,6 +4,7 @@ import { loader } from "fumadocs-core/source";
 import type { ProjectType } from "../types/ProjectType";
 import type { ProjectFrontmatter } from "../types/ProjectFrontmatter";
 import { formatDate, parseDate } from "@/lib/helpers";
+import { cache } from "react";
 
 const projectsDocs = projects as unknown as { toFumadocsSource: () => unknown };
 
@@ -39,7 +40,7 @@ function getProject(page: Page, index: number): ProjectType {
   };
 }
 
-export function getProjects(): ProjectType[] {
+export const getProjects = cache(function getProjects(): ProjectType[] {
   return projectsSource
     .getPages()
     .filter(
@@ -51,4 +52,4 @@ export function getProjects(): ProjectType[] {
       const dateB = parseDate(b.toDate ?? b.fromDate);
       return dateB - dateA;
     });
-}
+});

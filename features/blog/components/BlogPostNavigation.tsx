@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import LinkWrapper from "@/components/LinkWrapper";
 import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,10 +45,10 @@ export default function BlogPostNavigation({
                 className="h-7 w-7 border border-border-edge rounded-md"
                 asChild
               >
-                <Link href={`/blog/${previous.slug}`}>
+                <LinkWrapper href={`/blog/${previous.slug}`}>
                   <ArrowLeftIcon className="h-4 w-4" />
                   <span className="sr-only">Previous: {previous.title}</span>
-                </Link>
+                </LinkWrapper>
               </Button>
             </TooltipTrigger>
 
@@ -74,10 +74,10 @@ export default function BlogPostNavigation({
                 className="h-7 w-7 border border-border-edge rounded-md"
                 asChild
               >
-                <Link href={`/blog/${next.slug}`}>
+                <LinkWrapper href={`/blog/${next.slug}`}>
                   <span className="sr-only">Next: {next.title}</span>
                   <ArrowRightIcon className="h-4 w-4" />
-                </Link>
+                </LinkWrapper>
               </Button>
             </TooltipTrigger>
 

@@ -5,9 +5,9 @@ import { getBaseUrl } from "@/lib/helpers";
 import type { HeadType } from "@/types";
 import type { Metadata } from "next";
 import { getBlogPosts } from "@/features/blog/data/blogSource";
-import { getProducts } from "@/features/shop/data/shopSource";
 import BlogPostList from "@/features/blog/components/BlogPostList";
-import FeaturedProductsSection from "@/features/shop/components/FeaturedProductsSection";
+import FeaturedProductsSectionAsync from "@/features/shop/components/FeaturedProductsSectionAsync";
+import { Suspense } from "react";
 
 // Validate SEO configuration to ensure all required fields are present
 // This helps catch missing or incomplete SEO setup early
@@ -69,7 +69,6 @@ export default async function BlogPage() {
   const posts = getBlogPosts().sort(
     (a, b) => new Date(b.created).getTime() - new Date(a.created).getTime(),
   );
-  const products = getProducts();
 
   // Transform posts to serializable format for client components
   const serializablePosts = posts.map((post) => {
@@ -87,7 +86,9 @@ export default async function BlogPage() {
       <SeparatorHorizontal short={true} />
       <BlogPostList posts={serializablePosts} />
       <SeparatorHorizontal short={true} />
-      <FeaturedProductsSection products={products} />
+      <Suspense>
+        <FeaturedProductsSectionAsync />
+      </Suspense>
       <SeparatorHorizontal short={true} />
       <SeparatorHorizontal borderBottom={false} />
     </>

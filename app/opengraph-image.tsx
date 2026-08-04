@@ -8,9 +8,11 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default async function Image() {
-  // Fetch Font (Inter Bold)
+  // Fetch Font (Inter Bold) - immutable asset, cache for 24h to avoid
+  // re-fetching on every image generation request.
   const fontData = await fetch(
     "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuFuYAZ9hiA.woff2",
+    { next: { revalidate: 86400 } },
   ).then((res) => res.arrayBuffer());
 
   return new ImageResponse(

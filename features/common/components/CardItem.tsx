@@ -10,9 +10,9 @@ import ReadingTimeIcon from "@/features/common/icons/reading-time-icon";
 import { formatDate, getProductCategorySlug } from "@/lib/helpers";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/events";
+import LinkWrapper from "@/components/LinkWrapper";
 import { ArrowRightIcon } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { Button } from "../../../components/ui/button";
 import { Separator } from "../../../components/ui/separator";
 
@@ -117,9 +117,9 @@ const CoverImage = ({
 
   if (href) {
     return (
-      <Link href={href} className="block cursor-pointer">
+      <LinkWrapper href={href} className="block cursor-pointer">
         {content}
-      </Link>
+      </LinkWrapper>
     );
   }
 
@@ -154,14 +154,14 @@ const BlogContent = ({
         )}
       </div>
 
-      <Link href={href} className="group/title block">
+      <LinkWrapper href={href} className="group/title block">
         <CardTitle
           id={`card-title-${index}`}
           className="line-clamp-2 text-lg font-bold leading-tight text-foreground group-hover/title:text-primary transition-colors"
         >
           {item.title}
         </CardTitle>
-      </Link>
+      </LinkWrapper>
 
       <CardDescription className="line-clamp-3 text-sm text-muted-foreground">
         {item.description}
@@ -201,11 +201,11 @@ const BlogContent = ({
             });
           }}
         >
-          <Link href={href} className="group/btn flex items-center gap-1">
+          <LinkWrapper href={href} className="group/btn flex items-center gap-1">
             Read more
             <span className="sr-only"> about {item.title}</span>
             <ArrowRightIcon className="size-3 transition-transform duration-300 group-hover/btn:translate-x-1" />
-          </Link>
+          </LinkWrapper>
         </Button>
       </div>
     </div>
@@ -256,14 +256,14 @@ const ProjectContent = ({
               });
             }}
           >
-            <Link
+            <LinkWrapper
               target="_blank"
               rel="noopener noreferrer"
               href={item.websiteUrl}
             >
               Live Demo
               <span className="sr-only"> of {item.title}</span>
-            </Link>
+            </LinkWrapper>
           </Button>
         )}
       </div>
@@ -324,7 +324,7 @@ const ProductContent = ({
       <div className="flex w-full flex-col gap-2 pt-2">
         {(item.stripePaymentLink || item.purchaseUrl) && (
           <Button asChild className="w-full">
-            <Link
+            <LinkWrapper
               target="_blank"
               rel="noopener noreferrer"
               href={item.stripePaymentLink || item.purchaseUrl || "#"}
@@ -332,14 +332,14 @@ const ProductContent = ({
             >
               Buy Now - ${item.price}
               <span className="sr-only"> purchase {item.title}</span>
-            </Link>
+            </LinkWrapper>
           </Button>
         )}
         <Button variant="outline" asChild className="w-full">
-          <Link href={productHref} onClick={handleSelect}>
+          <LinkWrapper href={productHref} onClick={handleSelect}>
             View Details
             <span className="sr-only"> about {item.title}</span>
-          </Link>
+          </LinkWrapper>
         </Button>
       </div>
     </div>

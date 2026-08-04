@@ -1,7 +1,7 @@
 import { getProductsByCategory, getCategories } from "@/features/shop/data/shopSource";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import CardItem from "@/features/common/components/CardItem";
-import Link from "next/link";
+import LinkWrapper from "@/components/LinkWrapper";
 import { Button } from "@/components/ui/button";
 import { ShoppingCart, Brain, Workflow, Palette, Zap } from "lucide-react";
 import BackgroundDots from "@/features/common/components/BackgroundDots";
@@ -82,9 +82,9 @@ export default function ShopCategories() {
 
                     <div className="mt-6">
                       <Button size="lg" className="w-fit" asChild>
-                        <Link href={`/shop/${getProductCategorySlug(category)}`}>
+                        <LinkWrapper href={`/shop/${getProductCategorySlug(category)}`}>
                           Browse {category}
-                        </Link>
+                        </LinkWrapper>
                       </Button>
                     </div>
                   </CardContent>

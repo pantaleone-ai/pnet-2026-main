@@ -67,6 +67,8 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|llms.txt).*)",
+    // Run middleware only on dynamic/navigational routes, strictly excluding
+    // API routes, Next.js internals, and all static/public assets.
+    "/((?!api|_vercel|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml|llms.txt|rss.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|avif|ico|css|js|mjs|json|txt|xml|woff|woff2|ttf|eot|pdf|zip|webmanifest)$).*)",
   ],
 };

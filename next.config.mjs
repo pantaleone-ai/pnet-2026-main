@@ -93,9 +93,13 @@ const config = {
     ];
   },
   images: {
-    loader: "default", // Prevents Vercel's optimization
-    unoptimized: true, // Disables all image optimizations globally
+    // Keep images fully unoptimized (zero Image Optimization requests on
+    // Vercel); originals are served directly from the edge/CDN.
+    loader: "default",
+    unoptimized: true,
   },
+  // Brotli/gzip compression for text responses served from the edge.
+  compress: true,
   async headers() {
     return [
       {

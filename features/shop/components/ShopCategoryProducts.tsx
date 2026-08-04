@@ -1,7 +1,7 @@
 import { getProductsByCategory } from "@/features/shop/data/shopSource";
 import CardItem from "@/features/common/components/CardItem";
 import BackgroundDots from "@/features/common/components/BackgroundDots";
-import Link from "next/link";
+import LinkWrapper from "@/components/LinkWrapper";
 import ProductListViewTracker from "./ProductListViewTracker";
 
 export default function ShopCategoryProducts({ category }: { category: string }) {
@@ -33,9 +33,9 @@ export default function ShopCategoryProducts({ category }: { category: string })
         ) : (
           <div className="text-center py-8">
             <p className="text-muted-foreground">No products found in this category.</p>
-            <Link href="/shop" className="text-primary hover:underline mt-2 inline-block">
+            <LinkWrapper href="/shop" className="text-primary hover:underline mt-2 inline-block">
               Browse all products
-            </Link>
+            </LinkWrapper>
           </div>
         )}
       </section>

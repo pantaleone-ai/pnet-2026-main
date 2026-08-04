@@ -1,5 +1,6 @@
 import { blog } from "@/.source/server";
 import type { BlogPostType } from "@/features/blog/types/BlogPostType";
+import { cache } from "react";
 import fs from "fs";
 import type { Source, SourceConfig } from "fumadocs-core/source";
 import { loader } from "fumadocs-core/source";
@@ -18,7 +19,7 @@ export const blogSource = loader({
 
 type BlogPage = ReturnType<typeof blogSource.getPages>[number];
 
-export function getBlogPosts(): BlogPostType[] {
+export const getBlogPosts = cache(function getBlogPosts(): BlogPostType[] {
   return blogSource.getPages().map((page) => {
     const data = page.data as unknown as BlogPostFrontmatter & {
       body: React.ComponentType<object>;
@@ -83,4 +84,4 @@ export function getBlogPosts(): BlogPostType[] {
       slug,
     };
   });
-}
+});
