@@ -23,6 +23,9 @@ function SectionFallback() {
   );
 }
 
+// Content is static MDX from the repo - force static, no ISR reads.
+export const dynamic = "force-static";
+
 export default function Home() {
   return (
     <>

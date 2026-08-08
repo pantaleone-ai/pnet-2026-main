@@ -3,9 +3,11 @@ import { getProducts } from "@/features/shop/data/shopSource";
 import { getBaseUrl } from "@/lib/helpers";
 import { Feed } from "feed";
 
-export const revalidate = 86400; // 24 hours
+// Content changes require a redeploy, so the feed is only built at
+// deploy time. No time-based revalidation means no ISR reads.
+export const dynamic = "force-static";
 
-// Fixed date to avoid non-deterministic ISR output
+// Fixed date to avoid non-deterministic static output
 const BUILD_DATE = new Date("2026-07-29");
 
 export async function GET() {
@@ -56,6 +58,7 @@ export async function GET() {
   return new Response(feed.rss2(), {
     headers: {
       "Content-Type": "application/xml",
+      "Cache-Control": "public, s-maxage=604800, stale-while-revalidate=604800",
     },
   });
 }

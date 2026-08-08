@@ -13,6 +13,9 @@ if (!HEAD || HEAD.length === 0) {
   console.error("⚠️ HEAD configuration is missing or empty");
 }
 
+// Content is static MDX from the repo - force static prerender, no ISR reads.
+export const dynamic = "force-static";
+
 // Define the current page for SEO configuration
 const PAGE = "Shop";
 

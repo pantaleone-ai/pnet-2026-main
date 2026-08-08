@@ -36,6 +36,11 @@ export const metadata: Metadata = {
 
 // Categories are derived from static content, so pre-render them at build
 // time instead of server-rendering on every request.
+export const dynamic = "force-static";
+
+// Unknown category paths 404 statically instead of triggering ISR generation.
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return getCategories().map((category) => ({
     category: getProductCategorySlug(category),

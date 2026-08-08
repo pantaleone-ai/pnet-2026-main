@@ -21,6 +21,10 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import type { BlogPosting, WithContext } from "schema-dts";
 
+// Only pre-render slugs that exist in the repo; anything else 404s
+// statically instead of triggering on-demand ISR generation.
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
   const posts = getBlogPosts();
   return posts.map((post) => ({
