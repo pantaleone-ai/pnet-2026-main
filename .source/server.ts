@@ -1,57 +1,61 @@
 // @ts-nocheck
-import * as __fd_glob_60 from "../features/shop/content/ai-workflows/leaked-system-prompt-pack-claude-v0.mdx?collection=shop"
-import * as __fd_glob_59 from "../features/shop/content/ai-workflows/5000-n8n-workflows-automation-bundle.mdx?collection=shop"
-import * as __fd_glob_58 from "../features/shop/content/ai-workflows/100k-ai-prompts-pack.mdx?collection=shop"
-import * as __fd_glob_57 from "../features/shop/content/ai-apps/vision-deck-custom-ppt-platform-mdx.mdx?collection=shop"
-import * as __fd_glob_56 from "../features/shop/content/ai-apps/skillsnap-guide.mdx?collection=shop"
-import * as __fd_glob_55 from "../features/shop/content/ai-apps/qr-generator-tool.mdx?collection=shop"
-import * as __fd_glob_54 from "../features/shop/content/ai-apps/profitsignals-app.mdx?collection=shop"
-import * as __fd_glob_53 from "../features/shop/content/ai-apps/nextjs-ai-starter-app.mdx?collection=shop"
-import * as __fd_glob_52 from "../features/shop/content/ai-apps/mixphd-app.mdx?collection=shop"
-import * as __fd_glob_51 from "../features/shop/content/ai-apps/migratecms-tool.mdx?collection=shop"
-import * as __fd_glob_50 from "../features/shop/content/ai-apps/imgsquash-tool.mdx?collection=shop"
-import * as __fd_glob_49 from "../features/about/content/web-apps/portfolio-website-v3.mdx?collection=about"
-import * as __fd_glob_48 from "../features/about/content/web-apps/portfolio-website-v2.mdx?collection=about"
-import * as __fd_glob_47 from "../features/about/content/web-apps/portfolio-website-v1.mdx?collection=about"
-import * as __fd_glob_46 from "../features/about/content/web-apps/full-stack-blog-app.mdx?collection=about"
-import * as __fd_glob_45 from "../features/about/content/about.mdx?collection=about"
-import * as __fd_glob_44 from "../features/about/content/web-apps/portfolio-website-v3.mdx?collection=webApps"
-import * as __fd_glob_43 from "../features/about/content/web-apps/portfolio-website-v2.mdx?collection=webApps"
-import * as __fd_glob_42 from "../features/about/content/web-apps/portfolio-website-v1.mdx?collection=webApps"
-import * as __fd_glob_41 from "../features/about/content/web-apps/full-stack-blog-app.mdx?collection=webApps"
-import * as __fd_glob_40 from "../features/projects/content/skillsnap-increase-ai-skills.mdx?collection=projects"
-import * as __fd_glob_39 from "../features/projects/content/qrcode-generator-free-nextjs15-tailwind.mdx?collection=projects"
-import * as __fd_glob_38 from "../features/projects/content/profitsignals-ai-chat-agent.mdx?collection=projects"
-import * as __fd_glob_37 from "../features/projects/content/pantaleonenet.mdx?collection=projects"
-import * as __fd_glob_36 from "../features/projects/content/mixphd.mdx?collection=projects"
-import * as __fd_glob_35 from "../features/projects/content/migratecms-migrate-anycms-to-nextjs.mdx?collection=projects"
-import * as __fd_glob_34 from "../features/projects/content/imgsquash.mdx?collection=projects"
-import * as __fd_glob_33 from "../features/projects/content/ai-saas-starter-nextjs-betterauth-supabase-free-boilerplate.mdx?collection=projects"
-import * as __fd_glob_32 from "../features/projects/content/agentdna-enterprise-ai-agent-stack.mdx?collection=projects"
-import * as __fd_glob_31 from "../features/privacy/content/terms.mdx?collection=privacy"
-import * as __fd_glob_30 from "../features/privacy/content/privacy.mdx?collection=privacy"
-import * as __fd_glob_29 from "../features/home/content/featured-apps/qr-code-generator.mdx?collection=featuredApps"
-import * as __fd_glob_28 from "../features/home/content/featured-apps/profitsignals-ai-agent.mdx?collection=featuredApps"
-import * as __fd_glob_27 from "../features/home/content/featured-apps/nextjs-saas-starter.mdx?collection=featuredApps"
-import * as __fd_glob_26 from "../features/experience/content/experience.mdx?collection=experience"
-import * as __fd_glob_25 from "../features/education/content/education.mdx?collection=education"
-import * as __fd_glob_24 from "../features/changelog/content/changelog.mdx?collection=changelog"
-import * as __fd_glob_23 from "../features/blog/content/veo3-prompt-playbook-json-prompts-for-brand-alignment.mdx?collection=blog"
-import * as __fd_glob_22 from "../features/blog/content/v0-system-ai-prompt-analysis.mdx?collection=blog"
-import * as __fd_glob_21 from "../features/blog/content/private-ai-stack-setup-in-minutes.mdx?collection=blog"
-import * as __fd_glob_20 from "../features/blog/content/modern-saas-boilerplate-easy-setup-instructions.mdx?collection=blog"
-import * as __fd_glob_19 from "../features/blog/content/mcp-ai-server-for-highquality-ai.mdx?collection=blog"
-import * as __fd_glob_18 from "../features/blog/content/llms-txt-for-ai-agent-discovery-and-optimization.mdx?collection=blog"
-import * as __fd_glob_17 from "../features/blog/content/leaders-are-builders-time-to-lead.mdx?collection=blog"
-import * as __fd_glob_16 from "../features/blog/content/grok-4-systep-prompt-analysis-tips-prompting-tricks.mdx?collection=blog"
-import * as __fd_glob_15 from "../features/blog/content/gpt5-system-prompt-leak.mdx?collection=blog"
-import * as __fd_glob_14 from "../features/blog/content/free-authentication-nextjs-ai-agent-saas-app-quickstart.mdx?collection=blog"
-import * as __fd_glob_13 from "../features/blog/content/creative-coding.mdx?collection=blog"
-import * as __fd_glob_12 from "../features/blog/content/code-prompt-bytes.mdx?collection=blog"
-import * as __fd_glob_11 from "../features/blog/content/claude-sonnet4-5-improve-quality.mdx?collection=blog"
-import * as __fd_glob_10 from "../features/blog/content/claude-sonnet-4-5-system-prompt-analysis.mdx?collection=blog"
-import * as __fd_glob_9 from "../features/blog/content/claude-opus-4.6-system-prompt-analysis-tuning-insights-template.mdx?collection=blog"
-import * as __fd_glob_8 from "../features/blog/content/claude-opus-4.5-system-prompt-analysis-prompt-tips-tricks.mdx?collection=blog"
+import * as __fd_glob_64 from "../features/shop/content/ai-apps/vision-deck-custom-ppt-platform-mdx.mdx?collection=shop"
+import * as __fd_glob_63 from "../features/shop/content/ai-apps/skillsnap-guide.mdx?collection=shop"
+import * as __fd_glob_62 from "../features/shop/content/ai-apps/qr-generator-tool.mdx?collection=shop"
+import * as __fd_glob_61 from "../features/shop/content/ai-apps/profitsignals-app.mdx?collection=shop"
+import * as __fd_glob_60 from "../features/shop/content/ai-apps/nextjs-ai-starter-app.mdx?collection=shop"
+import * as __fd_glob_59 from "../features/shop/content/ai-apps/mixphd-app.mdx?collection=shop"
+import * as __fd_glob_58 from "../features/shop/content/ai-apps/migratecms-tool.mdx?collection=shop"
+import * as __fd_glob_57 from "../features/shop/content/ai-apps/imgsquash-tool.mdx?collection=shop"
+import * as __fd_glob_56 from "../features/shop/content/ai-workflows/nano-banana-pro-10000-prompts.mdx?collection=shop"
+import * as __fd_glob_55 from "../features/shop/content/ai-workflows/leaked-system-prompt-pack-claude-v0.mdx?collection=shop"
+import * as __fd_glob_54 from "../features/shop/content/ai-workflows/5000-n8n-workflows-automation-bundle.mdx?collection=shop"
+import * as __fd_glob_53 from "../features/shop/content/ai-workflows/100k-ai-prompts-pack.mdx?collection=shop"
+import * as __fd_glob_52 from "../features/about/content/web-apps/portfolio-website-v3.mdx?collection=about"
+import * as __fd_glob_51 from "../features/about/content/web-apps/portfolio-website-v2.mdx?collection=about"
+import * as __fd_glob_50 from "../features/about/content/web-apps/portfolio-website-v1.mdx?collection=about"
+import * as __fd_glob_49 from "../features/about/content/web-apps/full-stack-blog-app.mdx?collection=about"
+import * as __fd_glob_48 from "../features/about/content/about.mdx?collection=about"
+import * as __fd_glob_47 from "../features/about/content/web-apps/portfolio-website-v3.mdx?collection=webApps"
+import * as __fd_glob_46 from "../features/about/content/web-apps/portfolio-website-v2.mdx?collection=webApps"
+import * as __fd_glob_45 from "../features/about/content/web-apps/portfolio-website-v1.mdx?collection=webApps"
+import * as __fd_glob_44 from "../features/about/content/web-apps/full-stack-blog-app.mdx?collection=webApps"
+import * as __fd_glob_43 from "../features/projects/content/skillsnap-increase-ai-skills.mdx?collection=projects"
+import * as __fd_glob_42 from "../features/projects/content/qrcode-generator-free-nextjs15-tailwind.mdx?collection=projects"
+import * as __fd_glob_41 from "../features/projects/content/profitsignals-ai-chat-agent.mdx?collection=projects"
+import * as __fd_glob_40 from "../features/projects/content/pantaleonenet.mdx?collection=projects"
+import * as __fd_glob_39 from "../features/projects/content/mixphd.mdx?collection=projects"
+import * as __fd_glob_38 from "../features/projects/content/migratecms-migrate-anycms-to-nextjs.mdx?collection=projects"
+import * as __fd_glob_37 from "../features/projects/content/imgsquash.mdx?collection=projects"
+import * as __fd_glob_36 from "../features/projects/content/ai-saas-starter-nextjs-betterauth-supabase-free-boilerplate.mdx?collection=projects"
+import * as __fd_glob_35 from "../features/projects/content/agentdna-enterprise-ai-agent-stack.mdx?collection=projects"
+import * as __fd_glob_34 from "../features/privacy/content/terms.mdx?collection=privacy"
+import * as __fd_glob_33 from "../features/privacy/content/privacy.mdx?collection=privacy"
+import * as __fd_glob_32 from "../features/home/content/featured-apps/qr-code-generator.mdx?collection=featuredApps"
+import * as __fd_glob_31 from "../features/home/content/featured-apps/profitsignals-ai-agent.mdx?collection=featuredApps"
+import * as __fd_glob_30 from "../features/home/content/featured-apps/nextjs-saas-starter.mdx?collection=featuredApps"
+import * as __fd_glob_29 from "../features/experience/content/experience.mdx?collection=experience"
+import * as __fd_glob_28 from "../features/education/content/education.mdx?collection=education"
+import * as __fd_glob_27 from "../features/changelog/content/changelog.mdx?collection=changelog"
+import * as __fd_glob_26 from "../features/blog/content/veo3-prompt-playbook-json-prompts-for-brand-alignment.mdx?collection=blog"
+import * as __fd_glob_25 from "../features/blog/content/v0-system-ai-prompt-analysis.mdx?collection=blog"
+import * as __fd_glob_24 from "../features/blog/content/private-ai-stack-setup-in-minutes.mdx?collection=blog"
+import * as __fd_glob_23 from "../features/blog/content/nano-banana-pro-prompt-collection.mdx?collection=blog"
+import * as __fd_glob_22 from "../features/blog/content/modern-saas-boilerplate-easy-setup-instructions.mdx?collection=blog"
+import * as __fd_glob_21 from "../features/blog/content/mcp-ai-server-for-highquality-ai.mdx?collection=blog"
+import * as __fd_glob_20 from "../features/blog/content/llms-txt-for-ai-agent-discovery-and-optimization.mdx?collection=blog"
+import * as __fd_glob_19 from "../features/blog/content/leaders-are-builders-time-to-lead.mdx?collection=blog"
+import * as __fd_glob_18 from "../features/blog/content/grok-4-systep-prompt-analysis-tips-prompting-tricks.mdx?collection=blog"
+import * as __fd_glob_17 from "../features/blog/content/gpt5-system-prompt-leak.mdx?collection=blog"
+import * as __fd_glob_16 from "../features/blog/content/free-authentication-nextjs-ai-agent-saas-app-quickstart.mdx?collection=blog"
+import * as __fd_glob_15 from "../features/blog/content/creative-coding.mdx?collection=blog"
+import * as __fd_glob_14 from "../features/blog/content/code-prompt-bytes.mdx?collection=blog"
+import * as __fd_glob_13 from "../features/blog/content/claude-sonnet4-5-improve-quality.mdx?collection=blog"
+import * as __fd_glob_12 from "../features/blog/content/claude-sonnet-4-5-system-prompt-analysis.mdx?collection=blog"
+import * as __fd_glob_11 from "../features/blog/content/claude-opus-4.6-system-prompt-analysis-tuning-insights-template.mdx?collection=blog"
+import * as __fd_glob_10 from "../features/blog/content/claude-opus-4.5-system-prompt-analysis-prompt-tips-tricks.mdx?collection=blog"
+import * as __fd_glob_9 from "../features/blog/content/claude-opus-4-7-system-prompt-analysis.mdx?collection=blog"
+import * as __fd_glob_8 from "../features/blog/content/claude-code-leak-agent-architecture.mdx?collection=blog"
 import * as __fd_glob_7 from "../features/blog/content/best-practices-for-local-redis-use-with-local-N8N.mdx?collection=blog"
 import * as __fd_glob_6 from "../features/blog/content/best-open-source-ways-to-create-synthetic-audiences.mdx?collection=blog"
 import * as __fd_glob_5 from "../features/blog/content/aisystem-prompts-hidden-blueprint.mdx?collection=blog"
@@ -141,22 +145,22 @@ const create = server<typeof Config, import("fumadocs-mdx/runtime/types").Intern
   }
 }>({"doc":{"passthroughs":["extractedReferences","lastModified"]}});
 
-export const about = await create.docs("about", "features/about/content", {}, {"about.mdx": __fd_glob_45, "web-apps/full-stack-blog-app.mdx": __fd_glob_46, "web-apps/portfolio-website-v1.mdx": __fd_glob_47, "web-apps/portfolio-website-v2.mdx": __fd_glob_48, "web-apps/portfolio-website-v3.mdx": __fd_glob_49, });
+export const about = await create.docs("about", "features/about/content", {}, {"about.mdx": __fd_glob_48, "web-apps/full-stack-blog-app.mdx": __fd_glob_49, "web-apps/portfolio-website-v1.mdx": __fd_glob_50, "web-apps/portfolio-website-v2.mdx": __fd_glob_51, "web-apps/portfolio-website-v3.mdx": __fd_glob_52, });
 
-export const blog = await create.docs("blog", "features/blog/content", {}, {"100k-ai-prompts-claude-gpt-gemini-expert-system.mdx": __fd_glob_0, "activate-top-oauth-providers-inapp.mdx": __fd_glob_1, "agentdna-enterprise-ai-agent-infrastructure.mdx": __fd_glob_2, "ai-agent-workflows.mdx": __fd_glob_3, "ai-companies.mdx": __fd_glob_4, "aisystem-prompts-hidden-blueprint.mdx": __fd_glob_5, "best-open-source-ways-to-create-synthetic-audiences.mdx": __fd_glob_6, "best-practices-for-local-redis-use-with-local-N8N.mdx": __fd_glob_7, "claude-opus-4.5-system-prompt-analysis-prompt-tips-tricks.mdx": __fd_glob_8, "claude-opus-4.6-system-prompt-analysis-tuning-insights-template.mdx": __fd_glob_9, "claude-sonnet-4-5-system-prompt-analysis.mdx": __fd_glob_10, "claude-sonnet4-5-improve-quality.mdx": __fd_glob_11, "code-prompt-bytes.mdx": __fd_glob_12, "creative-coding.mdx": __fd_glob_13, "free-authentication-nextjs-ai-agent-saas-app-quickstart.mdx": __fd_glob_14, "gpt5-system-prompt-leak.mdx": __fd_glob_15, "grok-4-systep-prompt-analysis-tips-prompting-tricks.mdx": __fd_glob_16, "leaders-are-builders-time-to-lead.mdx": __fd_glob_17, "llms-txt-for-ai-agent-discovery-and-optimization.mdx": __fd_glob_18, "mcp-ai-server-for-highquality-ai.mdx": __fd_glob_19, "modern-saas-boilerplate-easy-setup-instructions.mdx": __fd_glob_20, "private-ai-stack-setup-in-minutes.mdx": __fd_glob_21, "v0-system-ai-prompt-analysis.mdx": __fd_glob_22, "veo3-prompt-playbook-json-prompts-for-brand-alignment.mdx": __fd_glob_23, });
+export const blog = await create.docs("blog", "features/blog/content", {}, {"100k-ai-prompts-claude-gpt-gemini-expert-system.mdx": __fd_glob_0, "activate-top-oauth-providers-inapp.mdx": __fd_glob_1, "agentdna-enterprise-ai-agent-infrastructure.mdx": __fd_glob_2, "ai-agent-workflows.mdx": __fd_glob_3, "ai-companies.mdx": __fd_glob_4, "aisystem-prompts-hidden-blueprint.mdx": __fd_glob_5, "best-open-source-ways-to-create-synthetic-audiences.mdx": __fd_glob_6, "best-practices-for-local-redis-use-with-local-N8N.mdx": __fd_glob_7, "claude-code-leak-agent-architecture.mdx": __fd_glob_8, "claude-opus-4-7-system-prompt-analysis.mdx": __fd_glob_9, "claude-opus-4.5-system-prompt-analysis-prompt-tips-tricks.mdx": __fd_glob_10, "claude-opus-4.6-system-prompt-analysis-tuning-insights-template.mdx": __fd_glob_11, "claude-sonnet-4-5-system-prompt-analysis.mdx": __fd_glob_12, "claude-sonnet4-5-improve-quality.mdx": __fd_glob_13, "code-prompt-bytes.mdx": __fd_glob_14, "creative-coding.mdx": __fd_glob_15, "free-authentication-nextjs-ai-agent-saas-app-quickstart.mdx": __fd_glob_16, "gpt5-system-prompt-leak.mdx": __fd_glob_17, "grok-4-systep-prompt-analysis-tips-prompting-tricks.mdx": __fd_glob_18, "leaders-are-builders-time-to-lead.mdx": __fd_glob_19, "llms-txt-for-ai-agent-discovery-and-optimization.mdx": __fd_glob_20, "mcp-ai-server-for-highquality-ai.mdx": __fd_glob_21, "modern-saas-boilerplate-easy-setup-instructions.mdx": __fd_glob_22, "nano-banana-pro-prompt-collection.mdx": __fd_glob_23, "private-ai-stack-setup-in-minutes.mdx": __fd_glob_24, "v0-system-ai-prompt-analysis.mdx": __fd_glob_25, "veo3-prompt-playbook-json-prompts-for-brand-alignment.mdx": __fd_glob_26, });
 
-export const changelog = await create.docs("changelog", "features/changelog/content", {}, {"changelog.mdx": __fd_glob_24, });
+export const changelog = await create.docs("changelog", "features/changelog/content", {}, {"changelog.mdx": __fd_glob_27, });
 
-export const education = await create.docs("education", "features/education/content", {}, {"education.mdx": __fd_glob_25, });
+export const education = await create.docs("education", "features/education/content", {}, {"education.mdx": __fd_glob_28, });
 
-export const experience = await create.docs("experience", "features/experience/content", {}, {"experience.mdx": __fd_glob_26, });
+export const experience = await create.docs("experience", "features/experience/content", {}, {"experience.mdx": __fd_glob_29, });
 
-export const featuredApps = await create.docs("featuredApps", "features/home/content/featured-apps", {}, {"nextjs-saas-starter.mdx": __fd_glob_27, "profitsignals-ai-agent.mdx": __fd_glob_28, "qr-code-generator.mdx": __fd_glob_29, });
+export const featuredApps = await create.docs("featuredApps", "features/home/content/featured-apps", {}, {"nextjs-saas-starter.mdx": __fd_glob_30, "profitsignals-ai-agent.mdx": __fd_glob_31, "qr-code-generator.mdx": __fd_glob_32, });
 
-export const privacy = await create.docs("privacy", "features/privacy/content", {}, {"privacy.mdx": __fd_glob_30, "terms.mdx": __fd_glob_31, });
+export const privacy = await create.docs("privacy", "features/privacy/content", {}, {"privacy.mdx": __fd_glob_33, "terms.mdx": __fd_glob_34, });
 
-export const projects = await create.docs("projects", "features/projects/content", {}, {"agentdna-enterprise-ai-agent-stack.mdx": __fd_glob_32, "ai-saas-starter-nextjs-betterauth-supabase-free-boilerplate.mdx": __fd_glob_33, "imgsquash.mdx": __fd_glob_34, "migratecms-migrate-anycms-to-nextjs.mdx": __fd_glob_35, "mixphd.mdx": __fd_glob_36, "pantaleonenet.mdx": __fd_glob_37, "profitsignals-ai-chat-agent.mdx": __fd_glob_38, "qrcode-generator-free-nextjs15-tailwind.mdx": __fd_glob_39, "skillsnap-increase-ai-skills.mdx": __fd_glob_40, });
+export const projects = await create.docs("projects", "features/projects/content", {}, {"agentdna-enterprise-ai-agent-stack.mdx": __fd_glob_35, "ai-saas-starter-nextjs-betterauth-supabase-free-boilerplate.mdx": __fd_glob_36, "imgsquash.mdx": __fd_glob_37, "migratecms-migrate-anycms-to-nextjs.mdx": __fd_glob_38, "mixphd.mdx": __fd_glob_39, "pantaleonenet.mdx": __fd_glob_40, "profitsignals-ai-chat-agent.mdx": __fd_glob_41, "qrcode-generator-free-nextjs15-tailwind.mdx": __fd_glob_42, "skillsnap-increase-ai-skills.mdx": __fd_glob_43, });
 
-export const shop = await create.docs("shop", "features/shop/content", {}, {"ai-apps/imgsquash-tool.mdx": __fd_glob_50, "ai-apps/migratecms-tool.mdx": __fd_glob_51, "ai-apps/mixphd-app.mdx": __fd_glob_52, "ai-apps/nextjs-ai-starter-app.mdx": __fd_glob_53, "ai-apps/profitsignals-app.mdx": __fd_glob_54, "ai-apps/qr-generator-tool.mdx": __fd_glob_55, "ai-apps/skillsnap-guide.mdx": __fd_glob_56, "ai-apps/vision-deck-custom-ppt-platform-mdx.mdx": __fd_glob_57, "ai-workflows/100k-ai-prompts-pack.mdx": __fd_glob_58, "ai-workflows/5000-n8n-workflows-automation-bundle.mdx": __fd_glob_59, "ai-workflows/leaked-system-prompt-pack-claude-v0.mdx": __fd_glob_60, });
+export const shop = await create.docs("shop", "features/shop/content", {}, {"ai-workflows/100k-ai-prompts-pack.mdx": __fd_glob_53, "ai-workflows/5000-n8n-workflows-automation-bundle.mdx": __fd_glob_54, "ai-workflows/leaked-system-prompt-pack-claude-v0.mdx": __fd_glob_55, "ai-workflows/nano-banana-pro-10000-prompts.mdx": __fd_glob_56, "ai-apps/imgsquash-tool.mdx": __fd_glob_57, "ai-apps/migratecms-tool.mdx": __fd_glob_58, "ai-apps/mixphd-app.mdx": __fd_glob_59, "ai-apps/nextjs-ai-starter-app.mdx": __fd_glob_60, "ai-apps/profitsignals-app.mdx": __fd_glob_61, "ai-apps/qr-generator-tool.mdx": __fd_glob_62, "ai-apps/skillsnap-guide.mdx": __fd_glob_63, "ai-apps/vision-deck-custom-ppt-platform-mdx.mdx": __fd_glob_64, });
 
-export const webApps = await create.docs("webApps", "features/about/content/web-apps", {}, {"full-stack-blog-app.mdx": __fd_glob_41, "portfolio-website-v1.mdx": __fd_glob_42, "portfolio-website-v2.mdx": __fd_glob_43, "portfolio-website-v3.mdx": __fd_glob_44, });
+export const webApps = await create.docs("webApps", "features/about/content/web-apps", {}, {"full-stack-blog-app.mdx": __fd_glob_44, "portfolio-website-v1.mdx": __fd_glob_45, "portfolio-website-v2.mdx": __fd_glob_46, "portfolio-website-v3.mdx": __fd_glob_47, });

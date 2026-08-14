@@ -5,7 +5,7 @@ import type { ShopProduct } from "../types/ShopProduct";
 import fs from "fs";
 import path from "path";
 import readingTime from "reading-time";
-import React from "react";
+import type React from "react";
 
 const shopDocs = shop as unknown as { toFumadocsSource: () => unknown };
 

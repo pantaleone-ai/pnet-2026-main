@@ -1,4 +1,4 @@
-import { Product, Organization, BreadcrumbList } from "schema-dts";
+import type { Product, Organization, BreadcrumbList } from "schema-dts";
 import type { MerchantProduct, BreadcrumbItem } from "./merchant-types";
 import {
   buildProductSchema,
