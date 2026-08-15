@@ -5,9 +5,10 @@ import HeadingTitle from "@/components/HeadingTitle";
 import FeaturedApps from "@/features/home/components/FeaturedApps";
 import FeaturedProducts from "@/features/home/components/FeaturedProducts";
 import FeaturedStoriesWrapper from "@/features/home/components/FeaturedStoriesWrapper";
-// import { WhatPeopleSay } from "@/features/home/components/WhatPeopleSay";
+import { WhatPeopleSay } from "@/features/home/components/WhatPeopleSay";
 // import { FaqSection } from "@/features/home/components/FAQ";
 import LatestBlogPosts from "@/features/home/components/LatestBlogPosts";
+import ClientLogos from "@/features/home/components/ClientLogos";
 
 export default function Home() {
   return (
@@ -29,9 +30,11 @@ export default function Home() {
       <SeparatorHorizontal short={true} />
       <LatestBlogPosts />
       <SeparatorHorizontal short={true} />
-      {/* <HeadingTitle title="What People Are Saying" />
+      <ClientLogos />
       <SeparatorHorizontal short={true} />
-      <WhatPeopleSay /> */}
+      <HeadingTitle title="What People Are Saying" />
+      <SeparatorHorizontal short={true} />
+      <WhatPeopleSay />
       {/* <SeparatorHorizontal /> */}
       {/* <HeadingTitle title="FAQ" />
       <SeparatorHorizontal short={true} />

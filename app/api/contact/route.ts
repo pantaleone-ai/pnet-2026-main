@@ -70,8 +70,8 @@ export async function POST(request: Request) {
 
     const resend = getResendClient();
     const { data, error } = await resend.emails.send({
-      from: "Portfolio Contact <contact@hiretimsf.com>",
-      to: process.env.CONTACT_EMAIL || "hiretimsf@gmail.com",
+      from: "Portfolio Contact <contact@pantaleone.net>",
+      to: process.env.CONTACT_EMAIL || "matt@pantaleone.net",
       subject: `New Contact Form Submission from ${sanitizedName}`,
       replyTo: email,
       html: `

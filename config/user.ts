@@ -16,7 +16,7 @@ export const USER: User = {
   ],
   address: "United States", 
   phoneNumber: "", // E.164 format, base64 encoded
-  email: "mdptrading@gmail.com",
+  email: "matt@pantaleone.net",
   website: "https://pantaleone.net",
   jobTitle: "Founder & Lead Developer",
   jobs: [

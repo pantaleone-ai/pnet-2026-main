@@ -7,6 +7,8 @@ import { IoCheckmarkCircle as CheckmarkIcon } from "react-icons/io5";
 import { useAnimationFrame } from "framer-motion";
 import { useTheme } from "next-themes";
 import { META_THEME_COLORS } from "@/config/theme";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 function HeroContent() {
   return (
@@ -22,6 +24,12 @@ function HeroContent() {
         We design and deploy autonomous agents, workflow automation, and AI-powered platforms for companies that need operations to scale without adding headcount.
       </p>
       <p className="text-foreground/80 px-4 text-lg/8 text-left py-4 pb-10">N8N workflows. LangChain pipelines. Custom LLM integrations. Built to ship, not to demo.</p>
+
+      <div className="px-4 py-4">
+        <Button asChild size="lg" className="w-full sm:w-auto">
+          <Link href="/contact">Book a Discovery Call</Link>
+        </Button>
+      </div>
 
       <ul
         className="text-foreground space-y-2 divide-y divide-dashed divide-border-edge"

@@ -10,7 +10,7 @@ import type { SocialLinkType } from "@/types";
 
 const SOCIAL_LINKS: SocialLinkType[] = [
   {
-    href: "mailto:mdptrading@gmail.com",
+    href: "mailto:matt@pantaleone.net",
     icon: EmailIcon,
     label: "Email",
   },

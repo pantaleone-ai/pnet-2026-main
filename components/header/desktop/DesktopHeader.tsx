@@ -19,6 +19,8 @@ import React, { memo, useCallback } from "react";
 import NavigationAbout from "./navigations/about/NavigationAbout";
 import NavigationConsulting from "./navigations/consulting/NavigationConsulting";
 import NavigationShop from "./navigations/shop/NavigationShop";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 interface Props {
   activePath: string;
 }
@@ -117,6 +119,10 @@ const DesktopHeader: FC<Props> = memo(({ activePath }) => {
           <SearchButton />
           <span className="mx-2 flex h-4 w-px bg-border" />
           <ThemeToggle />
+          <span className="mx-2 flex h-4 w-px bg-border" />
+          <Button asChild size="sm" variant="default">
+            <Link href="/contact">Contact</Link>
+          </Button>
         </div>
       </div>
     </NavigationMenu>
