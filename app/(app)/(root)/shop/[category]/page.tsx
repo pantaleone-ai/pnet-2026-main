@@ -1,8 +1,12 @@
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
 import ShopCategoryProducts from "@/features/shop/components/ShopCategoryProducts";
-import { getCategories } from "@/features/shop/data/shopSource";
+import {
+  getCategories,
+  getProductsByCategory,
+} from "@/features/shop/data/shopSource";
 import { getBaseUrl, getProductCategorySlug } from "@/lib/helpers";
+import { ProductListJsonLd } from "@/lib/schema/json-ld";
 import type { HeadType } from "@/types";
 import type { Metadata } from "next";
 import HeadingTitle from "@/components/HeadingTitle";
@@ -63,9 +67,11 @@ export default async function ShopCategoryPage({
 
   const { category } = await params;
   const categoryName = category ? formatCategoryName(category) : "";
+  const products = getProductsByCategory(categoryName);
 
   return (
     <>
+      <ProductListJsonLd products={products} categoryName={categoryName} />
       <SeparatorHorizontal borderTop={false} />
       <HeadingTitle title={`Shop - ${categoryName}`} />
       <SeparatorHorizontal short={true} />
