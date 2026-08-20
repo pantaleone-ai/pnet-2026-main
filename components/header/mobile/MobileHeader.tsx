@@ -2,6 +2,8 @@ import MenuButton from "@/components/header/mobile/MenuButton";
 import LogoButton from "@/components/header/shared/LogoButton";
 import SearchButton from "@/components/header/shared/SearchButton";
 import ThemeToggle from "@/components/header/shared/ThemeToggle";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import type { FC } from "react";
 
 interface Props {
@@ -29,6 +31,9 @@ const MobileHeader: FC<Props> = ({ currentPath, isOpen, onOpenChange }) => {
           <SearchButton />
           <span className="mx-2 flex h-4 w-px bg-border" />
           <ThemeToggle />
+          <Button asChild size="sm" variant="default">
+            <Link href="/contact">Contact</Link>
+          </Button>
         </div>
       </div>
     </nav>

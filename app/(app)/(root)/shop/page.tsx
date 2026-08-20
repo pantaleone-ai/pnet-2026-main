@@ -2,6 +2,8 @@ import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
 import ShopHero from "@/features/shop/components/ShopHero";
 import ShopCategories from "@/features/shop/components/ShopCategories";
+import { getProducts } from "@/features/shop/data/shopSource";
+import { ProductListJsonLd } from "@/lib/schema/json-ld";
 import { getBaseUrl } from "@/lib/helpers";
 import type { HeadType } from "@/types";
 import type { Metadata } from "next";
@@ -38,8 +40,11 @@ export const metadata: Metadata = {
 };
 
 export default async function ShopPage() {
+  const products = getProducts();
+
   return (
     <>
+      <ProductListJsonLd products={products} />
       <SeparatorHorizontal borderTop={false} />
       <HeadingTitle title="Shop" />
       <SeparatorHorizontal short={true} />

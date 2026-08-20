@@ -1,4 +1,3 @@
-/*
 import HeadingTitle from "@/components/HeadingTitle";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
@@ -57,11 +56,4 @@ export default async function ContactPage() {
       <SeparatorHorizontal borderBottom={false} />
     </>
   );
-}
-*/
-
-export const dynamic = "force-static";
-
-export default function ContactPage() {
-  return null;
 }

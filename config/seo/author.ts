@@ -3,7 +3,7 @@ const AUTHOR = {
   twitterUrl: "https://x.com/m_pantaleone",
   twitterAddress: "@m_pantaleone",
   githubUrl: "https://github.com/pantaleone-ai",
-  email: "mdptrading@gmail.com",
+  email: "matt@pantaleone.net",
 };
 
 export default AUTHOR;

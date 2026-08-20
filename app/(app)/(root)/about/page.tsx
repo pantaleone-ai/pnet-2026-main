@@ -110,7 +110,7 @@ export default async function AboutMePage() {
         </div>
         <SeparatorHorizontal short={true} />
         <Heading
-          title="Hello, I'm Tim"
+          title="Hello, I'm Matt Pantaleone"
           textStyleClassName="text-3xl font-semibold md:text-4xl"
           gridId="grid-about"
         />
@@ -119,9 +119,10 @@ export default async function AboutMePage() {
           <div className="prose dark:prose-invert mx-auto max-w-3xl px-6 py-8">
             <h2 className="text-2xl font-semibold mb-4">About Me</h2>
             <p className="mb-4">
-              I'm a passionate developer with expertise in building modern web
-              applications. My journey in software development has led me to
-              work on various exciting projects.
+              I'm a senior AI engineer and automation strategist specializing in
+              building autonomous agentic systems and enterprise automation
+              solutions. My work focuses on bridging the gap between cutting-edge
+              AI capabilities and practical business implementation.
             </p>
             <p className="mb-6">
               Below you can explore some of the web applications I've developed:
@@ -138,10 +139,10 @@ export default async function AboutMePage() {
               AI Strategy & Automation Engineering
             </h2>
             <p className="mb-4">
-              I'm a forward-deployed AI engineer specializing in building
-              autonomous agentic systems and enterprise automation strategies.
-              My work focuses on bridging the gap between cutting-edge AI
-              capabilities and practical business implementation.
+              As a senior AI engineer, I specialize in building autonomous
+              agentic systems and enterprise automation strategies. My work
+              focuses on bridging the gap between cutting-edge AI capabilities
+              and practical business implementation.
             </p>
             <p className="mb-4">
               As an AI strategy consultant, I help organizations identify

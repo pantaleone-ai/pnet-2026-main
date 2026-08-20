@@ -13,6 +13,7 @@ import {
   CalloutDescription,
   CalloutTitle,
 } from "./callout";
+import { ConsultationCTA } from "./ConsultationCTA";
 import { Heading } from "./heading";
 import { cn } from "@/lib/utils";
 import {
@@ -171,6 +172,7 @@ const defaultMdxComponents = {
   CalloutContainer,
   CalloutTitle,
   CalloutDescription,
+  ConsultationCTA,
 };
 
 import type { createRelativeLink as CreateRelativeLinkType } from "@/components/mdx/mdx.server";
