@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-// Force Edge Runtime for performance
+// Force Edge Runtime for WOFF2 font support and performance.
 export const runtime = "edge";
 
 export const alt = "Pantaleone AI - Forward Deployed AI Product Lead";
@@ -8,9 +8,10 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default async function Image() {
-  // Fetch Font (Inter Bold)
+  // Fetch font from local static asset (CDN-served) instead of Google Fonts.
+  // Eliminates external network calls and ISR reads from the old Google Fonts fetch.
   const fontData = await fetch(
-    "https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuFuYAZ9hiA.woff2",
+    `${process.env.APP_URL || "https://pantaleone.net"}/fonts/inter-bold.woff2`,
   ).then((res) => res.arrayBuffer());
 
   return new ImageResponse(

@@ -2,10 +2,11 @@ import { shop } from "@/.source/server";
 import type { Source, SourceConfig } from "fumadocs-core/source";
 import { loader } from "fumadocs-core/source";
 import type { ShopProduct } from "../types/ShopProduct";
+import { cache } from "react";
 import fs from "fs";
 import path from "path";
 import readingTime from "reading-time";
-import React from "react";
+import type React from "react";
 
 const shopDocs = shop as unknown as { toFumadocsSource: () => unknown };
 
@@ -173,7 +174,7 @@ function getProductWithBody(
   };
 }
 
-export function getProducts(): ShopProduct[] {
+export const getProducts = cache(function getProducts(): ShopProduct[] {
   try {
     return shopSource
       .getPages()
@@ -189,49 +190,53 @@ export function getProducts(): ShopProduct[] {
     console.error("Error getting products:", error);
     return [];
   }
-}
+});
 
-export function getProductsByCategory(category: string): ShopProduct[] {
-  try {
-    // Map URL slugs to actual product categories
-    const categoryMapping: Record<string, string> = {
-      "ai-apps": "Apps",
-      "ai-workflows": "Ai Workflows",
-      "Ai Apps": "Apps", // Handle formatted category names from URL
-      "Ai Workflows": "Ai Workflows", // Handle formatted category names from URL
-      // Add more mappings as needed for future categories
-    };
+export const getProductsByCategory = cache(
+  function getProductsByCategory(category: string): ShopProduct[] {
+    try {
+      // Map URL slugs to actual product categories
+      const categoryMapping: Record<string, string> = {
+        "ai-apps": "Apps",
+        "ai-workflows": "Ai Workflows",
+        "Ai Apps": "Apps", // Handle formatted category names from URL
+        "Ai Workflows": "Ai Workflows", // Handle formatted category names from URL
+        // Add more mappings as needed for future categories
+      };
 
-    // First check if we have a direct mapping for the URL slug
-    const mappedCategory = categoryMapping[category] || category;
+      // First check if we have a direct mapping for the URL slug
+      const mappedCategory = categoryMapping[category] || category;
 
-    // If no mapping found, try to normalize the input
-    const normalizedCategory =
-      mappedCategory === category
-        ? category
-            .replace(/-/g, " ")
-            .replace(/\b\w/g, (char) => char.toUpperCase())
-        : mappedCategory;
+      // If no mapping found, try to normalize the input
+      const normalizedCategory =
+        mappedCategory === category
+          ? category
+              .replace(/-/g, " ")
+              .replace(/\b\w/g, (char) => char.toUpperCase())
+          : mappedCategory;
 
-    return getProducts().filter((product) => {
-      return product.category === normalizedCategory;
-    });
-  } catch (error) {
-    console.error("Error getting products by category:", error);
-    return [];
-  }
-}
+      return getProducts().filter((product) => {
+        return product.category === normalizedCategory;
+      });
+    } catch (error) {
+      console.error("Error getting products by category:", error);
+      return [];
+    }
+  },
+);
 
-export function getFeaturedProducts(): ShopProduct[] {
-  try {
-    return getProducts().filter((product) => product.featured);
-  } catch (error) {
-    console.error("Error getting featured products:", error);
-    return [];
-  }
-}
+export const getFeaturedProducts = cache(
+  function getFeaturedProducts(): ShopProduct[] {
+    try {
+      return getProducts().filter((product) => product.featured);
+    } catch (error) {
+      console.error("Error getting featured products:", error);
+      return [];
+    }
+  },
+);
 
-export function getCategories(): string[] {
+export const getCategories = cache(function getCategories(): string[] {
   try {
     const products = getProducts();
     const categories = Array.from(
@@ -242,75 +247,79 @@ export function getCategories(): string[] {
     console.error("Error getting categories:", error);
     return [];
   }
-}
+});
 
-export function getProductBySlug(
-  category: string,
-  slug: string,
-):
-  | (ShopProduct & {
-      body: React.ComponentType<object>;
-    })
-  | null {
-  try {
-    // Map URL slugs to actual product categories (same mapping as getProductsByCategory)
-    const categoryMapping: Record<string, string> = {
-      "ai-apps": "Apps",
-      "ai-workflows": "Ai Workflows",
-      "Ai Apps": "Apps", // Handle formatted category names from URL
-      "Ai Workflows": "Ai Workflows", // Handle formatted category names from URL
-      // Add more mappings as needed for future categories
-    };
+export const getProductBySlug = cache(
+  function getProductBySlug(
+    category: string,
+    slug: string,
+  ):
+    | (ShopProduct & {
+        body: React.ComponentType<object>;
+      })
+    | null {
+    try {
+      // Map URL slugs to actual product categories (same mapping as getProductsByCategory)
+      const categoryMapping: Record<string, string> = {
+        "ai-apps": "Apps",
+        "ai-workflows": "Ai Workflows",
+        "Ai Apps": "Apps", // Handle formatted category names from URL
+        "Ai Workflows": "Ai Workflows", // Handle formatted category names from URL
+        // Add more mappings as needed for future categories
+      };
 
-    // First check if we have a direct mapping for the URL slug
-    const mappedCategory = categoryMapping[category] || category;
+      // First check if we have a direct mapping for the URL slug
+      const mappedCategory = categoryMapping[category] || category;
 
-    // If no mapping found, try to normalize the input
-    const normalizedCategory =
-      mappedCategory === category
-        ? category
-            .replace(/-/g, " ")
-            .replace(/\b\w/g, (char) => char.toUpperCase())
-        : mappedCategory;
+      // If no mapping found, try to normalize the input
+      const normalizedCategory =
+        mappedCategory === category
+          ? category
+              .replace(/-/g, " ")
+              .replace(/\b\w/g, (char) => char.toUpperCase())
+          : mappedCategory;
 
-    // Find the page that matches the category and slug
-    const page = shopSource.getPages().find((page) => {
-      const data = page.data as unknown as ShopProduct;
-      const pageSlug =
-        page.slugs.length > 0
-          ? page.slugs[page.slugs.length - 1]?.replace(/\.mdx?$/, "") ||
-            data.title.toLowerCase().replace(/\s+/g, "-")
-          : data.title.toLowerCase().replace(/\s+/g, "-");
-      return data.category === normalizedCategory && pageSlug === slug;
-    });
+      // Find the page that matches the category and slug
+      const page = shopSource.getPages().find((page) => {
+        const data = page.data as unknown as ShopProduct;
+        const pageSlug =
+          page.slugs.length > 0
+            ? page.slugs[page.slugs.length - 1]?.replace(/\.mdx?$/, "") ||
+              data.title.toLowerCase().replace(/\s+/g, "-")
+            : data.title.toLowerCase().replace(/\s+/g, "-");
+        return data.category === normalizedCategory && pageSlug === slug;
+      });
 
-    if (!page) return null;
+      if (!page) return null;
 
-    // Get the index for the product ID
-    const index = shopSource.getPages().findIndex((p) => p === page);
-    return getProductWithBody(page, index);
-  } catch (error) {
-    console.error("Error getting product by slug:", error);
-    return null;
-  }
-}
+      // Get the index for the product ID
+      const index = shopSource.getPages().findIndex((p) => p === page);
+      return getProductWithBody(page, index);
+    } catch (error) {
+      console.error("Error getting product by slug:", error);
+      return null;
+    }
+  },
+);
 
-export function getProductByFeedId(feedId: string): ShopProduct | null {
-  try {
-    const products = getProducts();
+export const getProductByFeedId = cache(
+  function getProductByFeedId(feedId: string): ShopProduct | null {
+    try {
+      const products = getProducts();
 
-    // Feed ID format: sku || `product-${id}`
-    // First try exact match on SKU
-    const bySku = products.find((p) => p.sku === feedId);
-    if (bySku) return bySku;
+      // Feed ID format: sku || `product-${id}`
+      // First try exact match on SKU
+      const bySku = products.find((p) => p.sku === feedId);
+      if (bySku) return bySku;
 
-    // Try match on product-{id} format
-    const byProductId = products.find((p) => `product-${p.id}` === feedId);
-    if (byProductId) return byProductId;
+      // Try match on product-{id} format
+      const byProductId = products.find((p) => `product-${p.id}` === feedId);
+      if (byProductId) return byProductId;
 
-    return null;
-  } catch (error) {
-    console.error("Error getting product by feed ID:", error);
-    return null;
-  }
-}
+      return null;
+    } catch (error) {
+      console.error("Error getting product by feed ID:", error);
+      return null;
+    }
+  },
+);

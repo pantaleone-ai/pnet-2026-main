@@ -2,6 +2,7 @@ import { featuredApps } from "@/.source/server";
 import type { Source, SourceConfig } from "fumadocs-core/source";
 import { loader } from "fumadocs-core/source";
 // import { formatDate } from "@/lib/helpers";
+import { cache } from "react";
 import { format } from "date-fns";
 import type { ProjectType } from "@/features/projects/types/ProjectType";
 
@@ -14,7 +15,7 @@ export const featuredAppsSource = loader({
   source: featuredAppsDocs.toFumadocsSource() as Source<SourceConfig>,
 });
 
-export function getFeaturedApps(): ProjectType[] {
+export const getFeaturedApps = cache(function getFeaturedApps(): ProjectType[] {
   return featuredAppsSource.getPages().map((page, index) => {
     const data = page.data as unknown as ProjectType;
 
@@ -48,4 +49,4 @@ export function getFeaturedApps(): ProjectType[] {
       toDate: formatSafeDate(data.toDate, "MMM yyyy"),
     };
   });
-}
+});

@@ -1,5 +1,4 @@
-import Link from "next/link";
-
+import LinkWrapper from "@/components/LinkWrapper";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -50,15 +49,14 @@ export default function FooterLink({
   }
 
   return (
-    <Link
+    <LinkWrapper
       href={href}
       className={containerClasses}
       aria-label={ariaLabel || label}
-      prefetch={true}
       target={target}
       rel={target === "_blank" ? "noopener noreferrer" : undefined}
     >
       {content}
-    </Link>
+    </LinkWrapper>
   );
 }

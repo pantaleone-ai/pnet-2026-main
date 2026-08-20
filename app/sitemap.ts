@@ -4,11 +4,13 @@ import { getBlogPosts } from "@/features/blog/data/blogSource";
 import { getProducts } from "@/features/shop/data/shopSource";
 import { getBaseUrl } from "@/lib/helpers";
 
-// Fixed date to avoid non-deterministic ISR output.
+// Fixed date to avoid non-deterministic static output.
 // Updated manually or via CI when content changes.
 const LAST_MODIFIED = "2026-07-29";
 
-export const revalidate = 86400; // 24 hours
+// Content changes require a redeploy, so the sitemap is only built at
+// deploy time. No time-based revalidation means no ISR reads.
+export const revalidate = false;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   // Define static pages with their configurations

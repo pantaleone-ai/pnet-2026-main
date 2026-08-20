@@ -9,8 +9,7 @@ import BlogPostNavigation from "@/features/blog/components/BlogPostNavigation";
 import BlogPostTitle from "@/features/blog/components/BlogPostTitle";
 import BlogPostAnalytics from "@/features/blog/components/BlogPostAnalytics";
 import { blogSource, getBlogPosts } from "@/features/blog/data/blogSource";
-import { getProducts } from "@/features/shop/data/shopSource";
-import FeaturedProductsSection from "@/features/shop/components/FeaturedProductsSection";
+import FeaturedProductsSectionAsync from "@/features/shop/components/FeaturedProductsSectionAsync";
 import NewsletterSignup from "@/components/newsletter/NewsletterSignup";
 import { ConsultationCTA } from "@/components/mdx/ConsultationCTA";
 import type { BlogPostFrontmatter } from "@/features/blog/types/BlogPostFrontmatter";
@@ -21,7 +20,12 @@ import type { MDXComponents } from "mdx/types";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import type { BlogPosting, WithContext } from "schema-dts";
+
+// Only pre-render slugs that exist in the repo; anything else 404s
+// statically instead of triggering on-demand ISR generation.
+export const dynamicParams = false;
 
 export async function generateStaticParams() {
   const posts = getBlogPosts();
@@ -112,7 +116,6 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
   const posts = getBlogPosts().sort(
     (a, b) => new Date(b.created).getTime() - new Date(a.created).getTime(),
   );
-  const products = getProducts();
   const postIndex = posts.findIndex((p) => p.slug === slug);
   const post = posts[postIndex];
   const page = blogSource.getPage([slug]);
@@ -218,7 +221,9 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
         <NewsletterSignup />
       </div>
       <SeparatorHorizontal short={true} />
-      <FeaturedProductsSection products={products} />
+      <Suspense>
+        <FeaturedProductsSectionAsync />
+      </Suspense>
       <SeparatorHorizontal short={true} />
       <SeparatorHorizontal borderBottom={false} />
     </>

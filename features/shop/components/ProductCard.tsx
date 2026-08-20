@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import LinkWrapper from "@/components/LinkWrapper";
 import Image from "next/image";
 import { Clock } from "lucide-react";
 import { track } from "@/lib/analytics";
@@ -46,7 +46,7 @@ export default function ProductCard({
   return (
     <div className="group block">
       <article className="h-full space-y-4">
-        <Link
+        <LinkWrapper
           href={`/shop/${categorySlug}/${product.slug}`}
           className="block"
           onClick={handleSelect}
@@ -65,8 +65,8 @@ export default function ProductCard({
               className="object-cover object-top group-hover:scale-105 transition-transform duration-700"
             />
           </div>
-        </Link>
-        <Link
+        </LinkWrapper>
+        <LinkWrapper
           href={`/shop/${categorySlug}/${product.slug}`}
           className="block"
           onClick={handleSelect}
@@ -82,7 +82,7 @@ export default function ProductCard({
               {product.description}
             </p>
           </div>
-        </Link>
+        </LinkWrapper>
       </article>
     </div>
   );

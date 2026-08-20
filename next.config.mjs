@@ -52,12 +52,12 @@ const config = {
       },
       {
         source: "/grid",
-        destination: "/",
+        destination: "/shop",
         permanent: true,
       },
       {
         source: "/sets",
-        destination: "/",
+        destination: "/shop",
         permanent: true,
       },
       {
@@ -93,11 +93,26 @@ const config = {
     ];
   },
   images: {
-    loader: "default", // Prevents Vercel's optimization
-    unoptimized: true, // Disables all image optimizations globally
+    // Keep images fully unoptimized (zero Image Optimization requests on
+    // Vercel); originals are served directly from the edge/CDN.
+    loader: "default",
+    unoptimized: true,
   },
+  // Brotli/gzip compression for text responses served from the edge.
+  compress: true,
   async headers() {
     return [
+      {
+        // Aggressive CDN caching for all static pages.
+        // Eliminates ISR Data Cache lookups — the CDN serves directly.
+        source: "/((?!api|_next|_vercel|checkout|robots\\.txt|sitemap|favicon\\.ico|robots\\.txt).*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, s-maxage=31536000, stale-while-revalidate=31536000, immutable",
+          },
+        ],
+      },
       {
         source: "/(.*)",
         headers: [

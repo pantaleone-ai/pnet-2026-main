@@ -5,7 +5,9 @@ import { getBaseUrl } from "@/lib/helpers";
 
 const LAST_MODIFIED = "2026-07-29";
 
-export const revalidate = 86400; // 24 hours
+// Content changes require a redeploy, so the sitemap is only built at
+// deploy time. No time-based revalidation means no ISR reads.
+export const revalidate = false;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   // Add shop product pages - use directory-based category URLs

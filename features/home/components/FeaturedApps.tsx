@@ -3,7 +3,7 @@ import CardItem from "@/features/common/components/CardItem";
 import { getFeaturedApps } from "@/features/home/data/featuredAppSource";
 import { slugify } from "@/lib/helpers";
 
-export default function FeaturedApps() {
+export default async function FeaturedApps() {
   const featuredApps = getFeaturedApps();
 
   return (

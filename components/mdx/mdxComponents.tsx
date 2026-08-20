@@ -1,4 +1,4 @@
-import Link from "next/link";
+import LinkWrapper from "@/components/LinkWrapper";
 import type {
   AnchorHTMLAttributes,
   HTMLAttributes,
@@ -29,7 +29,7 @@ function CustomLink(props: AnchorHTMLAttributes<HTMLAnchorElement>) {
   const href = props.href || "#";
   const isExternal = href.startsWith("http");
   return (
-    <Link
+    <LinkWrapper
       href={href}
       target="_blank"
       rel={isExternal ? "noopener noreferrer" : undefined}
@@ -40,7 +40,7 @@ function CustomLink(props: AnchorHTMLAttributes<HTMLAnchorElement>) {
       {...props}
     >
       {props.children}
-    </Link>
+    </LinkWrapper>
   );
 }
 

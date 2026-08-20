@@ -1,5 +1,9 @@
 import { getFeedProducts } from "@/lib/feed-data";
 
+// Content changes require a redeploy, so the feed is only built at
+// deploy time. No time-based revalidation means no ISR reads.
+export const dynamic = "force-static";
+
 // Etsy CSV headers based on their bulk upload format
 const ETSY_CSV_HEADERS = [
   "TITLE",
@@ -65,6 +69,7 @@ export async function GET() {
       headers: {
         "Content-Type": "text/csv; charset=utf-8",
         "Content-Disposition": 'attachment; filename="etsy-products.csv"',
+        "Cache-Control": "public, s-maxage=604800, stale-while-revalidate=604800",
       },
     });
   } catch (error) {

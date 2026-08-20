@@ -2,7 +2,7 @@ import BackgroundDots from "@/features/common/components/BackgroundDots";
 import CardItem from "@/features/common/components/CardItem";
 import { getFeaturedProducts } from "@/features/shop/data/shopSource";
 
-export default function FeaturedProducts() {
+export default async function FeaturedProducts() {
   const featuredProducts = getFeaturedProducts();
 
   return (

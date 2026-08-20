@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { getProducts } from "@/features/shop/data/shopSource";
 
+// Content changes require a redeploy, so the feed is only built at
+// deploy time. No time-based revalidation means no ISR reads.
+export const dynamic = "force-static";
+
 export async function GET() {
   const products = getProducts();
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://pantaleone.net";
@@ -56,6 +60,7 @@ export async function GET() {
     headers: {
       "Content-Type": "text/tab-separated-values; charset=utf-8",
       "Content-Disposition": 'attachment; filename="products.txt"',
+      "Cache-Control": "public, s-maxage=604800, stale-while-revalidate=604800",
     },
   });
 }

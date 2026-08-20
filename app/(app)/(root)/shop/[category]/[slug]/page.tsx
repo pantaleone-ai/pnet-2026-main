@@ -27,6 +27,9 @@ import {
 const PAGE = "Shop";
 const pageConfig = HEAD.find((p: HeadType) => p.page === PAGE);
 
+// Product pages derive from static MDX content - pre-render all at build.
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
   const categories = getCategories();
   const products = getProducts();

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import Link from "next/link";
+import LinkWrapper from "@/components/LinkWrapper";
 import type { FC, ReactNode } from "react";
 
 interface Props {
@@ -22,7 +22,7 @@ const SubNavigationItem: FC<Props> = ({
   isLoading = false,
 }) => {
   return (
-    <Link
+    <LinkWrapper
       className={cn(
         "group flex w-full items-center gap-3",
         "hover:bg-accent hover:shadow-xs",
@@ -46,7 +46,7 @@ const SubNavigationItem: FC<Props> = ({
           {description}
         </p>
       </div>
-    </Link>
+    </LinkWrapper>
   );
 };
 

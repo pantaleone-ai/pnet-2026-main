@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import LinkWrapper from "@/components/LinkWrapper";
 import {
   ShoppingCart,
   ExternalLink,
@@ -277,16 +277,16 @@ export default function ProductDetailClient({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {/* Breadcrumb */}
         <nav className="flex items-center space-x-2 text-sm text-muted-foreground mb-10 overflow-x-auto whitespace-nowrap pb-2">
-          <Link href="/shop" className="hover:text-primary transition-colors">
+          <LinkWrapper href="/shop" className="hover:text-primary transition-colors">
             Shop
-          </Link>
+          </LinkWrapper>
           <ChevronRight className="h-4 w-4 shrink-0" />
-          <Link
+          <LinkWrapper
             href={`/shop/${category}`}
             className="hover:text-primary transition-colors"
           >
             {categoryName}
-          </Link>
+          </LinkWrapper>
           <ChevronRight className="h-4 w-4 shrink-0" />
           <span className="text-foreground font-medium truncate">
             {product.title}
@@ -320,7 +320,7 @@ export default function ProductDetailClient({
                     className="text-xl font-bold h-16 w-full shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform"
                     asChild
                   >
-                    <Link
+                    <LinkWrapper
                       href={
                         product.stripePaymentLink || product.purchaseUrl || "#"
                       }
@@ -329,7 +329,7 @@ export default function ProductDetailClient({
                     >
                       <ShoppingCart className="mr-3 h-5 w-5" /> Get Instant
                       Access
-                    </Link>
+                    </LinkWrapper>
                   </Button>
                 )}
               </div>
@@ -567,7 +567,7 @@ export default function ProductDetailClient({
                         className="text-xl lg:text-xl text-2xl font-bold h-20 lg:h-16 shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform"
                         asChild
                       >
-                        <Link
+                        <LinkWrapper
                           href={
                             product.stripePaymentLink ||
                             product.purchaseUrl ||
@@ -578,7 +578,7 @@ export default function ProductDetailClient({
                         >
                           <ShoppingCart className="mr-3 h-5 w-5" /> Get Instant
                           Access
-                        </Link>
+                        </LinkWrapper>
                       </Button>
                     )}
                     <div className="grid grid-cols-1 gap-4 pl-4">
@@ -589,9 +589,9 @@ export default function ProductDetailClient({
                           className="font-semibold"
                           asChild
                         >
-                          <Link href={product.websiteUrl} target="_blank">
+                          <LinkWrapper href={product.websiteUrl} target="_blank">
                             <ExternalLink className="mr-2 h-4 w-4" /> Live Demo
-                          </Link>
+                          </LinkWrapper>
                         </Button>
                       )}
                     </div>

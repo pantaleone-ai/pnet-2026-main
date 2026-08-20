@@ -1,9 +1,11 @@
 import { getFeedProducts } from "@/lib/feed-data";
-import { unstable_cache } from "next/cache";
 
-// Cache the feed generation for 1 hour to prevent excessive MDX file reads
-const getCachedXmlFeed = unstable_cache(
-  async () => {
+// Content changes require a redeploy, so the feed is only built at
+// deploy time. No unstable_cache/time-based revalidation => no ISR reads.
+export const dynamic = "force-static";
+
+export async function GET() {
+  try {
     const products = await getFeedProducts();
     const baseUrl =
       process.env.NEXT_PUBLIC_BASE_URL || "https://pantaleone.net";
@@ -44,20 +46,12 @@ const getCachedXmlFeed = unstable_cache(
 </channel>
 </rss>`;
 
-    return xmlHeader + items + xmlFooter;
-  },
-  ["product-feed-xml"], // Cache tag
-  { revalidate: 86400 }, // Revalidate every 24 hours
-);
-
-export async function GET() {
-  try {
-    const xml = await getCachedXmlFeed();
+    const xml = xmlHeader + items + xmlFooter;
 
     return new Response(xml, {
       headers: {
         "Content-Type": "application/xml; charset=utf-8",
-        "Cache-Control": "s-maxage=86400, stale-while-revalidate",
+        "Cache-Control": "public, s-maxage=604800, stale-while-revalidate=604800",
       },
     });
   } catch (error) {
