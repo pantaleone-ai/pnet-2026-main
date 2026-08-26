@@ -26,6 +26,11 @@ export function ContactForm() {
       name: "",
       email: "",
       message: "",
+      company_name: "",
+      role: undefined,
+      budget_range: undefined,
+      timeline: undefined,
+      project_type: undefined,
     },
   });
 
@@ -105,6 +110,110 @@ export function ContactForm() {
               </FormItem>
             )}
           />
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">Optional details (helps us serve you better)</h3>
+            <FormField
+              control={form.control}
+              name="company_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Company name</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Your company (optional)" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Role / Title</FormLabel>
+                  <FormControl>
+                    <select
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      {...field}
+                    >
+                      <option value="">Select role (optional)</option>
+                      <option value="CEO/Founder">CEO/Founder</option>
+                      <option value="VP/Director">VP/Director</option>
+                      <option value="Manager">Manager</option>
+                      <option value="Individual Contributor">Individual Contributor</option>
+                    </select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="budget_range"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Budget range</FormLabel>
+                  <FormControl>
+                    <select
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      {...field}
+                    >
+                      <option value="">Select budget (optional)</option>
+                      <option value="<5k">&lt;5k</option>
+                      <option value="5k-15k">5k-15k</option>
+                      <option value="15k-50k">15k-50k</option>
+                      <option value="50k+">50k+</option>
+                    </select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="timeline"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Timeline</FormLabel>
+                  <FormControl>
+                    <select
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      {...field}
+                    >
+                      <option value="">Select timeline (optional)</option>
+                      <option value="ASAP">ASAP</option>
+                      <option value="1-3 months">1-3 months</option>
+                      <option value="3-6 months">3-6 months</option>
+                      <option value="just exploring">just exploring</option>
+                    </select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="project_type"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Project type</FormLabel>
+                  <FormControl>
+                    <select
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      {...field}
+                    >
+                      <option value="">Select project type (optional)</option>
+                      <option value="AI/automation">AI/automation</option>
+                      <option value="web/app">web/app</option>
+                      <option value="consulting">consulting</option>
+                      <option value="other">other</option>
+                    </select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           <Button type="submit" disabled={isSubmitting} className="w-full">
             {isSubmitting ? "Sending..." : "Send Message"}
           </Button>

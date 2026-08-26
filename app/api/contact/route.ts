@@ -96,6 +96,30 @@ export async function POST(request: Request) {
 
     logger.info("Email sent successfully", { context: "contact-api" });
 
+    // Send lead to n8n webhook for processing
+    const n8nWebhookUrl = process.env.N8N_WEBHOOK_URL;
+    if (n8nWebhookUrl) {
+      try {
+        await fetch(n8nWebhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: sanitizedName,
+            email: sanitizedEmail,
+            message: sanitizedMessage,
+            source: "contact-form",
+            submittedAt: new Date().toISOString(),
+          }),
+        });
+        logger.info("Lead sent to n8n webhook", { context: "contact-api" });
+      } catch (webhookError) {
+        logger.error("Failed to send lead to n8n webhook", webhookError, {
+          context: "contact-api",
+        });
+        // Don't fail the request if webhook fails
+      }
+    }
+
     // Track contact form submission in analytics
     if (GA_MEASUREMENT_ID) {
       // Server-side GA4 Measurement Protocol
