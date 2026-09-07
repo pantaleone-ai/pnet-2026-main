@@ -13,10 +13,10 @@ const PAGE = "Services";
 const page = HEAD.find((p: HeadType) => p.page === PAGE) as HeadType;
 
 export const metadata: Metadata = {
-  title: page?.title ?? "AI Consulting Services | Pantaleone Digital",
+  title: page?.title ?? "Services and pricing | Pantaleone Digital",
   description:
     page?.description ??
-    "Enterprise AI consulting, automation strategy, and implementation services.",
+    "Fixed-price workflow audit, monthly build engagement, and retainer. N8N, LangChain, and Next.js.",
   metadataBase: new URL(getBaseUrl(page?.slug ?? "/services")),
   alternates: {
     canonical: getBaseUrl(page?.slug ?? "/services"),
@@ -36,54 +36,54 @@ interface PricingTier {
 
 const pricingTiers: PricingTier[] = [
   {
-    name: "AI Strategy Assessment",
+    name: "Workflow audit",
     price: "$2,500",
     period: "one-time",
     description:
-      "Comprehensive audit of your business processes with AI opportunity mapping.",
+      "Two weeks on one process. You get time costs per step and a ranked build list.",
     features: [
-      "Full business process audit",
-      "AI readiness scoring",
-      "Priority automation roadmap",
-      "ROI projection report",
-      "90-minute strategy session",
+      "One process mapped end to end",
+      "Time cost per manual step",
+      "Ranked list of automatable steps",
+      "Build vs. skip recommendation",
+      "90-minute walkthrough call",
     ],
-    cta: "Get Started",
+    cta: "Start with an audit",
     href: "/contact?assessment=true",
   },
   {
-    name: "Implementation Partner",
+    name: "Build engagement",
     price: "$8,500",
     period: "per month",
     description:
-      "End-to-end AI implementation with dedicated engineering support.",
+      "I build the top-ranked workflow against your APIs, with logs and handoff.",
     features: [
-      "Everything in Strategy Assessment",
-      "Custom AI agent development",
-      "Workflow automation design",
-      "Integration with existing tools",
-      "Weekly progress reviews",
-      "30-day post-launch support",
+      "Everything in the workflow audit",
+      "N8N or LangChain build",
+      "Wired to your CRM, helpdesk, or warehouse",
+      "Retries, logging, and a kill switch",
+      "Weekly 30-minute review",
+      "30-day fix window after handoff",
     ],
-    cta: "Schedule Call",
+    cta: "Book a build call",
     href: "/contact?implementation=true",
     highlighted: true,
   },
   {
-    name: "Enterprise Retainer",
+    name: "Retainer",
     price: "Custom",
-    period: "engagement",
+    period: "per quarter",
     description:
-      "Strategic AI partnership for organizations with complex transformation needs.",
+      "For teams with a queue of workflows. We work it down, one system at a time.",
     features: [
-      "Dedicated AI strategist",
-      "Unlimited consultation hours",
-      "Priority engineering resources",
-      "Custom training workshops",
-      "Executive reporting",
-      "SLA-backed support",
+      "Named engineer (Matt)",
+      "One active build at a time",
+      "Shared backlog, re-ranked monthly",
+      "Two team working sessions per build",
+      "Runbook per system",
+      "Email support on business days",
     ],
-    cta: "Contact Us",
+    cta: "Ask about a retainer",
     href: "/contact?enterprise=true",
   },
 ];
@@ -92,7 +92,7 @@ function getPricingJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "Service",
-    name: "AI Consulting Services",
+    name: "AI workflow audit and builds",
     provider: {
       "@type": "Organization",
       name: siteConfig.name,
@@ -125,7 +125,7 @@ export default function ServicesPage() {
       />
       <main className="mx-auto flex flex-col">
         <Heading
-          title="AI Consulting Services"
+          title="Services and pricing"
           textStyleClassName="text-3xl font-semibold md:text-4xl"
           gridId="grid-services"
         />
@@ -133,10 +133,9 @@ export default function ServicesPage() {
 
         <div className="prose dark:prose-invert mx-auto max-w-3xl px-6 py-8">
           <p className="text-lg mb-8">
-            Transform your business with strategic AI implementation. From
-            initial assessment to full-scale deployment, I help organizations
-            harness the power of artificial intelligence to drive measurable
-            results.
+            One workflow at a time. Audit first, then build, then hand over
+            the repo and runbook. If the audit says don’t build, you keep
+            the ranked list.
           </p>
         </div>
 
@@ -200,39 +199,39 @@ export default function ServicesPage() {
         <SeparatorHorizontal short={true} />
 
         <div className="prose dark:prose-invert mx-auto max-w-3xl px-6 py-8">
-          <h2 className="text-2xl font-semibold mb-4">Why Work With Me?</h2>
+          <h2 className="text-2xl font-semibold mb-4">How I work</h2>
           <ul className="list-disc pl-6 space-y-2">
             <li>
-              <strong>Practical Focus</strong> — Solutions that solve real
-              business problems, not tech demos
+              <strong>One process per engagement</strong> — we finish the
+              intake-to-filed path before starting the next one
             </li>
             <li>
-              <strong>Full-Stack Expertise</strong> — From strategy to
-              implementation, one point of contact
+              <strong>You keep the artifacts</strong> — repo, workflow JSON,
+              credentials map, and runbook
             </li>
             <li>
-              <strong>Proven Results</strong> — Documented ROI from previous
-              client engagements
+              <strong>Logged runs</strong> — every automated run writes a log
+              you can read without me
             </li>
             <li>
-              <strong>Transparent Process</strong> — Regular updates and clear
-              communication throughout
+              <strong>Kill switch</strong> — every build ships with a way to
+              turn it off
             </li>
           </ul>
 
           <div className="mt-8 p-6 bg-muted rounded-lg">
             <p className="text-center mb-4">
-              <strong>Not sure which tier is right for you?</strong>
+              <strong>Not sure which tier fits?</strong>
             </p>
             <p className="text-center text-muted-foreground mb-4">
-              Book a free 30-minute discovery call to discuss your needs.
+              Bring one workflow to a 30-minute call. We scope it or rule it out.
             </p>
             <div className="flex justify-center">
               <Link
                 href="/contact?book=true"
                 className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground px-6 py-3 text-sm font-medium hover:bg-primary/90 transition-colors"
               >
-                Book Free Discovery Call
+                Book a 30-minute call
               </Link>
             </div>
           </div>

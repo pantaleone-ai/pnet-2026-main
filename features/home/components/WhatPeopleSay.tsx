@@ -181,6 +181,23 @@ export function TestimonialVerifiedBadge({
 // --- Main Component ---
 
 export function WhatPeopleSay() {
+  if (TESTIMONIALS.length === 0) {
+    return (
+      <div className="w-full relative p-4">
+        <BackgroundDots gridId="what-people-say" className="text-gray-200/80" />
+        <div className="mx-auto max-w-2xl rounded-xl border border-dashed p-6 text-left">
+          <p className="text-base text-foreground">
+            No buyer quotes yet.
+          </p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            This slot fills only with a named, linkable quote. Bought a
+            workflow pack? Email your note and it goes here with your name.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full relative p-4">
       <BackgroundDots gridId="what-people-say" className="text-gray-200/80" />

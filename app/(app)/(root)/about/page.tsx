@@ -70,7 +70,7 @@ export const metadata: Metadata = {
 export default async function AboutMePage() {
   const defaultImage = "/images/horizontal-profile-about.jpg";
   const imageAlt =
-    "Professional headshot of Tim, a Frontend Developer with 5 years of experience";
+    "Matt Pantaleone, AI engineer based in the San Francisco Bay Area";
 
   return (
     <>
@@ -117,15 +117,16 @@ export default async function AboutMePage() {
         <SeparatorHorizontal short={true} />
         <div className="border-border relative min-h-52 max-w-full">
           <div className="prose dark:prose-invert mx-auto max-w-3xl px-6 py-8">
-            <h2 className="text-2xl font-semibold mb-4">About Me</h2>
+            <h2 className="text-2xl font-semibold mb-4">About</h2>
             <p className="mb-4">
-              I'm a senior AI engineer and automation strategist specializing in
-              building autonomous agentic systems and enterprise automation
-              solutions. My work focuses on bridging the gap between cutting-edge
-              AI capabilities and practical business implementation.
+              I’m Matt Pantaleone. I build AI systems for small teams:
+              N8N workflows, LangChain pipelines, and Next.js apps that
+              run them. Past work includes document processing pipelines,
+              support triage agents, and internal tools that file, sync,
+              and report without a human in the loop.
             </p>
             <p className="mb-6">
-              Below you can explore some of the web applications I've developed:
+              Below are the web applications I ship and maintain:
             </p>
             <Web />
           </div>
@@ -136,57 +137,50 @@ export default async function AboutMePage() {
         <div className="border-border relative min-h-52 max-w-full">
           <div className="prose dark:prose-invert mx-auto max-w-3xl px-6 py-8">
             <h2 className="text-2xl font-semibold mb-4">
-              AI Strategy & Automation Engineering
+              What I build
             </h2>
             <p className="mb-4">
-              As a senior AI engineer, I specialize in building autonomous
-              agentic systems and enterprise automation strategies. My work
-              focuses on bridging the gap between cutting-edge AI capabilities
-              and practical business implementation.
+              One workflow at a time. We pick the process that eats the
+              week, map it end to end, and automate the steps with clear
+              inputs and outputs. The rest stays manual on purpose.
             </p>
             <p className="mb-4">
-              As an AI strategy consultant, I help organizations identify
-              high-impact automation opportunities, design agentic workflows,
-              and deploy scalable AI solutions that drive measurable business
-              outcomes.
+              Every engagement ends with handoff: repo, workflow JSON,
+              credentials map, and a runbook your team can follow without me.
             </p>
 
-            <h2 className="text-2xl font-semibold mb-4 mt-8">Core Expertise</h2>
+            <h2 className="text-2xl font-semibold mb-4 mt-8">Stack</h2>
             <ul className="list-disc pl-6 mb-6 space-y-2">
               <li>
-                <strong>Agentic AI Development</strong> — Building autonomous
-                agents that handle complex workflows
+                <strong>Agents and pipelines</strong> — N8N, LangChain,
+                queued workers with retries and logs
               </li>
               <li>
-                <strong>Business Automation Strategy</strong> — Identifying and
-                implementing automation opportunities
+                <strong>Retrieval</strong> — RAG over runbooks and tickets,
+                answers cite the source file
               </li>
               <li>
-                <strong>LLM Integration</strong> — Custom large language model
-                deployments and fine-tuning
+                <strong>Models</strong> — hosted LLMs via API; fine-tuning
+                only when prompts plus retrieval fall short
               </li>
               <li>
-                <strong>Workflow Orchestration</strong> — N8N, LangChain, and
-                custom automation pipelines
+                <strong>Apps</strong> — Next.js 16, TypeScript, Tailwind,
+                deployed on Vercel
               </li>
             </ul>
 
             <h2 className="text-2xl font-semibold mb-4 mt-8">
-              AI Engineering Approach
+              How I work
             </h2>
             <p className="mb-4">
-              I believe in practical AI solutions that solve real business
-              problems. Every automation strategy starts with understanding your
-              unique operational challenges, then applying the right combination
-              of agentic AI, predictive models, and workflow optimization.
+              Audit first. If the time cost doesn’t justify a build, I say
+              so and you keep the ranked list. If it does, we build the
+              smallest system that covers the documented path, log every
+              run, and add a kill switch before handoff.
             </p>
             <p className="mb-6">
-              My background in systems architecture combined with hands-on AI
-              engineering allows me to deliver solutions that are both
-              technically sound and commercially viable. Whether you are looking
-              to automate repetitive tasks, implement intelligent document
-              processing, or build complete AI-powered business systems, I can
-              help you navigate the complexity of modern AI implementation.
+              Bay Area, working on-site and remote. Email works best;
+              I reply within two business days.
             </p>
           </div>
         </div>
