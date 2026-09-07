@@ -23,13 +23,13 @@ export default function LeadMagnetForm({
     setError("");
 
     if (!email) {
-      setError("Please enter your email address.");
+      setError("Enter your email address.");
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setError("Please enter a valid email address.");
+      setError("That address does not look valid. Check for a typo and try again.");
       return;
     }
 
@@ -78,10 +78,10 @@ export default function LeadMagnetForm({
         {error && <p className="text-sm text-destructive">{error}</p>}
       </div>
       <Button type="submit" className="w-full">
-        Get Free {guideTitle}
+        Send the {guideTitle}
       </Button>
       <p className="text-xs text-muted-foreground text-center">
-        We respect your privacy. Unsubscribe at any time.
+        One email with the PDF. Unsubscribe anytime.
       </p>
     </form>
   );

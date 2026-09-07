@@ -11,8 +11,8 @@ interface NewsletterSignupProps {
 }
 
 export default function NewsletterSignup({
-  title = "Stay Updated",
-  description = "Get the latest AI insights and automation tips delivered to your inbox.",
+  title = "Build notes, monthly",
+  description = "One email a month: an N8N workflow, an LLM integration note, and what broke in production.",
 }: NewsletterSignupProps) {
   const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
@@ -23,13 +23,13 @@ export default function NewsletterSignup({
     setError("");
 
     if (!email) {
-      setError("Please enter your email address.");
+      setError("Enter your email address.");
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setError("Please enter a valid email address.");
+      setError("That address does not look valid. Check for a typo and try again.");
       return;
     }
 
@@ -49,9 +49,9 @@ export default function NewsletterSignup({
   if (isSubscribed) {
     return (
       <div className="text-center p-6 border border-primary/20 rounded-lg bg-primary/5">
-        <h3 className="text-lg font-semibold mb-2">Thanks for subscribing!</h3>
+        <h3 className="text-lg font-semibold mb-2">Subscribed</h3>
         <p className="text-muted-foreground">
-          You'll receive our next newsletter at {email}.
+          Next issue goes to {email}. One email a month.
         </p>
       </div>
     );
@@ -77,11 +77,11 @@ export default function NewsletterSignup({
           {error && <p className="text-sm text-destructive">{error}</p>}
         </div>
         <Button type="submit" className="w-full" size="sm">
-          Subscribe
+          Subscribe to build notes
         </Button>
       </form>
       <p className="text-xs text-muted-foreground text-center mt-2">
-        No spam. Unsubscribe anytime.
+        One email a month. Unsubscribe anytime.
       </p>
     </div>
   );

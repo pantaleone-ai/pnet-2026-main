@@ -14,10 +14,10 @@ const page = HEAD.find((p: HeadType) => p.page === PAGE) as HeadType;
 
 export const metadata: Metadata = {
   title:
-    page?.title ?? "Free AI Readiness Guide | Pantaleone Digital",
+    page?.title ?? "AI readiness guide | Pantaleone Digital",
   description:
     page?.description ??
-    "Download our comprehensive AI Readiness Guide to assess your business's AI potential and create a roadmap for implementation.",
+    "An 8-point checklist for one workflow: inputs, time cost, and whether automation pays. PDF by email.",
   metadataBase: new URL(
     getBaseUrl(page?.slug ?? "/resources/ai-readiness-guide"),
   ),
@@ -32,7 +32,7 @@ export default function AIReadinessGuidePage() {
       <SeparatorHorizontal borderTop={false} />
       <main className="mx-auto flex flex-col">
         <Heading
-          title="Free AI Readiness Guide"
+          title="AI readiness guide"
           textStyleClassName="text-3xl font-semibold md:text-4xl"
           gridId="grid-ai-guide"
         />
@@ -40,53 +40,48 @@ export default function AIReadinessGuidePage() {
 
         <div className="prose dark:prose-invert mx-auto max-w-3xl px-6 py-8">
           <p className="text-lg mb-6">
-            Discover where your business stands on the AI maturity spectrum and
-            get a clear roadmap for implementing artificial intelligence that
-            delivers real ROI.
+            A checklist for one workflow: what goes in, what comes out,
+            how long each step takes, and the math on whether automation
+            pays. 12 pages, no fluff chapter.
           </p>
 
-          <h2 className="text-2xl font-semibold mb-4">What's Inside:</h2>
+          <h2 className="text-2xl font-semibold mb-4">Inside the PDF:</h2>
           <ul className="list-disc pl-6 space-y-2 mb-8">
             <li>
-              <strong>AI Readiness Assessment</strong> — Score your organization
-              across 8 key dimensions
+              <strong>Readiness checklist</strong> — 8 questions scored 0–2,
+              with worked examples
             </li>
             <li>
-              <strong>Business Process Audit Framework</strong> — Identify
-              high-impact automation opportunities
+              <strong>Process audit sheet</strong> — one table per step:
+              input, owner, minutes, system
             </li>
             <li>
-              <strong>ROI Calculation Templates</strong> — Build business cases
-              that justify AI investments
+              <strong>ROI worksheet</strong> — hours × rate vs. build and
+              run cost, filled with sample numbers
             </li>
             <li>
-              <strong>Implementation Roadmap</strong> — Step-by-step plan from
-              pilot to production
+              <strong>Pilot plan</strong> — scope for a two-week trial on
+              one process
             </li>
             <li>
-              <strong>Case Studies</strong> — Real examples of successful AI
-              transformations
+              <strong>Skip list</strong> — five cases where the guide says
+              don’t automate
             </li>
           </ul>
 
           <div className="bg-muted p-6 rounded-lg mb-8">
             <h3 className="text-xl font-semibold mb-4">
-              Who Should Download This Guide?
+              Written for
             </h3>
             <ul className="list-disc pl-6 space-y-2">
               <li>
-                <strong>Business Leaders</strong> exploring AI for their
-                organization
+                <strong>Operators</strong> who own a process and its inbox
               </li>
               <li>
-                <strong>Operations Managers</strong> looking to automate
-                workflows
+                <strong>Founders</strong> deciding between a hire and a build
               </li>
               <li>
-                <strong>IT Directors</strong> planning AI infrastructure
-              </li>
-              <li>
-                <strong>Entrepreneurs</strong> building AI-first products
+                <strong>IT leads</strong> asked “can AI do this?” with no scope
               </li>
             </ul>
           </div>
@@ -97,31 +92,24 @@ export default function AIReadinessGuidePage() {
               downloadUrl="/resources/ai-readiness-guide.pdf"
             />
           </div>
-
-          <div className="text-center text-sm text-muted-foreground">
-            <p>
-              Trusted by 100+ businesses exploring AI transformation.
-            </p>
-          </div>
         </div>
 
         <SeparatorHorizontal short={true} />
 
         <div className="prose dark:prose-invert mx-auto max-w-3xl px-6 py-8">
           <h2 className="text-2xl font-semibold mb-4">
-            Ready for Personalized Guidance?
+            Want a second pair of eyes?
           </h2>
           <p className="mb-6">
-            The guide is a great starting point, but every business is unique.
-            Book a free 30-minute discovery call to discuss your specific AI
-            transformation goals.
+            Fill the worksheet, then bring it to a 30-minute call. We
+            sanity-check the math together.
           </p>
           <div className="flex justify-center">
             <Link
               href="/contact?book=true"
               className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground px-6 py-3 text-sm font-medium hover:bg-primary/90 transition-colors"
             >
-              Book Free Discovery Call
+              Book a 30-minute call
             </Link>
           </div>
         </div>

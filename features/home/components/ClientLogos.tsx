@@ -1,119 +1,56 @@
 import HeadingTitle from "@/components/HeadingTitle";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 
-const clients = [
-  {
-    name: "TechCorp",
-    logo: "/images/clients/techcorp.svg",
-    url: "https://techcorp.com",
-  },
-  {
-    name: "InnovateLab",
-    logo: "/images/clients/innovatelab.svg",
-    url: "https://innovatelab.io",
-  },
-  {
-    name: "DataFlow",
-    logo: "/images/clients/dataflow.svg",
-    url: "https://dataflow.ai",
-  },
-  {
-    name: "ScaleUp",
-    logo: "/images/clients/scaleup.svg",
-    url: "https://scaleup.co",
-  },
-  {
-    name: "AutomatePro",
-    logo: "/images/clients/automatepro.svg",
-    url: "https://automatepro.com",
-  },
-];
+// Hallmark gate 46 — honest copy. The previous version listed five invented
+// client logos (TechCorp, InnovateLab, DataFlow, ScaleUp, AutomatePro) and
+// three invented quotes with unverified metrics (40%, 120 hrs/mo). Removed
+// 2026-09: no client logos or consulting testimonials on file. The eBay
+// feedback export (907 rows, 2002–2022) was reviewed and contains only
+// marketplace shipping/payment notes — not applicable to consulting proof,
+// so it is cited here only as marketplace history, not as client results.
 
-const testimonials = [
+const marketplaceFacts = [
   {
-    quote:
-      "Pantaleone AI helped us reduce support costs by 40% while improving customer satisfaction. The ROI was incredible.",
-    author: "Sarah Chen",
-    role: "CTO",
-    company: "TechCorp",
+    value: "900+",
+    label: "marketplace feedback entries, 2002–2022",
   },
   {
-    quote:
-      "The n8n workflows they built saved us 120 hours per month. Our team can now focus on strategy instead of data entry.",
-    author: "Marcus Johnson",
-    role: "VP Operations",
-    company: "InnovateLab",
+    value: "—",
+    label: "consulting metric to confirm after first measured build",
   },
   {
-    quote:
-      "Enterprise-grade AI agents with proper security and governance. Exactly what we needed for our compliance requirements.",
-    author: "Elena Rodriguez",
-    role: "Head of AI",
-    company: "DataFlow",
+    value: "—",
+    label: "client quote slot, filled only with a named, linked source",
   },
 ];
 
 export default function ClientLogos() {
   return (
     <section className="py-12">
-      <HeadingTitle title="Trusted by Leading Companies" />
+      <HeadingTitle title="Track record, stated plainly" />
       <SeparatorHorizontal short={true} />
 
-      {/* Client Logos Grid */}
-      <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 mb-12">
-        {clients.map((client) => (
-          <a
-            key={client.name}
-            href={client.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group opacity-60 hover:opacity-100 transition-opacity"
-          >
-            <img
-              src={client.logo}
-              alt={`${client.name} logo`}
-              className="h-8 md:h-10 w-auto grayscale group-hover:grayscale-0 transition-all"
-            />
-          </a>
-        ))}
-      </div>
-
-      {/* Testimonials */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto px-4">
-        {testimonials.map((testimonial) => (
+        {marketplaceFacts.map((fact) => (
           <div
-            key={testimonial.author}
+            key={fact.label}
             className="bg-muted/50 rounded-lg p-6 border border-border/50"
           >
-            <p className="text-sm mb-4 italic">"{testimonial.quote}"</p>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-sm font-medium">
-                {testimonial.author
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
-              </div>
-              <div>
-                <p className="text-sm font-medium">{testimonial.author}</p>
-                <p className="text-xs text-muted-foreground">
-                  {testimonial.role}, {testimonial.company}
-                </p>
-              </div>
-            </div>
+            <p className="text-3xl font-bold mb-2">{fact.value}</p>
+            <p className="text-sm text-muted-foreground">{fact.label}</p>
           </div>
         ))}
       </div>
 
-      {/* CTA */}
       <div className="text-center mt-12">
         <p className="text-muted-foreground mb-4">
-          Ready to join these companies?
+          Selling N8N packs, Next.js starters, and prompt packs since 2024.
         </p>
         <a
           href="/contact"
           className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
         >
-          Schedule a Consultation
+          Book a 30-minute call
         </a>
       </div>
     </section>
