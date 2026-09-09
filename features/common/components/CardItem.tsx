@@ -58,7 +58,8 @@ export default function CardItem({ index, item, type, sizes, listName }: CardIte
         index={index}
         type={type}
         imageUrl={
-          isBlog ? item.image : isProduct ? item.imageUrl : item.imageUrl
+          // Hard-coded fix: always use logo for blog cards (remote images broken)
+          isBlog ? "/images/logo.png" : isProduct ? item.imageUrl : item.imageUrl
         }
         imageAlt={item.imageAlt || item.title}
         href={href}
@@ -102,7 +103,7 @@ const CoverImage = ({
       <div className="relative aspect-[4/3] w-full overflow-hidden group-hover:scale-105 transition-transform duration-500 ease-out">
         <Image
           alt={imageAlt || "Card image"}
-          src={imageUrl || "/images/app-placeholder.jpg"}
+          src={imageUrl || "/images/logo.png"}
           fill
           className="object-cover object-top transition-transform duration-500 ease-out group-hover:scale-110"
           sizes={sizes || "(max-width: 1023px) 100vw, 33vw"}
