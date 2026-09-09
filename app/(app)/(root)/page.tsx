@@ -22,17 +22,17 @@ export default function Home() {
       <SeparatorHorizontal short={true} />
       <FeaturedProducts />
       <SeparatorHorizontal short={true} />
-      <HeadingTitle title="Pantaleone AI Projects" />
+      <HeadingTitle title="Shipped apps and tools" />
       <SeparatorHorizontal short={true} />
       <FeaturedApps />
       <SeparatorHorizontal short={true} />
-      <HeadingTitle title="Latest Automation Blog Posts" />
+      <HeadingTitle title="Recent build notes" />
       <SeparatorHorizontal short={true} />
       <LatestBlogPosts />
       <SeparatorHorizontal short={true} />
       <ClientLogos />
       <SeparatorHorizontal short={true} />
-      <HeadingTitle title="What People Are Saying" />
+      <HeadingTitle title="Buyer notes" />
       <SeparatorHorizontal short={true} />
       <WhatPeopleSay />
       {/* <SeparatorHorizontal /> */}

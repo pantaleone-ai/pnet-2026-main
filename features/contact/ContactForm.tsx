@@ -43,14 +43,14 @@ export function ContactForm() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "Failed to send message");
+        throw new Error(result.error || "Message not sent. The server returned an error.");
       }
 
-      toast.success("Message sent successfully! I'll get back to you soon.");
+      toast.success("Message sent. I reply within two business days.");
       form.reset();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to send message. Please try again."
+        error instanceof Error ? error.message : "Message not sent. Check your connection and try again."
       );
     } finally {
       setIsSubmitting(false);
@@ -59,7 +59,7 @@ export function ContactForm() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
-      <h2 className="text-2xl font-semibold mb-6">Send a Message</h2>
+      <h2 className="text-2xl font-semibold mb-6">Send a message</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField
@@ -67,9 +67,9 @@ export function ContactForm() {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>Full name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Your name" {...field} />
+                  <Input placeholder="Ada Lovelace" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -80,9 +80,9 @@ export function ContactForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>Email address</FormLabel>
                 <FormControl>
-                  <Input placeholder="your@email.com" type="email" {...field} />
+                  <Input placeholder="ada@analytical.engine" type="email" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -96,7 +96,7 @@ export function ContactForm() {
                 <FormLabel>Message</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Tell me about your project or inquiry..."
+                    placeholder="What are you building? Stack, timeline, and what should happen after you hit send."
                     className="min-h-[120px]"
                     {...field}
                   />
@@ -106,7 +106,7 @@ export function ContactForm() {
             )}
           />
           <Button type="submit" disabled={isSubmitting} className="w-full">
-            {isSubmitting ? "Sending..." : "Send Message"}
+            {isSubmitting ? "Sending…" : "Send message"}
           </Button>
         </form>
       </Form>
