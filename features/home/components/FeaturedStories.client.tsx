@@ -53,7 +53,7 @@ export default function FeaturedStories({
           </div>
           <div className="relative aspect-[4/3] lg:aspect-[4/3] overflow-hidden rounded-b-xl lg:rounded-r-xl lg:rounded-bl-none bg-muted/20">
             <Image
-              src="/images/logo.png"
+              src={story.image || "/images/logo.png"}
               alt={story.imageAlt || story.title}
               fill
               className="object-cover object-top"

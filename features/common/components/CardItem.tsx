@@ -58,8 +58,7 @@ export default function CardItem({ index, item, type, sizes, listName }: CardIte
         index={index}
         type={type}
         imageUrl={
-          // Hard-coded fix: always use logo for blog cards (remote images broken)
-          isBlog ? "/images/logo.png" : isProduct ? item.imageUrl : item.imageUrl
+          isBlog ? item.image : isProduct ? item.imageUrl : item.imageUrl
         }
         imageAlt={item.imageAlt || item.title}
         href={href}

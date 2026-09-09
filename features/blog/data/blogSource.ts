@@ -19,8 +19,8 @@ export const blogSource = loader({
 
 type BlogPage = ReturnType<typeof blogSource.getPages>[number];
 
-// Hard-coded fix: use logo as the blog placeholder image for all posts.
-// Remote frontmatter images (S3 / Google storage) keep breaking, so ignore them.
+// Fallback only: used when a post has no frontmatter image.
+// The last 6 posts hard-code this in frontmatter; all other posts keep their own images.
 export const BLOG_PLACEHOLDER_IMAGE = "/images/logo.png";
 
 export const getBlogPosts = cache(function getBlogPosts(): BlogPostType[] {
@@ -53,7 +53,7 @@ export const getBlogPosts = cache(function getBlogPosts(): BlogPostType[] {
         description: data.description,
         created: data.created,
         lastUpdated: data.lastUpdated,
-        image: BLOG_PLACEHOLDER_IMAGE,
+        image: data.image || BLOG_PLACEHOLDER_IMAGE,
         author: data.author,
         authorAvatar: data.authorAvatar,
         category: data.category,
@@ -75,7 +75,7 @@ export const getBlogPosts = cache(function getBlogPosts(): BlogPostType[] {
       description: data.description,
       created: data.created,
       lastUpdated: data.lastUpdated,
-      image: BLOG_PLACEHOLDER_IMAGE,
+      image: data.image || BLOG_PLACEHOLDER_IMAGE,
       author: data.author,
       authorAvatar: data.authorAvatar,
       category: data.category,

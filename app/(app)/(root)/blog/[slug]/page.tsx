@@ -27,7 +27,7 @@ import type { BlogPosting, WithContext } from "schema-dts";
 // statically instead of triggering on-demand ISR generation.
 export const dynamicParams = false;
 
-// Hard-coded fix: use logo as the blog placeholder image (remote images broken).
+// Fallback only: the last 6 posts hard-code this in frontmatter.
 const BLOG_PLACEHOLDER_IMAGE = "/images/logo.png";
 
 export async function generateStaticParams() {
@@ -49,7 +49,7 @@ function getPageJsonLd(post: BlogPostType): WithContext<BlogPosting> {
     "@type": "BlogPosting",
     headline: post.title,
     description: post.description,
-    image: BLOG_PLACEHOLDER_IMAGE,
+    image: post.image || BLOG_PLACEHOLDER_IMAGE,
     url: `${SITE_INFO.url}/blog/${post.slug}`,
     datePublished: new Date(post.created).toISOString(),
     dateModified: new Date(post.lastUpdated || post.created).toISOString(),
@@ -92,7 +92,7 @@ export async function generateMetadata({
       description: data.description?.slice(0, 100) + ("..." as string),
       images: [
         {
-          url: getBaseUrl(BLOG_PLACEHOLDER_IMAGE),
+          url: data.image || getBaseUrl(BLOG_PLACEHOLDER_IMAGE),
           width: 1200,
           height: 630,
           alt: data.title,
@@ -106,7 +106,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: data.title,
       description: data.description?.slice(0, 100) + ("..." as string),
-      images: [getBaseUrl(BLOG_PLACEHOLDER_IMAGE)],
+      images: [data.image || getBaseUrl(BLOG_PLACEHOLDER_IMAGE)],
     },
     other: {
       "og:logo": "summary_large_image.png",
@@ -179,7 +179,7 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
         <SeparatorHorizontal short={true} />
         <Image
           alt={post.title}
-          src={BLOG_PLACEHOLDER_IMAGE}
+          src={post.image || BLOG_PLACEHOLDER_IMAGE}
           width={1000}
           height={500}
           className="h-auto max-h-96 w-full object-cover"
