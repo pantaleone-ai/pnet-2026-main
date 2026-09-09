@@ -8,6 +8,7 @@ import type { Person, WebSite, WithContext } from "schema-dts";
 import ConsentManager from "@/components/ConsentManager";
 import { Providers } from "@/components/Providers";
 import { SkipToMain } from "@/components/SkipToMain";
+import { PageTracker } from "@/hooks/usePageTracking";
 
 // --- CHANGED: Now importing from your new unified config ---
 import { siteConfig } from "@/config/site";
@@ -61,6 +62,44 @@ function getPersonJsonLd(): WithContext<Person> {
   };
 }
 
+// 3. JSON-LD: Organization + LocalBusiness (simplified for type safety)
+function getOrganizationJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": ["Organization", "LocalBusiness"],
+    name: "Pantaleone Digital Services LLC",
+    url: siteConfig.url,
+    logo: `${siteConfig.url}/logo.png`,
+    description:
+      "AI engineering and automation strategy consultancy specializing in agentic AI, business automation, and enterprise AI solutions.",
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: "New York",
+      addressRegion: "NY",
+      addressCountry: "US",
+    },
+    areaServed: ["United States", "Canada", "Europe"],
+    sameAs: [
+      siteConfig.links.twitter,
+      siteConfig.links.github,
+      siteConfig.links.linkedin,
+    ].filter(Boolean),
+  };
+}
+
+// 4. JSON-LD: ProfessionalService (simplified for type safety)
+function getProfessionalServiceJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
+    name: "Pantaleone Digital Services",
+    image: siteConfig.ogImage,
+    priceRange: "$$$",
+    description:
+      "AI engineering and automation strategy services for enterprise businesses.",
+  };
+}
+
 // Script to handle initial theme state (prevents flash of wrong theme)
 const darkModeScript = `
   try {
@@ -92,8 +131,8 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   generator: "Next.js 16",
   keywords: siteConfig.keywords,
-  authors: [{ name: "Pantaleone", url: siteConfig.links.twitter }],
-  creator: "Pantaleone",
+  authors: [{ name: "Pantaleone AI", url: siteConfig.links.twitter }],
+  creator: "Pantaleone AI",
 
   // OpenGraph
   openGraph: {
@@ -105,7 +144,7 @@ export const metadata: Metadata = {
     siteName: siteConfig.name,
     images: [
       {
-        url: siteConfig.ogImage,
+        url: "/summary_large_image.png",
         width: 1200,
         height: 630,
         alt: siteConfig.name,
@@ -118,8 +157,13 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: siteConfig.name,
     description: siteConfig.description,
-    images: [siteConfig.ogImage],
-    creator: "@pantaleone_ai",
+    images: ["/summary_large_image.png"],
+    creator: "@m_pantaleone",
+  },
+
+  // Additional meta tags
+  other: {
+    "og:logo": "summary_large_image.png",
   },
 
   icons: {
@@ -133,13 +177,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html
       lang="en"
-      className={`${fontSans.variable} ${fontMono.variable}`}
+      className={`dark ${fontSans.variable} ${fontMono.variable}`}
       suppressHydrationWarning
     >
       <head>
-        <script
-          dangerouslySetInnerHTML={{ __html: darkModeScript }}
-        />
+        <script dangerouslySetInnerHTML={{ __html: darkModeScript }} />
         <Script
           id="theme-script"
           strategy="beforeInteractive"
@@ -158,8 +200,23 @@ export default function RootLayout({ children }: RootLayoutProps) {
             __html: JSON.stringify(getPersonJsonLd()),
           }}
         />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(getOrganizationJsonLd()),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(getProfessionalServiceJsonLd()),
+          }}
+        />
       </head>
-      <body suppressHydrationWarning className="min-h-screen bg-background font-sans antialiased">
+      <body
+        suppressHydrationWarning
+        className="min-h-screen bg-background font-sans antialiased"
+      >
         <SkipToMain />
         <Providers>
           <NuqsAdapter>
@@ -167,7 +224,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
           </NuqsAdapter>
         </Providers>
 
-        {/* Google Analytics - Only loads when consent is given */}
+        {/* Page tracking for SPA route changes */}
+        <PageTracker />
+
+        {/* Google Analytics - Always loads, events gated by consent */}
         {analyticsConfig.googleAnalytics.enabled && (
           <>
             <Script
@@ -192,26 +252,37 @@ export default function RootLayout({ children }: RootLayoutProps) {
           </>
         )}
 
-        {/* Meta Pixel - Only loads when consent is given */}
+        {/* Meta Pixel - Always loads, events gated by consent */}
         {analyticsConfig.metaPixel.enabled && (
-          <Script
-            id="meta-pixel"
-            strategy="afterInteractive"
-            dangerouslySetInnerHTML={{
-              __html: `
-                !function(f,b,e,v,n,t,s)
-                {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-                n.queue=[];t=b.createElement(e);t.async=!0;
-                t.src=v;s=b.getElementsByTagName(e)[0];
-                s.parentNode.insertBefore(t,s)}(window, document,'script',
-                'https://connect.facebook.net/en_US/fbevents.js');
-                fbq('init', '${analyticsConfig.metaPixel.id}');
-                fbq('track', 'PageView');
-              `,
-            }}
-          />
+          <>
+            <Script
+              id="meta-pixel"
+              strategy="afterInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `
+                  !function(f,b,e,v,n,t,s)
+                  {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                  n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                  if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                  n.queue=[];t=b.createElement(e);t.async=!0;
+                  t.src=v;s=b.getElementsByTagName(e)[0];
+                  s.parentNode.insertBefore(t,s)}(window, document,'script',
+                  'https://connect.facebook.net/en_US/fbevents.js');
+                  fbq('init', '${analyticsConfig.metaPixel.id}');
+                  fbq('track', 'PageView');
+                `,
+              }}
+            />
+            <noscript>
+              <img
+                height="1"
+                width="1"
+                style={{ display: "none" }}
+                src={`https://www.facebook.com/tr?id=${analyticsConfig.metaPixel.id}&ev=PageView&noscript=1`}
+                alt=""
+              />
+            </noscript>
+          </>
         )}
       </body>
     </html>

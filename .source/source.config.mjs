@@ -59,14 +59,20 @@ var shopProductSchema = frontmatterSchema.extend({
   price: z.number(),
   currency: z.string().default("USD"),
   sku: z.string().optional(),
+  mpn: z.string().optional(),
+  // Manufacturer Part Number
+  gtin: z.string().optional(),
+  // UPC/EAN/GTIN for product feeds
   inventory: z.number().optional(),
   purchaseUrl: z.string().optional(),
   imageUrl: z.string().optional(),
   imageAlt: z.string().optional(),
-  additionalImages: z.array(z.object({
-    url: z.string(),
-    alt: z.string().optional()
-  })).optional(),
+  additionalImages: z.array(
+    z.object({
+      url: z.string(),
+      alt: z.string().optional()
+    })
+  ).optional(),
   featured: z.boolean().default(false),
   isDigital: z.boolean().default(true),
   fromDate: z.string().optional(),
@@ -76,7 +82,18 @@ var shopProductSchema = frontmatterSchema.extend({
   videoEmbedUrl: z.string().optional(),
   videoEmbedAlt: z.string().optional(),
   techStacks: z.array(z.string()).optional(),
-  weight: z.number().optional()
+  weight: z.number().optional(),
+  itemCondition: z.enum(["NewCondition", "UsedCondition", "RefurbishedCondition"]).optional(),
+  priceValidUntil: z.string().optional(),
+  // ISO date string for sale expiration
+  brandLogo: z.string().optional(),
+  timeToValue: z.number().optional(),
+  targetKeywords: z.array(z.string()).optional(),
+  documentationUrl: z.string().optional(),
+  architectureDiagram: z.string().optional(),
+  coreStack: z.array(z.string()).optional(),
+  primaryLibraries: z.array(z.string()).optional(),
+  infrastructureRequirements: z.array(z.string()).optional()
 });
 
 // source.config.ts
@@ -196,8 +213,17 @@ var shopProductSchema2 = frontmatterSchema2.extend({
   sku: z2.string().optional(),
   inventory: z2.number().optional(),
   purchaseUrl: z2.string().optional(),
+  stripeProductId: z2.string().optional(),
+  stripePriceId: z2.string().optional(),
+  stripePaymentLink: z2.string().optional(),
   imageUrl: z2.string().optional(),
   imageAlt: z2.string().optional(),
+  additionalImages: z2.array(
+    z2.object({
+      url: z2.string(),
+      alt: z2.string().optional()
+    })
+  ).optional(),
   featured: z2.boolean().default(false),
   isDigital: z2.boolean().default(true),
   fromDate: z2.string().default(""),
@@ -207,7 +233,14 @@ var shopProductSchema2 = frontmatterSchema2.extend({
   videoEmbedUrl: z2.string().optional(),
   videoEmbedAlt: z2.string().optional(),
   techStacks: z2.array(z2.string()).optional(),
-  weight: z2.number().optional()
+  weight: z2.number().optional(),
+  timeToValue: z2.number().optional(),
+  targetKeywords: z2.array(z2.string()).optional(),
+  documentationUrl: z2.string().optional(),
+  architectureDiagram: z2.string().optional(),
+  coreStack: z2.array(z2.string()).optional(),
+  primaryLibraries: z2.array(z2.string()).optional(),
+  infrastructureRequirements: z2.array(z2.string()).optional()
 });
 var shop = defineDocs({
   dir: "features/shop/content",

@@ -4,8 +4,19 @@ import { logger } from "@/lib/logger";
 import { escape } from "html-escaper";
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { isAnalyticsEnabled } from "@/lib/analytics";
+import posthog from "posthog-js";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
+const GA_API_SECRET = process.env.GOOGLE_ANALYTICS_API_SECRET;
+
+function getResendClient() {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error("RESEND_API_KEY is not configured");
+  }
+  return new Resend(apiKey);
+}
 
 // Rate limiter: 5 requests per minute per IP
 const limiter = rateLimit({
@@ -57,9 +68,10 @@ export async function POST(request: Request) {
     const sanitizedEmail = escape(email);
     const sanitizedMessage = escape(message);
 
+    const resend = getResendClient();
     const { data, error } = await resend.emails.send({
-      from: "Portfolio Contact <contact@hiretimsf.com>",
-      to: process.env.CONTACT_EMAIL || "hiretimsf@gmail.com",
+      from: "Portfolio Contact <contact@pantaleone.net>",
+      to: process.env.CONTACT_EMAIL || "matt@pantaleone.net",
       subject: `New Contact Form Submission from ${sanitizedName}`,
       replyTo: email,
       html: `
@@ -83,6 +95,37 @@ export async function POST(request: Request) {
     }
 
     logger.info("Email sent successfully", { context: "contact-api" });
+
+    // Track contact form submission in analytics
+    if (GA_MEASUREMENT_ID) {
+      // Server-side GA4 Measurement Protocol
+      fetch(
+        `https://www.google-analytics.com/mp/collect?measurement_id=${GA_MEASUREMENT_ID}&api_secret=${GA_API_SECRET}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            events: [
+              {
+                name: "generate_lead",
+                params: {
+                  form_name: "contact",
+                  success: true,
+                },
+              },
+            ],
+          }),
+        },
+      ).catch(() => {});
+    }
+
+    if (isAnalyticsEnabled()) {
+      posthog.capture("contact_form_submitted", {
+        name: sanitizedName,
+        email: sanitizedEmail,
+      });
+    }
+
     return NextResponse.json({
       success: true,
       message: "Email sent successfully",

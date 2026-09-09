@@ -1,98 +1,17 @@
-const TESTIMONIALS = [
-  {
-    authorAvatar: "https://unavatar.io/twitter/shadcn",
-    authorName: "shadcn",
-    authorBio: "@shadcn",
-    url: "https://x.com/shadcn/status/1930094628885471387",
-    quote: "Someone hire Tim.",
-  },
-  {
-    authorAvatar: "https://unavatar.io/twitter/shadcn",
-    authorName: "shadcn",
-    authorBio: "@shadcn",
-    url: "https://x.com/shadcn/status/1930088043383533621",
-    quote: "Oh woah :)",
-  },
-  {
-    authorAvatar: "https://unavatar.io/twitter/evilrabbit_",
-    authorName: "Evil Rabbit",
-    authorBio: "@evilrabbit_",
-    url: "https://x.com/evilrabbit_/status/1930134433635676487",
-    quote: "so good! 🔥😂",
-  },
-  {
-    authorAvatar: "https://unavatar.io/twitter/marclou",
-    authorName: "Marc Lou",
-    authorBio: "@marclou",
-    url: "https://x.com/marclou/status/2005538930192683430",
-    quote: "Where are u based I need you 😭",
-  },
-  {
-    authorAvatar: "https://unavatar.io/twitter/hiretimsf",
-    authorName: "HireTimSF.com",
-    authorBio: "@hiretimsf",
-    url: "https://x.com/hiretimsf/status/1799500139662651526",
-    quote: "Thank you @vercel",
-  },
-  {
-    authorAvatar: "https://unavatar.io/twitter/alfonsusac",
-    authorName: "Alfon",
-    authorBio: "@alfonsusac",
-    url: "https://x.com/alfonsusac/status/1916331166984245599",
-    quote: "someone should hire tim fr",
-  },
-  {
-    authorAvatar: "https://unavatar.io/twitter/danielcranney",
-    authorName: "Daniel Cranney 🇬🇧",
-    authorBio: "@danielcranney",
-    url: "https://x.com/danielcranney/status/1949919177437003788",
-    quote:
-      "Tim is out here running marathons with his domain name on his chest, can somebody HIRE TIM PLEASE",
-  },
-  {
-    authorAvatar: "https://unavatar.io/twitter/EonWeaveLabs",
-    authorName: "Eon Weave Labs",
-    authorBio: "@EonWeaveLabs",
-    url: "https://x.com/EonWeaveLabs/status/1930622440578732190",
-    quote:
-      "The fact that you made this your cover photo shows you understand personal branding better than most agencies. Whoever hires Tim is getting someone who thinks strategically!",
-  },
-  {
-    authorAvatar: "https://unavatar.io/twitter/hiretimsf",
-    authorName: "HireTimSF.com",
-    authorBio: "@hiretimsf",
-    url: "https://x.com/hiretimsf/status/1900665736135405853",
-    quote:
-      "⚡️ Exciting News!\nMy portfolio was featured on @WeAreDevs! 🎉 A huge thank you to @danielcranney for including my work. I really appreciate it! 🙌🚀",
-  },
-  {
-    authorAvatar: "https://unavatar.io/twitter/preetsuthar17",
-    authorName: "preet",
-    authorBio: "@preetsuthar17",
-    url: "https://x.com/preetsuthar17/status/1932667733964886198",
-    quote: "Someone hire Tim!",
-  },
-  {
-    authorAvatar: "https://unavatar.io/twitter/danielcranney",
-    authorName: "Daniel Cranney 🇬🇧",
-    authorBio: "@danielcranney",
-    url: "https://x.com/danielcranney/status/1937084213175456041",
-    quote: "It's Monday so it's the perfect day to hire Tim",
-  },
-  {
-    authorAvatar: "https://unavatar.io/youtube/CodingWithMitch",
-    authorName: "CodingWithMitch",
-    authorBio: "YouTube",
-    url: "https://www.youtube.com/watch?v=OHo64fiWx2k",
-    quote: "Codingwithmitch App Reviews #1",
-  },
-  {
-    authorAvatar: "https://unavatar.io/youtube/DThompsonDev",
-    authorName: "DThompsonDev",
-    authorBio: "YouTube",
-    url: "https://www.youtube.com/watch?v=wfL5arWfeOw",
-    quote: "You are doing portfolio sites wrong. Let's Fix it!",
-  },
-];
+// Hallmark gate 46 — honest copy. The previous version shipped five invented
+// quotes (Sarah Chen, Michael Rodriguez, Jennifer Walsh, David Kim,
+// Lisa Thompson) with identical placeholder avatars and url="#".
+// Removed 2026-09. The eBay feedback export was reviewed: 907 rows of
+// marketplace shipping/payment notes (median 40 chars), none describing AI
+// consulting work, so none is ported here. This list stays empty until a
+// real buyer provides a named, linkable quote.
+
+const TESTIMONIALS: Array<{
+  authorAvatar: string;
+  authorName: string;
+  authorBio: string;
+  url: string;
+  quote: string;
+}> = [];
 
 export default TESTIMONIALS;

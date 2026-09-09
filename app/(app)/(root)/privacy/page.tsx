@@ -1,4 +1,3 @@
-import ContactMe from "@/components/ContactMe";
 import { DocsLayout } from "@/components/fuma/fuma-layout";
 import { DocsBody, DocsPage } from "@/components/fuma/fuma-page";
 import HeadingTitle from "@/components/HeadingTitle";
@@ -13,6 +12,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { ComponentType } from "react";
 import LastModified from "@/components/LastModified";
+
+export const dynamic = "force-static";
 
 // Validate SEO configuration to ensure all required fields are present
 // This helps catch missing or incomplete SEO setup early
@@ -84,10 +85,9 @@ export default async function PrivacyPage() {
       </main>
       <SeparatorHorizontal short={true} />
       <LastModified
-        lastModified={pageData.lastModified ?? new Date().toISOString()}
+        lastModified={pageData.lastModified ?? "2026-07-29"}
       />
       <SeparatorHorizontal short={true} />
-      <ContactMe />
       <SeparatorHorizontal borderBottom={false} />
     </>
   );

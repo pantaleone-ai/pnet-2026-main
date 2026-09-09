@@ -1,4 +1,3 @@
-import ContactMe from "@/components/ContactMe";
 import HeadingTitle from "@/components/HeadingTitle";
 import LastModified from "@/components/LastModified";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
@@ -6,6 +5,8 @@ import HEAD from "@/config/seo/head";
 import { getBaseUrl } from "@/lib/helpers";
 import type { HeadType } from "@/types";
 import type { Metadata } from "next";
+
+export const dynamic = "force-static";
 
 // Validate SEO configuration to ensure all required fields are present
 // This helps catch missing or incomplete SEO setup early
@@ -47,23 +48,24 @@ export default async function EducationPage() {
         <SeparatorHorizontal short={true} />
         <div className="border-border relative min-h-52 max-w-full">
           <div className="prose dark:prose-invert mx-auto max-w-3xl px-6 py-8">
-            <h2 className="text-2xl font-semibold mb-4">My Education</h2>
+            <h2 className="text-2xl font-semibold mb-4">Education</h2>
             <p className="mb-4">
-              I have a strong foundation in computer science and software development.
-              My educational background has equipped me with the skills to build modern web applications.
+              Computer science foundation with a focus on systems design and
+              software engineering. Most of what I use daily — LangChain,
+              N8N, LLM deployment — was learned by building production systems,
+              not in a classroom.
             </p>
             <p className="mb-4">
-              While specific academic details are not available at this time, I continuously
-              learn and stay updated with the latest technologies and best practices in
-              the software development industry.
+              I stay current through hands-on work: shipping AI agents,
+              iterating on automation pipelines, and reading research papers
+              when the problem demands it.
             </p>
           </div>
         </div>
       </main>
       <SeparatorHorizontal short={true} />
-      <LastModified lastModified={new Date().toISOString()} />
+      <LastModified lastModified="2026-07-29" />
       <SeparatorHorizontal short={true} />
-      <ContactMe />
       <SeparatorHorizontal borderBottom={false} />
     </>
   );

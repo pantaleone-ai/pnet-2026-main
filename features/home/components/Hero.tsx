@@ -7,6 +7,8 @@ import { IoCheckmarkCircle as CheckmarkIcon } from "react-icons/io5";
 import { useAnimationFrame } from "framer-motion";
 import { useTheme } from "next-themes";
 import { META_THEME_COLORS } from "@/config/theme";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 function HeroContent() {
   return (
@@ -15,14 +17,19 @@ function HeroContent() {
         HELLO
       </p> */}
       <h1 className="text-foreground px-4 text-[32px] font-semibold tracking-tight sm:text-[40px] sm:text-left py-2">
-        {/* <span className="sm:hidden">Hey!</span> */}
-        We Create the Future
+        AI systems that run themselves.
       </h1>
 
       <p className="text-foreground/80 px-4 text-lg/8 text-left py-4 pb-8">
-        We help forward-thinking businesses and leaders architect the future through AI, automation, agentic workflows, and proprietary digital platforms.  
+        We build AI agents, automation, and software that run real work.
       </p>
-      <p className="text-foreground/80 px-4 text-lg/8 text-left py-4 pb-10">With nearly 20 years of experience optimizing the largest businesses in the world, we drive transformative change to businesses and governments.</p>
+      <p className="text-foreground/80 px-4 text-lg/8 text-left py-4 pb-10">N8N workflows. LangChain pipelines. Custom LLM integrations. Built to ship, not to demo.</p>
+
+      <div className="px-4 py-4">
+        <Button asChild size="lg" className="w-full sm:w-auto">
+          <Link href="/contact">Book a call</Link>
+        </Button>
+      </div>
 
       <ul
         className="text-foreground space-y-2 divide-y divide-dashed divide-border-edge"
@@ -97,23 +104,20 @@ function ParticleCanvas() {
   // Track inputs
   const mouse = useRef({ x: 0, y: 0 });
   const cameraOffset = useRef({ x: 0, y: 0 });
+  const frameCount = useRef(0); // For throttling animation to 30fps
 
   const particles = useRef<Particle[]>([]);
 
-  // Configuration
-  const Z_SPEED = 1.0;
+  // Configuration - Optimized for performance
+  const Z_SPEED = 0.8;
   const DEPTH = 2000;
   const FOV = 800;
-  const STEER_SENSITIVITY = 0.05;
+  const STEER_SENSITIVITY = 0.03; // Reduced sensitivity
 
   const COLORS: { r: number; g: number; b: number }[] = [
     { r: 255, g: 255, b: 255 }, // White
-    { r: 255, g: 255, b: 255 },
-    { r: 255, g: 255, b: 255 },
     { r: 200, g: 230, b: 255 }, // Light Ice Blue
     { r: 100, g: 180, b: 255 }, // Deep Sky Blue
-    { r: 255, g: 220, b: 180 }, // Soft Amber
-    { r: 255, g: 160, b: 100 }, // Deep Orange
   ];
 
   // Handle theme changes
@@ -150,7 +154,7 @@ function ParticleCanvas() {
       mouse.current = { x: width / 2, y: height / 2 };
 
       const isMobile = width < 768;
-      const count = isMobile ? 400 : 800;
+      const count = isMobile ? 150 : 300; // Reduced particle count by ~60%
 
       initParticles(width, height, count);
     };
@@ -212,6 +216,9 @@ function ParticleCanvas() {
   }, []);
 
   useAnimationFrame(() => {
+    frameCount.current++;
+    if (frameCount.current % 2 !== 0) return; // Throttle to 30fps
+
     if (!canvasRef.current) return;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
@@ -243,7 +250,7 @@ function ParticleCanvas() {
         p.z = DEPTH;
         p.x = (Math.random() - 0.5) * width * 4;
         p.y = (Math.random() - 0.5) * height * 4;
-        p.alpha = 0; 
+        p.alpha = 0;
       }
 
       const k = FOV / p.z;
@@ -255,7 +262,7 @@ function ParticleCanvas() {
       let targetAlpha = 1;
       if (zNorm > 0.9) targetAlpha = (1 - zNorm) * 10;
       else if (zNorm < 0.2) targetAlpha = zNorm * 5;
-      
+
       p.alpha += (targetAlpha - p.alpha) * 0.1;
 
       if (x2d >= 0 && x2d <= width && y2d >= 0 && y2d <= height) {

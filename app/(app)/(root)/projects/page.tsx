@@ -1,4 +1,3 @@
-import ContactMe from "@/components/ContactMe";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
 import ProjectList from "@/features/projects/components/ProjectList";
@@ -12,6 +11,9 @@ import HeadingTitle from "@/components/HeadingTitle";
 if (!HEAD || HEAD.length === 0) {
   console.error("⚠️ HEAD configuration is missing or empty");
 }
+
+// Content is static MDX from the repo - force static prerender, no ISR reads.
+export const dynamic = "force-static";
 
 // Define the current page for SEO configuration
 const PAGE = "Projects";
@@ -42,7 +44,6 @@ export default async function ProjectsPage() {
       <SeparatorHorizontal short={true} />
       <ProjectList />
       <SeparatorHorizontal short={true} />
-      <ContactMe />
       <SeparatorHorizontal borderBottom={false} />
     </>
   );

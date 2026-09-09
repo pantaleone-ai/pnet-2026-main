@@ -38,14 +38,15 @@ export default function Error({ error, reset }: ErrorProps) {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4">
       <div className="max-w-md text-center">
-        <h2 className="mb-4 text-2xl font-bold">Something went wrong!</h2>
+        <h2 className="mb-4 text-2xl font-bold">This page failed to load</h2>
         <p className="mb-6 text-muted-foreground">
-          We apologize for the inconvenience. An unexpected error occurred.
+          The page hit an error and stopped rendering. Try again, or go home
+          and continue from there.
         </p>
         {process.env.NODE_ENV === "development" && (
           <details className="mb-6 rounded-lg border bg-muted p-4 text-left text-sm">
             <summary className="cursor-pointer font-semibold">
-              Error Details (Development Only)
+              Error details (development only)
             </summary>
             <pre className="mt-2 overflow-auto whitespace-pre-wrap break-words text-xs">
               {error.message}

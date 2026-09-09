@@ -1,0 +1,440 @@
+{
+  "name": "Meeting Transcript Analyzer - Jira Creator",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "meeting-transcript",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook-trigger",
+      "name": "Chat Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "meeting-transcript-analyzer"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = items[0].json.body || items[0].json;\n\nlet fileId = body.fileId || body.file_id;\nlet fileName = body.fileName || body.file_name;\nlet transcriptText = body.transcript || body.text || body.content;\n\nif (!fileId && transcriptText) {\n  return [{\n    json: {\n      fileId: null,\n      fileName: fileName || 'Direct Input',\n      content: transcriptText,\n      mimeType: 'text/plain',\n      source: 'direct'\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    fileId: fileId,\n    fileName: fileName,\n    source: 'google-drive'\n  }\n}];"
+      },
+      "id": "parse-input",
+      "name": "Parse Webhook Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.source }}",
+              "value2": "google-drive"
+            }
+          ]
+        }
+      },
+      "id": "if-google-drive",
+      "name": "IF Google Drive File",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.fileId }}",
+          "mode": "id"
+        },
+        "options": {
+          "binaryPropertyName": "file"
+        }
+      },
+      "id": "download-file",
+      "name": "Download from Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [850, 200],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "__rl": true,
+          "value": "CREDENTIAL_ID_HERE",
+          "mode": "credentialId",
+          "cachedResultName": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const fileData = items[0].json.file;\nconst binary = items[0].binary;\n\nlet textContent = '';\n\nif (binary && binary.file) {\n  const fileBuffer = Buffer.from(binary.file.data, 'base64');\n  textContent = fileBuffer.toString('utf-8');\n}\n\nif (!textContent && items[0].json.content) {\n  textContent = items[0].json.content;\n}\n\nreturn [{\n  json: {\n    fileId: fileData?.id || items[0].json.fileId,\n    fileName: fileData?.name || items[0].json.fileName,\n    content: textContent,\n    mimeType: fileData?.mimeType || items[0].json.mimeType\n  }\n}];"
+      },
+      "id": "extract-text",
+      "name": "Extract Text Content",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1050, 200]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = items[0].json.body || items[0].json;\nconst transcriptText = body.transcript || body.text || body.content;\n\nreturn [{\n  json: {\n    fileId: null,\n    fileName: body.fileName || 'Direct Input',\n    content: transcriptText,\n    mimeType: 'text/plain'\n  }\n}];"
+      },
+      "id": "set-direct-text",
+      "name": "Set Direct Text",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1050, 400]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "merge-content",
+      "name": "Merge Content",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [1250, 300]
+    },
+    {
+      "parameters": {
+        "agent": "conversationalAgent",
+        "promptType": "define",
+        "text": "You are a meeting transcript analysis expert. Your task is to analyze meeting transcripts and extract structured information.\n\nAnalyze the meeting transcript provided below and extract:\n\n1. **FEATURES** - Any new product features, requirements, or enhancements discussed. For each feature, provide:\n   - title: A concise title\n   - description: Detailed description of the feature\n   - priority: High, Medium, or Low\n\n2. **ACTIONS** - Any tasks, action items, or requests assigned. For each action, provide:\n   - title: A concise title\n   - description: Detailed description\n   - priority: High, Medium, or Low\n   - assignee: Who is responsible (if mentioned)\n\n3. **INSIGHTS** - Key insights, decisions, or critical information\n\nOutput your response as a JSON object with this exact structure:\n```json\n{\n  \"features\": [\n    {\"title\": \"...\", \"description\": \"...\", \"priority\": \"High/Medium/Low\"}\n  ],\n  \"actions\": [\n    {\"title\": \"...\", \"description\": \"...\", \"priority\": \"High/Medium/Low\", \"assignee\": \"...\"}\n  ],\n  \"insights\": [\"...\"]\n}\n```\n\nIf no features, actions, or insights are found, return empty arrays.\n\nTranscript to analyze:\n{{ $json.content }}",
+        "options": {}
+      },
+      "id": "ai-agent",
+      "name": "Analyze Transcript",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [1450, 300]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "qwen-3-4b-2507.gguf",
+          "mode": "list",
+          "cachedResultName": "qwen-3-4b-2507.gguf"
+        },
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "id": "ollama-model",
+      "name": "Ollama (Qwen)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [1300, 150],
+      "credentials": {
+        "openAiApi": {
+          "__rl": true,
+          "value": "OLLAMA_CREDENTIAL_ID",
+          "mode": "credentialId",
+          "cachedResultName": "OLLAMA Connection"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = items[0].json;\n\nlet response = input;\n\n// Handle string response from AI\nif (typeof input === 'string') {\n  try {\n    response = JSON.parse(input);\n  } catch (e) {\n    // Try to extract JSON from markdown code blocks\n    const jsonMatch = input.match(/```json\\s*([\\s\\S]*?)\\s*```/) || input.match(/\\{[\\s\\S]*\\}/);\n    if (jsonMatch) {\n      try {\n        response = JSON.parse(jsonMatch[1] || jsonMatch[0]);\n      } catch (e2) {\n        response = { features: [], actions: [], insights: [] };\n      }\n    } else {\n      response = { features: [], actions: [], insights: [] };\n    }\n  }\n}\n\n// Handle nested response (some models wrap in \"content\" or \"text\")\nif (response.content) {\n  try {\n    response = typeof response.content === 'string' ? JSON.parse(response.content) : response.content;\n  } catch (e) {}\n}\nif (response.text) {\n  try {\n    response = typeof response.text === 'string' ? JSON.parse(response.text) : response.text;\n  } catch (e) {}\n}\n\nconst features = Array.isArray(response.features) ? response.features : [];\nconst actions = Array.isArray(response.actions) ? response.actions : [];\nconst insights = Array.isArray(response.insights) ? response.insights : [];\n\n// Map features to Jira Story format\nconst featureItems = features.map(f => ({\n  json: {\n    itemType: 'feature',\n    title: f.title || f.name || 'Untitled Feature',\n    description: f.description || f.details || '',\n    priority: f.priority || 'Medium',\n    assignee: f.assignee || null\n  }\n}));\n\n// Map actions to Jira Task format\nconst actionItems = actions.map(a => ({\n  json: {\n    itemType: 'action',\n    title: a.title || a.name || 'Untitled Action',\n    description: a.description || a.details || '',\n    priority: a.priority || 'Medium',\n    assignee: a.assignee || null\n  }\n}));\n\n// Return combined items\nreturn [...featureItems, ...actionItems];"
+      },
+      "id": "normalize-response",
+      "name": "Normalize & Parse",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1650, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.itemType }}",
+              "value2": "feature"
+            }
+          ]
+        }
+      },
+      "id": "if-feature",
+      "name": "IF Feature",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [1850, 300]
+    },
+    {
+      "parameters": {
+        "project": {
+          "__rl": true,
+          "value": "JIRA_PROJECT_KEY",
+          "mode": "list",
+          "cachedResultName": "PROJECT_NAME"
+        },
+        "issueType": {
+          "__rl": true,
+          "value": "Story",
+          "mode": "list",
+          "cachedResultName": "Story"
+        },
+        "summary": "={{ $json.title }}",
+        "additionalFields": {
+          "description": "={{ $json.description }}\n\n---\n\n**Source:** Meeting Transcript\n**Priority:** {{ $json.priority }}{{ $json.assignee ? '\\n**Assignee:** ' + $json.assignee : '' }}",
+          "priority": {
+            "name": "={{ $json.priority }}"
+          }
+        }
+      },
+      "id": "jira-feature",
+      "name": "Create Feature Ticket",
+      "type": "n8n-nodes-base.jiraTool",
+      "typeVersion": 1,
+      "position": [2050, 200],
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "__rl": true,
+          "value": "JIRA_CREDENTIAL_ID",
+          "mode": "credentialId",
+          "cachedResultName": "Jira SW Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "project": {
+          "__rl": true,
+          "value": "JIRA_PROJECT_KEY",
+          "mode": "list",
+          "cachedResultName": "PROJECT_NAME"
+        },
+        "issueType": {
+          "__rl": true,
+          "value": "Task",
+          "mode": "list",
+          "cachedResultName": "Task"
+        },
+        "summary": "={{ $json.title }}",
+        "additionalFields": {
+          "description": "={{ $json.description }}\n\n---\n\n**Source:** Meeting Transcript\n**Priority:** {{ $json.priority }}{{ $json.assignee ? '\\n**Assignee:** ' + $json.assignee : '' }}",
+          "priority": {
+            "name": "={{ $json.priority }}"
+          }
+        }
+      },
+      "id": "jira-action",
+      "name": "Create Action Item",
+      "type": "n8n-nodes-base.jiraTool",
+      "typeVersion": 1,
+      "position": [2050, 400],
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "__rl": true,
+          "value": "JIRA_CREDENTIAL_ID",
+          "mode": "credentialId",
+          "cachedResultName": "Jira SW Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = items.map(item => ({\n  key: item.json.key || 'N/A',\n  summary: item.json.summary || item.json.title || 'N/A',\n  type: item.json.type || 'N/A'\n}));\n\nreturn [{\n  json: {\n    totalCreated: results.length,\n    tickets: results,\n    message: 'Created ' + results.length + ' Jira tickets from meeting transcript'\n  }\n}];"
+      },
+      "id": "summarize-results",
+      "name": "Summarize Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2250, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json.message }}",
+        "options": {}
+      },
+      "id": "webhook-response",
+      "name": "Return Results",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [2450, 300]
+    }
+  ],
+  "connections": {
+    "Chat Trigger": {
+      "main": [
+        [
+          {
+            "node": "Parse Webhook Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Webhook Input": {
+      "main": [
+        [
+          {
+            "node": "IF Google Drive File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Google Drive File": {
+      "main": [
+        [
+          {
+            "node": "Download from Drive",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Direct Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download from Drive": {
+      "main": [
+        [
+          {
+            "node": "Extract Text Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Text Content": {
+      "main": [
+        [
+          {
+            "node": "Merge Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Direct Text": {
+      "main": [
+        [
+          {
+            "node": "Merge Content",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Content": {
+      "main": [
+        [
+          {
+            "node": "Analyze Transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama (Qwen)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Analyze Transcript",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Transcript": {
+      "main": [
+        [
+          {
+            "node": "Normalize & Parse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize & Parse": {
+      "main": [
+        [
+          {
+            "node": "IF Feature",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Feature": {
+      "main": [
+        [
+          {
+            "node": "Create Feature Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Action Item",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Feature Ticket": {
+      "main": [
+        [
+          {
+            "node": "Summarize Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Action Item": {
+      "main": [
+        [
+          {
+            "node": "Summarize Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize Results": {
+      "main": [
+        [
+          {
+            "node": "Return Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 1,
+  "updatedAt": "2026-02-28T00:00:00.000Z",
+  "versionId": "1"
+}

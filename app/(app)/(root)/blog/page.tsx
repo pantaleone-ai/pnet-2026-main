@@ -1,12 +1,13 @@
-import ContactMe from "@/components/ContactMe";
 import HeadingTitle from "@/components/HeadingTitle";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
 import { getBaseUrl } from "@/lib/helpers";
 import type { HeadType } from "@/types";
 import type { Metadata } from "next";
+import { getBlogPosts } from "@/features/blog/data/blogSource";
 import BlogPostList from "@/features/blog/components/BlogPostList";
-import FeaturedProductsSection from "@/features/shop/components/FeaturedProductsSection";
+import FeaturedProductsSectionAsync from "@/features/shop/components/FeaturedProductsSectionAsync";
+import { Suspense } from "react";
 
 // Validate SEO configuration to ensure all required fields are present
 // This helps catch missing or incomplete SEO setup early
@@ -14,8 +15,11 @@ if (!HEAD || HEAD.length === 0) {
   console.error("⚠️ HEAD configuration is missing or empty");
 }
 
+// Content is static MDX from the repo - force static prerender, no ISR reads.
+export const dynamic = "force-static";
+
 // Define the current page for SEO configuration
-const PAGE = "AI Tech & Automation Blog";
+const PAGE = "Blog";
 
 // Get SEO configuration for the current page from the HEAD array
 const page = HEAD.find((page: HeadType) => page.page === PAGE) as HeadType;
@@ -33,22 +37,62 @@ export const metadata: Metadata = {
   alternates: {
     canonical: getBaseUrl(page?.slug),
   },
+
+  // OpenGraph - preserved original behavior
+  openGraph: {
+    type: "website",
+    title: page?.title,
+    description: page?.description,
+    images: [
+      {
+        url: "https://pantaleone.net/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: page?.title,
+      },
+    ],
+  },
+
+  // Twitter - preserved original behavior
+  twitter: {
+    card: "summary_large_image",
+    title: page?.title,
+    description: page?.description,
+    images: ["https://pantaleone.net/opengraph-image"],
+  },
+
+  // Additional meta tags
+  other: {
+    "og:logo": "summary_large_image.png",
+  },
 };
 
 export default async function BlogPage() {
+  // Fetch data on server side
+  const posts = getBlogPosts().sort(
+    (a, b) => new Date(b.created).getTime() - new Date(a.created).getTime(),
+  );
+
+  // Transform posts to serializable format for client components
+  const serializablePosts = posts.map((post) => {
+    const { body, ...serializablePost } = post;
+    return serializablePost;
+  });
+
   return (
     <>
       <SeparatorHorizontal borderTop={false} />
       <HeadingTitle
-        title="AI Tech & Automation Blog"
+        title="Blog"
         textStyleClassName="text-2xl font-bold sm:text-3xl"
       />
       <SeparatorHorizontal short={true} />
-      <BlogPostList />
+      <BlogPostList posts={serializablePosts} />
       <SeparatorHorizontal short={true} />
-      <FeaturedProductsSection />
+      <Suspense>
+        <FeaturedProductsSectionAsync />
+      </Suspense>
       <SeparatorHorizontal short={true} />
-      <ContactMe />
       <SeparatorHorizontal borderBottom={false} />
     </>
   );

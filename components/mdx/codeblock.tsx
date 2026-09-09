@@ -63,6 +63,12 @@ export function Pre(props: ComponentProps<"pre">) {
     <pre
       {...props}
       className={cn("min-w-full w-full *:flex *:flex-col", props.className)}
+      style={{
+        whiteSpace: "pre-wrap",
+        wordBreak: "break-all",
+        overflowWrap: "break-word",
+        ...props.style,
+      }}
     >
       {props.children}
     </pre>
@@ -87,8 +93,8 @@ export function CodeBlock({
   const inTab = use(TabsContext) !== null;
   const areaRef = useRef<HTMLDivElement>(null);
 
-  // Enable line numbers by default
-  const showLineNumbers = lineNumbers !== false; // Default to true unless explicitly disabled
+  // Disable line numbers by default
+  const showLineNumbers = lineNumbers === false; // Default to false unless explicitly enabled
 
   return (
     <figure

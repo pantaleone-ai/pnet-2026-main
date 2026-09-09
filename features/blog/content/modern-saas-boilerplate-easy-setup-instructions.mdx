@@ -1,6 +1,6 @@
 ---
-title: "The Modern SaaS Stack: A Builder's Guide to Next.js, Supabase, and Stripe"
-description: "Stop patching broken models. This is the definitive, automated foundation for building modern SaaS applications with the Next.js App Router, Supabase, Drizzle, and Stripe. Built for builders."
+title: "Next.js SaaS Stack"
+description: "App Router, Supabase, Drizzle, Stripe. Setup notes."
 image: "https://pantaleone-net.s3.us-west-1.amazonaws.com/blog-images/ai-stack.webp"
 created: "2025-09-14"
 date: "2025-09-14"
@@ -31,15 +31,15 @@ tags:
 # Introduction
 The old SaaS playbook is broken. Bolting features onto a fragile architecture with vendor-locked identity and messy billing logic is a recipe for technical debt. It's time to stop patching and start building on a solid foundation.
 
-This guide provides that foundation. A clean, modular, and production-ready stack for builders who value ownership, control, and execution. We'll integrate Better Auth for identity, Supabase for a managed Postgres database, Drizzle for a lightweight ORM, and Stripe for automated billing—all unified by the power of the Next.js App Router.
+This guide provides that foundation. A clean, modular stack for builders who value ownership, control, and execution. We'll integrate Better Auth for identity, Supabase for a managed Postgres database, Drizzle for a lightweight ORM, and Stripe for automated billing—all unified by the power of the Next.js App Router.
 
 This isn't an incremental improvement. It's a transformational shift in how you build.
 
 # The Foundation: A Modern Architecture
 Clean separation of concerns isn't a "nice-to-have." It's everything. This stack is designed for clarity and durability.
 
-- **Next.js App Router**: The core for routes, middleware, and server components. We leverage the modern Next.js paradigm for a seamless developer experience.
-- **Better Auth + Drizzle on Supabase**: The single source of truth for identity. We own our user data on a production-grade Postgres instance, accessed via a type-safe, lightweight adapter. No provider-specific JWTs, no lock-in.
+- **Next.js App Router**: The core for routes, middleware, and server components. It follows the standard Next.js App Router layout: routes, middleware, and Server Components where they fit.
+- **Better Auth + Drizzle on Supabase**: The single source of truth for identity. We own our user data on a managed Postgres instance, accessed via a type-safe, lightweight adapter. No provider-specific JWTs, no lock-in.
 - **Stripe**: The automated billing engine. We offload PCI scope, SCA/3DS, and subscription management to Stripe’s hosted Checkout and billing portal, integrated cleanly via webhooks.
 
 This isn't just a collection of tools. It's a deliberate architecture that puts the builder in control.
@@ -157,7 +157,7 @@ export const auth = betterAuth({
 });```
 
 # 4. The Framework: Tying It All Together
-With the core configured, we integrate it seamlessly into the Next.js App Router.
+With the core configured, we wire it into the Next.js App Router with a catch-all route.
 
 ### Expose the Auth API Handler
 A single catch-all route handles all authentication endpoints (`/signin`, `/signout`, `/verify-email`, etc.). Clean.

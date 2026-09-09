@@ -4,14 +4,15 @@ export default function ShopHero() {
   return (
     <Card className="mb-8">
       <CardHeader>
-        <CardTitle className="text-2xl font-bold">Welcome to the AI Shop</CardTitle>
+        <CardTitle className="text-2xl font-bold">Shop: workflows, apps, and guides</CardTitle>
       </CardHeader>
       <CardContent>
         <p className="text-lg mb-4">
-          Explore our collection of AI applications, workflows, services, and digital artwork.
+          N8N workflow packs, Next.js AI starters, and prompt packs. Each
+          listing names the stack and what you get.
         </p>
         <p className="text-base text-muted-foreground">
-          All products are designed to help you leverage AI technology in your projects and business.
+          Buy once, download, run it yourself. Support replies from Matt.
         </p>
       </CardContent>
     </Card>

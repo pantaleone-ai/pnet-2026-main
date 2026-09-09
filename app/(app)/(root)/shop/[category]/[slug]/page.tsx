@@ -1,15 +1,34 @@
 import HEAD from "@/config/seo/head";
 import { siteConfig } from "@/config/site";
-import { getProductBySlug, getProductsByCategory, getCategories, getProducts } from "@/features/shop/data/shopSource";
-import { getBaseUrl } from "@/lib/helpers";
+import {
+  getProductBySlug,
+  getProductsByCategory,
+  getCategories,
+  getProducts,
+} from "@/features/shop/data/shopSource";
+import { getBaseUrl, getProductCategorySlug } from "@/lib/helpers";
+import { getMDXComponents } from "@/mdx-components";
 import type { HeadType } from "@/types";
 import type { Metadata } from "next";
+import type { MDXComponents } from "mdx/types";
 import { notFound } from "next/navigation";
 import ProductDetailClient from "@/features/shop/components/ProductDetailClient";
+import {
+  ProductJsonLd,
+  BreadcrumbJsonLd,
+  OrganizationJsonLd,
+} from "@/lib/schema/json-ld";
+import {
+  convertShopProductToMerchantProduct,
+  buildBreadcrumbItems,
+  getOpenGraphImages,
+} from "@/lib/schema/product-converter";
 
-/** * SEO Logic */
 const PAGE = "Shop";
 const pageConfig = HEAD.find((p: HeadType) => p.page === PAGE);
+
+// Product pages derive from static MDX content - pre-render all at build.
+export const dynamicParams = false;
 
 export async function generateStaticParams() {
   const categories = getCategories();
@@ -19,7 +38,7 @@ export async function generateStaticParams() {
     return products
       .filter((product) => product.category === category)
       .map((product) => ({
-        category: category.toLowerCase().replace(/\s+/g, '-'),
+        category: getProductCategorySlug(category),
         slug: product.slug,
       }));
   });
@@ -36,22 +55,26 @@ export async function generateMetadata({
   if (!product || !pageConfig) return { title: "Product Not Found" };
 
   const url = getBaseUrl(`shop/${category}/${slug}`);
+  const availability = product.inventory === 0 ? "out of stock" : "in stock";
+  const images = getOpenGraphImages(product);
 
   return {
     title: `${product.title} - ${pageConfig.title}`,
     description: product.description || "Shop AI products",
+    keywords: [
+      product.title,
+      product.category,
+      ...(product.techStacks || []),
+      "AI products",
+      "Next.js",
+      "TypeScript",
+      "digital products",
+    ].filter(Boolean) as string[],
     alternates: { canonical: url },
     openGraph: {
       title: `${product.title} - ${pageConfig.title}`,
       description: product.description || "Shop AI products",
-      images: [
-        {
-          url: product.imageUrl || "/summary_large_image.png",
-          width: 1200,
-          height: 630,
-          alt: product.title,
-        },
-      ],
+      images: images,
       url: url,
       type: "website",
       siteName: siteConfig.name,
@@ -63,10 +86,15 @@ export async function generateMetadata({
       description: product.description || "Shop AI products",
       images: [product.imageUrl || "/summary_large_image.png"],
     },
+    other: {
+      "product:price:amount": String(product.price),
+      "product:price:currency": product.currency || "USD",
+      "product:availability": availability,
+      "og:type": "product",
+    },
   };
 }
 
-/** * Page Component */
 export default async function ProductDetailPage({
   params,
 }: {
@@ -77,23 +105,44 @@ export default async function ProductDetailPage({
 
   if (!rawProduct) return notFound();
 
-  // FIX: Destructure 'body' immediately.
-  // We keep 'body' as a local variable and
-  // 'product' remains a plain, serializable object for everything else.
   const { body, ...product } = rawProduct;
 
-  const relatedProducts = getProductsByCategory(category)
-    .filter(p => p.slug !== slug);
+  const relatedProducts = getProductsByCategory(category).filter(
+    (p) => p.slug !== slug,
+  );
 
   const formatCategoryName = (s: string) =>
-    decodeURIComponent(s).replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    decodeURIComponent(s)
+      .replace(/-/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase());
 
   const categoryName = formatCategoryName(category);
+  const canonicalUrl = getBaseUrl(`shop/${category}/${slug}`);
+  const baseUrl = getBaseUrl();
 
-  return <ProductDetailClient
-    product={product}
-    categoryName={categoryName}
-    category={category}
-    relatedProducts={relatedProducts}
-  />;
+  const merchantProduct = convertShopProductToMerchantProduct(
+    product,
+    canonicalUrl,
+  );
+  const breadcrumbItems = buildBreadcrumbItems(category, slug, baseUrl);
+
+  const MDXContent = body as React.FC<{ components: MDXComponents }>;
+
+  return (
+    <>
+      <ProductJsonLd product={merchantProduct} />
+      <BreadcrumbJsonLd items={breadcrumbItems} />
+      <OrganizationJsonLd siteName={siteConfig.name} siteUrl={baseUrl} />
+      <ProductDetailClient
+        product={product}
+        categoryName={categoryName}
+        category={category}
+        relatedProducts={relatedProducts}
+      >
+        <div className="prose prose-lg max-w-none dark:prose-invert">
+          <MDXContent components={getMDXComponents()} />
+        </div>
+      </ProductDetailClient>
+    </>
+  );
 }

@@ -1,51 +1,118 @@
 ---
-title: Free QR Code Generator
-description: Customizable tool for creating professional QR codes with various options
+title: QR Code Generator
+description: >-
+  QR code app kit: logos, colors, live preview. Next.js 15, client-side only.
 category: Apps
-price: 0
+price: 100
 currency: USD
+availability: in_stock
+condition: new
+brand: "Pantaleone Digital Services"
+googleProductCategory: "319"
+productType: "Software & Apps > AI Applications"
+identifierExists: false
 featured: true
 isDigital: true
-imageUrl: https://pantaleone-net.s3.us-west-1.amazonaws.com/qr1.webp
+imageUrl: "https://pantaleone-net.s3.us-west-1.amazonaws.com/qr1.webp"
 imageAlt: Free QR Code Generator customization interface
-additionalImages: '[{"url": "https://pantaleone-net.s3.us-west-1.amazonaws.com/qr2.webp", "alt": "Color adjustment preview"}, {"url": "https://pantaleone-net.s3.us-west-1.amazonaws.com/qr3.webp", "alt": "Generated QR code example"}]'
+additionalImages:
+  - url: "https://pantaleone-net.s3.us-west-1.amazonaws.com/qr2.webp"
+    alt: Color adjustment preview
+  - url: "https://pantaleone-net.s3.us-west-1.amazonaws.com/qr3.webp"
+    alt: Generated QR code example
 sku: QR-GENERATOR-001
-purchaseUrl: https://qr-generator-pantaleone.vercel.app/
-techStacks: ["Next.js 15", "React"]
+purchaseUrl: "https://qr-generator-pantaleone.vercel.app/"
+techStacks:
+  - Next.js 15
+  - React
+  - Client-side QR Generation
+stripeProductId: prod_TllXGyj4PBkrUU
+stripePriceId: price_1SoE2qA6IHcdPSqUfDw41Bvs
+stripePaymentLink: "https://buy.stripe.com/aFa3cufnn7iOa4Ug9Ee7m01"
+timeToValue: 20
+targetKeywords:
+  - "Next.js QR code generator kit"
+  - "Client-side QR generation app"
+  - "Branded QR code generator"
+  - "Multi-format QR code builder"
+  - "QR code API Next.js"
+coreStack:
+  - Next.js 15
+  - React 19
+  - TypeScript
+  - Client-side JavaScript
+primaryLibraries:
+  - qrcode.react
+  - html-to-image
+  - Tailwind CSS
+infrastructureRequirements:
+  - Vercel
+  - Browser-only deployment
+documentationUrl: "https://docs.pantaleone.net/docs/qr-generator"
+architectureDiagram: |
+  ```mermaid
+  graph TD
+    A[User Input] --> B[Data Type Selector]
+    B --> C{Format Type}
+    C -->|URL| D[URL Validator]
+    C -->|vCard| E[Contact Parser]
+    C -->|WiFi| F[WiFi Config]
+    C -->|Payment| G[Payment Link]
+    D --> H[QR Config Panel]
+    E --> H
+    F --> H
+    G --> H
+    H --> I[QR Renderer]
+    I --> J[Preview Component]
+    J --> K[Export Options]
+    K -->|PNG| L[Download]
+    K -->|Clipboard| M[Copy]
+    style A fill:#e1f5fe
+    style I fill:#fff3e0
+    style K fill:#e8f5e9
+  ```
 ---
 
-## Free QR Code Generator
+## QR Code Generator
 
-### Custom QR Code Creation Tool
+### QR code app kit
 
-This free tool allows creating tailored QR codes for marketing, business, or personal use with easy customizations.
+With this product, any developer can build or extend a QR code generator—handling URL, text, Wi-Fi, vCard, events, PayPal, crypto wallets, and more. Real-time previews, brand colors, error correction, size tweaks, PNG exports, clipboard copy—all client-side, no backend cruft.
 
 ### Key Features
 
-- **Customization**: Colors, sizes, error correction
-- **High-Resolution**: PNG exports
-- **Clipboard Copy**: Quick sharing
-- **Real-Time Preview**: Instant updates
+- **Data Types Supported**: URL, plain text, Wi-Fi credentials, vCard business cards, app links, event invites, PayPal payments, cryptocurrency addresses
+- **Branding Controls**: Foreground/background colors, adjustable size (up to 1024px), error correction levels (low to high reliability)
+- **Logo Integration**: Center logo embedding (branded default; extend for custom uploads)
+- **Real-Time Everything**: Instant preview on input change
+- **Export & Share**: High-res PNG download, one-click clipboard copy
+- **API Pattern**: GET endpoint style (/api/qr?value=...&size=...&fgColor=...) ready to hook or replicate
 
 ### Technical Specifications
 
-- **Framework**: Next.js 15 with React
-- **Output**: High-quality PNG files
-- **Interface**: Smooth and responsive
+- **Framework**: Next.js 15 (App Router compatible)
+- **Engine**: Client-side QR rendering—no server calls needed
+- **Output**: Vector-sharp PNG at any resolution
+- **Responsive Base**: Mobile-first UI foundation
+- **Extensibility**: Easy to add shapes, patterns, frames, batch gen, dynamic data binding, or tracking pixels
+- **Limitations**: Core is single-QR; extend for multi/bulk; custom logos need your upload logic
 
 ### Ideal For
 
-- Businesses for promotions
-- Marketers tracking campaigns
-- Developers integrating QR
-- Personal users sharing info
+- Developers embedding QR in marketing/sales tools
+- Builders creating branded campaign generators
+- Devs wiring dynamic QR into apps (events, payments, Wi-Fi portals)
+- Any dev ditching third-party junk for clean, ownable QR flows
 
 ### What's Included
 
-- Customization interface
-- Generation and export tools
-- Usage examples
+- Full input/customization interface code
+- Real-time preview components
+- Color picker + error correction selectors
+- Generation/export/download logic
+- Clipboard integration hooks
+- API-style parameter patterns for extension
 
 ### Get Started Fast
 
-Create professional QR codes in seconds for any purpose!
+Fork this, plug your data sources, launch branded QR tools that don't leak user intent. Skip the legacy wrappers—build the sharp, reliable base. Execution wins. Keep pushing and this repository is a great foundation.

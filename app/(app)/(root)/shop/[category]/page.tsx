@@ -1,8 +1,12 @@
-import ContactMe from "@/components/ContactMe";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
 import ShopCategoryProducts from "@/features/shop/components/ShopCategoryProducts";
-import { getBaseUrl } from "@/lib/helpers";
+import {
+  getCategories,
+  getProductsByCategory,
+} from "@/features/shop/data/shopSource";
+import { getBaseUrl, getProductCategorySlug } from "@/lib/helpers";
+import { ProductListJsonLd } from "@/lib/schema/json-ld";
 import type { HeadType } from "@/types";
 import type { Metadata } from "next";
 import HeadingTitle from "@/components/HeadingTitle";
@@ -34,6 +38,19 @@ export const metadata: Metadata = {
   },
 };
 
+// Categories are derived from static content, so pre-render them at build
+// time instead of server-rendering on every request.
+export const dynamic = "force-static";
+
+// Unknown category paths 404 statically instead of triggering ISR generation.
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return getCategories().map((category) => ({
+    category: getProductCategorySlug(category),
+  }));
+}
+
 export default async function ShopCategoryPage({
   params,
 }: {
@@ -44,21 +61,22 @@ export default async function ShopCategoryPage({
     // First decode the URL-encoded slug
     const decodedSlug = decodeURIComponent(slug);
     return decodedSlug
-      .replace(/-/g, ' ')
+      .replace(/-/g, " ")
       .replace(/\b\w/g, (char) => char.toUpperCase());
   };
 
   const { category } = await params;
-  const categoryName = category ? formatCategoryName(category) : '';
+  const categoryName = category ? formatCategoryName(category) : "";
+  const products = getProductsByCategory(categoryName);
 
   return (
     <>
+      <ProductListJsonLd products={products} categoryName={categoryName} />
       <SeparatorHorizontal borderTop={false} />
       <HeadingTitle title={`Shop - ${categoryName}`} />
       <SeparatorHorizontal short={true} />
       <ShopCategoryProducts category={categoryName} />
       <SeparatorHorizontal short={true} />
-      <ContactMe />
       <SeparatorHorizontal borderBottom={false} />
     </>
   );

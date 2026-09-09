@@ -3,50 +3,116 @@ import { createMDX } from "fumadocs-mdx/next";
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
-  images: {
-    formats: ["image/avif", "image/webp"],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    minimumCacheTTL: 60,
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "pbs.twimg.com",
-      },
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
-      {
-        protocol: "https",
-        hostname: "i.ytimg.com",
-      },
-      {
-        protocol: "https",
-        hostname: "img.youtube.com",
-      },
-      {
-        protocol: "https",
-        hostname: "unavatar.io",
-      },
-      {
-        protocol: 'https',
-        hostname: 'pantaleone-net.s3.us-west-1.amazonaws.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: "https",
-        hostname: "i.ebayimg.com",
-      },
-      {
-        protocol: "https",
-        hostname: "ebayimg.com",
-      },
+  experimental: {
+    optimizePackageImports: [
+      "lucide-react",
+      "@radix-ui/react-*",
+      "react-icons",
+      "date-fns",
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/blog/post/:slug*",
+        destination: "/blog/:slug*",
+        permanent: true, // 301 redirect
+      },
+      {
+        source: "/about",
+        destination: "https://pantaleone.net",
+        permanent: true, // 301 redirect
+      },
+      {
+        source: "/education",
+        destination: "https://pantaleone.net",
+        permanent: true, // 301 redirect
+      },
+      {
+        source: "/experience",
+        destination: "https://pantaleone.net",
+        permanent: true, // 301 redirect
+      },
+      // Feed redirects to RSS XML
+      {
+        source: "/feed",
+        destination: "/rss.xml",
+        permanent: true,
+      },
+      {
+        source: "/feed/",
+        destination: "/rss.xml",
+        permanent: true,
+      },
+      // Directory redirects to homepage
+      {
+        source: "/digital-asset-nft-tag/:slug*",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/grid",
+        destination: "/shop",
+        permanent: true,
+      },
+      {
+        source: "/sets",
+        destination: "/shop",
+        permanent: true,
+      },
+      {
+        source: "/tag/:slug*",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/p/:slug*",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/nft-art/:slug*",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/product/:slug*",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/buy-nfts-and-custom-artwork",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/buy-nfts-and-custom-artwork/",
+        destination: "/",
+        permanent: true,
+      },
+    ];
+  },
+  images: {
+    // Keep images fully unoptimized (zero Image Optimization requests on
+    // Vercel); originals are served directly from the edge/CDN.
+    loader: "default",
+    unoptimized: true,
+  },
+  // Brotli/gzip compression for text responses served from the edge.
+  compress: true,
   async headers() {
     return [
+      {
+        // Aggressive CDN caching for all static pages.
+        // Eliminates ISR Data Cache lookups — the CDN serves directly.
+        source: "/((?!api|_next|_vercel|checkout|robots\\.txt|sitemap|favicon\\.ico|robots\\.txt).*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, s-maxage=31536000, stale-while-revalidate=31536000, immutable",
+          },
+        ],
+      },
       {
         source: "/(.*)",
         headers: [
@@ -79,16 +145,66 @@ const config = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline' data: https://vercel.live https://*.posthog.com https://www.googletagmanager.com https://platform.twitter.com https://va.vercel-scripts.com",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' data: https://vercel.live https://*.posthog.com https://www.googletagmanager.com https://platform.twitter.com https://va.vercel-scripts.com https://connect.facebook.net",
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: https: blob: https://i.ebayimg.com https://ebayimg.com",
+              "img-src 'self' data: https: blob: https://i.ebayimg.com https://ebayimg.com https://www.facebook.com",
               "font-src 'self' data:",
-              "connect-src 'self' https://*.posthog.com https://vercel.live https://*.google-analytics.com https://cdn.syndication.twimg.com https://api.github.com",
+              "connect-src 'self' https://*.posthog.com https://vercel.live https://*.google-analytics.com https://*.googleadservices.com https://*.doubleclick.net https://cdn.syndication.twimg.com https://api.github.com https://www.facebook.com https://graph.facebook.com https://*.an.facebook.com",
               "frame-src 'self' https://www.youtube.com https://platform.twitter.com",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",
             ].join("; "),
+          },
+        ],
+      },
+      {
+        // Block indexing of _next static files
+        source: "/_next/static/:path*",
+        headers: [
+          {
+            key: "X-Robots-Tag",
+            value: "noindex",
+          },
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        // Block indexing of all _next paths (static, data, chunks, etc.)
+        source: "/_next/:path*",
+        headers: [
+          {
+            key: "X-Robots-Tag",
+            value: "noindex, nofollow",
+          },
+        ],
+      },
+      {
+        // Block indexing of URLs with dpl query params (Vercel cache busting)
+        source: "/:path*",
+        headers: [
+          {
+            key: "X-Robots-Tag",
+            value: "noindex",
+          },
+        ],
+        has: [
+          {
+            key: "dpl",
+            type: "query",
+          },
+        ],
+      },
+      {
+        // Block indexing of _vercel files
+        source: "/_vercel/:path*",
+        headers: [
+          {
+            key: "X-Robots-Tag",
+            value: "noindex",
           },
         ],
       },

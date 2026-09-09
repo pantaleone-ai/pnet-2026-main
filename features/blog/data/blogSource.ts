@@ -1,5 +1,6 @@
 import { blog } from "@/.source/server";
 import type { BlogPostType } from "@/features/blog/types/BlogPostType";
+import { cache } from "react";
 import fs from "fs";
 import type { Source, SourceConfig } from "fumadocs-core/source";
 import { loader } from "fumadocs-core/source";
@@ -18,7 +19,11 @@ export const blogSource = loader({
 
 type BlogPage = ReturnType<typeof blogSource.getPages>[number];
 
-export function getBlogPosts(): BlogPostType[] {
+// Fallback only: used when a post has no frontmatter image.
+// The last 6 posts hard-code this in frontmatter; all other posts keep their own images.
+export const BLOG_PLACEHOLDER_IMAGE = "/images/logo.png";
+
+export const getBlogPosts = cache(function getBlogPosts(): BlogPostType[] {
   return blogSource.getPages().map((page) => {
     const data = page.data as unknown as BlogPostFrontmatter & {
       body: React.ComponentType<object>;
@@ -48,7 +53,7 @@ export function getBlogPosts(): BlogPostType[] {
         description: data.description,
         created: data.created,
         lastUpdated: data.lastUpdated,
-        image: data.image,
+        image: data.image || BLOG_PLACEHOLDER_IMAGE,
         author: data.author,
         authorAvatar: data.authorAvatar,
         category: data.category,
@@ -70,7 +75,7 @@ export function getBlogPosts(): BlogPostType[] {
       description: data.description,
       created: data.created,
       lastUpdated: data.lastUpdated,
-      image: data.image,
+      image: data.image || BLOG_PLACEHOLDER_IMAGE,
       author: data.author,
       authorAvatar: data.authorAvatar,
       category: data.category,
@@ -83,4 +88,4 @@ export function getBlogPosts(): BlogPostType[] {
       slug,
     };
   });
-}
+});

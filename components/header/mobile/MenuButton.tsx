@@ -19,7 +19,7 @@ import NAVIGATION_LINKS from "@/config/navigationLinks";
 import { cn } from "@/lib/utils";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Menu, X } from "lucide-react";
-import Link from "next/link";
+import LinkWrapper from "@/components/LinkWrapper";
 import type { FC } from "react";
 import React, { memo, useCallback } from "react";
 
@@ -142,7 +142,7 @@ const MenuButton: FC<Props> = memo(
                     </AccordionItem>
                   ) : (
                     <li key={menuItem.href} className="list-none">
-                      <Link
+                      <LinkWrapper
                         href={menuItem.href}
                         className={cn(
                           "group border-border inline-flex w-full gap-2 border-b px-6 py-4",
@@ -157,7 +157,7 @@ const MenuButton: FC<Props> = memo(
                         <span className="text-foreground group-hover:text-accent-foreground font-medium">
                           {menuItem.label}
                         </span>
-                      </Link>
+                      </LinkWrapper>
                     </li>
                   );
                 })}

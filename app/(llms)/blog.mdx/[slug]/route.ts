@@ -3,6 +3,9 @@ import { notFound } from "next/navigation";
 import { getBlogPosts } from "@/features/blog/data/blogSource";
 import { getLLMText } from "@/features/blog/lib/get-llm-text";
 
+// Unknown slugs to 404 statically instead of triggering ISR generation.
+export const dynamicParams = false;
+
 export async function generateStaticParams() {
   const posts = getBlogPosts();
 

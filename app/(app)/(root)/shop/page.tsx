@@ -1,8 +1,9 @@
-import ContactMe from "@/components/ContactMe";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
 import ShopHero from "@/features/shop/components/ShopHero";
 import ShopCategories from "@/features/shop/components/ShopCategories";
+import { getProducts } from "@/features/shop/data/shopSource";
+import { ProductListJsonLd } from "@/lib/schema/json-ld";
 import { getBaseUrl } from "@/lib/helpers";
 import type { HeadType } from "@/types";
 import type { Metadata } from "next";
@@ -13,6 +14,9 @@ import HeadingTitle from "@/components/HeadingTitle";
 if (!HEAD || HEAD.length === 0) {
   console.error("⚠️ HEAD configuration is missing or empty");
 }
+
+// Content is static MDX from the repo - force static prerender, no ISR reads.
+export const dynamic = "force-static";
 
 // Define the current page for SEO configuration
 const PAGE = "Shop";
@@ -36,16 +40,18 @@ export const metadata: Metadata = {
 };
 
 export default async function ShopPage() {
+  const products = getProducts();
+
   return (
     <>
+      <ProductListJsonLd products={products} />
       <SeparatorHorizontal borderTop={false} />
-      <HeadingTitle title="Shop AI Products, Services, Apps & Artwork" />
+      <HeadingTitle title="Shop" />
       <SeparatorHorizontal short={true} />
       <ShopHero />
       <SeparatorHorizontal short={true} />
       <ShopCategories />
       <SeparatorHorizontal short={true} />
-      <ContactMe />
       <SeparatorHorizontal borderBottom={false} />
     </>
   );

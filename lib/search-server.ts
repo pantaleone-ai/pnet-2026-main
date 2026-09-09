@@ -155,6 +155,10 @@ export async function getPostsBySearchQuery(query: string) {
         techStacks: product.techStacks,
         weight: product.weight,
         slug: product.slug,
+        availability: product.availability,
+        condition: product.condition,
+        brand: product.brand,
+        identifierExists: product.identifierExists,
         content: getContextAroundMatch(productContent, searchQuery),
         score,
       });

@@ -1,6 +1,5 @@
 "use client";
 
-// import GithubButton from "@/components/header/shared/GithubButton";
 import LogoButton from "@/components/header/shared/LogoButton";
 import { SearchButton } from "@/components/header/shared/SearchButton";
 import ThemeToggle from "@/components/header/shared/ThemeToggle";
@@ -18,7 +17,10 @@ import { cn } from "@/lib/utils";
 import type { FC } from "react";
 import React, { memo, useCallback } from "react";
 import NavigationAbout from "./navigations/about/NavigationAbout";
+import NavigationConsulting from "./navigations/consulting/NavigationConsulting";
 import NavigationShop from "./navigations/shop/NavigationShop";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 interface Props {
   activePath: string;
 }
@@ -31,6 +33,7 @@ const navItemStyles = {
 
 const navigationComponents: Record<string, React.ComponentType> = {
   About: NavigationAbout,
+  Consulting: NavigationConsulting,
   Shop: NavigationShop,
 };
 
@@ -112,11 +115,14 @@ const DesktopHeader: FC<Props> = memo(({ activePath }) => {
         </NavigationMenuList>
 
         <div className="flex flex-1 items-center justify-end gap-1.5">
-          {/* <GithubButton /> */}
           <span className="mx-2 flex h-4 w-px bg-border" />
           <SearchButton />
           <span className="mx-2 flex h-4 w-px bg-border" />
           <ThemeToggle />
+          <span className="mx-2 flex h-4 w-px bg-border" />
+          <Button asChild size="sm" variant="default">
+            <Link href="/contact">Contact</Link>
+          </Button>
         </div>
       </div>
     </NavigationMenu>

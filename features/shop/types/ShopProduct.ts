@@ -5,8 +5,19 @@ export const shopProductSchema = baseProjectSchema.extend({
   price: z.number(),
   currency: z.string().default("USD"),
   sku: z.string().optional(),
-  inventory: z.number().optional(),
+  mpn: z.string().optional(),
+  gtin: z.string().optional(),
+  inventory: z.number().default(9999),
+  availability: z.string().default("in_stock"),
+  condition: z.string().default("new"),
+  brand: z.string().default("Pantaleone Digital Services"),
+  googleProductCategory: z.string().optional(),
+  productType: z.string().optional(),
+  identifierExists: z.boolean().default(false),
   purchaseUrl: z.string().optional(),
+  stripeProductId: z.string().optional(),
+  stripePriceId: z.string().optional(),
+  stripePaymentLink: z.string().optional(),
   category: z.string(),
   featured: z.boolean().default(false),
   isDigital: z.boolean().default(true),
@@ -21,8 +32,19 @@ type ShopProduct = {
   price: number;
   currency: string;
   sku?: string;
-  inventory?: number;
+  mpn?: string;
+  gtin?: string;
+  inventory: number;
+  availability: string;
+  condition: string;
+  brand: string;
+  googleProductCategory?: string;
+  productType?: string;
+  identifierExists: boolean;
   purchaseUrl?: string;
+  stripeProductId?: string;
+  stripePriceId?: string;
+  stripePaymentLink?: string;
   imageUrl: string;
   imageAlt?: string;
   additionalImages?: {
@@ -43,6 +65,16 @@ type ShopProduct = {
   content?: string;
   readingTime?: string;
   readingTimeMinutes?: number;
+  itemCondition?: "NewCondition" | "UsedCondition" | "RefurbishedCondition";
+  priceValidUntil?: string;
+  brandLogo?: string;
+  timeToValue?: number;
+  targetKeywords?: string[];
+  documentationUrl?: string;
+  architectureDiagram?: string;
+  coreStack?: string[];
+  primaryLibraries?: string[];
+  infrastructureRequirements?: string[];
 };
 
 export type { ShopProduct };

@@ -1,52 +1,119 @@
 ---
 title: imgsquash.com
-description: Free browser-based image compression tool for JPEG and PNG formats
+description: >-
+  Image compression kit for the browser: AVIF, WebP, PNG, JPEG XL, plus upscaling. Files never leave the machine.
 category: Apps
-price: 0
+price: 10000
 currency: USD
-featured: true
+availability: in_stock
+condition: new
+brand: "Pantaleone Digital Services"
+googleProductCategory: "319"
+productType: "Software & Apps > AI Applications"
+identifierExists: false
+featured: false
 isDigital: true
-imageUrl: https://pantaleone-net.s3.us-west-1.amazonaws.com/imgsquash-1.webp
+imageUrl: "https://pantaleone-net.s3.us-west-1.amazonaws.com/imgsquash-1.webp"
 imageAlt: imgsquash.com compression interface preview
-additionalImages: '[{"url": "https://pantaleone-net.s3.us-west-1.amazonaws.com/imgsquash-2.webp", "alt": "Bulk upload screen"}, {"url": "https://pantaleone-net.s3.us-west-1.amazonaws.com/imgsquash-3.webp", "alt": "Compression results view"}]'
+additionalImages:
+  - url: "https://pantaleone-net.s3.us-west-1.amazonaws.com/imgsquash-2.webp"
+    alt: Bulk upload screen
+  - url: "https://pantaleone-net.s3.us-west-1.amazonaws.com/imgsquash-3.webp"
+    alt: Compression results view
 sku: IMGSQUASH-TOOL-001
-purchaseUrl: https://imgsquash.com/
-techStacks: ["Browser APIs"]
+purchaseUrl: "https://imgsquash.com/"
+techStacks:
+  - Browser APIs
+  - Real-ESRGAN AI
+  - Next.js 16
+  - TypeScript
+  - Tailwind CSS
+  - Stripe
+stripeProductId: prod_TllYTfkoklWbFM
+stripePriceId: price_1SoE36A6IHcdPSqUK2s5jat4
+stripePaymentLink: "https://buy.stripe.com/3cI28qa33bz42Cs2iOe7m02"
+timeToValue: 60
+targetKeywords:
+  - "Browser-based image compression tool"
+  - "AVIF WebP converter developer kit"
+  - "AI image upscaling web app"
+  - "Client-side image optimization"
+  - "Image conversion SaaS starter"
+coreStack:
+  - Next.js 16
+  - React 19
+  - TypeScript
+  - Node.js 22
+primaryLibraries:
+  - Tailwind CSS v4
+  - Sharp (server-side optional)
+  - browser-image-compression
+  - Real-ESRGAN WASM
+infrastructureRequirements:
+  - Vercel
+  - Cloudflare Workers (edge)
+  - S3 (optional for storage)
+documentationUrl: "https://docs.pantaleone.net/docs/imgsquash"
+architectureDiagram: |
+  ```mermaid
+  graph TD
+    A[Image Upload] --> B[Format Detection]
+    B --> C{Processing Mode}
+    C -->|Compress| D[Compression Engine]
+    C -->|Convert| E[Format Converter]
+    C -->|Upscale| F[Real-ESRGAN AI]
+    D --> G[Quality Optimizer]
+    E --> G
+    F --> G
+    G --> H[Output Preview]
+    H --> I[Download ZIP]
+    H --> J[Batch Export]
+    style A fill:#e1f5fe
+    style F fill:#fff3e0
+    style I fill:#e8f5e9
+  ```
 ---
 
 ## imgsquash.com
 
-### Free Image Compression Tool
+### Image optimization kit
 
-This free tool compresses images in-browser to reduce file sizes while maintaining quality, ideal for web optimization.
+Build an image optimization app: conversion, compression, and upscaling in the browser.
 
 ### Key Features
 
-- **Compression Modes**: Lossless and lossy options
-- **Bulk Processing**: Upload multiple files
-- **Size Reduction**: Up to 70% smaller files
-- **Privacy Focus**: Temporary storage only
-- **Instant Downloads**: Quick results
+- **Format Conversion & Compression**: Support for AVIF, WebP, PNG, JPEG XL—lossless and lossy modes
+- **AI Upscaling**: Integrate Real-ESRGAN for enhancing low-res images
+- **Configurable Quality**: Balance size and visuals with adjustable settings
+- **Bulk Processing**: Handle multiple files at once
+- **Size Reduction**: Achieve major shrinks without quality hits
+- **Privacy First**: All processing client-side, no uploads
+- **Instant Outputs**: Quick previews and downloads
 
 ### Technical Specifications
 
-- **Formats Supported**: JPEG and PNG
-- **Engine**: Browser-based APIs
-- **No Installation**: Runs directly in browser
+- **Formats Supported**: AVIF (superior compression, transparency), WebP (efficient, lossy/lossless), PNG (lossless, transparency), JPEG XL (advanced features), JPEG (universal)
+- **Engine**: Browser APIs + Real-ESRGAN AI
+- **No Installation**: Pure browser runtime
+- **Limitations**: AVIF/WebP may need browser checks; heavier compression demands more power
 
 ### Ideal For
 
-- Web developers optimizing sites
-- Content creators reducing load times
-- E-commerce owners managing images
-- Anyone needing smaller file sizes
+- Developers crafting web optimization tools
+- Builders integrating into content systems
+- Creators enhancing e-commerce image pipelines
+- Any dev embedding advanced image handling
 
 ### What's Included
 
-- Simple upload interface
-- Mode selection tools
+> **Full Source Code Included** — Get complete access to all application source code.
+
+- Upload and selection interface code
+- Format/mode/quality controls
+- AI upscaling modules
+- Bulk processing logic
 - Preview and download features
 
 ### Get Started Fast
 
-Optimize your images effortlessly to improve website performance without quality loss!
+Wire this kit into a Next.js app to compress AVIF, WebP, PNG, and JPEG XL in the browser. No uploads, no queue.

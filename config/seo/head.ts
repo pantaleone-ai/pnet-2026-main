@@ -4,63 +4,69 @@ import type { HeadType } from "@/types";
 const HEAD: HeadType[] = [
   {
     page: "Home",
-    title: truncateTitle("Pantaleone.net | Forward Deployed AI Engineer"),
+    title: truncateTitle(
+      "Pantaleone.ai | AI Systems, Automation & LLM Integration",
+    ),
     description: truncateDescription(
-      "Specializing in Forward Deployed AI, autonomous workflows, and enterprise automation. Building scalable AI-driven solutions at Pantaleone Digital Services.",
+      "AI agents, automation, and software that run real work. N8N workflows, Next.js apps, and build notes.",
     ),
     slug: "/",
   },
   {
     page: "About",
-    title: truncateTitle("About | Matt Pantaleone | AI & Automation Expert"),
+    title: truncateTitle(
+      "About Matt Pantaleone | AI Engineering & Automation",
+    ),
     description: truncateDescription(
-      "Founder of Pantaleone Digital Services LLC. Engineering custom LLM integrations and high-scale digital infrastructure.",
+      "Matt Pantaleone builds autonomous agents, LLM integrations, and production automation systems for startups and enterprises.",
     ),
     slug: "/about",
   },
   {
     page: "Experience",
-    title: truncateTitle("Experience | AI Engineering & Technical Strategy"),
+    title: truncateTitle("Experience | AI Engineering & Automation Work"),
     description: truncateDescription(
-      "Professional history in Forward Deployed AI, automation architecture, and digital transformation.",
+      "Professional history in AI systems, automation engineering, LLM integration, and full-stack development.",
     ),
     slug: "/experience",
   },
   {
     page: "Education",
-    title: truncateTitle("Education | Technical Foundations in AI & Dev"),
-    description: truncateDescription("Academic background and certifications in software engineering and AI technologies."),
+    title: truncateTitle("Education | Computer Science & AI Engineering"),
+    description: truncateDescription(
+      "Computer science background with hands-on specialization in AI systems, LLM deployment, and production automation.",
+    ),
     slug: "/education",
   },
   {
     page: "Blog",
-    title: truncateTitle("Blog | AI Workflows & Automation Insights"),
+    title: truncateTitle("Blog | AI Workflows & Automation Notes"),
     description: truncateDescription(
-      "Expert analysis on LLM implementation, agentic workflows, and the future of AI engineering.",
+      "Writing on LLM implementation, agentic workflows, and building production AI systems.",
     ),
     slug: "/blog",
   },
   {
     page: "Projects",
-    title: truncateTitle("Projects | AI Platforms, Rapigent, & AICEO"),
+    title: truncateTitle("Projects | AI Platforms & Automation Tools"),
     description: truncateDescription(
-      "Showcasing enterprise AI tools, autonomous agent workflows, and full-stack AI applications.",
+      "AI tools and platforms built for production: autonomous agents, LLM pipelines, and full-stack applications.",
     ),
     slug: "/projects",
   },
   {
     page: "Shop",
-    title: truncateTitle("Shop | AI Apps, Workflows, Services & Artwork"),
+    title: truncateTitle("Shop | AI Workflows, Apps & Services"),
     description: truncateDescription(
-      "Explore AI applications, N8N workflows, AI services, and digital artwork for purchase.",
+      "N8N workflows, AI applications, and consulting services for teams building automation systems.",
     ),
     slug: "/shop",
   },
   {
     page: "Contact",
-    title: truncateTitle("Contact | Hire for AI Engineering & Consulting"),
+    title: truncateTitle("Contact | AI Engineering & Automation Consulting"),
     description: truncateDescription(
-      "Inquiries for AI automation, forward deployed engineering, and digital strategy. Let's build your AI roadmap.",
+      "Hire Matt Pantaleone for AI engineering, automation strategy, and LLM integration projects.",
     ),
     slug: "/contact",
   },
@@ -76,13 +82,13 @@ const HEAD: HeadType[] = [
   //   page: "Terms",
   //   title: truncateTitle("Terms of Use | Pantaleone Digital Services"),
   //   description: truncateDescription(
-  //     "Legal terms and conditions for our AI-driven services, platforms, and consulting.",
+  //     "Terms of use for pantaleone.net products and consulting.",
   //   ),
   //   slug: "/terms",
   // },
   {
     page: "Changelog",
-    title: truncateTitle("Changelog | Platform Evolution & Updates"),
+    title: truncateTitle("Changelog | Platform Updates & Development"),
     description: truncateDescription(
       "Development history and technical updates for the Pantaleone Digital ecosystem.",
     ),

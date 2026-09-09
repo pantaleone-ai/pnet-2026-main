@@ -1,0 +1,389 @@
+---
+title: "AI Agents with n8n and LangChain"
+description: "n8n for orchestration, LangChain for agent logic. Patterns, retries, monitoring."
+image: "/images/logo.png"
+imageAlt: "n8n workflow with LangChain agent nodes"
+created: "2026-08-01"
+date: "2026-08-01"
+author: "Matt Pantaleone"
+authorAvatar: "/images/avatar.jpg"
+authorAvatarAlt: "Author avatar for Matt Pantaleone"
+tags:
+  - n8n
+  - LangChain
+  - AI Agents
+  - Workflow Automation
+  - Production Systems
+  - Architecture
+category: "AI Engineering"
+seo:
+  - n8n LangChain workflow
+  - AI agent development
+  - production AI systems
+  - workflow automation
+  - agent architecture
+featured: true
+---
+
+# Why n8n + LangChain?
+
+The combination of n8n and LangChain has emerged as the de facto stack for production AI agent workflows. n8n provides the orchestration layer—visual workflow design, error handling, scheduling, and integrations. LangChain provides the intelligence—agent reasoning, tool use, and memory management.
+
+Together, they solve the fundamental challenge of AI agents: connecting LLMs to real-world systems reliably.
+
+---
+
+## Architecture Overview
+
+### The Stack
+
+```
+[Trigger Layer]
+    ↓
+[Orchestration Layer] → n8n (workflow management)
+    ↓
+[Agent Layer] → LangChain (reasoning + tool use)
+    ↓
+[Tool Layer] → APIs, databases, external services
+    ↓
+[Observability Layer] → Logging, monitoring, alerting
+```
+
+### Why This Architecture Works
+
+1. **Separation of concerns:** n8n handles orchestration, LangChain handles reasoning
+2. **Visual debugging:** n8n's interface makes debugging workflows intuitive
+3. **Error handling:** n8n provides retry logic, fallbacks, and alerting out of the box
+4. **Extensibility:** Adding new tools or integrations is drag-and-drop in n8n
+5. **Runs in production:** Both tools run production workloads today
+
+---
+
+## Building Your First Agent Workflow
+
+### Prerequisites
+
+- n8n instance (self-hosted or cloud)
+- Python environment with LangChain installed
+- OpenAI API key (or other LLM provider)
+- Basic understanding of both tools
+
+### Step 1: Set Up the n8n Workflow
+
+Create a new workflow with a webhook trigger:
+
+```json
+{
+  "name": "AI Agent Workflow",
+  "nodes": [
+    {
+      "type": "n8n-nodes-base.webhook",
+      "parameters": {
+        "path": "agent-input",
+        "httpMethod": "POST"
+      }
+    }
+  ]
+}
+```
+
+### Step 2: Create the LangChain Agent
+
+```python
+from langchain.agents import AgentExecutor, create_openai_tools_agent
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.tools import tool
+
+@tool
+def search_knowledge_base(query: str) -> str:
+    """Search the company knowledge base for relevant information."""
+    # Your implementation here
+    return f"Results for: {query}"
+
+@tool
+def create_ticket(title: str, description: str, priority: str) -> str:
+    """Create a support ticket in the ticketing system."""
+    # Your implementation here
+    return f"Ticket created: {title}"
+
+@tool
+def send_email(to: str, subject: str, body: str) -> str:
+    """Send an email to the specified recipient."""
+    # Your implementation here
+    return f"Email sent to: {to}"
+
+# Initialize LLM
+llm = ChatOpenAI(model="gpt-4o", temperature=0)
+
+# Create prompt
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a helpful AI assistant. Use tools to help users."),
+    ("human", "{input}"),
+    ("placeholder", "{agent_scratchpad}")
+])
+
+# Create agent
+tools = [search_knowledge_base, create_ticket, send_email]
+agent = create_openai_tools_agent(llm, tools, prompt)
+agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
+```
+
+### Step 3: Connect n8n to LangChain
+
+Use n8n's Execute Command node to run the Python script:
+
+```bash
+python agent_executor.py --input "${{ $json.user_input }}"
+```
+
+Or use n8n's HTTP Request node to call a FastAPI wrapper:
+
+```python
+from fastapi import FastAPI
+from pydantic import BaseModel
+
+app = FastAPI()
+
+class AgentRequest(BaseModel):
+    input: str
+
+@app.post("/agent")
+async def run_agent(request: AgentRequest):
+    result = await agent_executor.ainvoke({"input": request.input})
+    return {"output": result["output"]}
+```
+
+### Step 4: Add Error Handling
+
+n8n provides built-in error handling nodes:
+
+```json
+{
+  "type": "n8n-nodes-base.errorTrigger",
+  "parameters": {
+    "workflowId": "error-handler"
+  }
+}
+```
+
+Create an error handling workflow that:
+1. Logs the error details
+2. Sends an alert to Slack/email
+3. Retries the operation (with exponential backoff)
+4. Fails gracefully if retries exhausted
+
+### Step 5: Add Monitoring
+
+Integrate with your observability stack:
+
+```python
+import logging
+from opentelemetry import trace
+
+tracer = trace.get_tracer("ai-agent")
+
+@tool
+def monitored_tool(query: str) -> str:
+    """A tool with built-in monitoring."""
+    with tracer.start_as_current_span("tool_execution") as span:
+        span.set_attribute("tool.input", query)
+        result = execute_tool(query)
+        span.set_attribute("tool.output", result)
+        return result
+```
+
+---
+
+## Production Patterns
+
+### Pattern 1: Multi-Agent Orchestration
+
+Use n8n to orchestrate multiple specialized agents:
+
+```
+User Input
+    ↓
+[Triage Agent] → Classifies intent
+    ↓
+   ├─ Support Request → [Support Agent]
+   ├─ Billing Question → [Billing Agent]
+   └─ Technical Issue → [Technical Agent]
+    ↓
+[Response Formatter] → Standardizes output
+    ↓
+[User Notification] → Email/Slack/In-app
+```
+
+### Pattern 2: Human-in-the-Loop
+
+Add approval steps for sensitive operations:
+
+```
+Agent generates recommendation
+    ↓
+[Human Approval Node] → Waits for review
+    ↓
+   ├─ Approved → Execute action
+   └─ Rejected → Notify agent, log feedback
+```
+
+### Pattern 3: Context Management
+
+Maintain conversation state across interactions:
+
+```python
+from langchain.memory import ConversationBufferMemory
+
+memory = ConversationBufferMemory(return_messages=True)
+
+agent_executor = AgentExecutor(
+    agent=agent,
+    tools=tools,
+    memory=memory,
+    verbose=True
+)
+```
+
+### Pattern 4: Graceful Degradation
+
+Handle LLM failures with fallbacks:
+
+```python
+async def resilient_llm_call(prompt: str) -> str:
+    try:
+        return await primary_llm.ainvoke(prompt)
+    except RateLimitError:
+        return await fallback_llm.ainvoke(prompt)
+    except Exception:
+        return "I'm experiencing technical difficulties. Please try again."
+```
+
+---
+
+## Common Pitfalls and Solutions
+
+### Pitfall 1: Unbounded Agent Loops
+
+**Problem:** Agents can loop indefinitely, consuming tokens and time.
+
+**Solution:** Set maximum iterations in LangChain:
+
+```python
+agent_executor = AgentExecutor(
+    agent=agent,
+    tools=tools,
+    max_iterations=10,
+    handle_parsing_errors=True
+)
+```
+
+### Pitfall 2: Missing Tool Error Handling
+
+**Problem:** Tool failures crash the entire workflow.
+
+**Solution:** Wrap tools with error handling:
+
+```python
+@tool
+def safe_tool(query: str) -> str:
+    """A tool with error handling."""
+    try:
+        return execute_tool(query)
+    except Exception as e:
+        logging.error(f"Tool failed: {e}")
+        return f"Tool unavailable: {str(e)}"
+```
+
+### Pitfall 3: No Cost Controls
+
+**Problem:** LLM API calls can be expensive without limits.
+
+**Solution:** Implement token budgets and monitoring:
+
+```python
+from langchain.callbacks import get_openai_callback
+
+with get_openai_callback() as cb:
+    result = agent_executor.invoke({"input": query})
+    if cb.total_tokens > 10000:
+        logging.warning(f"High token usage: {cb.total_tokens}")
+```
+
+### Pitfall 4: Inconsistent Outputs
+
+**Problem:** Agent responses vary in format and quality.
+
+**Solution:** Use structured output parsing:
+
+```python
+from langchain_core.output_parsers import JsonOutputParser
+
+parser = JsonOutputParser(pydantic_object=AgentResponse)
+```
+
+---
+
+## Real-World Example: Customer Support Agent
+
+### Workflow Structure
+
+```
+Incoming Email
+    ↓
+[Email Parser] → Extract sender, subject, body
+    ↓
+[Intent Classifier] → Determine request type
+    ↓
+[Knowledge Search] → Find relevant documentation
+    ↓
+[Response Generator] → Draft response using LLM
+    ↓
+[Confidence Check] → Score response quality
+    ↓
+   ├─ High Confidence (>80%) → Auto-send
+   ├─ Medium Confidence (50-80%) → Queue for review
+   └─ Low Confidence (<50%) → Escalate to human
+    ↓
+[Send Response] → Email/Slack/in-app
+    ↓
+[Log & Learn] → Store for future training
+```
+
+### Performance Metrics
+
+| Metric | Target | Actual |
+|--------|--------|--------|
+| Response time | < 5 minutes | 2.3 minutes |
+| Auto-resolution rate | > 60% | 72% |
+| Customer satisfaction | > 4.0/5 | 4.3/5 |
+| Cost per interaction | < $0.50 | $0.18 |
+
+---
+
+## Getting Started Checklist
+
+- [ ] Set up n8n instance (self-hosted recommended for production)
+- [ ] Install LangChain and configure LLM provider
+- [ ] Define your first 3 tools
+- [ ] Build basic agent workflow
+- [ ] Add error handling and monitoring
+- [ ] Test with sample inputs
+- [ ] Deploy to staging environment
+- [ ] Run shadow mode for 1 week
+- [ ] Deploy to production
+- [ ] Set up alerting and dashboards
+
+---
+
+## Key Takeaways
+
+1. **n8n handles orchestration, LangChain handles reasoning** - Use each tool for what it does best
+2. **Error handling is not optional** - Build for failure from day one
+3. **Monitor everything** - Token usage, latency, error rates, costs
+4. **Start simple, iterate** - Don't build a complex multi-agent system for your first workflow
+5. **Shadow mode is essential** - Test in parallel before going live
+
+---
+
+*Want to learn more about building production AI agent workflows? [Check out my other posts](/blog) or [schedule a consultation](/contact) to discuss your specific use case.*

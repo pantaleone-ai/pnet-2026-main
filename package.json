@@ -1,24 +1,24 @@
 {
-  "name": "hiretimsf.com",
-  "version": "0.1.0",
+  "name": "pantaleone.net",
+  "version": "2.0.0",
   "description": "A minimal portfolio and blog to showcase my work as a Frontend Developer.",
-  "homepage": "https://hiretimsf.com",
+  "homepage": "https://pantaleone.net",
   "license": "MIT",
   "author": {
-    "name": "Tim",
-    "email": "hiretimsf@gmail.com",
-    "url": "https://github.com/hiretimsf"
+    "name": "Matt Pantaleone",
+    "email": "matt@pantaleone.net",
+    "url": "https://github.com/pantaleone-ai"
   },
   "contributors": [
     {
-      "name": "Tim",
-      "email": "hiretimsf@gmail.com",
-      "url": "https://github.com/hiretimsf"
+      "name": "Matt Pantaleone",
+      "email": "matt@pantaleone.net",
+      "url": "https://github.com/pantaleone-ai"
     }
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hiretimsf/hiretimsf.com.git"
+    "url": "git+https://github.com/pantaleone-ai/pnet-2026-main.git"
   },
   "scripts": {
     "dev": "next dev --turbopack",
@@ -34,7 +34,8 @@
     "audit": "npm audit --audit-level=high",
     "upgrade:next": "npx @next/codemod@latest upgrade latest",
     "upgrade:tailwind": "npx @tailwindcss/upgrade@latest",
-    "prepare": "husky"
+    "prepare": "husky",
+    "editorial": "python3 scripts/editorial-audit.py --strict"
   },
   "dependencies": {
     "@bprogress/next": "^3.2.12",
@@ -84,6 +85,7 @@
     "fumadocs-mdx": "^14.2.4",
     "fumadocs-ui": "^16.4.2",
     "geist": "^1.5.1",
+    "gray-matter": "^4.0.3",
     "html-escaper": "^3.0.3",
     "input-otp": "^1.4.2",
     "jotai": "^2.16.1",
@@ -113,6 +115,7 @@
     "resend": "^6.6.0",
     "schema-dts": "^1.1.5",
     "sonner": "^2.0.7",
+    "stripe": "^20.1.2",
     "tailwind-merge": "^3.4.0",
     "vaul": "^1.1.2",
     "zod": "^4.3.4"

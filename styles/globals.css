@@ -196,9 +196,8 @@
 }
 
 .dark {
-
   --code: #1f1f22;
-  
+
   /* zinc-950 */
   --background: oklch(0.141 0.005 285.823);
 
@@ -413,6 +412,72 @@
   syntax: "<length>";
   inherits: true;
   initial-value: 80px;
+}
+
+/* === KIMI K2.5 STYLE OVERRIDES === */
+.prose {
+  --tw-prose-body: #d4d4d4;
+  --tw-prose-headings: #f1f1f1;
+  --tw-prose-links: #60a5fa;
+  --tw-prose-bold: #e2e2e2;
+  --tw-prose-counters: #a1a1aa;
+  --tw-prose-bullets: #52525b;
+  --tw-prose-hr: #27272a;
+  --tw-prose-quotes: #a3a3a3;
+  --tw-prose-quote-borders: #3f3f46;
+  --tw-prose-captions: #71717a;
+  --tw-prose-code: #e2e2e2;
+  --tw-prose-pre-code: #e2e2e2;
+  --tw-prose-pre-bg: #0a0a0a;
+  --tw-prose-th-borders: #3f3f46;
+  --tw-prose-td-borders: #27272a;
+}
+
+.prose :where(h1, h2, h3, h4, h5, h6) {
+  @apply font-semibold tracking-tight text-white;
+}
+.prose :where(p) {
+  @apply leading-relaxed text-zinc-300;
+}
+
+/* TABLES — exact Kimi dark card look */
+.prose :where(table),
+table {
+  @apply my-8 w-full overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-950 shadow-2xl;
+}
+
+.prose :where(thead th),
+thead th {
+  @apply border-b border-zinc-800 bg-zinc-900 px-6 py-4 text-left text-sm font-semibold uppercase tracking-widest text-zinc-300;
+}
+
+.prose :where(tbody td),
+tbody td {
+  @apply border-b border-zinc-800 px-6 py-4 text-sm text-zinc-200;
+}
+
+.prose :where(tbody tr:hover),
+tbody tr:hover {
+  @apply bg-zinc-900/50;
+}
+
+.prose :where(tbody tr:nth-child(even)),
+tbody tr:nth-child(even) {
+  @apply bg-zinc-950;
+}
+
+/* CODE BLOCKS — force perfect wrapping + Kimi dark style */
+[data-rehype-pretty-code-figure] pre,
+.prose pre {
+  @apply overflow-x-auto rounded-3xl bg-zinc-950 p-6 font-mono text-sm leading-[1.75] text-zinc-300 shadow-inner;
+  white-space: pre-wrap !important;
+  word-break: break-all;
+  overflow-wrap: break-word;
+  tab-size: 2;
+}
+
+.prose :where(code):not(pre code) {
+  @apply rounded bg-zinc-900 px-1.5 py-px font-mono text-amber-300;
 }
 
 @utility scroll-fade-y {

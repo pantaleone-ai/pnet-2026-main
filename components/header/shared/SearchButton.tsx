@@ -3,7 +3,7 @@
 import { searchPosts } from "@/actions/search";
 import type { SearchResult } from "@/types/search";
 import { useDebounce } from "@/hooks/useDebounce";
-import { trackEvent } from "@/lib/events";
+import { track } from "@/lib/analytics";
 import { highlightMatches, renderMarkdownContent } from "@/lib/search";
 import { cn } from "@/lib/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -122,45 +122,13 @@ export function SearchButton() {
   // Toggle command menu with keyboard shortcuts
   useHotkeys("mod+k, slash", (e) => {
     e.preventDefault();
-    setOpen((prevOpen) => {
-      if (!prevOpen) {
-        trackEvent({
-          name: "open_command_menu",
-          properties: {
-            method: "keyboard",
-            key: e.key === "/" ? "/" : e.metaKey ? "cmd+k" : "ctrl+k",
-          },
-        });
-      }
-      return !prevOpen;
-    });
+    setOpen((prevOpen) => !prevOpen);
   });
-
-  // Analytics for search
-  useEffect(() => {
-    if (debouncedSearchTerm.length >= 2) {
-      trackEvent({
-        name: "command_menu_search",
-        properties: {
-          query: debouncedSearchTerm,
-          query_length: debouncedSearchTerm.length,
-        },
-      });
-    }
-  }, [debouncedSearchTerm]);
 
   // Handle navigation from the command menu
   const handleOpenLink = useCallback(
     (href: string, openInNewTab = false) => {
       setOpen(false);
-      trackEvent({
-        name: "command_menu_action",
-        properties: {
-          action: "navigate",
-          href,
-          open_in_new_tab: openInNewTab,
-        },
-      });
 
       if (openInNewTab) {
         window.open(href, "_blank", "noopener");
@@ -190,7 +158,27 @@ export function SearchButton() {
 
   const displayedResults = searchResults || [];
 
-  const handleResultClick = (result: SearchResult) => {
+  // Track search queries and results
+  useEffect(() => {
+    if (debouncedSearchTerm.length >= 2 && displayedResults.length >= 0) {
+      track.searchPerformed({
+        query: debouncedSearchTerm,
+        resultCount: displayedResults.length,
+        searchType: 'global'
+      });
+    }
+  }, [debouncedSearchTerm, displayedResults.length]);
+
+  const handleResultClick = (result: SearchResult, position?: number) => {
+    // Track search result click
+    track.searchResultClicked({
+      query: searchTerm,
+      resultPosition: position !== undefined ? position : displayedResults.indexOf(result) + 1,
+      resultType: result.type,
+      resultId: result.slug,
+      resultTitle: result.title
+    });
+
     // Add to history
     if (searchTerm && !searchHistory.includes(searchTerm)) {
       setSearchHistory((prev) => [searchTerm, ...prev].slice(0, 5));
@@ -199,7 +187,7 @@ export function SearchButton() {
     // Construct correct URL based on content type
     let url: string;
     if (result.type === "blog") {
-      url = `/blog/post/${result.slug}`;
+      url = `/blog/${result.slug}`;
     } else if (result.type === "product") {
       // Convert category to URL slug format (e.g., "AI Apps" -> "ai-apps")
       const categorySlug = result.category.toLowerCase().replace(/\s+/g, '-');
@@ -236,10 +224,6 @@ export function SearchButton() {
   const createThemeHandler = useCallback(
     (theme: "light" | "dark" | "system") => () => {
       setOpen(false);
-      trackEvent({
-        name: "command_menu_action",
-        properties: { action: "change_theme", theme },
-      });
       setTheme(theme);
     },
     [setTheme],
@@ -252,13 +236,7 @@ export function SearchButton() {
         variant="ghost"
         size="icon"
         aria-label="Search"
-        onClick={() => {
-          setOpen(true);
-          trackEvent({
-            name: "open_command_menu",
-            properties: { method: "click" },
-          });
-        }}
+        onClick={() => setOpen(true)}
         className="corner-squircle rounded-xl text-foreground "
       >
         <SearchIcon className="size-5 shrink-0 text-foreground" />

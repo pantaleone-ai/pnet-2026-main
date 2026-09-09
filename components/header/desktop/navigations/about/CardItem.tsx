@@ -1,5 +1,5 @@
 import { NavigationMenuLink } from "@/components/ui/navigation-menu";
-import Link from "next/link";
+import LinkWrapper from "@/components/LinkWrapper";
 import type { FC } from "react";
 
 interface Props {
@@ -22,7 +22,7 @@ const CardItem: FC<Props> = ({
 }) => {
   return (
     <NavigationMenuLink asChild>
-      <Link
+      <LinkWrapper
         className="group border-border-edge bg-accent/50 hover:bg-accent relative flex flex-col justify-center overflow-hidden border transition-all duration-200"
         href={href}
         aria-label={`${title} - ${description}`}
@@ -40,7 +40,7 @@ const CardItem: FC<Props> = ({
           </div>
           <p className="text-muted-foreground text-sm">{description}</p>
         </div>
-      </Link>
+      </LinkWrapper>
     </NavigationMenuLink>
   );
 };

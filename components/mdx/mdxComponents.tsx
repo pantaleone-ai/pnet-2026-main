@@ -1,4 +1,4 @@
-import Link from "next/link";
+import LinkWrapper from "@/components/LinkWrapper";
 import type {
   AnchorHTMLAttributes,
   HTMLAttributes,
@@ -13,6 +13,7 @@ import {
   CalloutDescription,
   CalloutTitle,
 } from "./callout";
+import { ConsultationCTA } from "./ConsultationCTA";
 import { Heading } from "./heading";
 import { cn } from "@/lib/utils";
 import {
@@ -28,7 +29,7 @@ function CustomLink(props: AnchorHTMLAttributes<HTMLAnchorElement>) {
   const href = props.href || "#";
   const isExternal = href.startsWith("http");
   return (
-    <Link
+    <LinkWrapper
       href={href}
       target="_blank"
       rel={isExternal ? "noopener noreferrer" : undefined}
@@ -39,7 +40,7 @@ function CustomLink(props: AnchorHTMLAttributes<HTMLAnchorElement>) {
       {...props}
     >
       {props.children}
-    </Link>
+    </LinkWrapper>
   );
 }
 
@@ -60,8 +61,8 @@ function Image(
 
 function Table(props: TableHTMLAttributes<HTMLTableElement>) {
   return (
-    <div className="relative overflow-auto prose-no-margin my-6">
-      <table {...props} />
+    <div className="my-10 overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-950 shadow-2xl">
+      <table className="w-full text-sm text-zinc-300" {...props} />
     </div>
   );
 }
@@ -171,6 +172,7 @@ const defaultMdxComponents = {
   CalloutContainer,
   CalloutTitle,
   CalloutDescription,
+  ConsultationCTA,
 };
 
 import type { createRelativeLink as CreateRelativeLinkType } from "@/components/mdx/mdx.server";
