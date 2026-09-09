@@ -10,9 +10,9 @@ interface ConsultationCTAProps {
 }
 
 export function ConsultationCTA({
-  title = "Ready to Transform Your Business?",
-  description = "Let's discuss how AI can solve your specific challenges. Book a free 30-minute discovery call.",
-  buttonText = "Book Free Consultation",
+  title = "Work together?",
+  description = "Bring one workflow to a 30-minute call.",
+  buttonText = "Book a call",
   buttonHref = "/contact?book=true",
   className,
 }: ConsultationCTAProps) {

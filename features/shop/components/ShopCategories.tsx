@@ -17,7 +17,7 @@ export default function ShopCategories() {
       {/* Featured Products Section */}
       {allProducts.filter(product => product.featured).length > 0 && (
         <section>
-          <h2 className="text-xl font-semibold mb-4">Featured Products</h2>
+          <h2 className="text-xl font-semibold mb-4">Featured</h2>
           <div className="xl mx-auto grid max-w-5xl grid-cols-1 gap-x-8 gap-y-8 lg:mx-0 lg:max-w-none lg:grid-cols-3">
             {allProducts.filter(product => product.featured).slice(0, 3).map((product, index) => (
               <CardItem
@@ -36,7 +36,7 @@ export default function ShopCategories() {
       <section>
             <div className="relative mx-auto max-w-7xl px-6 py-8 md:py-10 lg:px-8">
               <BackgroundDots gridId="blog-posts" className="text-gray-200/80" />
-        <h2 className="text-xl font-semibold mb-4">Shop AI Products Services & Artwork</h2>
+        <h2 className="text-xl font-semibold mb-4">Shop</h2>
         <div className="max-w-4xl mx-auto space-y-8">
           {categories.map((category) => {
             const products = getProductsByCategory(category);
@@ -65,7 +65,7 @@ export default function ShopCategories() {
                     {/* All Products in this Category */}
                     {products.length > 0 && (
                       <div className="mt-6">
-                        <h3 className="text-lg font-semibold mb-4">Products in {category}</h3>
+                        <h3 className="text-lg font-semibold mb-4">{category}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                           {products.map((product, index) => (
                             <CardItem
@@ -118,13 +118,13 @@ function getCategoryIcon(category: string) {
 function getCategoryDescription(category: string): string {
   const categoryLower = category.toLowerCase();
   if (categoryLower.includes("apps")) {
-    return "AI applications and agents to automate your workflows and enhance productivity.";
+    return "Apps and agents for common tasks.";
   } else if (categoryLower.includes("workflows")) {
-    return "Pre-built N8N workflows for common automation tasks and AI integrations.";
+    return "n8n workflows. Import and run.";
   } else if (categoryLower.includes("services")) {
-    return "Professional AI services including consulting, implementation, and custom development.";
+    return "Calls and builds, fixed scope.";
   } else if (categoryLower.includes("artwork")) {
-    return "AI-generated digital artwork and creative assets for your projects.";
+    return "Digital art for projects.";
   }
-  return "Explore our collection of AI-powered products and services.";
+  return "Workflows, apps, and guides.";
 }

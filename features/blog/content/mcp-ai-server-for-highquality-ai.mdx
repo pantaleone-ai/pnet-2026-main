@@ -1,6 +1,6 @@
 ---
-title: "Single Source Configuration: Building an MCP Server"
-description: "An AI model in isolation is a brain in a jar. To build true AI agents, you need to give them secure access to data and tools. The Model Context Protocol (MCP) provides that foundation."
+title: "Building an MCP Server"
+description: "Give agents secure access to your data and tools."
 image: "https://pantaleone-net.s3.us-west-1.amazonaws.com/blog-images/mcp-ai-server1.jpg"
 created: "2025-03-15"
 date: "2025-03-15"
@@ -54,7 +54,7 @@ Security isn't an afterthought in MCP; it's the foundation.
 In my view, this security-first approach is the only sane way to build powerful agents.
 
 ## 3. The Python SDK: Fast Implementation
-The official MCP Python SDK makes it incredibly simple to get started. With a `pip install` and a few decorators (`@mcp.resource`, `@mcp.tool`), you can have a server running in minutes. The low barrier to entry means any builder can start architecting enterprise-grade agents.
+The official MCP Python SDK makes it simple to get started. With a `pip install` and a few decorators (`@mcp.resource`, `@mcp.tool`), you can have a server running in minutes. Any builder can start from here.
 
 ## 4. Blueprint: A File System Agent
 Talk is cheap. Here’s a code blueprint for an MCP server that gives an AI agent sandboxed access to a file system.

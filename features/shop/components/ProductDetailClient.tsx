@@ -12,7 +12,6 @@ import {
   ChevronRight,
   Info,
   Clock,
-  BookOpen,
   Server,
   Cloud,
 } from "lucide-react";
@@ -327,8 +326,7 @@ export default function ProductDetailClient({
                       target="_blank"
                       onClick={handlePaymentClick}
                     >
-                      <ShoppingCart className="mr-3 h-5 w-5" /> Get Instant
-                      Access
+                      <ShoppingCart className="mr-3 h-5 w-5" /> Buy
                     </LinkWrapper>
                   </Button>
                 )}
@@ -357,9 +355,7 @@ export default function ProductDetailClient({
                 <h1 className="text-4xl font-extrabold tracking-tight">
                   {product.title}
                 </h1>
-                <p className="text-xl font-medium text-primary/80">
-                  Product Overview
-                </p>
+                
               </div>
               <p className="text-lg text-muted-foreground leading-relaxed max-w-3xl">
                 {product.description}
@@ -369,23 +365,20 @@ export default function ProductDetailClient({
             {/* Product Content */}
             <section className="pt-10 border-t">{children}</section>
 
-            {/* Technical Manifest Section */}
+            {/* Specs Section */}
             {(product.timeToValue ||
               product.coreStack ||
               product.primaryLibraries ||
-              product.infrastructureRequirements ||
-              product.targetKeywords) && (
+              product.infrastructureRequirements) && (
               <section className="pt-10 border-t space-y-8">
                 <div className="space-y-2">
                   <h2 className="text-2xl font-black tracking-tight">
                     Technical Manifest
                   </h2>
-                  <p className="text-muted-foreground">
-                    Complete technical specifications for this product
-                  </p>
+                  
                 </div>
 
-                {/* Time-to-Value Metric */}
+                {/* Time to value Metric */}
                 {product.timeToValue && (
                   <div className="bg-primary/5 border border-primary/20 rounded-2xl p-6">
                     <div className="flex items-start gap-4">
@@ -397,10 +390,10 @@ export default function ProductDetailClient({
                           Time-to-Value
                         </h3>
                         <p className="text-3xl font-black text-primary">
-                          Saves ~{product.timeToValue} hours
+                          ~{product.timeToValue} hours
                         </p>
                         <p className="text-sm text-muted-foreground mt-2">
-                          of manual boilerplate and configuration work
+                          from download to running
                         </p>
                       </div>
                     </div>
@@ -452,7 +445,7 @@ export default function ProductDetailClient({
                     </div>
                   )}
 
-                {/* Infrastructure Requirements */}
+                {/* Needs */}
                 {product.infrastructureRequirements &&
                   product.infrastructureRequirements.length > 0 && (
                     <div className="flex items-start gap-4">
@@ -477,28 +470,7 @@ export default function ProductDetailClient({
                     </div>
                   )}
 
-                {/* Target Keywords */}
-                {product.targetKeywords &&
-                  product.targetKeywords.length > 0 && (
-                    <div className="flex items-start gap-4">
-                      <div className="p-2 bg-secondary rounded-lg mt-1">
-                        <BookOpen className="h-5 w-5 text-secondary-foreground" />
-                      </div>
-                      <div className="text-left">
-                        <h4 className="font-bold mb-3">Target Keywords</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {product.targetKeywords.map((kw) => (
-                            <span
-                              key={kw}
-                              className="px-3 py-1.5 rounded-md text-sm font-semibold bg-muted text-muted-foreground border"
-                            >
-                              {kw}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                {/* Target keywords stay in JSON-LD only — never in visible copy. */}
               </section>
             )}
 
@@ -507,11 +479,9 @@ export default function ProductDetailClient({
               <section className="pt-10 border-t">
                 <div className="space-y-2 mb-6">
                   <h2 className="text-2xl font-black tracking-tight">
-                    Architecture Overview
+                    Architecture
                   </h2>
-                  <p className="text-muted-foreground">
-                    Visual representation of product integration
-                  </p>
+                  
                 </div>
                 <div className="bg-muted/30 rounded-2xl p-6 overflow-x-auto">
                   <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap">
@@ -523,7 +493,7 @@ export default function ProductDetailClient({
 
             {product.videoEmbedUrl && (
               <section className="pt-10 border-t">
-                <h3 className="text-2xl font-bold mb-6">Demo & Walkthrough</h3>
+                <h3 className="text-2xl font-bold mb-6">Demo</h3>
                 <div className="aspect-video rounded-xl overflow-hidden border bg-black shadow-2xl">
                   <iframe
                     src={product.videoEmbedUrl}
@@ -576,8 +546,7 @@ export default function ProductDetailClient({
                           target="_blank"
                           onClick={handlePaymentClick}
                         >
-                          <ShoppingCart className="mr-3 h-5 w-5" /> Get Instant
-                          Access
+                          <ShoppingCart className="mr-3 h-5 w-5" /> Buy
                         </LinkWrapper>
                       </Button>
                     )}
@@ -602,7 +571,7 @@ export default function ProductDetailClient({
                       <Box className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                       <div className="text-left">
                         <p className="font-bold text-foreground">
-                          Delivery Method
+                          Delivery
                         </p>
                         <p className="text-muted-foreground">
                           {product.isDigital
@@ -617,7 +586,7 @@ export default function ProductDetailClient({
                         <Cpu className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                         <div className="text-left space-y-3">
                           <p className="font-bold text-foreground">
-                            Technology Stack
+                            Stack
                           </p>
                           <div className="flex flex-wrap gap-2">
                             {product.techStacks.map((tech: string) => (
@@ -654,9 +623,7 @@ export default function ProductDetailClient({
               <h2 className="text-3xl font-black tracking-tight mb-2">
                 More from {categoryName}
               </h2>
-              <p className="text-muted-foreground">
-                You might also be interested in these products.
-              </p>
+              
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
               {relatedProducts.slice(0, 3).map((rp, idx) => (

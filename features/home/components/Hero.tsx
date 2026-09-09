@@ -21,13 +21,13 @@ function HeroContent() {
       </h1>
 
       <p className="text-foreground/80 px-4 text-lg/8 text-left py-4 pb-8">
-        We design and deploy autonomous agents, workflow automation, and AI-powered platforms for companies that need operations to scale without adding headcount.
+        We build AI agents, automation, and software that run real work.
       </p>
       <p className="text-foreground/80 px-4 text-lg/8 text-left py-4 pb-10">N8N workflows. LangChain pipelines. Custom LLM integrations. Built to ship, not to demo.</p>
 
       <div className="px-4 py-4">
         <Button asChild size="lg" className="w-full sm:w-auto">
-          <Link href="/contact">Book a Discovery Call</Link>
+          <Link href="/contact">Book a call</Link>
         </Button>
       </div>
 

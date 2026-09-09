@@ -8,7 +8,7 @@ const HEAD: HeadType[] = [
       "Pantaleone.ai | AI Systems, Automation & LLM Integration",
     ),
     description: truncateDescription(
-      "We design and deploy autonomous agents, workflow automation, and AI-powered platforms for companies that need operations to scale without adding headcount.",
+      "AI agents, automation, and software that run real work. N8N workflows, Next.js apps, and build notes.",
     ),
     slug: "/",
   },
@@ -82,7 +82,7 @@ const HEAD: HeadType[] = [
   //   page: "Terms",
   //   title: truncateTitle("Terms of Use | Pantaleone Digital Services"),
   //   description: truncateDescription(
-  //     "Legal terms and conditions for our AI-driven services, platforms, and consulting.",
+  //     "Terms of use for pantaleone.net products and consulting.",
   //   ),
   //   slug: "/terms",
   // },

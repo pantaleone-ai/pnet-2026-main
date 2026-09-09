@@ -50,7 +50,7 @@ export default function ClientLogos() {
           href="/contact"
           className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
         >
-          Book a 30-minute call
+          Book a call
         </a>
       </div>
     </section>
