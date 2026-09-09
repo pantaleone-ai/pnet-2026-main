@@ -56,7 +56,7 @@ export default function LeadMagnetForm({
         </p>
         <Button asChild>
           <a href={downloadUrl} download>
-            Download Guide
+            Download
           </a>
         </Button>
       </div>

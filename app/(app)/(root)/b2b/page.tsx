@@ -96,7 +96,7 @@ export default function B2BPage() {
                 href="/contact?b2b=true"
                 className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground px-8 py-3 text-sm font-medium hover:bg-primary/90 transition-colors"
               >
-                Book a 30-minute call
+                Book a call
               </Link>
               <Link
                 href="/resources/ai-readiness-guide"
@@ -241,7 +241,7 @@ export default function B2BPage() {
               href="/contact?b2b=true"
               className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground px-8 py-3 text-sm font-medium hover:bg-primary/90 transition-colors"
             >
-              Book a 30-minute call
+              Book a call
             </Link>
           </div>
         </div>

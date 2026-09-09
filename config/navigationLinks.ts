@@ -56,25 +56,25 @@ const NAVIGATION_LINKS: NavigationLinkType[] = [
       {
         href: "/services",
         label: "Services",
-        description: truncateDescription("AI consulting & implementation", 30),
+        description: truncateDescription("Services and pricing", 30),
         icon: BriefcaseIcon,
       },
       {
         href: "/b2b",
         label: "B2B Solutions",
-        description: truncateDescription("Enterprise AI transformation", 30),
+        description: truncateDescription("AI work for teams", 30),
         icon: BriefcaseIcon,
       },
       {
         href: "/resources/ai-readiness-guide",
         label: "AI Readiness Guide",
-        description: truncateDescription("Free assessment & roadmap", 30),
+        description: truncateDescription("Checklist and worksheet", 30),
         icon: FileTextIcon,
       },
       {
         href: "/contact?book=true",
         label: "Book Consultation",
-        description: truncateDescription("Schedule a strategy call", 30),
+        description: truncateDescription("Book a call", 30),
         icon: CalendarIcon,
       },
     ],
@@ -99,7 +99,7 @@ const NAVIGATION_LINKS: NavigationLinkType[] = [
       {
         href: "/shop/",
         label: "View All Products",
-        description: truncateDescription("All Pantaleone.net Products", 30),
+        description: truncateDescription("Everything for sale", 30),
         icon: StoreIcon,
       },
     ],

@@ -46,7 +46,7 @@ export default function FeaturedStories({
                 href={`/blog/${story.slug}`}
                 className="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-6 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring w-full sm:w-auto"
               >
-                Read More
+                Read
                 <ArrowRightIcon className="ml-2 size-4 transition-transform duration-300 group-hover:translate-x-1" />
               </a>
             </div>

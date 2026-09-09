@@ -34,7 +34,8 @@
     "audit": "npm audit --audit-level=high",
     "upgrade:next": "npx @next/codemod@latest upgrade latest",
     "upgrade:tailwind": "npx @tailwindcss/upgrade@latest",
-    "prepare": "husky"
+    "prepare": "husky",
+    "editorial": "python3 scripts/editorial-audit.py --strict"
   },
   "dependencies": {
     "@bprogress/next": "^3.2.12",

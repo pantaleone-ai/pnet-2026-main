@@ -47,6 +47,10 @@ export default async function ContactPage() {
           gridId="grid-contact"
         />
         <SeparatorHorizontal short={true} />
+        <p className="mx-auto max-w-2xl px-4 pt-6 text-left text-base text-foreground/80">
+          Have a project? Tell me what you&apos;re building. I reply within
+          two business days.
+        </p>
         <div className="border-border relative min-h-52 max-w-full">
           <ContactForm />
         </div>

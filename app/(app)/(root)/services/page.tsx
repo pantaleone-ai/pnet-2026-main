@@ -231,7 +231,7 @@ export default function ServicesPage() {
                 href="/contact?book=true"
                 className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground px-6 py-3 text-sm font-medium hover:bg-primary/90 transition-colors"
               >
-                Book a 30-minute call
+                Book a call
               </Link>
             </div>
           </div>

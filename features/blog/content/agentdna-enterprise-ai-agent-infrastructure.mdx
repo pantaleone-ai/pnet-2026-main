@@ -1,6 +1,6 @@
 ---
-title: "AgentDNA: The Missing Infrastructure for Enterprise AI Agents"
-description: "An analysis and overview of AgentDNA's agentic stack. I'm breaking down the critical need for an agent registry, verifiable identity, and lifecycle management to move autonomous AI from chaotic scripts to secure, enterprise-grade infrastructure."
+title: "AgentDNA: Agent Infrastructure"
+description: "Agent registry, signed identity, and lifecycle management for AI agents."
 image: "https://pantaleone-net.s3.us-west-1.amazonaws.com/agent-dna1.webp"
 imageAlt: "AgentDNA Architecture Diagram"
 created: "2026-03-17"
@@ -35,9 +35,9 @@ featured: true
 
 # The Agentic Wild West
 
-Building autonomous agents is now trivial. Building them so they don't burn down the business is not. The landscape is a mess of one-off Python scripts, runaway API calls, and zero governance—a completely untenable state for any serious enterprise deployment. We're past the novelty of "what if" and firmly in the messy middle of "how to do this without creating a security and compliance nightmare."
+Building autonomous agents is now trivial. Building them so they don't burn down the business is not. The tooling is a mess of one-off Python scripts, runaway API calls, and zero governance—a completely untenable state for any serious enterprise deployment. We're past the novelty of "what if" and firmly in the messy middle of "how to do this without creating a security and compliance nightmare."
 
-The problem isn't the models. It's the lack of infrastructure. You wouldn't run production code without source control, a CI/CD pipeline, and identity management. Yet, that's exactly how most companies are deploying their most powerful—and riskiest—AI today. What's been missing is a proper agentic stack. A control plane for building, managing, and securing these things at scale. I've been looking at [AgentDNA](https://agentdna.ai/), and it appears to be that missing layer.
+The problem isn't the models. It's the lack of infrastructure. You wouldn't run production code without source control, a CI/CD pipeline, and identity management. Yet most companies deploy agents with none of that. I've been looking at [AgentDNA](https://agentdna.ai/), which provides a registry, signed identity, and lifecycle management.
 
 ![AgentDNA platform overview showing the connection between build, manage, and secure components.](https://pantaleone-net.s3.us-west-1.amazonaws.com/agent-dna2.webp)
 
@@ -45,7 +45,7 @@ The problem isn't the models. It's the lack of infrastructure. You wouldn't run 
 
 The core issue is that most AI agents have no persistent, verifiable identity. They are ephemeral processes. Without identity, you can't have security, you can't have an audit trail, and you can't have governance. You're just firing processes into the void.
 
-AgentDNA anchors its entire system on this concept—giving every agent a unique, cryptographically-signed identifier. This isn't just a UUID. It's a verifiable credential that travels with the agent, attesting to its origin, version, and permissions. For anyone who has built enterprise-grade systems, this is a non-negotiable starting point. It's the foundation upon which you can build everything else. If you can't answer "What is this thing and am I allowed to trust it?", you've already failed.
+AgentDNA anchors its entire system on this concept—giving every agent a unique, cryptographically-signed identifier. This isn't just a UUID. It's a verifiable credential that travels with the agent, attesting to its origin, version, and permissions. If you can't answer "What is this thing and am I allowed to trust it?", nothing else matters.
 
 ## The Stack: A Pragmatic Breakdown
 
@@ -81,7 +81,7 @@ It's important to distinguish this from the MLOps platforms we've been using for
 
 An agent has state, permissions, and tools. It executes multi-step logic. Its behavior is emergent. Managing that requires a different set of tools focused on identity, security, and governance—not just model performance metrics. AgentDNA appears to have understood this distinction correctly.
 
-If you're exploring the broader landscape of AI agent development, you might also be interested in:
+Related reading on AI agent tooling:
 
 - **[Building AI Agent Workflows](/blog/ai-agent-workflows)** — A practical guide to designing and orchestrating autonomous agents in production
 - **[MCP: The AI Server Standard for High-Quality AI Responses](/blog/mcp-ai-server-for-highquality-ai)** — Understanding Model Context Protocol and how it complements agent infrastructure
