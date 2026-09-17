@@ -15,7 +15,6 @@ export interface DocsLayoutProps extends BaseLayoutProps {
 }
 
 export function DocsLayout({
-  i18n = false,
   children,
   ...props
 }: DocsLayoutProps): ReactNode {

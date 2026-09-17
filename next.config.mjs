@@ -103,13 +103,22 @@ const config = {
   async headers() {
     return [
       {
-        // Aggressive CDN caching for all static pages.
+        // Long-lived CDN caching for fully static pages (all force-static,
+        // redeployed on content change; Vercel purges CDN on deploy).
         // Eliminates ISR Data Cache lookups — the CDN serves directly.
+        // NOTE: no `immutable` here — that directive is only valid for
+        // fingerprinted assets (/_next/static). On HTML it risks stale
+        // serves that never revalidate. Browser TTL stays heuristic
+        // (no max-age) while the CDN TTL is explicit below.
         source: "/((?!api|_next|_vercel|checkout|robots\\.txt|sitemap|favicon\\.ico|robots\\.txt).*)",
         headers: [
           {
             key: "Cache-Control",
-            value: "public, s-maxage=31536000, stale-while-revalidate=31536000, immutable",
+            value: "public, s-maxage=31536000, stale-while-revalidate=31536000",
+          },
+          {
+            key: "Vercel-CDN-Cache-Control",
+            value: "public, s-maxage=31536000, stale-while-revalidate=31536000",
           },
         ],
       },

@@ -8,10 +8,18 @@ import { levenshtein } from "./helpers";
  * @param query - The search query.
  * @returns An array of search results.
  */
-export async function getPostsBySearchQuery(query: string) {
-  if (!query.trim()) return [];
+// Cost guard: search scans every post+product in memory and the response is
+// JSON over origin transfer. Cap both result count and query length so a
+// 1-character query can't dump the whole catalog in one function call.
+export const SEARCH_MAX_RESULTS = 20;
+const SEARCH_MAX_QUERY_LENGTH = 100;
 
-  const searchQuery = query.toLowerCase().trim();
+export async function getPostsBySearchQuery(query: string) {
+  if (!query || typeof query !== "string") return [];
+  const trimmed = query.trim().slice(0, SEARCH_MAX_QUERY_LENGTH);
+  if (trimmed.length < 2) return [];
+
+  const searchQuery = trimmed.toLowerCase();
   const searchWords = searchQuery.split(/\s+/).filter(Boolean);
   const results: SearchResult[] = [];
 
@@ -65,7 +73,6 @@ export async function getPostsBySearchQuery(query: string) {
 
     // Only include results with a minimum score
     if (score > 0) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { body, ...serializablePost } = post;
       results.push({
         ...serializablePost,
@@ -167,7 +174,7 @@ export async function getPostsBySearchQuery(query: string) {
   }
 
   // Sort results by score in descending order
-  return results.sort((a, b) => b.score - a.score);
+  return results.sort((a, b) => b.score - a.score).slice(0, SEARCH_MAX_RESULTS);
 }
 
 /**

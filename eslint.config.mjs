@@ -2,6 +2,7 @@ import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 import prettier from "eslint-config-prettier/flat";
 import { defineConfig, globalIgnores } from "eslint/config";
+import unusedImports from "eslint-plugin-unused-imports";
 
 const eslintConfig = defineConfig([
 	...nextVitals,
@@ -9,10 +10,23 @@ const eslintConfig = defineConfig([
 	prettier,
 	{
 		files: ["**/*.{ts,tsx}"],
+		plugins: {
+			"unused-imports": unusedImports,
+		},
 		rules: {
 			"@typescript-eslint/consistent-type-imports": "error",
 			"@typescript-eslint/no-import-type-side-effects": "error",
 			"@next/next/no-img-element": "off",
+			"unused-imports/no-unused-imports": "error",
+			"unused-imports/no-unused-vars": [
+				"warn",
+				{
+					vars: "all",
+					varsIgnorePattern: "^_",
+					args: "after-used",
+					argsIgnorePattern: "^_",
+				},
+			],
 		},
 	},
 	// Override default ignores of eslint-config-next.
