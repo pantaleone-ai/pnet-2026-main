@@ -10,6 +10,12 @@ interface CheckoutPageProps {
   }>;
 }
 
+// Personalized redirect hub (cart query -> Stripe). Must never be statically
+// cached: each URL carries a different cart, so a shared CDN entry would leak
+// one shopper's cart into another's. Explicit force-dynamic + exclusion from
+// the static-page Cache-Control header in next.config.mjs.
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata() {
   return {
     title: "Redirecting to Checkout",

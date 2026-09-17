@@ -10,6 +10,9 @@ import {
 
 const APP_URL = process.env.APP_URL || "https://pantaleone.net";
 
+// Transactional Stripe redirect: per-cart, per-request. Never CDN-cacheable.
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
