@@ -9,12 +9,7 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Sheet,
-  SheetContent,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import NAVIGATION_LINKS from "@/config/navigationLinks";
 import { cn } from "@/lib/utils";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
@@ -59,37 +54,34 @@ const MenuButton: FC<Props> = memo(
 
     const handleNavigation = useCallback(() => {
       setIsLoading(true);
-      toggleSheet();
+      onOpenChange(false);
       // Reset loading state after a short delay to ensure smooth transition
       setTimeout(() => setIsLoading(false), 300);
-    }, [toggleSheet]);
+    }, [onOpenChange]);
 
     return (
       <Sheet open={isOpen} onOpenChange={onOpenChange}>
-        <SheetTrigger asChild>
-          <Button
-            onClick={toggleSheet}
-            onKeyDown={handleKeyDown}
-            variant="ghost"
-            size="icon"
-            className={cn(
-              "group hover:bg-accent rounded-xl corner-squircle",
-              className,
-            )}
-            aria-label={isOpen ? "Close menu" : "Open menu"}
-            aria-expanded={isOpen}
-            aria-controls="mobile-navigation"
-          >
-            {isOpen ? (
-              <X className="text-foreground group-hover:text-accent-foreground size-5" />
-            ) : (
-              <Menu className="text-foreground group-hover:text-accent-foreground size-5" />
-            )}
-          </Button>
-        </SheetTrigger>
+        <Button
+          onClick={toggleSheet}
+          onKeyDown={handleKeyDown}
+          variant="ghost"
+          size="icon"
+          className={cn(
+            "group hover:bg-accent rounded-xl corner-squircle",
+            className,
+          )}
+          aria-label={isOpen ? "Close menu" : "Open menu"}
+          aria-expanded={isOpen}
+          aria-controls="mobile-navigation"
+        >
+          {isOpen ? (
+            <X className="text-foreground group-hover:text-accent-foreground size-5" />
+          ) : (
+            <Menu className="text-foreground group-hover:text-accent-foreground size-5" />
+          )}
+        </Button>
         <SheetContent
           side="left"
-          className="z-1 mt-10"
           onKeyDown={handleKeyDown}
           id="mobile-navigation"
         >
