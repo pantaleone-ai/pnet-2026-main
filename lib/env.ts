@@ -8,8 +8,27 @@ const envSchema = z.object({
   // Required for email functionality
   RESEND_API_KEY: z.string().min(1, "RESEND_API_KEY is required"),
 
-  // Optional email recipient (defaults to author email)
-  CONTACT_EMAIL: z.string().email().optional(),
+  // Admin recipient(s) for contact + newsletter notifications. Single address
+  // or comma-separated list (e.g. "you@gmail.com, contact@yourdomain.com").
+  // Must be deliverable: the domain needs MX records or mail will bounce
+  // after Resend accepts it.
+  CONTACT_EMAIL: z
+    .string()
+    .min(1)
+    .refine(
+      (v) => {
+        const list = v
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+        return (
+          list.length > 0 &&
+          list.every((s) => z.string().email().safeParse(s).success)
+        );
+      },
+      { message: "CONTACT_EMAIL must be an email or comma-separated emails" },
+    )
+    .optional(),
 
   // Optional analytics (PostHog)
   NEXT_PUBLIC_POSTHOG_KEY: z.string().optional(),
