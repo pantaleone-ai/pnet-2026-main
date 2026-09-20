@@ -6,7 +6,7 @@ This guide provides essential information for AI agents working with the pantale
 
 - `docs/CONTENT_ENGINE.md` — content strategy + orchestration engine (pillars, inventory, backlog, internal linking, metadata, quality gate). Read it before any `features/blog/content/*.mdx` edit.
 - `docs/EDITORIAL.md` — voice rules. Run `npm run editorial` before every content commit.
-- `config/content/` — pillars, 33-post audit (`inventory.ts`), future title backlog (`backlog.ts`). Backlog titles are NOT to be written until asked.
+- `config/content/` — pillars, 30-post audit (`inventory.ts`), future title backlog (`backlog.ts`). Backlog titles are NOT to be written until asked.
 
 ## Project Overview
 

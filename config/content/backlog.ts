@@ -20,7 +20,7 @@ export const CONTENT_BACKLOG: BacklogItem[] = [
   { title: "AI Agent Architecture", pillar: "ai-agents", priority: "P0", intent: "technical", angle: "How production agents actually work: model, tools, memory, evals." },
   { title: "Production AI Agents", pillar: "ai-agents", priority: "P0", intent: "technical", angle: "Reliability, guardrails, cost, observability from real builds." },
   { title: "AI Agents vs Chatbots", pillar: "ai-agents", priority: "P1", intent: "comparison", angle: "Decision rule for when agency pays off." },
-  { title: "AI Agents vs Automation", pillar: "ai-agents", priority: "P1", intent: "comparison", angle: "Extends existing automation post; do not fork URL." },
+  { title: "AI Agents vs Automation", pillar: "ai-agents", priority: "P1", intent: "comparison", angle: "Prior automation post removed 2026-09-18; write fresh, do not resurrect old URL." },
   { title: "AI Agent Memory", pillar: "ai-agents", priority: "P1", intent: "technical", angle: "Short-term, long-term, external memory." },
   { title: "AI Agent Tools", pillar: "ai-agents", priority: "P1", intent: "technical", angle: "Tool design, calling, failure modes." },
   { title: "AI Agent Orchestration", pillar: "ai-agents", priority: "P1", intent: "technical", angle: "Single vs multi-agent routing patterns." },

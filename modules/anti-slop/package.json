@@ -1,0 +1,31 @@
+{
+  "name": "@forwardos/anti-slop",
+  "version": "1.0.0",
+  "description": "Reusable Anti-Slop quality-control and transformation system: detect and remove AI-generation patterns from text, UI, SEO, code, and image prompts",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "anti-slop": "dist/cli.js"
+  },
+  "exports": {
+    ".": "./dist/index.js",
+    "./api": "./dist/api.js",
+    "./mcp": "./dist/mcp/server.js"
+  },
+  "files": ["dist", "config", "README.md", "ATTRIBUTION.md"],
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "test": "npm run build && node tests/run.mjs",
+    "lint": "tsc --noEmit",
+    "anti-slop": "node dist/cli.js audit",
+    "anti-slop:scan": "node dist/cli.js scan",
+    "anti-slop:strict": "node dist/cli.js audit --strict",
+    "selfscan": "node dist/cli.js scan --type markdown README.md && node dist/cli.js design ../../apps/nft-mint-app/app/components/MintCard.tsx || true"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0"
+  }
+}

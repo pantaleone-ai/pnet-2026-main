@@ -1,0 +1,7 @@
+Most enterprise AI programs fail on architecture, not models.
+
+Teams bolt agents onto workflows that were already broken. The demo works. Production does not. The gap is rarely intelligence. It is integration, data access, and handoff points nobody mapped.
+
+Fix the foundation first. Define where the agent can execute without approval and where it must stop. Instrument every run. Measure cost per completed task, not demos shipped.
+
+Everyone is focused on model choice. The real problem is the operating model underneath it.

@@ -1,0 +1,9 @@
+{
+  "name": "default",
+  "strictness": "standard",
+  "allowlist": [],
+  "protectedTerms": [],
+  "hardGates": ["fake-specificity", "chatbot"],
+  "maxAutoPasses": 2,
+  "autoFixThreshold": 0.85
+}

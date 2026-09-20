@@ -24,6 +24,8 @@ AI-generated. Never invent experience, customers, metrics, or credentials.
 | Schema (pillar/cluster/intent/status optional) | `config/schemas/base-schemas.ts` |
 | Voice + budgets + blacklist | `docs/EDITORIAL.md` |
 | Audit script | `scripts/editorial-audit.py` (`npm run editorial`) |
+| Anti-slop engine (vendored) | `modules/anti-slop/` (see `PROVENANCE.md`) |
+| Project overrides (protected terms) | `config/anti-slop/protected-terms.json` |
 
 ## 3. Pillars (conceptual, not URLs)
 
@@ -42,7 +44,7 @@ never silently rename.
 5. Article shape (adapt, do not force): direct answer → why it matters → core explanation → architecture/model → implementation → examples → trade-offs → mistakes → recommendations → related content.
 6. SEO separation: visible copy stays short; search terms live in `seo:` frontmatter, `config/seo/*`, and JSON-LD — never stuffed into prose or titles.
 7. Dates: `created` never changes. Bump `lastUpdated` only on substantive edits.
-8. Validate: `npm run check-types && npm run lint && npm run editorial`.
+8. Validate: `npm run content:validate` (editorial + anti-slop audit over blog, projects, shop) plus `npm run check-types` for code changes.
 
 ## 5. Internal linking (use the engine, do not hand-pick randomly)
 
@@ -97,7 +99,41 @@ How AI Agents Work / AI Agent Architecture / Production AI Agents / What Is
 MCP? / How MCP Works / MCP vs APIs. Do not write them until asked — the
 architecture above is what makes them rank when they ship.
 
-## 10. Publishing (git only)
+## 10. Content validation pipeline (anti-slop agents)
+
+`modules/anti-slop/` is the vendored `@forwardos/anti-slop` engine
+(source pinned in `modules/anti-slop/PROVENANCE.md`): L1–L4 slop scanner,
+minimum-effective-edit rewriter (max 2 passes), 13-item quality gate.
+It is a permanent step in this pipeline, not a one-off cleanup.
+
+```bash
+npm run content:validate   # editorial + anti-slop audit (blog, projects, shop)
+npm run anti-slop:scan -- <files>   # report only, exit 0
+npm run anti-slop:strict -- <files> # fail on any hard gate (factual integrity)
+npm run anti-slop:test     # engine's own 37-assertion suite
+```
+
+Operating rules: DETECT → EXPLAIN → MINIMUM EFFECTIVE EDIT → RECHECK.
+Good content is left alone. Protected spans (code fences, quotes, URLs,
+frontmatter) and `config/anti-slop/protected-terms.json` (product/brand/SEO
+terms) are never flagged or rewritten. Taste overrides go in the engine's
+feedback store, never as one-off exceptions in prose.
+
+Agent (MCP) access — stdio server, zero dependencies:
+
+```json
+{ "mcpServers": { "anti-slop": {
+  "command": "node",
+  "args": ["<repo>/modules/anti-slop/dist/mcp/server.js"]
+} } }
+```
+
+Tools: `anti_slop_scan`, `anti_slop_audit`, `anti_slop_rewrite`,
+`anti_slop_design_audit`, `anti_slop_image_prompt`, `anti_slop_seo_audit`,
+`anti_slop_code_audit`, `anti_slop_compare`, `anti_slop_quality_gate`.
+Rebuild first with `npm run anti-slop:build` (`dist/` is gitignored).
+
+## 11. Publishing (git only)
 
 All publishing goes through git. Never edit content directly on the server
 or in any CMS-less shortcut. Flow: branch → commit → push → PR → merge →
@@ -105,7 +141,7 @@ Vercel builds from GitHub. Content changes require a redeploy (see
 `app/sitemap.ts`: sitemap builds at deploy time, no ISR). Verify on the
 preview deployment before merging to the production branch.
 
-## 11. Operating loop
+## 12. Operating loop
 
 DISCOVER → SEARCH DATA → TOPIC → RESEARCH → EXPERT INPUT → PUBLISH →
 MEASURE (Search Console per-URL: impressions, clicks, CTR, position; plus AI
