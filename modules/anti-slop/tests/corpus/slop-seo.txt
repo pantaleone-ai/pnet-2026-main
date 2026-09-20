@@ -1,0 +1,15 @@
+## What is prompt sync?
+
+Prompt sync copies prompt files to Langfuse.
+
+## Why it matters
+
+## What is a prompt?
+
+## What is Langfuse?
+
+Langfuse is great. Langfuse is powerful. Langfuse is innovative. Langfuse helps teams. Langfuse Langfuse Langfuse Langfuse Langfuse Langfuse Langfuse Langfuse Langfuse Langfuse Langfuse Langfuse Langfuse Langfuse Langfuse Langfuse Langfuse Langfuse Langfuse Langfuse Langfuse Langfuse Langfuse.
+
+## In summary
+
+In conclusion, to summarize, overall, Langfuse is a comprehensive, robust, seamless solution for your ecosystem journey.

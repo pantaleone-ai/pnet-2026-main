@@ -39,6 +39,10 @@ export const blogPostSchema = frontmatterSchema.extend({
   category: z.string().optional(),
   tags: z.array(z.string()).optional(),
   seo: z.array(z.string()).optional(),
+  pillar: z.string().optional(),
+  cluster: z.string().optional(),
+  intent: z.string().optional(),
+  status: z.string().optional(),
 });
 
 /**

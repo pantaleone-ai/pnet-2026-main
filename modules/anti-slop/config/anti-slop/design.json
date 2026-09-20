@@ -1,0 +1,16 @@
+{
+  "name": "default",
+  "visualDirection": "restrained, intentional, brand-led",
+  "typography": ["system stack unless brand typeface is specified"],
+  "palette": ["brand palette only; no default purple/indigo gradients"],
+  "density": "balanced",
+  "shapeLanguage": "one radius scale, applied deliberately",
+  "imageTreatment": "real product imagery or specified art direction; no generic AI illustrations",
+  "illustrationStyle": "none by default",
+  "motionLanguage": "state changes and one narrative beat only",
+  "layoutPrinciples": [
+    "structure follows the user's task, not the SaaS template",
+    "vary section rhythm; not every section is heading-cards-CTA",
+    "decoration must carry information or be removed"
+  ]
+}

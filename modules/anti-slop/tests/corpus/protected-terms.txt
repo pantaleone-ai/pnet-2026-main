@@ -1,0 +1,5 @@
+PROTECT_START
+AcmeCorp™ TurboLeverage API — do not touch this product name or paraphrase.
+PROTECT_END
+
+Our integration calls the TurboLeverage API to fetch usage. Use the endpoint as documented; the landscape of billing is handled server-side.

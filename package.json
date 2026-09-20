@@ -35,7 +35,13 @@
     "upgrade:next": "npx @next/codemod@latest upgrade latest",
     "upgrade:tailwind": "npx @tailwindcss/upgrade@latest",
     "prepare": "husky",
-    "editorial": "python3 scripts/editorial-audit.py --strict"
+    "editorial": "python3 scripts/editorial-audit.py --strict",
+    "anti-slop:build": "tsc -p modules/anti-slop",
+    "anti-slop:test": "npm run anti-slop:build && node modules/anti-slop/tests/run.mjs",
+    "anti-slop:scan": "npm run anti-slop:build && node modules/anti-slop/dist/cli.js scan --type markdown",
+    "anti-slop:audit": "npm run anti-slop:build && node modules/anti-slop/dist/cli.js audit --type markdown",
+    "anti-slop:strict": "npm run anti-slop:build && node modules/anti-slop/dist/cli.js audit --strict --type markdown",
+    "content:validate": "npm run editorial && npm run anti-slop:build && node modules/anti-slop/dist/cli.js audit --type markdown features/blog/content features/projects/content features/shop/content"
   },
   "dependencies": {
     "@bprogress/next": "^3.2.12",

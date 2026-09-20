@@ -11,6 +11,11 @@ type BlogPostType = {
   category?: string;
   tags?: string[];
   seo?: string[];
+  /** Advisory taxonomy. Optional until pillar hubs ship. See config/content/*. */
+  pillar?: string;
+  cluster?: string;
+  intent?: string;
+  status?: string;
   body: React.ComponentType<object>;
   content: string;
   readingTime: string;
