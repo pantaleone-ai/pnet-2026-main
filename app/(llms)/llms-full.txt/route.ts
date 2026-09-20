@@ -94,11 +94,11 @@ ${products.map((product) => {
 }).join("\n\n")}
 `;
 
-  return `<SYSTEM>This document contains comprehensive information about ${USER.displayName}'s professional profile, portfolio, shop, and blog content. It includes personal details, work experience, projects, achievements, certifications, commercial products, and all published blog posts. This data is formatted for consumption by Large Language Models (LLMs) to provide accurate and up-to-date information about ${USER.displayName}'s background, skills, and expertise as a Frontend Developer and AI product creator.</SYSTEM>
+  return `<SYSTEM>This document contains comprehensive information about ${USER.displayName}'s professional profile, portfolio, shop, and blog content. It includes personal details, work experience, projects, achievements, certifications, commercial products, and all published blog posts. This data is formatted for consumption by Large Language Models (LLMs) to provide accurate and up-to-date information about ${USER.displayName}'s background, skills, and expertise as an AI engineer and automation specialist.</SYSTEM>
 
-# hiretimsf.com
+# pantaleone.net
 
-> A minimal portfolio, blog, and shop to showcase my work as a Frontend Developer and AI product creator.
+> Matt Pantaleone builds autonomous agents, N8N workflows, and Next.js applications.
 
 ${aboutText}
 ${experienceText}

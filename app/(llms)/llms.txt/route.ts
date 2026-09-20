@@ -7,7 +7,6 @@ const content = `# pantaleone.net
 
 > Driving Growth With Agentic AI & Automation Solutions.
  
-- [Experience](${SITE_INFO.url}/experience.md): Highlights from my career and key roles I've taken on.
 - [Projects](${SITE_INFO.url}/projects.md): Selected projects that show my skills and creativity.
 - [Shop](${SITE_INFO.url}/shop.md): AI applications, workflows, services, and digital products.
 
