@@ -4,7 +4,7 @@ import CardItem from "../about/CardItem";
 
 const NavigationConsulting = () => {
   const consultingSection = NAVIGATION_LINKS.find(
-    (item) => item.label === "Consulting",
+    (item) => item.label === "Services" || item.label === "Consulting",
   );
   const consultingLinks = consultingSection?.subNavigationLinks || [];
 

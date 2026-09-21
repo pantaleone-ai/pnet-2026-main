@@ -51,7 +51,7 @@ const NAVIGATION_LINKS: NavigationLinkType[] = [
   {
     icon: BriefcaseIcon,
     href: "/services",
-    label: "Consulting",
+    label: "Services",
     subNavigationLinks: [
       {
         href: "/services",

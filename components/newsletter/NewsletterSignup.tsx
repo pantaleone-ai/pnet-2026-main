@@ -16,9 +16,10 @@ export default function NewsletterSignup({
 }: NewsletterSignupProps) {
   const [email, setEmail] = useState("");
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -29,21 +30,43 @@ export default function NewsletterSignup({
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setError("That address does not look valid. Check for a typo and try again.");
+      setError(
+        "That address does not look valid. Check for a typo and try again.",
+      );
       return;
     }
 
-    // Store subscription in localStorage (would be sent to newsletter service in production)
-    const subscriptions = JSON.parse(
-      localStorage.getItem("newsletterSubscriptions") || "[]",
-    );
-    subscriptions.push({
-      email,
-      timestamp: new Date().toISOString(),
-    });
-    localStorage.setItem("newsletterSubscriptions", JSON.stringify(subscriptions));
-
-    setIsSubscribed(true);
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Subscription failed. Try again.");
+      }
+      try {
+        const subscriptions = JSON.parse(
+          localStorage.getItem("newsletterSubscriptions") || "[]",
+        );
+        subscriptions.push({ email, timestamp: new Date().toISOString() });
+        localStorage.setItem(
+          "newsletterSubscriptions",
+          JSON.stringify(subscriptions),
+        );
+      } catch {
+        // localStorage is best-effort only
+      }
+      setIsSubscribed(true);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Subscription failed. Try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isSubscribed) {
@@ -76,8 +99,13 @@ export default function NewsletterSignup({
           />
           {error && <p className="text-sm text-destructive">{error}</p>}
         </div>
-        <Button type="submit" className="w-full" size="sm">
-          Subscribe to build notes
+        <Button
+          type="submit"
+          className="w-full"
+          size="sm"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Subscribing…" : "Subscribe to build notes"}
         </Button>
       </form>
       <p className="text-xs text-muted-foreground text-center mt-2">

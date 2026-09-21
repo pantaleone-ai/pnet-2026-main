@@ -3,7 +3,8 @@ import CardItem from "@/features/common/components/CardItem";
 import { getFeaturedProducts } from "@/features/shop/data/shopSource";
 
 export default async function FeaturedProducts() {
-  const featuredProducts = getFeaturedProducts();
+  // Homepage stays a services page, not a marketplace: max 3 tools.
+  const featuredProducts = getFeaturedProducts().slice(0, 3);
 
   return (
     <div className="relative mx-auto max-w-7xl px-6 py-8 md:py-10 lg:px-8">

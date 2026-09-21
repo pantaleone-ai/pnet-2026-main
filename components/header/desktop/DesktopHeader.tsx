@@ -33,6 +33,7 @@ const navItemStyles = {
 
 const navigationComponents: Record<string, React.ComponentType> = {
   About: NavigationAbout,
+  Services: NavigationConsulting,
   Consulting: NavigationConsulting,
   Shop: NavigationShop,
 };
@@ -121,7 +122,7 @@ const DesktopHeader: FC<Props> = memo(({ activePath }) => {
           <ThemeToggle />
           <span className="mx-2 flex h-4 w-px bg-border" />
           <Button asChild size="sm" variant="default">
-            <Link href="/contact">Contact</Link>
+            <Link href="/contact?book=true">Book a working session</Link>
           </Button>
         </div>
       </div>

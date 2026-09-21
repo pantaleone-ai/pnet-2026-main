@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { withOutboundUtm } from "@/lib/external-link";
 import Image from "next/image";
 import TESTIMONIALS from "../data/testimonials";
-import BackgroundDots from "@/features/common/components/BackgroundDots";
 
 export function Testimonial({
   className,
@@ -183,24 +182,14 @@ export function TestimonialVerifiedBadge({
 
 export function WhatPeopleSay() {
   if (TESTIMONIALS.length === 0) {
-    return (
-      <div className="w-full relative p-4">
-        <BackgroundDots gridId="what-people-say" className="text-gray-200/80" />
-        <div className="mx-auto max-w-2xl rounded-xl border border-dashed p-6 text-left">
-          <p className="text-base text-foreground">No buyer quotes yet.</p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            This slot fills only with a named, linkable quote. Bought a workflow
-            pack? Email your note and it goes here with your name.
-          </p>
-        </div>
-      </div>
-    );
+    // No public placeholder: this renders nothing until a real,
+    // named, linkable buyer quote exists. See TrustStrip for
+    // factual credibility in the meantime.
+    return null;
   }
 
   return (
-    <div className="w-full relative p-4">
-      <BackgroundDots gridId="what-people-say" className="text-gray-200/80" />
-
+    <div className="relative w-full p-4">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {TESTIMONIALS.map((item) => (
           <a
