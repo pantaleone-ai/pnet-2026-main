@@ -7,8 +7,12 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: "/",
+        // Allow crawlers on public static feeds, but keep them off the
+        // uncached dynamic API functions (/api/search, /api/channels,
+        // /api/campaigns, /api/metrics, …) to avoid bot-driven executions.
+        allow: ["/", "/api/feeds/", "/api/products/feed"],
         disallow: [
+          "/api/",
           "/_next/",
           "/_vercel/",
           "/private/",
