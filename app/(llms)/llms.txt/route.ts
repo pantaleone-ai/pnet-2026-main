@@ -1,4 +1,5 @@
 import { SITE_INFO } from "@/config/seo/site";
+import { ECOSYSTEM_GROUPS } from "@/config/ecosystem";
 import { getBlogPosts } from "@/features/blog/data/blogSource";
 
 const allPosts = getBlogPosts();
@@ -9,6 +10,10 @@ const content = `# pantaleone.net
  
 - [Projects](${SITE_INFO.url}/projects.md): Selected projects that show my skills and creativity.
 - [Shop](${SITE_INFO.url}/shop.md): AI applications, workflows, services, and digital products.
+
+## Ecosystem
+
+${ECOSYSTEM_GROUPS.map((group) => `### ${group.heading}\n\n${group.links.map((link) => `- [${link.label}](${link.href})`).join("\n")}`).join("\n\n")}
 
 ## Blog
 

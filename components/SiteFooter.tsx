@@ -1,7 +1,8 @@
-// import TechStacks from "@/components/footer/TechStacks";
 import BottomNavLinks from "@/components/footer/BottomNavLinks";
 // import InspiredBy from "@/components/footer/InspiredBy";
 import Copyright from "@/components/footer/Copyright";
+import FooterBrand from "@/components/footer/FooterBrand";
+import FooterDirectory from "@/components/footer/FooterDirectory";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 
 export default function SiteFooter() {
@@ -9,6 +10,10 @@ export default function SiteFooter() {
     <footer className="w-full mx-auto overflow-x-hidden">
       {/* <InspiredBy />
       <TechStacks /> */}
+      <SeparatorHorizontal short={true} />
+      <FooterBrand />
+      <SeparatorHorizontal short={true} />
+      <FooterDirectory />
       <SeparatorHorizontal short={true} />
       <BottomNavLinks />
       <Copyright />
