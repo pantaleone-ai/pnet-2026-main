@@ -1,4 +1,11 @@
-import { contactFormSchema } from "@/features/contact/helpers/validations";
+import {
+  HONEYPOT_FIELD,
+  MIN_SUBMIT_MS,
+  RATE_LIMIT_MAX,
+  RATE_LIMIT_WINDOW_MS,
+  contactPayloadSchema,
+  isHoneypotFilled,
+} from "@/lib/validations/contact";
 import { getIdentifier, rateLimit } from "@/lib/rate-limit";
 import { logger } from "@/lib/logger";
 import { escape } from "html-escaper";
@@ -32,15 +39,29 @@ const NO_STORE = { "Cache-Control": "no-store" } as const;
 // Field caps (zod) bound legit bodies to ~6KB; reject junk floods early.
 const MAX_BODY_BYTES = 20 * 1024;
 
-// Rate limiter: 5 requests per minute per IP
+const SUCCESS_MESSAGE = "Message sent successfully";
+
+/**
+ * Edge rate-limiting stub: 5 submissions per 15 minutes per IP.
+ * Backed by an in-memory LRU on a single instance; replace with
+ * Upstash/Vercel KV for multi-instance production enforcement.
+ */
 const limiter = rateLimit({
-  interval: 60 * 1000, // 1 minute
-  uniqueTokenPerInterval: 500,
+  interval: RATE_LIMIT_WINDOW_MS,
+  uniqueTokenPerInterval: 1000,
 });
 
 function bodyTooLarge(request: Request): boolean {
   const contentLength = Number(request.headers.get("content-length") ?? 0);
   return Number.isFinite(contentLength) && contentLength > MAX_BODY_BYTES;
+}
+
+/** Silent-drop response: identical shape to a real success so bots learn nothing. */
+function falsePositiveSuccess() {
+  return NextResponse.json(
+    { success: true, message: SUCCESS_MESSAGE },
+    { headers: NO_STORE },
+  );
 }
 
 // Non-POST methods are not supported; explicit 405 + no-store so misuse
@@ -54,10 +75,10 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    // Rate limiting check
+    // 1. Rate limiting check (per IP)
     const identifier = getIdentifier(request);
     try {
-      await limiter.check(5, identifier); // 5 requests per minute
+      await limiter.check(RATE_LIMIT_MAX, identifier);
     } catch {
       logger.warn("Rate limit exceeded", {
         context: "contact-api",
@@ -78,8 +99,18 @@ export async function POST(request: Request) {
 
     const body = await request.json();
 
-    // Validate input using Zod schema
-    const result = contactFormSchema.safeParse(body);
+    // 2. Honeypot check FIRST: silent drop with a false-positive 200.
+    // Never send email, never trigger alerts, never reveal detection.
+    if (isHoneypotFilled(body?.[HONEYPOT_FIELD])) {
+      logger.warn("Honeypot triggered, dropping silently", {
+        context: "contact-api",
+        meta: { ip: identifier },
+      });
+      return falsePositiveSuccess();
+    }
+
+    // 3. Validate + tolerantly clean inputs (trimming happens in the schema).
+    const result = contactPayloadSchema.safeParse(body);
 
     if (!result.success) {
       const errorMessage = result.error.issues
@@ -88,35 +119,53 @@ export async function POST(request: Request) {
       logger.error("Validation error in contact form", result.error, {
         context: "contact-api",
       });
-      return NextResponse.json({ error: errorMessage }, { status: 400, headers: NO_STORE });
+      return NextResponse.json(
+        { error: errorMessage },
+        { status: 400, headers: NO_STORE },
+      );
     }
 
-    const { email, message, name } = result.data;
+    const { email, message, name, inquiryType, mountedAt } = result.data;
+
+    // 4. Time-delta entropy check: flag sub-human submissions for review
+    // but NEVER block — autofill + fast humans can legitimately beat it.
+    const dwellMs =
+      typeof mountedAt === "number" ? Date.now() - mountedAt : null;
+    const suspectedBot = dwellMs !== null && dwellMs < MIN_SUBMIT_MS;
+    if (suspectedBot) {
+      logger.warn("Suspected bot timing, queuing separately", {
+        context: "contact-api",
+        meta: { ip: identifier, dwellMs, inquiryType },
+      });
+    }
 
     logger.info("Processing contact form submission", {
       context: "contact-api",
-      meta: { name, email },
+      meta: { name, email, inquiryType, suspectedBot },
     });
 
-    // Sanitize user input to prevent XSS
+    // 5. Strict server-side sanitization before forwarding downstream.
     const sanitizedName = escape(name);
     const sanitizedEmail = escape(email);
+    const sanitizedInquiry = escape(inquiryType);
     const sanitizedMessage = escape(message);
 
     const resend = getResendClient();
+    const subjectPrefix = suspectedBot ? "[REVIEW] " : "";
     const { data, error } = await resend.emails.send({
       from: process.env.CONTACT_FROM_EMAIL || DEFAULT_FROM_EMAIL,
       to: CONTACT_TO_EMAILS,
-      subject: `New Contact Form Submission from ${sanitizedName}`,
+      subject: `${subjectPrefix}New Contact Form Submission from ${sanitizedName} — ${sanitizedInquiry}`,
       replyTo: email,
       html: `
         <h2>New Contact Form Submission</h2>
         <p><strong>Name:</strong> ${sanitizedName}</p>
         <p><strong>Email:</strong> ${sanitizedEmail}</p>
+        <p><strong>Inquiry type:</strong> ${sanitizedInquiry}</p>
         <p><strong>Message:</strong></p>
         <p style="white-space: pre-wrap;">${sanitizedMessage}</p>
       `,
-      text: `New Contact Form Submission\n\nName: ${name}\nEmail: ${email}\n\n${message}`,
+      text: `New Contact Form Submission\n\nName: ${name}\nEmail: ${email}\nInquiry type: ${inquiryType}\n\n${message}`,
     });
 
     if (error) {
@@ -165,11 +214,14 @@ export async function POST(request: Request) {
       ).catch(() => {});
     }
 
-    return NextResponse.json({
-      success: true,
-      message: "Email sent successfully",
-      id: data?.id,
-    }, { headers: NO_STORE });
+    return NextResponse.json(
+      {
+        success: true,
+        message: SUCCESS_MESSAGE,
+        id: data?.id,
+      },
+      { headers: NO_STORE },
+    );
   } catch (error) {
     logger.error("Unexpected error in contact form", error, {
       context: "contact-api",
