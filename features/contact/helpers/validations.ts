@@ -1,24 +1,23 @@
-import { z } from "zod";
-
-export const contactFormSchema = z.object({
-  name: z
-    .string()
-    .min(2, {
-      message: "Name must be at least 2 characters.",
-    })
-    .max(100, { message: "Name must be at most 100 characters." }),
-  email: z
-    .string()
-    .email({
-      message: "Please enter a valid email address.",
-    })
-    .max(254, { message: "Email address is too long." }),
-  message: z
-    .string()
-    .min(10, {
-      message: "Message must be at least 10 characters.",
-    })
-    .max(5000, { message: "Message must be at most 5000 characters." }),
-});
-
-export type ContactFormValues = z.infer<typeof contactFormSchema>;
+/**
+ * Backwards-compatible re-export.
+ * Canonical schema lives in `@/lib/validations/contact`.
+ */
+export {
+  contactFormSchema,
+  contactPayloadSchema,
+  HONEYPOT_FIELD,
+  MIN_SUBMIT_MS,
+  MAX_MESSAGE_LENGTH,
+  RATE_LIMIT_MAX,
+  RATE_LIMIT_WINDOW_MS,
+  INQUIRY_TYPES,
+  isPermissiveEmail,
+  isSuspiciousTiming,
+  isHoneypotFilled,
+  normalizeText,
+  cleanInput,
+  type ContactFormValues,
+  type ContactFormInput,
+  type ContactPayload,
+  type InquiryType,
+} from "@/lib/validations/contact";

@@ -11,7 +11,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { contactFormSchema, type ContactFormValues } from "./helpers/validations";
+import {
+  contactFormSchema,
+  type ContactFormInput,
+  type ContactFormValues,
+} from "./helpers/validations";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -20,12 +24,15 @@ import { toast } from "sonner";
 export function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<ContactFormValues>({
+  const form = useForm<ContactFormInput, unknown, ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
       name: "",
       email: "",
+      inquiryType: "Other",
       message: "",
+      b_company_website_ref: "",
+      mountedAt: Date.now(),
     },
   });
 
@@ -43,14 +50,18 @@ export function ContactForm() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "Message not sent. The server returned an error.");
+        throw new Error(
+          result.error || "Message not sent. The server returned an error.",
+        );
       }
 
       toast.success("Message sent. I reply within two business days.");
       form.reset();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Message not sent. Check your connection and try again."
+        error instanceof Error
+          ? error.message
+          : "Message not sent. Check your connection and try again.",
       );
     } finally {
       setIsSubmitting(false);
@@ -82,7 +93,11 @@ export function ContactForm() {
               <FormItem>
                 <FormLabel>Email address</FormLabel>
                 <FormControl>
-                  <Input placeholder="ada@analytical.engine" type="email" {...field} />
+                  <Input
+                    placeholder="ada@analytical.engine"
+                    type="email"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
