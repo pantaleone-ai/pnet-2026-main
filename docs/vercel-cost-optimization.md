@@ -91,10 +91,69 @@ change, needs product decision).
 
 ## 6. Remaining opportunities
 
-- Search DTO trim (drop unused product fields from `/api/search` payloads;
-  requires `SearchResult` type + UI audit).
 - Browser `max-age` policy for HTML (currently heuristic; product call).
 - If Vercel dashboard numbers become available, re-ground this model and
   prioritize by measured ISR/origin/data spend.
 - Fleet: promote the `Vercel-CDN-Cache-Control` + `force-dynamic` +
   `no-store` transactional pattern to shared templates.
+
+## 7. Aggressive pass — `feat/vercel-origin-isr-aggressive` (no breaking changes)
+
+Goal: drive Fast Origin Transfer and ISR reads/writes as close to zero as
+possible without changing any user-facing behavior.
+
+1. **`next.config.mjs`**
+   - `optimizePackageImports` extended: `@tanstack/react-query`, `nuqs`,
+     `motion`, `recharts`, `embla-*`, `cmdk`, `sonner`, `vaul`,
+     `country-flag-icons`, `react-tweet` (smaller `/_next/static` JS =>
+     less origin transfer on MISS/first fill).
+   - New explicit CDN header blocks (all with `Vercel-CDN-Cache-Control` +
+     `stale-if-error=86400`): `/(fonts|images|favicons|files)` (1yr
+     immutable), `/(llms.txt|llms-full.txt|shop.md|projects.md)` +
+     `/blog.mdx/*` (1yr), `/(sitemap.xml|robots.txt)` +
+     `/products/sitemap.xml` (1yr — previously fell through to the short
+     default route TTL), `/(rss.xml)` + `/api/(feeds|products)/*` (1yr),
+     `/opengraph-image` (1yr).
+2. **LLM-text routes** (`llms.txt`, `llms-full.txt`, `shop.md`,
+   `projects.md`, `blog.mdx/[slug]`): explicit 1yr `Cache-Control` +
+   `Vercel-CDN-Cache-Control` in-route (previously relied on the short
+   default). `llms-full.txt` is the largest single origin payload.
+3. **Feeds** (`rss.xml`, `/api/feeds/products`, `/api/feeds/etsy`,
+   `/api/products/feed`): 7d -> 1yr CDN TTL. Safe: force-static, rebuilt
+   on redeploy, Vercel purges CDN on deploy. Stops weekly crawler waves
+   re-pulling identical bytes from origin.
+4. **`app/opengraph-image.tsx`**: kept `edge` runtime (a `nodejs` +
+   `force-static` build-time render was tried and reverted — the WOFF2
+   font's `wOF2` signature is rejected by the nodejs prerender font
+   parser, failing the build). Cost control comes from the pre-existing
+   `force-cache` font fetch plus the new explicit 1yr `/opengraph-image`
+   CDN headers in `next.config.mjs`, so social-crawler waves hit the CDN
+   instead of re-executing origin.
+5. **`/api/search`**: lean DTO (only `type/slug/title/description/content`
+   capped at 200 chars/`category?/score` — the only fields any consumer
+   renders) instead of full blog/product objects; `200` responses get
+   `s-maxage=60, stale-while-revalidate=300` (CDN keys on full URL incl.
+   query, so no cross-query poisoning; absorbs burst/bot waves); errors/
+   429 stay `no-store`; explicit 405 + `no-store` for non-GET.
+6. **`SearchButton`**: React Query `staleTime: 60s, gcTime: 5min` dedupes
+   repeat server-action invocations (reopen menu, retype) client-side.
+7. **Transactional POST routes** (`contact`, `newsletter`, `lead-magnet`,
+   `indexnow/submit`, `stripe/*`): explicit `force-dynamic` + `nodejs` +
+   `no-store` on every response, `Content-Length` body caps (413), explicit
+   405 + `no-store` for wrong methods. `contact` cap 20KB (zod already
+   bounds legit bodies ~6KB); `newsletter`/`lead-magnet`/`sync-product`
+   8KB; `indexnow/submit` 512KB (10k-URL cap).
+8. **`/api/checkout/session`**: `no-store` on all redirects/JSON +
+   10/min/IP rate limit short-circuiting before the Stripe API call
+   (legit shoppers never hit it; bot loops can't mint sessions).
+9. **`/api/indexnow/submit` GET** (static usage doc): 1hr shared cache.
+   **`/api/indexnow/[key]`**: added `Vercel-CDN-Cache-Control`.
+
+Deliberately unchanged: HTML browser TTL (heuristic, product call),
+server-action search return shape (UI contract untouched — only the
+unconsumed `/api/search` HTTP payload was trimmed), Stripe webhook logic
+(headers/exports only), POST-route auth (out of scope).
+
+Validation: `npm run build` (static routes stay `○ Static`, `/checkout` +
+dynamic APIs stay `ƒ Dynamic`, OG prerenders at build), `npm run lint`
+on touched files, `npx tsc --noEmit`.

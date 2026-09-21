@@ -116,6 +116,13 @@ export async function GET() {
   return new Response(await getContent(), {
     headers: {
       "Content-Type": "text/markdown;charset=utf-8",
+      // Largest single origin payload on the site. force-static + deploy
+      // rebuild (Vercel purges CDN on deploy) => 1yr CDN pin is safe and
+      // keeps bot/crawler waves off origin. Zero ISR (no revalidate).
+      "Cache-Control":
+        "public, s-maxage=31536000, stale-while-revalidate=31536000",
+      "Vercel-CDN-Cache-Control":
+        "public, s-maxage=31536000, stale-while-revalidate=31536000, stale-if-error=86400",
     },
   });
 }
