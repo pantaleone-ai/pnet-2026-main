@@ -1,20 +1,16 @@
 import type { SkillType } from "@/features/home/types/SkillType";
 
 export const SKILLS: SkillType[] = [
-  { 
-    name: "Agentic AI", 
-    description: "Agents for multi-step work." 
+  {
+    name: "Automate work",
+    description: "Replace repetitive manual processes with systems.",
   },
-  { 
-    name: "Workflow Automation", 
-    description: "Automate workflows across your stack." 
+  {
+    name: "Build agents",
+    description: "Agents that research, reason, and do multi-step work.",
   },
-  { 
-    name: "LLM Integration", 
-    description: "Deploy models, RAG, and custom LLM systems." 
-  },
-  { 
-    name: "AI Strategy", 
-    description: "Find useful AI opportunities. Then ship them." 
+  {
+    name: "Ship software",
+    description: "Apps and integrations that make AI useful in-house.",
   },
 ];

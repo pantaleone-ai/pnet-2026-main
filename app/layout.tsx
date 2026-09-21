@@ -72,7 +72,7 @@ function getOrganizationJsonLd() {
     url: siteConfig.url,
     logo: `${siteConfig.url}/logo.png`,
     description:
-      "AI engineering and automation strategy consultancy specializing in agentic AI, business automation, and enterprise AI solutions.",
+      "We build AI systems that eliminate expensive manual work: AI agents, workflow automation, AI integration, and custom AI software.",
     address: {
       "@type": "PostalAddress",
       addressLocality: "New York",
@@ -98,7 +98,7 @@ function getProfessionalServiceJsonLd() {
     image: siteConfig.ogImage,
     priceRange: "$$$",
     description:
-      "AI engineering and automation strategy services for enterprise businesses.",
+      "AI agents, workflow automation, AI integration, and custom AI software for businesses.",
   };
 }
 

@@ -16,9 +16,10 @@ export default function LeadMagnetForm({
 }: LeadMagnetFormProps) {
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
@@ -29,22 +30,31 @@ export default function LeadMagnetForm({
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      setError("That address does not look valid. Check for a typo and try again.");
+      setError(
+        "That address does not look valid. Check for a typo and try again.",
+      );
       return;
     }
 
-    // Store email in localStorage for now (would be sent to backend in production)
-    const submissions = JSON.parse(
-      localStorage.getItem("leadMagnetSubmissions") || "[]",
-    );
-    submissions.push({
-      email,
-      guide: guideTitle,
-      timestamp: new Date().toISOString(),
-    });
-    localStorage.setItem("leadMagnetSubmissions", JSON.stringify(submissions));
-
-    setIsSubmitted(true);
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/lead-magnet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, guide: guideTitle }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || "Delivery failed. Try again.");
+      }
+      setIsSubmitted(true);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Delivery failed. Try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isSubmitted) {
@@ -77,8 +87,8 @@ export default function LeadMagnetForm({
         />
         {error && <p className="text-sm text-destructive">{error}</p>}
       </div>
-      <Button type="submit" className="w-full">
-        Send the {guideTitle}
+      <Button type="submit" className="w-full" disabled={isSubmitting}>
+        {isSubmitting ? "Sending…" : `Send the ${guideTitle}`}
       </Button>
       <p className="text-xs text-muted-foreground text-center">
         One email with the PDF. Unsubscribe anytime.
