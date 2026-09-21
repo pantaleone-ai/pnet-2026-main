@@ -5,10 +5,8 @@ import HeadingTitle from "@/components/HeadingTitle";
 import FeaturedApps from "@/features/home/components/FeaturedApps";
 import FeaturedProducts from "@/features/home/components/FeaturedProducts";
 import FeaturedStoriesWrapper from "@/features/home/components/FeaturedStoriesWrapper";
-import { WhatPeopleSay } from "@/features/home/components/WhatPeopleSay";
 // import { FaqSection } from "@/features/home/components/FAQ";
 import LatestBlogPosts from "@/features/home/components/LatestBlogPosts";
-import ClientLogos from "@/features/home/components/ClientLogos";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Suspense } from "react";
 
@@ -54,12 +52,6 @@ export default function Home() {
       <Suspense fallback={<SectionFallback />}>
         <LatestBlogPosts />
       </Suspense>
-      <SeparatorHorizontal short={true} />
-      <ClientLogos />
-      <SeparatorHorizontal short={true} />
-      <HeadingTitle title="Buyer notes" />
-      <SeparatorHorizontal short={true} />
-      <WhatPeopleSay />
       {/* <SeparatorHorizontal /> */}
       {/* <HeadingTitle title="FAQ" />
       <SeparatorHorizontal short={true} />
