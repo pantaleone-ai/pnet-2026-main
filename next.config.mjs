@@ -1,4 +1,3 @@
-import bundleAnalyzer from "@next/bundle-analyzer";
 import { createMDX } from "fumadocs-mdx/next";
 
 /** @type {import('next').NextConfig} */
@@ -383,10 +382,12 @@ const withMDX = createMDX({
   // configPath: "source.config.ts"
 });
 
-// Bundle treemap only when ANALYZE=true (audit tooling). The plugin is a
-// passthrough otherwise, so production builds are byte-identical.
-const withBundleAnalyzer = bundleAnalyzer({
-  enabled: process.env.ANALYZE === "true",
-  openAnalyzer: false,
-});
-export default withBundleAnalyzer(withMDX(config));
+// Bundle treemap only when ANALYZE=true (local audit tooling). Lazily
+// imported so Vercel builds — which skip devDependencies — never have to
+// resolve @next/bundle-analyzer.
+let finalConfig = withMDX(config);
+if (process.env.ANALYZE === "true") {
+  const { default: bundleAnalyzer } = await import("@next/bundle-analyzer");
+  finalConfig = bundleAnalyzer({ enabled: true, openAnalyzer: false })(finalConfig);
+}
+export default finalConfig;
