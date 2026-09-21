@@ -16,7 +16,7 @@ export const COPYRIGHT_LINKS = {
   terms: {
     href: "/changelog",
     icon: FileTextIcon,
-    label: "Terms of Use",
-    ariaLabel: "View terms of use",
+    label: "Changelog",
+    ariaLabel: "View changelog",
   },
 } satisfies Record<string, LinkItem>;

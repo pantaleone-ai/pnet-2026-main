@@ -12,6 +12,7 @@ import { PageTracker } from "@/hooks/usePageTracking";
 
 // --- CHANGED: Now importing from your new unified config ---
 import { siteConfig } from "@/config/site";
+import { ECOSYSTEM_URLS } from "@/config/ecosystem";
 import { META_THEME_COLORS } from "@/config/theme"; // Assuming you kept the theme config
 import { analyticsConfig } from "@/config/analytics";
 import { fontMono, fontSans } from "@/lib/fonts";
@@ -83,6 +84,7 @@ function getOrganizationJsonLd() {
       siteConfig.links.twitter,
       siteConfig.links.github,
       siteConfig.links.linkedin,
+      ...ECOSYSTEM_URLS,
     ].filter(Boolean),
   };
 }
