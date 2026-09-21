@@ -1,4 +1,4 @@
-import Link from "next/link";
+import LinkWrapper from "@/components/LinkWrapper";
 import { SOURCE_CODE_GITHUB_URL } from "@/config/seo/site";
 
 const defaultClass =
@@ -79,14 +79,14 @@ export default function TechStacks() {
       </p> */}
       <p className="text-muted-foreground text-center text-sm leading-5">
         Code is available on{" "}
-        <Link
+        <LinkWrapper
           href={techLinks[6]?.href ?? "#"}
           target="_blank"
           rel="noopener noreferrer"
           className={defaultClass}
         >
           {techLinks[6]?.label}
-        </Link>
+        </LinkWrapper>
         .
       </p>
     </div>

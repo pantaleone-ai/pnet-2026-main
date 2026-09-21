@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { copyText } from "@/features/blog/utils/copy";
+import { withOutboundUtm } from "@/lib/external-link";
 import { LinkedInIcon } from "@/features/blog/icons/LinkedInIcon";
 import { XIcon } from "@/features/blog/icons/XIcon";
 import { trackEvent } from "@/lib/events";
@@ -68,7 +69,9 @@ export function ShareButton({ url }: { url: string }) {
           }}
         >
           <a
-            href={`https://x.com/intent/tweet?url=${urlEncoded}`}
+            href={withOutboundUtm(
+              `https://x.com/intent/tweet?url=${urlEncoded}`,
+            )}
             target="_blank"
             rel="noopener"
           >
@@ -89,7 +92,9 @@ export function ShareButton({ url }: { url: string }) {
           }}
         >
           <a
-            href={`https://www.linkedin.com/sharing/share-offsite?url=${urlEncoded}`}
+            href={withOutboundUtm(
+              `https://www.linkedin.com/sharing/share-offsite?url=${urlEncoded}`,
+            )}
             target="_blank"
             rel="noopener"
           >

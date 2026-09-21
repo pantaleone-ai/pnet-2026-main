@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { withOutboundUtm } from "@/lib/external-link";
 import Image from "next/image";
 import TESTIMONIALS from "../data/testimonials";
 import BackgroundDots from "@/features/common/components/BackgroundDots";
@@ -186,12 +187,10 @@ export function WhatPeopleSay() {
       <div className="w-full relative p-4">
         <BackgroundDots gridId="what-people-say" className="text-gray-200/80" />
         <div className="mx-auto max-w-2xl rounded-xl border border-dashed p-6 text-left">
-          <p className="text-base text-foreground">
-            No buyer quotes yet.
-          </p>
+          <p className="text-base text-foreground">No buyer quotes yet.</p>
           <p className="mt-2 text-sm text-muted-foreground">
-            This slot fills only with a named, linkable quote. Bought a
-            workflow pack? Email your note and it goes here with your name.
+            This slot fills only with a named, linkable quote. Bought a workflow
+            pack? Email your note and it goes here with your name.
           </p>
         </div>
       </div>
@@ -206,7 +205,7 @@ export function WhatPeopleSay() {
         {TESTIMONIALS.map((item) => (
           <a
             key={item.url}
-            href={item.url}
+            href={withOutboundUtm(item.url)}
             target="_blank"
             rel="noopener noreferrer"
             className="block h-full"

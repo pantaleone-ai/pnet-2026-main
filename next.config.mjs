@@ -3,7 +3,17 @@ import { createMDX } from "fumadocs-mdx/next";
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
+  // Externalize heavy Node.js libraries so they are required at runtime
+  // instead of being bundled (and duplicated) into all 27 serverless
+  // route-handler zips. Only packages present in dependencies are listed —
+  // sharp / @aws-sdk/client-s3 are not installed, so they are omitted.
+  serverExternalPackages: ["stripe", "resend"],
   experimental: {
+    // Multi-process SSG parallelism for Vercel 2-core build instances.
+    // NOTE: workerThreads is intentionally NOT enabled — the fumadocs MDX
+    // plugin injects non-serializable webpack functions into the config,
+    // which crashes static-page workers with DataCloneError.
+    cpus: 2,
     optimizePackageImports: [
       "lucide-react",
       "@radix-ui/react-*",
@@ -371,4 +381,13 @@ const withMDX = createMDX({
   // customise the config file path
   // configPath: "source.config.ts"
 });
-export default withMDX(config);
+
+// Bundle treemap only when ANALYZE=true (local audit tooling). Lazily
+// imported so Vercel builds — which skip devDependencies — never have to
+// resolve @next/bundle-analyzer.
+let finalConfig = withMDX(config);
+if (process.env.ANALYZE === "true") {
+  const { default: bundleAnalyzer } = await import("@next/bundle-analyzer");
+  finalConfig = bundleAnalyzer({ enabled: true, openAnalyzer: false })(finalConfig);
+}
+export default finalConfig;

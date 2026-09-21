@@ -1,4 +1,4 @@
-import Link from "next/link";
+import LinkWrapper from "@/components/LinkWrapper";
 import { cn } from "@/lib/utils";
 
 interface ConsultationCTAProps {
@@ -25,12 +25,12 @@ export function ConsultationCTA({
     >
       <h3 className="text-lg font-semibold mb-2">{title}</h3>
       <p className="text-muted-foreground mb-4 text-sm">{description}</p>
-      <Link
+      <LinkWrapper
         href={buttonHref}
         className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition-colors"
       >
         {buttonText}
-      </Link>
+      </LinkWrapper>
     </div>
   );
 }

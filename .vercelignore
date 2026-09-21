@@ -1,0 +1,6 @@
+# .vercelignore — exclude non-production assets from the deployment payload.
+.git
+.github
+*.md
+docs/
+skills/

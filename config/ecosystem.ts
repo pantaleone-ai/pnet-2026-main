@@ -26,7 +26,7 @@ export const ECOSYSTEM_GROUPS: EcosystemGroup[] = [
   {
     heading: "AI & Automation",
     links: [
-      { label: "Rapigent — AI Automation Agency", href: "https://rapigent.com" },
+      // { label: "Rapigent — AI Automation Agency", href: "https://rapigent.com" },
       { label: "AICEO — AI Executive Platform", href: "https://aiceo.io" },
     ],
   },
@@ -55,7 +55,10 @@ export const ECOSYSTEM_GROUPS: EcosystemGroup[] = [
     heading: "Apps & Experiments",
     links: [
       { label: "MixPHD — Drink Recipes", href: "https://mixphd.com" },
-      { label: "ProSwing — Golf Swing Analysis", href: "https://proswing.net" },
+      {
+        label: "ProSwing — Baseball Swing Analysis",
+        href: "https://proswing.net",
+      },
     ],
   },
 ];
