@@ -1,0 +1,28 @@
+name: campaign-tick
+
+# Cron replacement for the campaign system (no Vercel Cron).
+# Executes due publications + opportunity detection via the idempotent
+# POST /api/campaigns/tick endpoint. Retries can never double-publish.
+# Required repository secrets: APP_BASE_URL, N8N_WEBHOOK_SECRET.
+
+on:
+  schedule:
+    # Hourly at minute 17 (offset to avoid top-of-hour congestion).
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Run campaign tick
+        run: |
+          curl --fail --show-error --max-time 120 \
+            -X POST "$APP_BASE_URL/api/campaigns/tick" \
+            -H "Authorization: Bearer $N8N_WEBHOOK_SECRET" \
+            -H "Content-Type: application/json" \
+            -d '{"limit": 25}'
+        env:
+          APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
+          N8N_WEBHOOK_SECRET: ${{ secrets.N8N_WEBHOOK_SECRET }}

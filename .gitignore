@@ -52,3 +52,6 @@ IMPLEMENTATION_SUMMARY.md
 QUICK_REFERENCE.md
 posthog-setup-report.md
 
+
+# campaign-os local snapshot (local/dev durability only)
+data/campaign-os.snapshot.json
