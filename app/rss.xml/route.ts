@@ -64,7 +64,13 @@ export async function GET() {
   return new Response(feed.rss2(), {
     headers: {
       "Content-Type": "application/xml",
-      "Cache-Control": "public, s-maxage=604800, stale-while-revalidate=604800",
+      // Deploy-time static (force-static, redeploy on content change;
+      // Vercel purges CDN on deploy) => 1yr CDN pin stops weekly
+      // crawler waves re-pulling identical bytes from origin. Zero ISR.
+      "Cache-Control":
+        "public, s-maxage=31536000, stale-while-revalidate=31536000",
+      "Vercel-CDN-Cache-Control":
+        "public, s-maxage=31536000, stale-while-revalidate=31536000, stale-if-error=86400",
     },
   });
 }

@@ -154,6 +154,11 @@ export function SearchButton() {
     },
     enabled: !!debouncedSearchTerm && debouncedSearchTerm.length >= 2,
     retry: retryCount,
+    // Cost guard: identical keystrokes (reopen menu, retype) reuse the
+    // client cache instead of re-invoking the server action (origin
+    // transfer + function CPU) on every mount.
+    staleTime: 60_000,
+    gcTime: 300_000,
   });
 
   const displayedResults = searchResults || [];

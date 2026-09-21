@@ -21,6 +21,12 @@ export async function GET() {
   return new Response(content, {
     headers: {
       "Content-Type": "text/markdown;charset=utf-8",
+      // Deploy-time static (Vercel purges CDN on deploy) => 1yr CDN pin.
+      // Zero ISR (no revalidate).
+      "Cache-Control":
+        "public, s-maxage=31536000, stale-while-revalidate=31536000",
+      "Vercel-CDN-Cache-Control":
+        "public, s-maxage=31536000, stale-while-revalidate=31536000, stale-if-error=86400",
     },
   });
 }

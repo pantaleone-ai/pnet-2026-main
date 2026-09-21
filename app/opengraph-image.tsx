@@ -1,12 +1,12 @@
 import { ImageResponse } from "next/og";
 
-// Force Edge Runtime for WOFF2 font support and performance.
+// Force Edge Runtime: the WOFF2 font requires the edge font parser
+// (nodejs build-time prerender rejects the wOF2 signature — verified by a
+// failed build with `runtime = "nodejs"` + `force-static`). Edge render
+// happens once per deploy, then the 1yr `/opengraph-image` CDN headers in
+// next.config.mjs pin it at the edge. Origin cost stays bounded by the
+// force-cached font fetch below. No ISR polling.
 export const runtime = "edge";
-
-// Edge-rendered OG image, cached by the CDN after first fill (no ISR
-// polling). NOTE: no `dynamic = "force-static"` here — it is incompatible
-// with edge runtime. Origin cost is bounded by the force-cached font fetch.
-
 export const alt = "Pantaleone AI - Forward Deployed AI Product Lead";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";

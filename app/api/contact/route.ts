@@ -22,11 +22,35 @@ const CONTACT_TO_EMAILS = parseRecipients(
   "contact@pantaleone.net",
 );
 
+// Transactional POST-only API: per-request origin work, never CDN-shared.
+// Explicit force-dynamic + no-store on every response keeps bot/abuse
+// traffic from writing shared cache entries or triggering ISR bookkeeping.
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
+const NO_STORE = { "Cache-Control": "no-store" } as const;
+// Field caps (zod) bound legit bodies to ~6KB; reject junk floods early.
+const MAX_BODY_BYTES = 20 * 1024;
+
 // Rate limiter: 5 requests per minute per IP
 const limiter = rateLimit({
   interval: 60 * 1000, // 1 minute
   uniqueTokenPerInterval: 500,
 });
+
+function bodyTooLarge(request: Request): boolean {
+  const contentLength = Number(request.headers.get("content-length") ?? 0);
+  return Number.isFinite(contentLength) && contentLength > MAX_BODY_BYTES;
+}
+
+// Non-POST methods are not supported; explicit 405 + no-store so misuse
+// never writes a shared cache entry.
+export async function GET() {
+  return NextResponse.json(
+    { error: "Method not allowed. Use POST." },
+    { status: 405, headers: NO_STORE },
+  );
+}
 
 export async function POST(request: Request) {
   try {
@@ -41,7 +65,14 @@ export async function POST(request: Request) {
       });
       return NextResponse.json(
         { error: "Too many requests. Please try again later." },
-        { status: 429 },
+        { status: 429, headers: NO_STORE },
+      );
+    }
+
+    if (bodyTooLarge(request)) {
+      return NextResponse.json(
+        { error: "Payload too large." },
+        { status: 413, headers: NO_STORE },
       );
     }
 
@@ -57,7 +88,7 @@ export async function POST(request: Request) {
       logger.error("Validation error in contact form", result.error, {
         context: "contact-api",
       });
-      return NextResponse.json({ error: errorMessage }, { status: 400 });
+      return NextResponse.json({ error: errorMessage }, { status: 400, headers: NO_STORE });
     }
 
     const { email, message, name } = result.data;
@@ -100,7 +131,7 @@ export async function POST(request: Request) {
             : "Failed to send email. Please try again later.",
           details: error.message,
         },
-        { status: 500 },
+        { status: 500, headers: NO_STORE },
       );
     }
 
@@ -138,7 +169,7 @@ export async function POST(request: Request) {
       success: true,
       message: "Email sent successfully",
       id: data?.id,
-    });
+    }, { headers: NO_STORE });
   } catch (error) {
     logger.error("Unexpected error in contact form", error, {
       context: "contact-api",
@@ -147,7 +178,7 @@ export async function POST(request: Request) {
       {
         error: "An unexpected error occurred. Please try again later.",
       },
-      { status: 500 },
+      { status: 500, headers: NO_STORE },
     );
   }
 }

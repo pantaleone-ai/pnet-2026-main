@@ -4,14 +4,14 @@ import {
   getAudienceId,
   getResendClient,
   DEFAULT_FROM_EMAIL,
-  parseRecipients,
 } from "@/lib/resendClient";
 import { escape } from "html-escaper";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-const newsletterSchema = z.object({
+const leadMagnetSchema = z.object({
   email: z.string().email("Please enter a valid email address.").max(254),
+  guide: z.string().min(1).max(200).optional().default("guide"),
 });
 
 // Transactional POST-only API: per-request origin work, never CDN-shared.
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const result = newsletterSchema.safeParse(body);
+    const result = leadMagnetSchema.safeParse(body);
     if (!result.success) {
       return NextResponse.json(
         {
@@ -70,7 +70,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { email } = result.data;
+    const { email, guide } = result.data;
     const resend = getResendClient();
 
     const audienceId = await getAudienceId();
@@ -85,33 +85,40 @@ export async function POST(request: Request) {
           contactError.message?.toLowerCase().includes("exists");
         if (!alreadyExists) {
           logger.error("Resend contacts error", contactError, {
-            context: "newsletter-api",
+            context: "lead-magnet-api",
           });
         }
       }
     }
 
+    const downloadUrl =
+      process.env.LEAD_MAGNET_DOWNLOAD_URL || "https://pantaleone.net";
+
     const { error } = await resend.emails.send({
       from: process.env.NEWSLETTER_FROM_EMAIL || DEFAULT_FROM_EMAIL,
-      to: parseRecipients(process.env.CONTACT_EMAIL, "contact@pantaleone.net"),
-      subject: `New newsletter signup: ${escape(email)}`,
-      replyTo: email,
-      html: `<p><strong>New newsletter signup:</strong> ${escape(email)}</p>`,
-      text: `New newsletter signup: ${email}`,
+      to: email,
+      subject: `Your ${guide} is ready`,
+      html: `
+        <p>Hi there,</p>
+        <p>Thanks for requesting <strong>${escape(guide)}</strong>.</p>
+        <p><a href="${escape(downloadUrl)}">Download it here</a>.</p>
+        <p>Best regards,<br>Matt Pantaleone</p>
+      `,
+      text: `Thanks for requesting ${guide}. Download it here: ${downloadUrl}`,
     });
 
     if (error) {
-      logger.error("Resend API error", error, { context: "newsletter-api" });
+      logger.error("Resend API error", error, { context: "lead-magnet-api" });
       return NextResponse.json(
-        { error: "Subscription failed. Please try again later." },
+        { error: "Delivery failed. Please try again later." },
         { status: 500, headers: NO_STORE },
       );
     }
 
     return NextResponse.json({ success: true }, { headers: NO_STORE });
   } catch (error) {
-    logger.error("Unexpected error in newsletter signup", error, {
-      context: "newsletter-api",
+    logger.error("Unexpected error in lead magnet", error, {
+      context: "lead-magnet-api",
     });
     return NextResponse.json(
       { error: "An unexpected error occurred. Please try again later." },
