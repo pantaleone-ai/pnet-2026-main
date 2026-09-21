@@ -9,6 +9,17 @@ const config = {
       "@radix-ui/react-*",
       "react-icons",
       "date-fns",
+      "@tanstack/react-query",
+      "nuqs",
+      "motion",
+      "recharts",
+      "embla-carousel",
+      "embla-carousel-react",
+      "cmdk",
+      "sonner",
+      "vaul",
+      "country-flag-icons",
+      "react-tweet",
     ],
   },
   async redirects() {
@@ -103,13 +114,158 @@ const config = {
   async headers() {
     return [
       {
-        // Aggressive CDN caching for all static pages.
+        // Long-lived CDN caching for fully static pages (all force-static,
+        // redeployed on content change; Vercel purges CDN on deploy).
         // Eliminates ISR Data Cache lookups — the CDN serves directly.
+        // NOTE: no `immutable` here — that directive is only valid for
+        // fingerprinted assets (/_next/static). On HTML it risks stale
+        // serves that never revalidate. Browser TTL stays heuristic
+        // (no max-age) while the CDN TTL is explicit below.
         source: "/((?!api|_next|_vercel|checkout|robots\\.txt|sitemap|favicon\\.ico|robots\\.txt).*)",
         headers: [
           {
             key: "Cache-Control",
-            value: "public, s-maxage=31536000, stale-while-revalidate=31536000, immutable",
+            value: "public, s-maxage=31536000, stale-while-revalidate=31536000",
+          },
+          {
+            key: "Vercel-CDN-Cache-Control",
+            value: "public, s-maxage=31536000, stale-while-revalidate=31536000",
+          },
+        ],
+      },
+      {
+        // Fingerprinted-immutable public assets. Served directly from the
+        // edge/CDN; long TTLs keep MISS-driven origin transfer near zero.
+        // NOTE: no `immutable` on HTML — only on hashed/static assets below.
+        source: "/(fonts|images|favicons|files)/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value:
+              "public, max-age=31536000, immutable, s-maxage=31536000, stale-while-revalidate=31536000",
+          },
+          {
+            key: "Vercel-CDN-Cache-Control",
+            value:
+              "public, s-maxage=31536000, stale-while-revalidate=31536000, stale-if-error=86400",
+          },
+        ],
+      },
+      {
+        // LLM-text routes are force-static, rebuilt on redeploy (Vercel
+        // purges CDN on deploy). llms-full.txt is the largest single
+        // origin payload on the site — pin it to the CDN for a year.
+        source: "/(llms.txt|llms-full.txt|shop.md|projects.md)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value:
+              "public, s-maxage=31536000, stale-while-revalidate=31536000",
+          },
+          {
+            key: "Vercel-CDN-Cache-Control",
+            value:
+              "public, s-maxage=31536000, stale-while-revalidate=31536000, stale-if-error=86400",
+          },
+        ],
+      },
+      {
+        source: "/blog.mdx/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value:
+              "public, s-maxage=31536000, stale-while-revalidate=31536000",
+          },
+          {
+            key: "Vercel-CDN-Cache-Control",
+            value:
+              "public, s-maxage=31536000, stale-while-revalidate=31536000, stale-if-error=86400",
+          },
+        ],
+      },
+      {
+        // Sitemaps + robots are deploy-time static (revalidate=false /
+        // public/ files). Excluded from the HTML block above, so they need
+        // their own long CDN TTL — otherwise they re-hit origin on the
+        // short default route TTL on every crawler wave.
+        source: "/(sitemap.xml|robots.txt)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value:
+              "public, s-maxage=31536000, stale-while-revalidate=31536000",
+          },
+          {
+            key: "Vercel-CDN-Cache-Control",
+            value:
+              "public, s-maxage=31536000, stale-while-revalidate=31536000, stale-if-error=86400",
+          },
+        ],
+      },
+      {
+        source: "/products/sitemap.xml",
+        headers: [
+          {
+            key: "Cache-Control",
+            value:
+              "public, s-maxage=31536000, stale-while-revalidate=31536000",
+          },
+          {
+            key: "Vercel-CDN-Cache-Control",
+            value:
+              "public, s-maxage=31536000, stale-while-revalidate=31536000, stale-if-error=86400",
+          },
+        ],
+      },
+      {
+        // Product/merchant feeds are force-static, rebuilt on redeploy.
+        // 1yr CDN TTL (was 7d in-route) is safe: Vercel purges CDN on
+        // deploy, so crawlers stop re-pulling origin weekly for identical
+        // bytes. In-route headers stay as fallback.
+        source: "/(rss.xml)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value:
+              "public, s-maxage=31536000, stale-while-revalidate=31536000",
+          },
+          {
+            key: "Vercel-CDN-Cache-Control",
+            value:
+              "public, s-maxage=31536000, stale-while-revalidate=31536000, stale-if-error=86400",
+          },
+        ],
+      },
+      {
+        source: "/api/(feeds|products)/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value:
+              "public, s-maxage=31536000, stale-while-revalidate=31536000",
+          },
+          {
+            key: "Vercel-CDN-Cache-Control",
+            value:
+              "public, s-maxage=31536000, stale-while-revalidate=31536000, stale-if-error=86400",
+          },
+        ],
+      },
+      {
+        // OG image is force-static (built once per deploy). Pin the render
+        // to the CDN so social crawlers never re-execute origin.
+        source: "/opengraph-image",
+        headers: [
+          {
+            key: "Cache-Control",
+            value:
+              "public, s-maxage=31536000, stale-while-revalidate=31536000",
+          },
+          {
+            key: "Vercel-CDN-Cache-Control",
+            value:
+              "public, s-maxage=31536000, stale-while-revalidate=31536000, stale-if-error=86400",
           },
         ],
       },

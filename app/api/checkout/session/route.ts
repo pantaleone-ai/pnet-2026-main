@@ -2,6 +2,7 @@ import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getStripeClient } from "@/lib/stripe";
+import { getIdentifier, rateLimit } from "@/lib/rate-limit";
 import {
   parseProductsParam,
   validateCart,
@@ -10,8 +11,29 @@ import {
 
 const APP_URL = process.env.APP_URL || "https://pantaleone.net";
 
+// Transactional Stripe redirect: per-cart, per-request. Never CDN-cacheable.
+// Explicit force-dynamic + no-store on every response; per-IP rate limit
+// blunts bot-driven Stripe session creation (origin + Stripe cost).
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
+const NO_STORE = { "Cache-Control": "no-store" } as const;
+
+// 10 session creations per minute per IP: legit shoppers never hit this,
+// abuse/bot loops short-circuit before touching the Stripe API.
+const limiter = rateLimit({
+  interval: 60 * 1000,
+  uniqueTokenPerInterval: 500,
+});
+
 export async function GET(request: NextRequest) {
   try {
+    try {
+      await limiter.check(10, getIdentifier(request));
+    } catch {
+      return NextResponse.redirect(`${APP_URL}/shop`, { headers: NO_STORE });
+    }
+
     const { searchParams } = new URL(request.url);
 
     const productsParam = searchParams.get("products");
@@ -19,14 +41,14 @@ export async function GET(request: NextRequest) {
     const cartOrigin = searchParams.get("cart_origin") || undefined;
 
     if (!productsParam) {
-      return NextResponse.redirect(`${APP_URL}/shop`);
+      return NextResponse.redirect(`${APP_URL}/shop`, { headers: NO_STORE });
     }
 
     const parsedItems = parseProductsParam(productsParam);
     const validation = validateCart(parsedItems);
 
     if (!validation.success || validation.items.length === 0) {
-      return NextResponse.redirect(`${APP_URL}/shop`);
+      return NextResponse.redirect(`${APP_URL}/shop`, { headers: NO_STORE });
     }
 
     const stripe = getStripeClient();
@@ -55,13 +77,13 @@ export async function GET(request: NextRequest) {
     if (!session.url) {
       return NextResponse.json(
         { error: "Failed to create checkout session" },
-        { status: 500 },
+        { status: 500, headers: NO_STORE },
       );
     }
 
-    return NextResponse.redirect(session.url);
+    return NextResponse.redirect(session.url, { headers: NO_STORE });
   } catch (error) {
     console.error("Checkout session error:", error);
-    return NextResponse.redirect(`${APP_URL}/shop`);
+    return NextResponse.redirect(`${APP_URL}/shop`, { headers: NO_STORE });
   }
 }

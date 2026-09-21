@@ -8,12 +8,18 @@ import { Feed } from "feed";
 export const dynamic = "force-static";
 
 // Fixed date to avoid non-deterministic static output
-const BUILD_DATE = new Date("2026-07-29");
+const BUILD_DATE = new Date("2026-09-20");
 
 export async function GET() {
   const posts = getBlogPosts().sort(
     (a, b) => new Date(b.created).getTime() - new Date(a.created).getTime(),
   );
+
+  // Feed-level date tracks the newest post, not the build.
+  const latestPostDate =
+    posts[0]?.created !== undefined
+      ? new Date(posts[0].created)
+      : BUILD_DATE;
 
   const feed = new Feed({
     title: "Pantaleone.net AI Product and Blog RSS Feed",
@@ -24,7 +30,7 @@ export async function GET() {
     image: getBaseUrl("/favicons/favicon-32x32.png"),
     favicon: getBaseUrl("/favicons/favicon.ico"),
     copyright: `All rights reserved ${BUILD_DATE.getFullYear()}`,
-    updated: BUILD_DATE,
+    updated: latestPostDate,
   });
 
   posts.forEach((post) => {
@@ -58,7 +64,13 @@ export async function GET() {
   return new Response(feed.rss2(), {
     headers: {
       "Content-Type": "application/xml",
-      "Cache-Control": "public, s-maxage=604800, stale-while-revalidate=604800",
+      // Deploy-time static (force-static, redeploy on content change;
+      // Vercel purges CDN on deploy) => 1yr CDN pin stops weekly
+      // crawler waves re-pulling identical bytes from origin. Zero ISR.
+      "Cache-Control":
+        "public, s-maxage=31536000, stale-while-revalidate=31536000",
+      "Vercel-CDN-Cache-Control":
+        "public, s-maxage=31536000, stale-while-revalidate=31536000, stale-if-error=86400",
     },
   });
 }

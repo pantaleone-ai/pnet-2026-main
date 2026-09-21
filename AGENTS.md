@@ -2,6 +2,12 @@
 
 This guide provides essential information for AI agents working with the pantaleone.net codebase - a Next.js dev portfolio website.
 
+## Content Engine (read before touching blog content)
+
+- `docs/CONTENT_ENGINE.md` — content strategy + orchestration engine (pillars, inventory, backlog, internal linking, metadata, quality gate). Read it before any `features/blog/content/*.mdx` edit.
+- `docs/EDITORIAL.md` — voice rules. Run `npm run editorial` before every content commit.
+- `config/content/` — pillars, 30-post audit (`inventory.ts`), future title backlog (`backlog.ts`). Backlog titles are NOT to be written until asked.
+
 ## Project Overview
 
 **pantaleone.net** is a minimal portfolio built with modern web technologies. It serves as:

@@ -1,0 +1,3 @@
+The sync worker pushes local prompts to Langfuse every five minutes. If the push fails twice in a row, it writes the payload to a local outbox file and retries with backoff. Operators can inspect the outbox with `agent_sync.py status` and replay it manually.
+
+We chose files over a queue because the payloads are small, the host already has a disk, and there was no operator to run Redis in v1. The tradeoff: replay order is last-write-wins, which is fine for prompt text but would be wrong for counters.

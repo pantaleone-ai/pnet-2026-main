@@ -94,11 +94,11 @@ ${products.map((product) => {
 }).join("\n\n")}
 `;
 
-  return `<SYSTEM>This document contains comprehensive information about ${USER.displayName}'s professional profile, portfolio, shop, and blog content. It includes personal details, work experience, projects, achievements, certifications, commercial products, and all published blog posts. This data is formatted for consumption by Large Language Models (LLMs) to provide accurate and up-to-date information about ${USER.displayName}'s background, skills, and expertise as a Frontend Developer and AI product creator.</SYSTEM>
+  return `<SYSTEM>This document contains comprehensive information about ${USER.displayName}'s professional profile, portfolio, shop, and blog content. It includes personal details, work experience, projects, achievements, certifications, commercial products, and all published blog posts. This data is formatted for consumption by Large Language Models (LLMs) to provide accurate and up-to-date information about ${USER.displayName}'s background, skills, and expertise as an AI engineer and automation specialist.</SYSTEM>
 
-# hiretimsf.com
+# pantaleone.net
 
-> A minimal portfolio, blog, and shop to showcase my work as a Frontend Developer and AI product creator.
+> Matt Pantaleone builds autonomous agents, N8N workflows, and Next.js applications.
 
 ${aboutText}
 ${experienceText}
@@ -116,6 +116,13 @@ export async function GET() {
   return new Response(await getContent(), {
     headers: {
       "Content-Type": "text/markdown;charset=utf-8",
+      // Largest single origin payload on the site. force-static + deploy
+      // rebuild (Vercel purges CDN on deploy) => 1yr CDN pin is safe and
+      // keeps bot/crawler waves off origin. Zero ISR (no revalidate).
+      "Cache-Control":
+        "public, s-maxage=31536000, stale-while-revalidate=31536000",
+      "Vercel-CDN-Cache-Control":
+        "public, s-maxage=31536000, stale-while-revalidate=31536000, stale-if-error=86400",
     },
   });
 }

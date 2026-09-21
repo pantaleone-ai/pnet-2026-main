@@ -6,6 +6,13 @@ import { sendEmail } from '@/lib/resendClient';
 
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 
+// Signature-gated transactional webhook: per-event origin work, never
+// CDN-shared. Explicit force-dynamic + no-store on every response.
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
+const NO_STORE = { "Cache-Control": "no-store" } as const;
+
 // Lazy initialization of Stripe client to avoid build-time errors
 let stripe: Stripe | null = null;
 
@@ -32,7 +39,7 @@ export async function POST(request: NextRequest) {
 
     if (!sig || !endpointSecret) {
       console.error('Missing Stripe signature or webhook secret');
-      return NextResponse.json({ error: 'Webhook configuration error' }, { status: 400 });
+      return NextResponse.json({ error: 'Webhook configuration error' }, { status: 400, headers: NO_STORE });
     }
 
     let event: Stripe.Event;
@@ -41,7 +48,7 @@ export async function POST(request: NextRequest) {
       event = getStripeClient().webhooks.constructEvent(body, sig, endpointSecret);
     } catch (err: any) {
       console.error('Webhook signature verification failed:', err.message);
-      return NextResponse.json({ error: 'Webhook signature verification failed' }, { status: 400 });
+      return NextResponse.json({ error: 'Webhook signature verification failed' }, { status: 400, headers: NO_STORE });
     }
 
     // Handle the event
@@ -66,10 +73,10 @@ export async function POST(request: NextRequest) {
         console.log(`Unhandled event type: ${event.type}`);
     }
 
-    return NextResponse.json({ received: true });
+    return NextResponse.json({ received: true }, { headers: NO_STORE });
   } catch (error) {
     console.error('Webhook error:', error);
-    return NextResponse.json({ error: 'Webhook handler failed' }, { status: 500 });
+    return NextResponse.json({ error: 'Webhook handler failed' }, { status: 500, headers: NO_STORE });
   }
 }
 

@@ -6,7 +6,7 @@ import { getBaseUrl } from "@/lib/helpers";
 
 // Fixed date to avoid non-deterministic static output.
 // Updated manually or via CI when content changes.
-const LAST_MODIFIED = "2026-07-29";
+const LAST_MODIFIED = "2026-09-20";
 
 // Content changes require a redeploy, so the sitemap is only built at
 // deploy time. No time-based revalidation means no ISR reads.
@@ -38,6 +38,24 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: LAST_MODIFIED,
       changeFrequency: "monthly" as const,
       priority: 0.8,
+    },
+    {
+      url: getBaseUrl("/services"),
+      lastModified: LAST_MODIFIED,
+      changeFrequency: "monthly" as const,
+      priority: 0.9,
+    },
+    {
+      url: getBaseUrl("/b2b"),
+      lastModified: LAST_MODIFIED,
+      changeFrequency: "monthly" as const,
+      priority: 0.9,
+    },
+    {
+      url: getBaseUrl("/resources/ai-readiness-guide"),
+      lastModified: LAST_MODIFIED,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
     },
   ];
 

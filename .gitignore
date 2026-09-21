@@ -40,6 +40,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# vendored anti-slop build output (rebuild with npm run anti-slop:build)
+modules/anti-slop/dist
+
 # hiretimsf
 .hiretimsf
 

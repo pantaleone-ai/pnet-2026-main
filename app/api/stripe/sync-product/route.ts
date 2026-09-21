@@ -4,8 +4,16 @@ import matter from 'gray-matter';
 import fs from 'fs';
 import path from 'path';
 
-interface ProductFrontmatter {
-  title: string;
+// Build-time admin tool endpoint: per-request origin work, never
+// CDN-shared. Explicit force-dynamic + no-store on every response.
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
+const NO_STORE = { 'Cache-Control': 'no-store' } as const;
+// filePath + flags JSON is tiny; reject junk floods before parsing.
+const MAX_BODY_BYTES = 8 * 1024;
+
+interface ProductFrontmatter {  title: string;
   description: string;
   category: string;
   price: number;
@@ -74,12 +82,20 @@ function updateMDXFile(filePath: string, stripeData: {
 
 export async function POST(request: NextRequest) {
   try {
+    const contentLength = Number(request.headers.get('content-length') ?? 0);
+    if (Number.isFinite(contentLength) && contentLength > MAX_BODY_BYTES) {
+      return NextResponse.json(
+        { error: 'Payload too large' },
+        { status: 413, headers: NO_STORE }
+      );
+    }
+
     const { filePath, force = false } = await request.json();
 
     if (!filePath) {
       return NextResponse.json(
         { error: 'filePath is required' },
-        { status: 400 }
+        { status: 400, headers: NO_STORE }
       );
     }
 
@@ -90,7 +106,7 @@ export async function POST(request: NextRequest) {
     if (!fs.existsSync(resolvedPath)) {
       return NextResponse.json(
         { error: `File not found: ${filePath}` },
-        { status: 404 }
+        { status: 404, headers: NO_STORE }
       );
     }
 
@@ -100,14 +116,14 @@ export async function POST(request: NextRequest) {
     if (!frontmatter) {
       return NextResponse.json(
         { error: 'Could not parse frontmatter' },
-        { status: 400 }
+        { status: 400, headers: NO_STORE }
       );
     }
 
     if (!frontmatter.price) {
       return NextResponse.json(
         { error: 'Product has no price set' },
-        { status: 400 }
+        { status: 400, headers: NO_STORE }
       );
     }
 
@@ -116,7 +132,7 @@ export async function POST(request: NextRequest) {
     if (!stripeSecretKey) {
       return NextResponse.json(
         { error: 'Stripe secret key not configured' },
-        { status: 500 }
+        { status: 500, headers: NO_STORE }
       );
     }
 
@@ -131,7 +147,7 @@ export async function POST(request: NextRequest) {
           return NextResponse.json({
             error: `Product "${frontmatter.title}" already exists in Stripe (${existingProduct.id})`,
             existingProductId: existingProduct.id
-          }, { status: 409 });
+          }, { status: 409, headers: NO_STORE });
         }
       } catch (error) {
         console.warn('Error checking for existing product:', error);
@@ -229,7 +245,7 @@ export async function POST(request: NextRequest) {
     if (!updated) {
       return NextResponse.json(
         { error: 'Failed to update MDX file' },
-        { status: 500 }
+        { status: 500, headers: NO_STORE }
       );
     }
 
@@ -243,13 +259,13 @@ export async function POST(request: NextRequest) {
         stripePriceId: stripeData.stripePriceId,
         stripePaymentLink: stripeData.stripePaymentLink
       }
-    });
+    }, { headers: NO_STORE });
 
   } catch (error) {
     console.error('❌ Sync error:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500 }
+      { status: 500, headers: NO_STORE }
     );
   }
 }

@@ -3,26 +3,54 @@ import { getIdentifier, rateLimit } from "@/lib/rate-limit";
 import { logger } from "@/lib/logger";
 import { escape } from "html-escaper";
 import { NextResponse } from "next/server";
-import { Resend } from "resend";
-import { isAnalyticsEnabled } from "@/lib/analytics";
-import posthog from "posthog-js";
+import {
+  getResendClient,
+  DEFAULT_FROM_EMAIL,
+  parseRecipients,
+} from "@/lib/resendClient";
+import { randomUUID } from "crypto";
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
-const GA_API_SECRET = process.env.GOOGLE_ANALYTICS_API_SECRET;
+const GA_API_SECRET =
+  process.env.GOOGLE_ANALYTICS_API_SECRET || process.env.GA_API_SECRET;
+// Admin recipients for contact submissions. Supports a comma-separated list
+// so mail can go to a deliverable inbox while the domain mailbox is set up.
+// NOTE: pantaleone.net currently has no MX records, so any @pantaleone.net
+// address alone cannot receive mail. Set CONTACT_EMAIL to a working inbox.
+const CONTACT_TO_EMAILS = parseRecipients(
+  process.env.CONTACT_EMAIL,
+  "contact@pantaleone.net",
+);
 
-function getResendClient() {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    throw new Error("RESEND_API_KEY is not configured");
-  }
-  return new Resend(apiKey);
-}
+// Transactional POST-only API: per-request origin work, never CDN-shared.
+// Explicit force-dynamic + no-store on every response keeps bot/abuse
+// traffic from writing shared cache entries or triggering ISR bookkeeping.
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
+const NO_STORE = { "Cache-Control": "no-store" } as const;
+// Field caps (zod) bound legit bodies to ~6KB; reject junk floods early.
+const MAX_BODY_BYTES = 20 * 1024;
 
 // Rate limiter: 5 requests per minute per IP
 const limiter = rateLimit({
   interval: 60 * 1000, // 1 minute
   uniqueTokenPerInterval: 500,
 });
+
+function bodyTooLarge(request: Request): boolean {
+  const contentLength = Number(request.headers.get("content-length") ?? 0);
+  return Number.isFinite(contentLength) && contentLength > MAX_BODY_BYTES;
+}
+
+// Non-POST methods are not supported; explicit 405 + no-store so misuse
+// never writes a shared cache entry.
+export async function GET() {
+  return NextResponse.json(
+    { error: "Method not allowed. Use POST." },
+    { status: 405, headers: NO_STORE },
+  );
+}
 
 export async function POST(request: Request) {
   try {
@@ -37,7 +65,14 @@ export async function POST(request: Request) {
       });
       return NextResponse.json(
         { error: "Too many requests. Please try again later." },
-        { status: 429 },
+        { status: 429, headers: NO_STORE },
+      );
+    }
+
+    if (bodyTooLarge(request)) {
+      return NextResponse.json(
+        { error: "Payload too large." },
+        { status: 413, headers: NO_STORE },
       );
     }
 
@@ -53,7 +88,7 @@ export async function POST(request: Request) {
       logger.error("Validation error in contact form", result.error, {
         context: "contact-api",
       });
-      return NextResponse.json({ error: errorMessage }, { status: 400 });
+      return NextResponse.json({ error: errorMessage }, { status: 400, headers: NO_STORE });
     }
 
     const { email, message, name } = result.data;
@@ -70,8 +105,8 @@ export async function POST(request: Request) {
 
     const resend = getResendClient();
     const { data, error } = await resend.emails.send({
-      from: "Portfolio Contact <contact@pantaleone.net>",
-      to: process.env.CONTACT_EMAIL || "matt@pantaleone.net",
+      from: process.env.CONTACT_FROM_EMAIL || DEFAULT_FROM_EMAIL,
+      to: CONTACT_TO_EMAILS,
       subject: `New Contact Form Submission from ${sanitizedName}`,
       replyTo: email,
       html: `
@@ -81,30 +116,41 @@ export async function POST(request: Request) {
         <p><strong>Message:</strong></p>
         <p style="white-space: pre-wrap;">${sanitizedMessage}</p>
       `,
+      text: `New Contact Form Submission\n\nName: ${name}\nEmail: ${email}\n\n${message}`,
     });
 
     if (error) {
       logger.error("Resend API error", error, { context: "contact-api" });
+      const isDomainError =
+        error.message?.toLowerCase().includes("domain") ||
+        error.message?.toLowerCase().includes("verify");
       return NextResponse.json(
         {
-          error: "Failed to send email. Please try again later.",
+          error: isDomainError
+            ? "Email service is misconfigured. Please try again later."
+            : "Failed to send email. Please try again later.",
           details: error.message,
         },
-        { status: 500 },
+        { status: 500, headers: NO_STORE },
       );
     }
 
-    logger.info("Email sent successfully", { context: "contact-api" });
+    logger.info("Email sent successfully", {
+      context: "contact-api",
+      meta: { id: data?.id, to: CONTACT_TO_EMAILS },
+    });
 
-    // Track contact form submission in analytics
-    if (GA_MEASUREMENT_ID) {
-      // Server-side GA4 Measurement Protocol
+    // Track contact form submission in analytics (server-side GA4 MP only;
+    // client PostHog/gtag tracking happens in the browser)
+    if (GA_MEASUREMENT_ID && GA_API_SECRET) {
+      // Server-side GA4 Measurement Protocol (requires client_id)
       fetch(
         `https://www.google-analytics.com/mp/collect?measurement_id=${GA_MEASUREMENT_ID}&api_secret=${GA_API_SECRET}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            client_id: randomUUID(),
             events: [
               {
                 name: "generate_lead",
@@ -119,18 +165,11 @@ export async function POST(request: Request) {
       ).catch(() => {});
     }
 
-    if (isAnalyticsEnabled()) {
-      posthog.capture("contact_form_submitted", {
-        name: sanitizedName,
-        email: sanitizedEmail,
-      });
-    }
-
     return NextResponse.json({
       success: true,
       message: "Email sent successfully",
-      data,
-    });
+      id: data?.id,
+    }, { headers: NO_STORE });
   } catch (error) {
     logger.error("Unexpected error in contact form", error, {
       context: "contact-api",
@@ -139,7 +178,7 @@ export async function POST(request: Request) {
       {
         error: "An unexpected error occurred. Please try again later.",
       },
-      { status: 500 },
+      { status: 500, headers: NO_STORE },
     );
   }
 }
