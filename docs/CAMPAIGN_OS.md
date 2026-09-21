@@ -1,5 +1,8 @@
 # Campaign OS on pantaleone.net
 
+> New here? Start with `docs/CAMPAIGN_OS_GUIDE.md` (how the system works,
+> for humans and agents). This file is the terse operator runbook.
+
 Autonomous campaign loop (Publish → Measure → Learn → Improve) integrated
 without Vercel Cron, without a database migration, and without touching the
 public static site.
