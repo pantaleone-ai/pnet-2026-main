@@ -2,6 +2,7 @@ import type { TableOfContents } from "fumadocs-core/toc";
 import { AnchorProvider, type AnchorProviderProps } from "fumadocs-core/toc";
 import { I18nLabel } from "fumadocs-ui/contexts/i18n";
 import { cn } from "@/lib/utils";
+import { withOutboundUtm } from "@/lib/external-link";
 import { Edit, Text } from "lucide-react";
 import { type ComponentProps, forwardRef, lazy, type ReactNode } from "react";
 import { buttonVariants } from "@/components/ui/button";
@@ -246,6 +247,7 @@ export function EditOnGitHub(props: ComponentProps<"a">) {
       target="_blank"
       rel="noreferrer noopener"
       {...props}
+      href={props.href ? withOutboundUtm(props.href) : undefined}
       className={cn(
         buttonVariants({
           variant: "secondary",

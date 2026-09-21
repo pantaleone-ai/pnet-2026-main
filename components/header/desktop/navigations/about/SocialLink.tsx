@@ -1,5 +1,5 @@
 import type { SocialLinkType } from "@/types";
-import Link from "next/link";
+import LinkWrapper from "@/components/LinkWrapper";
 import type { FC } from "react";
 import AnimatedArrow from "@/components/header/desktop/navigations/AnimatedArrow";
 import { NavigationMenuLink } from "@/components/ui/navigation-menu";
@@ -7,7 +7,7 @@ import { NavigationMenuLink } from "@/components/ui/navigation-menu";
 const SocialLink: FC<SocialLinkType> = ({ href, icon: Icon, label }) => {
   return (
     <NavigationMenuLink asChild>
-      <Link
+      <LinkWrapper
         className="group hover:bg-accent -mx-2 rounded-[8px] p-2 transition-colors"
         target="_blank"
         rel="noopener noreferrer"
@@ -27,7 +27,7 @@ const SocialLink: FC<SocialLinkType> = ({ href, icon: Icon, label }) => {
           </div>
           <AnimatedArrow />
         </div>
-      </Link>
+      </LinkWrapper>
     </NavigationMenuLink>
   );
 };

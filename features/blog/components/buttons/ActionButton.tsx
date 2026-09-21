@@ -21,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { withOutboundUtm } from "@/lib/external-link";
 import { MarkdownIcon } from "@/features/blog/icons/MarkDownIcon";
 import { OpenAIIcon } from "@/features/blog/icons/OpenAI-Icon";
 import { ClaudeIcon } from "@/features/blog/icons/ClaudeIcon";
@@ -145,7 +146,11 @@ function ViewOptions({ markdownUrl }: { markdownUrl: string }) {
       >
         {items.map(({ title, href, icon: Icon }) => (
           <DropdownMenuItem key={href} asChild>
-            <a href={href} rel="noreferrer noopener" target="_blank">
+            <a
+              href={withOutboundUtm(href)}
+              rel="noreferrer noopener"
+              target="_blank"
+            >
               <Icon />
               {title}
             </a>

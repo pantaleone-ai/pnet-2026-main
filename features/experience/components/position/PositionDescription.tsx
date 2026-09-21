@@ -2,6 +2,7 @@ import { ArrowUpRight } from "lucide-react";
 import type React from "react";
 import ReactMarkdown from "react-markdown";
 import { cn } from "@/lib/utils";
+import { withOutboundUtm } from "@/lib/external-link";
 
 type PositionDescriptionProps = {
   description?: string;
@@ -39,7 +40,7 @@ export default function PositionDescription({
               return (
                 <a
                   {...rest}
-                  href={href}
+                  href={withOutboundUtm(href)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className={cn(

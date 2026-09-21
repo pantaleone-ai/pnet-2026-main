@@ -6,6 +6,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import { track } from "@/lib/analytics";
 import { highlightMatches, renderMarkdownContent } from "@/lib/search";
 import { cn } from "@/lib/utils";
+import { withOutboundUtm } from "@/lib/external-link";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCommandState } from "cmdk";
 import {
@@ -131,7 +132,7 @@ export function SearchButton() {
       setOpen(false);
 
       if (openInNewTab) {
-        window.open(href, "_blank", "noopener");
+        window.open(withOutboundUtm(href), "_blank", "noopener");
       } else {
         router.push(href);
       }
@@ -169,7 +170,7 @@ export function SearchButton() {
       track.searchPerformed({
         query: debouncedSearchTerm,
         resultCount: displayedResults.length,
-        searchType: 'global'
+        searchType: "global",
       });
     }
   }, [debouncedSearchTerm, displayedResults.length]);
@@ -178,10 +179,13 @@ export function SearchButton() {
     // Track search result click
     track.searchResultClicked({
       query: searchTerm,
-      resultPosition: position !== undefined ? position : displayedResults.indexOf(result) + 1,
+      resultPosition:
+        position !== undefined
+          ? position
+          : displayedResults.indexOf(result) + 1,
       resultType: result.type,
       resultId: result.slug,
-      resultTitle: result.title
+      resultTitle: result.title,
     });
 
     // Add to history
@@ -195,7 +199,7 @@ export function SearchButton() {
       url = `/blog/${result.slug}`;
     } else if (result.type === "product") {
       // Convert category to URL slug format (e.g., "AI Apps" -> "ai-apps")
-      const categorySlug = result.category.toLowerCase().replace(/\s+/g, '-');
+      const categorySlug = result.category.toLowerCase().replace(/\s+/g, "-");
       url = `/shop/${categorySlug}/${result.slug}`;
     } else {
       // Fallback for unknown types

@@ -1,6 +1,7 @@
 import { ArrowUpRight } from "lucide-react";
 import GlobeIcon from "@/features/experience/icons/globe-icon";
 import { cn } from "@/lib/utils";
+import { withOutboundUtm } from "@/lib/external-link";
 
 type CompanyWebsiteProps = {
   className?: string;
@@ -34,7 +35,7 @@ export default function CompanyWebsite({
       <dd className="flex items-center justify-center gap-1.5 align-middle">
         <GlobeIcon className="size-4 align-middle" aria-hidden="true" />
         <a
-          href={companyWebsite}
+          href={withOutboundUtm(companyWebsite)}
           target="_blank"
           rel="noopener noreferrer"
           className="group text-muted-foreground inline-flex items-center gap-1 hover:text-foreground hover:underline hover:underline-offset-4"
