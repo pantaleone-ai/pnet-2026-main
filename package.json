@@ -41,7 +41,9 @@
     "anti-slop:scan": "npm run anti-slop:build && node modules/anti-slop/dist/cli.js scan --type markdown",
     "anti-slop:audit": "npm run anti-slop:build && node modules/anti-slop/dist/cli.js audit --type markdown",
     "anti-slop:strict": "npm run anti-slop:build && node modules/anti-slop/dist/cli.js audit --strict --type markdown",
-    "content:validate": "npm run editorial && npm run anti-slop:build && node modules/anti-slop/dist/cli.js audit --type markdown features/blog/content features/projects/content features/shop/content"
+    "content:validate": "npm run editorial && npm run anti-slop:build && node modules/anti-slop/dist/cli.js audit --type markdown features/blog/content features/projects/content features/shop/content",
+    "campaign:test": "tsx scripts/campaign-test.ts",
+    "campaign:tick": "tsx scripts/campaign-tick.ts"
   },
   "dependencies": {
     "@bprogress/next": "^3.2.12",
