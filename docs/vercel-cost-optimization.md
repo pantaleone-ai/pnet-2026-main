@@ -157,3 +157,47 @@ unconsumed `/api/search` HTTP payload was trimmed), Stripe webhook logic
 Validation: `npm run build` (static routes stay `○ Static`, `/checkout` +
 dynamic APIs stay `ƒ Dynamic`, OG prerenders at build), `npm run lint`
 on touched files, `npx tsc --noEmit`.
+
+## 8. Verification pass — zero-ISR audit (2026-09-23)
+
+Full-repo grep audit confirmed the zero-ISR posture (no `revalidate: N`,
+no `unstable_cache`, no `revalidatePath/Tag`, no `cookies()/headers()` in
+static paths, no `middleware.ts`). Production build output:
+
+- `○ Static`: `/`, `/about`, `/services`, `/b2b`, `/education`,
+  `/experience`, `/contact`, `/privacy`, `/projects`, `/changelog`,
+  `/blog`, `/shop`, `/resources/ai-readiness-guide`, `/llms.txt`,
+  `/llms-full.txt`, `/shop.md`, `/projects.md`, `/rss.xml`,
+  `/sitemap.xml`, `/products/sitemap.xml`, `/robots.txt`,
+  `/api/feeds/*`, `/api/products/feed`
+- `● SSG`: `/blog/[slug]` (30 paths), `/shop/[category]` (2),
+  `/shop/[category]/[slug]` (13), `/blog.mdx/[slug]` (30)
+- `ƒ Dynamic`: `/checkout`, `/opengraph-image` (edge, CDN-pinned),
+  all transactional `/api/*`
+- No middleware line, no ISR, no prerender errors.
+
+Fixes applied (all measured, production-safe):
+
+1. **`app/layout.tsx`** — removed duplicate theme boot script (inline
+   `<script>` + identical base64 `data:` `<Script beforeInteractive>`).
+   One inline script remains; saves ~1KB + 1 request on every page load
+   (FDT). `Script` import retained (GA/Meta Pixel still use it).
+2. **`app/(app)/(root)/blog/[slug]/page.tsx`**,
+   **`shop/[category]/[slug]/page.tsx`** — added explicit
+   `dynamic = "force-static"` alongside existing
+   `dynamicParams = false` (was implicit-static; now provable).
+3. **`next.config.mjs`** — HTML catch-all now excludes
+   `opengraph-image|llms.txt|llms-full.txt|shop.md|projects.md|blog.mdx|rss.xml`,
+   which have their own 1yr CDN blocks. Previously both header groups
+   matched those routes (duplicate/contradictory `Cache-Control`).
+4. **`app/api/indexnow/[key]/route.ts`** — added
+   `force-dynamic` + `nodejs` + `no-store` on 403/500 paths (key-gated
+   verification must never be CDN-shared); fixed `import type`.
+5. **Deleted `public/rss-feed.xml`** — stale 2KB duplicate of `/rss.xml`,
+   unreferenced anywhere (deploy bytes + duplicate-content SEO risk).
+
+Deliberately unchanged: `images.unoptimized` (correct — static assets are
+CDN-served; enabling optimization would add origin compute), large
+`pantaleonenet/*.png` sources (binary recompression belongs with the
+in-flight R2/AVIF work, not this branch), HTML browser TTL (product
+call), `json()` helper routes (already `no-store`).
