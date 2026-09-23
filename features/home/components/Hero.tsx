@@ -43,7 +43,7 @@ export default function Hero() {
               variant="outline"
               className="w-full sm:w-auto"
             >
-              <Link href="#proof">See what we build</Link>
+              <Link href="/projects">See what we build</Link>
             </Button>
           </div>
           <p className="px-4 py-3 text-left text-sm text-muted-foreground">

@@ -183,8 +183,7 @@ export function TestimonialVerifiedBadge({
 export function WhatPeopleSay() {
   if (TESTIMONIALS.length === 0) {
     // No public placeholder: this renders nothing until a real,
-    // named, linkable buyer quote exists. See TrustStrip for
-    // factual credibility in the meantime.
+    // named, linkable buyer quote exists.
     return null;
   }
 

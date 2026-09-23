@@ -23,7 +23,7 @@ export default function FinalCTA() {
             <Link href="/contact?book=true">Book a working session</Link>
           </Button>
           <Button asChild size="lg" variant="outline" className="w-full sm:w-auto">
-            <Link href="#proof">See what we build</Link>
+            <Link href="/projects">See what we build</Link>
           </Button>
         </div>
         <p className="mx-auto mt-6 max-w-xl text-sm text-muted-foreground">
