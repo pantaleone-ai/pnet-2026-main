@@ -184,11 +184,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: darkModeScript }} />
-        <Script
-          id="theme-script"
-          strategy="beforeInteractive"
-          src={`data:text/javascript;base64,${btoa(darkModeScript)}`}
-        />
         {/* Inject JSON-LD */}
         <script
           type="application/ld+json"
