@@ -131,7 +131,8 @@ const config = {
         // fingerprinted assets (/_next/static). On HTML it risks stale
         // serves that never revalidate. Browser TTL stays heuristic
         // (no max-age) while the CDN TTL is explicit below.
-        source: "/((?!api|_next|_vercel|checkout|robots\\.txt|sitemap|favicon\\.ico|robots\\.txt).*)",
+        source:
+          "/((?!api|_next|_vercel|checkout|robots\\.txt|sitemap|favicon\\.ico|opengraph-image|llms\\.txt|llms-full\\.txt|shop\\.md|projects\\.md|blog\\.mdx|rss\\.xml).*)",
         headers: [
           {
             key: "Cache-Control",

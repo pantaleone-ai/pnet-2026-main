@@ -25,6 +25,7 @@ import type { BlogPosting, WithContext } from "schema-dts";
 
 // Only pre-render slugs that exist in the repo; anything else 404s
 // statically instead of triggering on-demand ISR generation.
+export const dynamic = "force-static";
 export const dynamicParams = false;
 
 // Fallback only: the last 6 posts hard-code this in frontmatter.

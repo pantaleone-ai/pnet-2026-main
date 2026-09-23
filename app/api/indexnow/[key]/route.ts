@@ -1,10 +1,15 @@
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
 
 /**
  * IndexNow verification endpoint
  * Returns the API key as plain text for verification
  * URL: /api/indexnow/{api-key}.txt
  */
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
+const NO_STORE = { "Cache-Control": "no-store" } as const;
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ key: string }> }
@@ -15,11 +20,14 @@ export async function GET(
   const configuredKey = process.env.INDEXNOW_API_KEY;
 
   if (!configuredKey) {
-    return new Response("IndexNow API key not configured", { status: 500 });
+    return new Response("IndexNow API key not configured", {
+      status: 500,
+      headers: NO_STORE,
+    });
   }
 
   if (key !== configuredKey) {
-    return new Response("Invalid API key", { status: 403 });
+    return new Response("Invalid API key", { status: 403, headers: NO_STORE });
   }
 
   // Return the API key as plain text
