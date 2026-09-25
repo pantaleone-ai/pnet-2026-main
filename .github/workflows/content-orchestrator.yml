@@ -1,0 +1,71 @@
+name: content-orchestrator
+
+# Content-queue orchestration (separate from the hourly campaign-tick).
+# Every 12h: claim the next queued content issue (P0 first, oldest first).
+# On merged content/* PRs: close the linked issue with an evidence bundle.
+# All mutations use the gh CLI / tsx scripts in scripts/content-issues/.
+
+on:
+  schedule:
+    # Every 12 hours at minute 17 (offset to avoid top-of-hour congestion).
+    - cron: "17 */12 * * *"
+  workflow_dispatch:
+  pull_request:
+    types: [closed]
+
+concurrency:
+  group: content-orchestrator
+  cancel-in-progress: false
+
+permissions:
+  issues: write
+  pull-requests: read
+  contents: read
+
+jobs:
+  pick-and-claim:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - run: npm ci
+      - name: Ensure labels
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx tsx scripts/content-issues/labels.ts
+      - name: Pick and claim next topic
+        id: pick
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx tsx scripts/content-issues/pick-next.ts
+
+  evidence-and-close:
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'content/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - run: npm ci
+      - name: Extract issue number and close
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          ISSUE_NUM="$(echo "$BRANCH_NAME" | cut -d'/' -f2 | cut -d'-' -f1)"
+          if ! echo "$ISSUE_NUM" | grep -Eq '^[0-9]+$'; then
+            echo "Branch $BRANCH_NAME does not carry an issue number; skipping."
+            exit 0
+          fi
+          npx tsx scripts/content-issues/close-with-evidence.ts \
+            --issue "$ISSUE_NUM" \
+            --pr "${{ github.event.pull_request.number }}" \
+            --sha "${{ github.event.pull_request.merge_commit_sha }}"

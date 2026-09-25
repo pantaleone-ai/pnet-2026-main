@@ -1,4 +1,10 @@
 /**
+ * @deprecated FROZEN AS OF 2026-09-25.
+ * Do not append new topics here. All content backlog items have been migrated
+ * to GitHub Issues labeled `content` (see docs/CONTENT_ENGINE.md section 9).
+ * This file remains as a read-only reference for the one-time seed script
+ * (`npm run content:seed`). New topics go to Issues.
+ *
  * Future editorial backlog. Titles only — DO NOT write these articles now.
  * Score = demand + commercial + expertise + authority + competition +
  *         freshness + original-insight (see docs/CONTENT_ENGINE.md).
