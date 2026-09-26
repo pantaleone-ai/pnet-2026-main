@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next";
 
 import { getBlogPosts } from "@/features/blog/data/blogSource";
-import { getProducts } from "@/features/shop/data/shopSource";
-import { getBaseUrl } from "@/lib/helpers";
+import { getCategories, getProducts } from "@/features/shop/data/shopSource";
+import { getBaseUrl, getProductCategorySlug } from "@/lib/helpers";
 
 // Fixed date to avoid non-deterministic static output.
 // Updated manually or via CI when content changes.
@@ -57,6 +57,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly" as const,
       priority: 0.7,
     },
+    {
+      url: getBaseUrl("/privacy"),
+      lastModified: LAST_MODIFIED,
+      changeFrequency: "yearly" as const,
+      priority: 0.3,
+    },
+    {
+      url: getBaseUrl("/changelog"),
+      lastModified: LAST_MODIFIED,
+      changeFrequency: "weekly" as const,
+      priority: 0.5,
+    },
   ];
 
   const blogPosts = getBlogPosts().map((post) => ({
@@ -74,28 +86,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.9,
   };
 
-  // Add shop category pages - use directory-based URLs that match routing
-  const shopCategories = [
-    {
-      url: getBaseUrl("/shop/ai-apps"),
-      lastModified: LAST_MODIFIED,
-      changeFrequency: "weekly" as const,
-      priority: 0.8,
-    },
-    {
-      url: getBaseUrl("/shop/ai-workflows"),
-      lastModified: LAST_MODIFIED,
-      changeFrequency: "weekly" as const,
-      priority: 0.8,
-    },
-  ];
+  // Add shop category pages from the canonical shop data source so new
+  // categories are picked up without hardcoding slugs here.
+  const shopCategories = getCategories().map((category) => ({
+    url: getBaseUrl(`/shop/${getProductCategorySlug(category)}`),
+    lastModified: LAST_MODIFIED,
+    changeFrequency: "weekly" as const,
+    priority: 0.8,
+  }));
 
   // Add shop product pages - use directory-based category URLs
   const shopProducts = getProducts().map((product) => {
-    // Map category names to directory-based URLs
-    const categorySlug = product.category === "Apps" ? "ai-apps" :
-                        product.category === "Ai Workflows" ? "ai-workflows" :
-                        product.category.toLowerCase().replace(/\s+/g, '-');
+    const categorySlug = getProductCategorySlug(product.category);
     return {
       url: getBaseUrl(`/shop/${categorySlug}/${product.slug}`),
       lastModified: LAST_MODIFIED,
@@ -104,5 +106,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     };
   });
 
-  return [...staticPages, ...blogPosts, shopMainPage, ...shopCategories, ...shopProducts];
+  return [
+    ...staticPages,
+    ...blogPosts,
+    shopMainPage,
+    ...shopCategories,
+    ...shopProducts,
+  ];
 }

@@ -31,6 +31,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,mdx}\" --cache",
     "format:write": "prettier --write \"**/*.{ts,tsx,mdx}\" --cache",
     "validate-seo": "tsx scripts/validate-seo.ts",
+    "ai:readiness": "tsx scripts/ai-readiness.ts",
     "audit": "npm audit --audit-level=high",
     "upgrade:next": "npx @next/codemod@latest upgrade latest",
     "upgrade:tailwind": "npx @tailwindcss/upgrade@latest",

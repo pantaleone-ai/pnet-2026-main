@@ -45,21 +45,53 @@ interface BlogPostPageProps {
 }
 
 function getPageJsonLd(post: BlogPostType): WithContext<BlogPosting> {
+  const canonicalUrl = `${SITE_INFO.url}/blog/${post.slug}`;
   return {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
+    "@id": `${canonicalUrl}#article`,
     headline: post.title,
     description: post.description,
     image: post.image || BLOG_PLACEHOLDER_IMAGE,
-    url: `${SITE_INFO.url}/blog/${post.slug}`,
+    url: canonicalUrl,
+    mainEntityOfPage: canonicalUrl,
     datePublished: new Date(post.created).toISOString(),
     dateModified: new Date(post.lastUpdated || post.created).toISOString(),
     author: {
       "@type": "Person",
+      "@id": `${SITE_INFO.url}/#person`,
       name: USER.displayName,
       identifier: USER.username,
       image: USER.avatar,
     },
+  };
+}
+
+function getBreadcrumbJsonLd(post: BlogPostType) {
+  const canonicalUrl = `${SITE_INFO.url}/blog/${post.slug}`;
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: SITE_INFO.url,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Blog",
+        item: `${SITE_INFO.url}/blog`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: post.title,
+        item: canonicalUrl,
+      },
+    ],
   };
 }
 
@@ -159,6 +191,15 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(getPageJsonLd(post)).replace(/</g, "\\u003c"),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(getBreadcrumbJsonLd(post)).replace(
+            /</g,
+            "\\u003c",
+          ),
         }}
       />
       <BlogPostAnalytics

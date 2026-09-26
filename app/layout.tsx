@@ -27,11 +27,13 @@ function getWebSiteJsonLd(): WithContext<WebSite> {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": `${siteConfig.url}/#website`,
     name: siteConfig.name,
     url: siteConfig.url,
     description: siteConfig.description,
     author: {
       "@type": "Person",
+      "@id": `${siteConfig.url}/#person`,
       name: siteConfig.name,
     },
   };
@@ -42,6 +44,7 @@ function getPersonJsonLd(): WithContext<Person> {
   return {
     "@context": "https://schema.org",
     "@type": "Person",
+    "@id": `${siteConfig.url}/#person`,
     name: siteConfig.name,
     url: siteConfig.url,
     image: siteConfig.ogImage,
@@ -68,6 +71,7 @@ function getOrganizationJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": ["Organization", "LocalBusiness"],
+    "@id": `${siteConfig.url}/#organization`,
     name: "Pantaleone Digital Services LLC",
     url: siteConfig.url,
     logo: `${siteConfig.url}/logo.png`,
@@ -135,6 +139,11 @@ export const metadata: Metadata = {
   keywords: siteConfig.keywords,
   authors: [{ name: "Pantaleone AI", url: siteConfig.links.twitter }],
   creator: "Pantaleone AI",
+  alternates: {
+    types: {
+      "application/rss+xml": `${siteConfig.url}/rss.xml`,
+    },
+  },
 
   // OpenGraph
   openGraph: {
