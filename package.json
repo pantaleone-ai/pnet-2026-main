@@ -43,7 +43,11 @@
     "anti-slop:strict": "npm run anti-slop:build && node modules/anti-slop/dist/cli.js audit --strict --type markdown",
     "content:validate": "npm run editorial && npm run anti-slop:build && node modules/anti-slop/dist/cli.js audit --type markdown features/blog/content features/projects/content features/shop/content",
     "campaign:test": "tsx scripts/campaign-test.ts",
-    "campaign:tick": "tsx scripts/campaign-tick.ts"
+    "campaign:tick": "tsx scripts/campaign-tick.ts",
+    "content:labels": "tsx scripts/content-issues/labels.ts",
+    "content:seed": "tsx scripts/content-issues/seed-backlog.ts",
+    "content:next": "tsx scripts/content-issues/pick-next.ts",
+    "content:close": "tsx scripts/content-issues/close-with-evidence.ts"
   },
   "dependencies": {
     "@bprogress/next": "^3.2.12",

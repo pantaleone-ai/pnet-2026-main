@@ -92,12 +92,30 @@ If a draft fails originality or expertise, delete it. No replacement required.
 - **Lab posts** (prompt teardowns): evidence over opinion; quoted third-party
   prompts in code fences/blockquotes are exempt from the slop auditor.
 
-## 9. Backlog (titles only)
+## 9. Backlog (GitHub Issues queue)
 
-`config/content/backlog.ts` holds P0–P3. P0 next: What Is an AI Agent? /
-How AI Agents Work / AI Agent Architecture / Production AI Agents / What Is
-MCP? / How MCP Works / MCP vs APIs. Do not write them until asked — the
-architecture above is what makes them rank when they ship.
+GitHub Issues labeled `content` are the active queue — one issue per topic.
+`config/content/backlog.ts` is FROZEN as of 2026-09-25 (read-only seed
+reference, migrated via `npm run content:seed`). New topics go to Issues via
+`.github/ISSUE_TEMPLATE/content-topic.yml`, never to `backlog.ts`.
+
+- Selection: `status:queued` ordered P0 > P1 > P2 > P3, then oldest first
+  (`npm run content:next`, also run every 12h by
+  `.github/workflows/content-orchestrator.yml` at minute 17).
+- Claim: orchestrator moves the pick to `status:in-progress` with a claim
+  comment carrying the target branch `content/<issue>-<slug>`. Stale locks
+  (>7 days, no linked PR) revert to `status:queued`.
+- Review: work happens on `content/<issue>-<slug>`; the PR references
+  `Closes #<issue>` and carries the evidence section (editorial,
+  anti-slop, check-types, preview URL, internal links).
+- Done: on merge the workflow posts the evidence bundle and closes the
+  issue (`status:done`). Missing evidence adds `needs-evidence` and the
+  issue stays open.
+
+P0 next: What Is an AI Agent? / How AI Agents Work / AI Agent Architecture /
+Production AI Agents / What Is MCP? / How MCP Works / MCP vs APIs. Do not
+write them until claimed — the architecture above is what makes them rank
+when they ship.
 
 ## 10. Content validation pipeline (anti-slop agents)
 
@@ -136,13 +154,17 @@ Rebuild first with `npm run anti-slop:build` (`dist/` is gitignored).
 ## 11. Publishing (git only)
 
 All publishing goes through git. Never edit content directly on the server
-or in any CMS-less shortcut. Flow: branch → commit → push → PR → merge →
-Vercel builds from GitHub. Content changes require a redeploy (see
+or in any CMS-less shortcut. Flow: claim issue → branch
+`content/<issue>-<slug>` → commit → push → PR (`Closes #<issue>` + evidence
+section) → merge → Vercel builds from GitHub → orchestrator closes the
+issue with the evidence bundle. Content changes require a redeploy (see
 `app/sitemap.ts`: sitemap builds at deploy time, no ISR). Verify on the
 preview deployment before merging to the production branch.
 
 ## 12. Operating loop
 
-DISCOVER → SEARCH DATA → TOPIC → RESEARCH → EXPERT INPUT → PUBLISH →
-MEASURE (Search Console per-URL: impressions, clicks, CTR, position; plus AI
-Overview/Mode report) → UPDATE → INTERNAL LINKING → REPEAT.
+DISCOVER → QUEUE (GitHub Issue, `status:queued`) → CLAIM (12h orchestrator,
+`status:in-progress`) → TOPIC → RESEARCH → EXPERT INPUT → PUBLISH (PR,
+`status:in-review`) → MEASURE (Search Console per-URL: impressions, clicks,
+CTR, position; plus AI Overview/Mode report) → CLOSE WITH EVIDENCE
+(`status:done`) → UPDATE → INTERNAL LINKING → REPEAT.

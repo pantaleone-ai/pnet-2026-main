@@ -1,0 +1,82 @@
+name: Content topic
+description: Propose or claim a content-engine topic. One issue per article.
+title: "[Content] "
+labels: ["content", "status:queued"]
+body:
+  - type: dropdown
+    id: pillar
+    attributes:
+      label: Pillar
+      description: Conceptual pillar from config/content/pillars.ts. Advisory, not routing.
+      options:
+        - ai-agents
+        - ai-engineering
+        - mcp
+        - ai-automation
+        - enterprise-ai
+        - lab
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: P0 = critical authority page. P3 = low priority.
+      options:
+        - P0
+        - P1
+        - P2
+        - P3
+    validations:
+      required: true
+  - type: dropdown
+    id: intent
+    attributes:
+      label: Search intent
+      description: One primary intent per post (docs/CONTENT_ENGINE.md section 4).
+      options:
+        - informational
+        - technical
+        - comparison
+        - commercial
+        - strategic
+        - experimental
+        - news
+        - navigational
+    validations:
+      required: true
+  - type: textarea
+    id: angle
+    attributes:
+      label: Angle
+      description: Core premise or perspective. One or two sentences.
+      placeholder: Definition plus what disqualifies (chatbot vs agent vs workflow).
+    validations:
+      required: true
+  - type: input
+    id: target_slug
+    attributes:
+      label: Target slug
+      description: Suggested kebab-case URL slug under /blog/[slug]. Existing URLs are never renamed.
+      placeholder: what-is-an-ai-agent
+    validations:
+      required: false
+  - type: input
+    id: cluster
+    attributes:
+      label: Cluster
+      description: Target cluster key from config/content/inventory.ts CLUSTERS (e.g. agents-fundamentals).
+      placeholder: agents-fundamentals
+    validations:
+      required: false
+  - type: checkboxes
+    id: acceptance_checklist
+    attributes:
+      label: Acceptance checklist
+      description: All boxes must be checked before the issue can close with evidence.
+      options:
+        - label: Editorial pass (`npm run editorial` clean)
+        - label: Anti-slop audit (`npm run content:validate` clean)
+        - label: Internal links (max 4 related + 1 continue-reading via content-graph)
+        - label: Metadata checklist (docs/CONTENT_ENGINE.md section 6)
+        - label: Preview deployment verified before merge
