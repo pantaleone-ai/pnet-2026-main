@@ -174,8 +174,7 @@ const config = {
         headers: [
           {
             key: "Cache-Control",
-            value:
-              "public, s-maxage=31536000, stale-while-revalidate=31536000",
+            value: "public, s-maxage=31536000, stale-while-revalidate=31536000",
           },
           {
             key: "Vercel-CDN-Cache-Control",
@@ -189,8 +188,7 @@ const config = {
         headers: [
           {
             key: "Cache-Control",
-            value:
-              "public, s-maxage=31536000, stale-while-revalidate=31536000",
+            value: "public, s-maxage=31536000, stale-while-revalidate=31536000",
           },
           {
             key: "Vercel-CDN-Cache-Control",
@@ -208,8 +206,7 @@ const config = {
         headers: [
           {
             key: "Cache-Control",
-            value:
-              "public, s-maxage=31536000, stale-while-revalidate=31536000",
+            value: "public, s-maxage=31536000, stale-while-revalidate=31536000",
           },
           {
             key: "Vercel-CDN-Cache-Control",
@@ -223,8 +220,7 @@ const config = {
         headers: [
           {
             key: "Cache-Control",
-            value:
-              "public, s-maxage=31536000, stale-while-revalidate=31536000",
+            value: "public, s-maxage=31536000, stale-while-revalidate=31536000",
           },
           {
             key: "Vercel-CDN-Cache-Control",
@@ -242,8 +238,7 @@ const config = {
         headers: [
           {
             key: "Cache-Control",
-            value:
-              "public, s-maxage=31536000, stale-while-revalidate=31536000",
+            value: "public, s-maxage=31536000, stale-while-revalidate=31536000",
           },
           {
             key: "Vercel-CDN-Cache-Control",
@@ -257,8 +252,7 @@ const config = {
         headers: [
           {
             key: "Cache-Control",
-            value:
-              "public, s-maxage=31536000, stale-while-revalidate=31536000",
+            value: "public, s-maxage=31536000, stale-while-revalidate=31536000",
           },
           {
             key: "Vercel-CDN-Cache-Control",
@@ -274,8 +268,7 @@ const config = {
         headers: [
           {
             key: "Cache-Control",
-            value:
-              "public, s-maxage=31536000, stale-while-revalidate=31536000",
+            value: "public, s-maxage=31536000, stale-while-revalidate=31536000",
           },
           {
             key: "Vercel-CDN-Cache-Control",
@@ -287,6 +280,14 @@ const config = {
       {
         source: "/(.*)",
         headers: [
+          {
+            // AI crawler policy signal: allow search + retrieval-time AI use,
+            // disallow training use. Mirrors robots.ts intent (allow "*").
+            // Signal only — private routes stay protected by auth, and APIs
+            // remain disallowed in robots.txt. See app/robots.ts.
+            key: "Content-Signal",
+            value: "search=yes, ai-input=yes, ai-train=no",
+          },
           {
             key: "X-Content-Type-Options",
             value: "nosniff",
@@ -393,6 +394,8 @@ const withMDX = createMDX({
 let finalConfig = withMDX(config);
 if (process.env.ANALYZE === "true") {
   const { default: bundleAnalyzer } = await import("@next/bundle-analyzer");
-  finalConfig = bundleAnalyzer({ enabled: true, openAnalyzer: false })(finalConfig);
+  finalConfig = bundleAnalyzer({ enabled: true, openAnalyzer: false })(
+    finalConfig,
+  );
 }
 export default finalConfig;

@@ -13,6 +13,9 @@ import LatestBlogPosts from "@/features/home/components/LatestBlogPosts";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Suspense } from "react";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+import { siteConfig } from "@/config/site";
 
 function SectionFallback() {
   return (
@@ -28,6 +31,12 @@ function SectionFallback() {
 
 // Content is static MDX from the repo - force static, no ISR reads.
 export const dynamic = "force-static";
+
+export const metadata: Metadata = {
+  alternates: {
+    canonical: siteConfig.url,
+  },
+};
 
 export default function Home() {
   return (
@@ -49,8 +58,8 @@ export default function Home() {
       <SeparatorHorizontal short={true} />
       <HeadingTitle title="Tools we've built" />
       <p className="mx-auto max-w-2xl px-6 text-center text-lg/8 text-foreground/80">
-        Ready-made AI tools, workflows, and systems for teams that want to
-        move faster.{" "}
+        Ready-made AI tools, workflows, and systems for teams that want to move
+        faster.{" "}
         <Link href="/shop" className="underline underline-offset-4">
           Visit the shop
         </Link>

@@ -10,6 +10,9 @@ export default function robots(): MetadataRoute.Robots {
         // Allow crawlers on public static feeds, but keep them off the
         // uncached dynamic API functions (/api/search, /api/channels,
         // /api/campaigns, /api/metrics, …) to avoid bot-driven executions.
+        // AI search, AI assistants, and retrieval agents are allowed via "*".
+        // Training use is signaled via the Content-Signal response header
+        // (search=yes, ai-input=yes, ai-train=no) in next.config.mjs.
         allow: ["/", "/api/feeds/", "/api/products/feed"],
         disallow: [
           "/api/",
@@ -19,15 +22,9 @@ export default function robots(): MetadataRoute.Robots {
           "/about",
           "/experience",
           "/education",
-          "/rss.xml",
-          "/robots.txt",
-          "/changelog",
         ],
       },
     ],
-    sitemap: [
-      getBaseUrl("/sitemap.xml"),
-      getBaseUrl("/products/sitemap.xml"),
-    ],
+    sitemap: [getBaseUrl("/sitemap.xml"), getBaseUrl("/products/sitemap.xml")],
   };
 }
