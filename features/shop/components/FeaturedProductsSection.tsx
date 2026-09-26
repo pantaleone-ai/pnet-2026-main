@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import LinkWrapper from "@/components/LinkWrapper";
 import BackgroundDots from "@/features/common/components/BackgroundDots";
 import ProductCard from "./ProductCard";
 import { track } from "@/lib/analytics";
@@ -15,12 +15,9 @@ interface FeaturedProductsSectionProps {
 export default function FeaturedProductsSection({ products }: FeaturedProductsSectionProps) {
   const featuredProducts = products.filter(product => product.featured);
 
-  if (featuredProducts.length === 0) {
-    return null;
-  }
-
   // Track product impressions on component mount
   useEffect(() => {
+    if (featuredProducts.length === 0) return;
     const productsToTrack = featuredProducts.slice(0, 3).map(product => ({
       id: product.id.toString(),
       name: product.title,
@@ -32,6 +29,10 @@ export default function FeaturedProductsSection({ products }: FeaturedProductsSe
 
     track.productImpression(productsToTrack, 'featured-products');
   }, [featuredProducts]);
+
+  if (featuredProducts.length === 0) {
+    return null;
+  }
 
   return (
     <div className="relative mx-auto max-w-7xl px-6 py-8 md:py-10 lg:px-8">
@@ -52,9 +53,9 @@ export default function FeaturedProductsSection({ products }: FeaturedProductsSe
         {featuredProducts.length > 3 && (
           <div className="mt-8 text-center">
             <Button variant="outline" asChild>
-              <Link href="/shop">
+              <LinkWrapper href="/shop">
                 Browse All Products
-              </Link>
+              </LinkWrapper>
             </Button>
           </div>
         )}

@@ -121,6 +121,10 @@ const config = {
   },
   // Brotli/gzip compression for text responses served from the edge.
   compress: true,
+  compiler: {
+    // Strip console.* (except console.error) from production client bundles.
+    removeConsole: true,
+  },
   async headers() {
     return [
       {

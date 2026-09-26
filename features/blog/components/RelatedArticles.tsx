@@ -1,4 +1,4 @@
-import Link from "next/link";
+import LinkWrapper from "@/components/LinkWrapper";
 import type { BlogPostType } from "@/features/blog/types/BlogPostType";
 import { getInventory } from "@/config/content/inventory";
 
@@ -23,9 +23,9 @@ export default function RelatedArticles({ related, continueReading, hubLabel, hu
       {continueReading ? (
         <div className="mb-6">
           <p className="text-sm font-medium tracking-wide text-muted-foreground">Continue reading</p>
-          <Link href={`/blog/${continueReading.slug}`} className="mt-1 block text-lg font-semibold underline-offset-4 hover:underline">
+          <LinkWrapper href={`/blog/${continueReading.slug}`} className="mt-1 block text-lg font-semibold underline-offset-4 hover:underline">
             {continueReading.title}
-          </Link>
+          </LinkWrapper>
         </div>
       ) : null}
       {related.length > 0 ? (
@@ -34,9 +34,9 @@ export default function RelatedArticles({ related, continueReading, hubLabel, hu
           <ul className="mt-2 space-y-3">
             {related.slice(0, 4).map((post) => (
               <li key={post.slug}>
-                <Link href={`/blog/${post.slug}`} className="font-medium underline-offset-4 hover:underline">
+                <LinkWrapper href={`/blog/${post.slug}`} className="font-medium underline-offset-4 hover:underline">
                   {post.title}
-                </Link>
+                </LinkWrapper>
                 {post.description ? (
                   <p className="text-sm text-muted-foreground">{post.description}</p>
                 ) : null}
@@ -46,9 +46,9 @@ export default function RelatedArticles({ related, continueReading, hubLabel, hu
         </div>
       ) : null}
       <p className="mt-6 text-sm">
-        <Link href={hubPath} className="text-muted-foreground underline-offset-4 hover:underline">
+        <LinkWrapper href={hubPath} className="text-muted-foreground underline-offset-4 hover:underline">
           {hubLabel ?? "More in this topic →"}
-        </Link>
+        </LinkWrapper>
       </p>
     </section>
   );
