@@ -136,7 +136,7 @@ const config = {
         // serves that never revalidate. Browser TTL stays heuristic
         // (no max-age) while the CDN TTL is explicit below.
         source:
-          "/((?!api|_next|_vercel|checkout|robots\\.txt|sitemap|favicon\\.ico|opengraph-image|llms\\.txt|llms-full\\.txt|shop\\.md|projects\\.md|blog\\.mdx|rss\\.xml).*)",
+          "/((?!api|_next|_vercel|checkout|robots\\.txt|sitemap|favicon\\.ico|opengraph-image|llms\\.txt|llms-full\\.txt|shop\\.md|projects\\.md|index\\.md|services\\.md|b2b\\.md|contact\\.md|blog\\.mdx|rss\\.xml).*)",
         headers: [
           {
             key: "Cache-Control",
@@ -170,7 +170,7 @@ const config = {
         // LLM-text routes are force-static, rebuilt on redeploy (Vercel
         // purges CDN on deploy). llms-full.txt is the largest single
         // origin payload on the site — pin it to the CDN for a year.
-        source: "/(llms.txt|llms-full.txt|shop.md|projects.md)",
+        source: "/(llms.txt|llms-full.txt|shop.md|projects.md|index.md|services.md|b2b.md|contact.md)",
         headers: [
           {
             key: "Cache-Control",

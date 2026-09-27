@@ -115,6 +115,9 @@ export async function generateMetadata({
     keywords: data.seo?.join(", ") || "blog, mdx, next.js",
     alternates: {
       canonical: getBaseUrl(`blog/${slug}`),
+      types: {
+        "text/markdown": getBaseUrl(`blog.mdx/${slug}`),
+      },
     },
     robots: {
       index: true,

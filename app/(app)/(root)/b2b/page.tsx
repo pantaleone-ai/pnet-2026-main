@@ -21,6 +21,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(getBaseUrl(page?.slug ?? "/b2b")),
   alternates: {
     canonical: getBaseUrl(page?.slug ?? "/b2b"),
+    types: {
+      "text/markdown": getBaseUrl("/b2b.md"),
+    },
   },
 };
 
@@ -66,6 +69,22 @@ function getB2BJsonLd() {
   };
 }
 
+function getBreadcrumbJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: siteConfig.url },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "B2B AI work for teams",
+        item: `${siteConfig.url}/b2b`,
+      },
+    ],
+  };
+}
+
 export default function B2BPage() {
   return (
     <>
@@ -76,6 +95,14 @@ export default function B2BPage() {
           __html: JSON.stringify(getB2BJsonLd()),
         }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(getBreadcrumbJsonLd()),
+        }}
+      />
+      <link rel="alternate" type="text/markdown" href="/b2b.md" />
+      <link rel="describedby" href="/llms.txt" />
       <main className="mx-auto flex flex-col">
         {/* Hero Section */}
         <div className="relative py-16 px-6 text-center">

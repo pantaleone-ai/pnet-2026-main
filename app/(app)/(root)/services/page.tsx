@@ -20,6 +20,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(getBaseUrl(page?.slug ?? "/services")),
   alternates: {
     canonical: getBaseUrl(page?.slug ?? "/services"),
+    types: {
+      "text/markdown": getBaseUrl("/services.md"),
+    },
   },
 };
 
@@ -113,6 +116,27 @@ function getPricingJsonLd() {
   };
 }
 
+function getBreadcrumbJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: siteConfig.url,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Services and pricing",
+        item: `${siteConfig.url}/services`,
+      },
+    ],
+  };
+}
+
 export default function ServicesPage() {
   return (
     <>
@@ -123,6 +147,14 @@ export default function ServicesPage() {
           __html: JSON.stringify(getPricingJsonLd()),
         }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(getBreadcrumbJsonLd()),
+        }}
+      />
+      <link rel="alternate" type="text/markdown" href="/services.md" />
+      <link rel="describedby" href="/llms.txt" />
       <main className="mx-auto flex flex-col">
         <Heading
           title="Services and pricing"

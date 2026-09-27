@@ -28,7 +28,7 @@ checks.push({
 });
 checks.push({
   name: "robots does not block rss.xml",
-  pass: !has(robots, /"\/rss\.xml"/),
+  pass: !has(robots, /disallow:[\s\S]*?"\/rss\.xml"/),
   critical: true,
 });
 checks.push({

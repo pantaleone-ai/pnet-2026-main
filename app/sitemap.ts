@@ -4,9 +4,11 @@ import { getBlogPosts } from "@/features/blog/data/blogSource";
 import { getCategories, getProducts } from "@/features/shop/data/shopSource";
 import { getBaseUrl, getProductCategorySlug } from "@/lib/helpers";
 
-// Fixed date to avoid non-deterministic static output.
-// Updated manually or via CI when content changes.
-const LAST_MODIFIED = "2026-09-20";
+// Deploy revision date for undated static pages (services, b2b, contact,
+// privacy, changelog, shop hubs). Dated content (blog posts) uses real
+// created/lastUpdated dates below. Static pages share the deploy date
+// because they change only on redeploy — not per-URL freshness signals.
+const LAST_MODIFIED = "2026-09-27";
 
 // Content changes require a redeploy, so the sitemap is only built at
 // deploy time. No time-based revalidation means no ISR reads.

@@ -33,6 +33,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(getBaseUrl(page.slug)),
   alternates: {
     canonical: getBaseUrl(page.slug),
+    types: {
+      "text/markdown": getBaseUrl("/contact.md"),
+    },
   },
 };
 
@@ -40,6 +43,8 @@ export default async function ContactPage() {
   return (
     <>
       <SeparatorHorizontal borderTop={false} />
+      <link rel="alternate" type="text/markdown" href="/contact.md" />
+      <link rel="describedby" href="/llms.txt" />
       <main className="mx-auto flex flex-col">
         <HeadingTitle
           title={"Contact"}
