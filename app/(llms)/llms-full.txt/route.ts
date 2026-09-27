@@ -9,6 +9,7 @@ import { getCategories, getProductsByCategory } from "@/features/shop/data/shopS
 import SOCIAL_LINKS from "@/config/socialLinks";
 import { TECH_STACK } from "@/config/techStack";
 import { USER } from "@/config/user";
+import { AUTHORITY_POSTS, CANONICAL_ORIGIN } from "@/lib/seo/ai-discovery";
 
 const allCategories = getCategories();
 
@@ -48,6 +49,14 @@ ${EXPERIENCES.map((item) =>
 ).join("\n\n")}
 `;
 
+const servicesText = `## Services (canonical pricing source: ${CANONICAL_ORIGIN}/services)
+
+- Workflow audit: $2,500 one-time. Two weeks on one process; time costs per step and ranked build list; 90-minute walkthrough.
+- Build engagement: $8,500 per month. N8N or LangChain build against client APIs with retries, logging, kill switch; weekly review; 30-day fix window.
+- Retainer: Custom per quarter. Queue of workflows, one active build at a time, shared backlog, runbook per system.
+- Engagement: audit first, then build, then handoff (repo, workflow JSON, credentials map, runbook). Contact: ${CANONICAL_ORIGIN}/contact (replies within two business days).
+`;
+
 const projectsText = `## Projects
 
 ${PROJECTS.map((item) => {
@@ -64,8 +73,12 @@ ${PROJECTS.map((item) => {
 `;
 
 async function getBlogContent() {
+  const bySlug = new Map(allPosts.map((p) => [p.slug, p]));
+  const selected = AUTHORITY_POSTS.map((a) => bySlug.get(a.slug)).filter(
+    (p): p is NonNullable<typeof p> => Boolean(p),
+  );
   const text = await Promise.all(
-    allPosts.map(
+    selected.map(
       async (item) =>
         `---\ntitle: "${item.title}"\ndescription: "${item.description}"\nlast_updated: "${dayjs(item.lastUpdated || item.created).format("MMMM D, YYYY")}"\nsource: "${SITE_INFO.url}/blog.mdx/${item.slug}"\n---\n\n${await getLLMText(item)}`,
     ),
@@ -94,18 +107,19 @@ ${products.map((product) => {
 }).join("\n\n")}
 `;
 
-  return `<SYSTEM>This document contains comprehensive information about ${USER.displayName}'s professional profile, portfolio, shop, and blog content. It includes personal details, work experience, projects, achievements, certifications, commercial products, and all published blog posts. This data is formatted for consumption by Large Language Models (LLMs) to provide accurate and up-to-date information about ${USER.displayName}'s background, skills, and expertise as an AI engineer and automation specialist.</SYSTEM>
+  return `<SYSTEM>This document contains curated company, services, project, product, and selected authority-article content from pantaleone.net, formatted for LLMs. Pricing is canonical at ${CANONICAL_ORIGIN}/services. For the full article archive use the sitemap at ${CANONICAL_ORIGIN}/sitemap.xml and per-article Markdown at ${CANONICAL_ORIGIN}/blog.mdx/[slug].</SYSTEM>
 
 # pantaleone.net
 
-> Matt Pantaleone builds autonomous agents, N8N workflows, and Next.js applications.
+> Matt Pantaleone builds AI agents, n8n workflows, and Next.js applications that eliminate expensive manual work.
 
 ${aboutText}
 ${experienceText}
+${servicesText}
 ${projectsText}
 ${shopText}
 
-## Blog
+## Selected authority articles (full archive excluded to keep this file cacheable; see sitemap and /blog.mdx/[slug])
 
 ${await getBlogContent()}`;
 }
@@ -116,9 +130,6 @@ export async function GET() {
   return new Response(await getContent(), {
     headers: {
       "Content-Type": "text/markdown;charset=utf-8",
-      // Largest single origin payload on the site. force-static + deploy
-      // rebuild (Vercel purges CDN on deploy) => 1yr CDN pin is safe and
-      // keeps bot/crawler waves off origin. Zero ISR (no revalidate).
       "Cache-Control":
         "public, s-maxage=31536000, stale-while-revalidate=31536000",
       "Vercel-CDN-Cache-Control":

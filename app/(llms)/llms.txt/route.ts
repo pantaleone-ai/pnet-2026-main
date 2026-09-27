@@ -1,52 +1,121 @@
-import { SITE_INFO } from "@/config/seo/site";
 import { ECOSYSTEM_GROUPS } from "@/config/ecosystem";
 import { getBlogPosts } from "@/features/blog/data/blogSource";
+import { getProjects } from "@/features/projects/data/projectSource";
+import { getCategories } from "@/features/shop/data/shopSource";
+import {
+  AUTHORITY_POSTS,
+  CANONICAL_ORIGIN,
+  CORE_PAGES,
+} from "@/lib/seo/ai-discovery";
 
-const allPosts = getBlogPosts();
+function abs(path: string): string {
+  if (path.startsWith("http")) return path;
+  return `${CANONICAL_ORIGIN}${path.startsWith("/") ? path : `/${path}`}`;
+}
 
-const content = `# pantaleone.net
+function buildContent(): string {
+  const allPosts = getBlogPosts();
+  const bySlug = new Map(allPosts.map((p) => [p.slug, p]));
+  const projects = getProjects();
+  const categories = getCategories();
 
-> Driving Growth With Agentic AI & Automation Solutions.
+  const core = CORE_PAGES.map(
+    (p) => `- [${p.label}](${abs(p.path)}): ${p.why}`,
+  ).join("\n");
 
-Pantaleone.net is the portfolio and business site of Matt Pantaleone, AI engineer
-and automation specialist: AI agents, workflow automation, AI integration, and
-custom AI software. Public entities: Services, Projects, Shop products
-(AI apps and AI workflows), Blog articles, Experience, and Resources.
+  const services = [
+    `- [Workflow audit](${abs("/services")}): Two-week audit of one process for $2,500 one-time; ranked build list. Canonical pricing source.`,
+    `- [Agent and automation builds](${abs("/services")}): $8,500/mo N8N or LangChain build with logging, retries, and kill switch.`,
+    `- [B2B AI work for teams](${abs("/b2b")}): Integration with CRM, helpdesk, warehouse; team handoff with repo and runbook.`,
+    `- [AI integration and custom AI software](${abs("/services")}): Next.js, TypeScript, LangChain, n8n; scoped from the audit.`,
+  ].join("\n");
 
-## Core Content
+  const proof = projects
+    .slice(0, 12)
+    .map(
+      (p) =>
+        `- [${p.title}](${abs("/projects")}): ${(p.description ?? "Pantaleone project with build notes.").trim().slice(0, 160)}`,
+    )
+    .join("\n");
 
-- [Services](${SITE_INFO.url}/services): AI agents, automation, and integration services.
-- [Projects](${SITE_INFO.url}/projects.md): Selected projects that show my skills and creativity.
-- [Shop](${SITE_INFO.url}/shop.md): AI applications, workflows, services, and digital products.
-- [Blog](${SITE_INFO.url}/blog): Practical thinking on AI systems, agents, and automation.
-- [AI Readiness Guide](${SITE_INFO.url}/resources/ai-readiness-guide): Resource on making sites AI-agent-ready.
-- [Contact](${SITE_INFO.url}/contact): Work inquiries and consultation requests.
+  const products = categories
+    .map(
+      (c) =>
+        `- [${c}](${abs(`/shop/${c === "Apps" ? "ai-apps" : "ai-workflows"}`)}): Machine-readable ${c} catalog; see also ${abs("/shop.md")}.`,
+    )
+    .join("\n");
+
+  const authority = AUTHORITY_POSTS.map((a) => {
+    const post = bySlug.get(a.slug);
+    const title = post?.title ?? a.slug;
+    const desc = post?.description ?? a.why;
+    return `- [${title}](${abs(`/blog.mdx/${a.slug}`)}): ${desc} ${a.why}`;
+  }).join("\n");
+
+  const ecosystem = ECOSYSTEM_GROUPS.map(
+    (group) =>
+      `### ${group.heading}\n\n${group.links.map((link) => `- [${link.label}](${link.href})`).join("\n")}`,
+  ).join("\n\n");
+
+  return `# Pantaleone
+
+> ${"We build AI systems that eliminate expensive manual work: AI agents, workflow automation, AI integration, and custom AI software."}
+
+Pantaleone.net is the business site of Matt Pantaleone (Pantaleone Digital Services LLC): AI agents, workflow automation, AI integration, and custom AI software for B2B teams. Services are fixed-price starting with a $2,500 workflow audit.
+
+## Core
+
+${core}
+
+## Services
+
+${services}
+
+## Proof and Projects
+
+- [Projects hub](${abs("/projects")}): Selected builds showing skills and delivery approach.
+${proof}
+
+## Products and Apps
+
+- [Shop](${abs("/shop")}): AI applications, workflows, and digital products.
+${products}
+- [AI Apps](${abs("/shop/ai-apps")}): Purchasable AI applications.
+- [AI Workflows](${abs("/shop/ai-workflows")}): Purchasable n8n and automation workflows.
+
+## Resources
+
+- [AI Readiness Guide](${abs("/resources/ai-readiness-guide")}): Checklist for preparing a process and site for AI agents.
+- [Blog](${abs("/blog")}): Practical writing on AI systems, agents, and automation.
+
+## Technical
+
+Selected authority articles (not the full archive; full list via sitemap and RSS):
+
+${authority}
 
 ## Ecosystem
 
-${ECOSYSTEM_GROUPS.map((group) => `### ${group.heading}\n\n${group.links.map((link) => `- [${link.label}](${link.href})`).join("\n")}`).join("\n\n")}
+External Pantaleone products referenced from the business site:
 
-## Blog
+${ecosystem}
 
-${allPosts.map((item) => `- [${item.title}](${SITE_INFO.url}/blog.mdx/${item.slug}): ${item.description}`).join("\n")}
+## Optional
 
-## Machine-Readable Resources
-
-- [llms-full.txt](${SITE_INFO.url}/llms-full.txt): Full machine-readable profile, products, projects, and blog content.
-- [Sitemap](${SITE_INFO.url}/sitemap.xml): Canonical URLs for all public pages.
-- [RSS feed](${SITE_INFO.url}/rss.xml): Latest blog posts and shop products.
-- [Projects (markdown)](${SITE_INFO.url}/projects.md): Machine-readable project list.
-- [Shop (markdown)](${SITE_INFO.url}/shop.md): Machine-readable product list.
+- [llms-full.txt](${abs("/llms-full.txt")}): Consolidated company, services, projects, and selected articles.
+- [Sitemap](${abs("/sitemap.xml")}): Canonical URL discovery.
+- [RSS feed](${abs("/rss.xml")}): Freshness discovery for posts and products.
+- [Projects (markdown)](${abs("/projects.md")}): Machine-readable project list.
+- [Shop (markdown)](${abs("/shop.md")}): Machine-readable product list.
 `;
+}
 
 export const dynamic = "force-static";
 
 export async function GET() {
-  return new Response(content, {
+  return new Response(buildContent(), {
     headers: {
       "Content-Type": "text/markdown;charset=utf-8",
-      // Deploy-time static (Vercel purges CDN on deploy) => 1yr CDN pin.
-      // Zero ISR (no revalidate).
       "Cache-Control":
         "public, s-maxage=31536000, stale-while-revalidate=31536000",
       "Vercel-CDN-Cache-Control":

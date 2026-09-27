@@ -142,6 +142,7 @@ export const metadata: Metadata = {
   alternates: {
     types: {
       "application/rss+xml": `${siteConfig.url}/rss.xml`,
+      "text/markdown": `${siteConfig.url}/index.md`,
     },
   },
 
@@ -193,6 +194,14 @@ export default function RootLayout({ children }: RootLayoutProps) {
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: darkModeScript }} />
+        <link rel="describedby" href="/llms.txt" />
+        <link rel="alternate" type="text/markdown" href="/index.md" />
+        <link
+          rel="alternate"
+          type="application/rss+xml"
+          title="Pantaleone.net RSS"
+          href="/rss.xml"
+        />
         {/* Inject JSON-LD */}
         <script
           type="application/ld+json"

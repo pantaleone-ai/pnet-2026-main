@@ -8,7 +8,7 @@ import { Feed } from "feed";
 export const dynamic = "force-static";
 
 // Fixed date to avoid non-deterministic static output
-const BUILD_DATE = new Date("2026-09-20");
+const BUILD_DATE = new Date("2026-09-27");
 
 export async function GET() {
   const posts = getBlogPosts().sort(
@@ -40,7 +40,17 @@ export async function GET() {
       link: getBaseUrl(`/blog/${post.slug}`),
       description: post.description,
       content: post.description,
-      date: new Date(post.created),
+      author: [
+        {
+          name: post.author ?? "Matt Pantaleone",
+        },
+      ],
+      category: [
+        ...(post.category ? [{ name: post.category }] : []),
+        ...(post.tags ?? []).map((t) => ({ name: t })),
+      ],
+      date: new Date(post.lastUpdated || post.created),
+      published: new Date(post.created),
     });
   });
 
