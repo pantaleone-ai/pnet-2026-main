@@ -2,6 +2,7 @@ name: content-orchestrator
 
 # Content-queue orchestration (separate from the hourly campaign-tick).
 # Every 12h: claim the next queued content issue (P0 first, oldest first).
+# On opened content PRs: mark the linked issue status:in-review (preview).
 # On merged content/* PRs: close the linked issue with an evidence bundle.
 # All mutations use the gh CLI / tsx scripts in scripts/content-issues/.
 
@@ -11,7 +12,7 @@ on:
     - cron: "17 */12 * * *"
   workflow_dispatch:
   pull_request:
-    types: [closed]
+    types: [opened, reopened, closed]
 
 concurrency:
   group: content-orchestrator
@@ -43,6 +44,29 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx tsx scripts/content-issues/pick-next.ts
+
+  label-in-review:
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged != true && (github.event.action == 'opened' || github.event.action == 'reopened') && startsWith(github.event.pull_request.head.ref, 'content/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Mark linked issue in-review
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          ISSUE_NUM="$(echo "$BRANCH_NAME" | cut -d'/' -f2 | cut -d'-' -f1)"
+          if ! echo "$ISSUE_NUM" | grep -Eq '^[0-9]+$'; then
+            if echo "$PR_BODY" | grep -Eq 'Closes #[0-9]+'; then
+              ISSUE_NUM="$(echo "$PR_BODY" | grep -Eo 'Closes #[0-9]+' | head -1 | grep -Eo '[0-9]+')"
+            else
+              echo "No linked issue found; skipping."
+              exit 0
+            fi
+          fi
+          gh issue edit "$ISSUE_NUM" --remove-label "status:in-progress" --add-label "status:in-review"
+          gh issue comment "$ISSUE_NUM" --body "PR #${{ github.event.pull_request.number }} opened for preview review. Awaiting approval before merge."
 
   evidence-and-close:
     if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'content/')

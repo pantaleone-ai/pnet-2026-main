@@ -1,0 +1,183 @@
+---
+title: "AI Agent Architecture"
+description: "How production agents work: model policy, tools, memory, guardrails, and evals."
+image: "/images/logo.png"
+imageAlt: "Pantaleone logo"
+created: "2026-09-27"
+date: "2026-09-27"
+author: "Matt Pantaleone"
+authorAvatar: "/images/avatar.jpg"
+authorAvatarAlt: "Author avatar for Matt Pantaleone"
+category: "AI Agents"
+tags:
+  - AI Agents
+  - AI Engineering
+seo:
+  - AI agent architecture
+  - production AI agents
+  - agent tool calling
+  - agent memory design
+  - agent evaluation
+  - multi-agent orchestration
+pillar: "ai-agents"
+cluster: "production-agents"
+intent: "technical"
+---
+
+# AI Agent Architecture
+
+A production AI agent is a control loop around a language model: the model
+decides, tools act, memory persists state, guardrails constrain behavior,
+and evals prove it works. Everything else is scaffolding around that loop.
+
+This post describes each part and how they connect. It covers single-agent
+systems before the point where splitting into multiple agents pays off.
+
+# Why the architecture matters more than the model
+
+Most agent demos fail in production at the seams, not in the model. The
+model answers well. The failure is a tool that silently returns partial
+data, state that disappears between runs, or no test that catches a
+regression before users do.
+
+Architecture is the set of decisions about those seams: what the agent can
+touch, what it remembers, what stops it, and how you know it still works
+after the next change. Get those right and the model becomes
+interchangeable. Get them wrong and every model upgrade is a rewrite.
+
+# The core loop
+
+Every agent runs the same loop:
+
+1. Perceive. Gather input: user message, prior state, tool results.
+2. Plan. The model selects the next action: answer, call a tool, or stop.
+3. Act. Execute the action through a tool with bounded permissions.
+4. Observe. Feed the result back into context and repeat until done.
+
+The loop needs two things the model does not provide: a termination
+condition (max steps, explicit stop signal, or a completed goal check) and
+a persistent record of what happened (a trace). Without a stop condition,
+loops run until the budget dies. Without the record, failures are
+undebuggable.
+
+# The components
+
+## Model policy
+
+The model is the decision function, not the system. Keep it that way:
+system instructions define role, scope, and output format. Business rules
+live in code around the model, not in the prompt. A rule the business
+depends on (spending limits, approval thresholds, data access) should be
+enforced where the model cannot talk its way past it.
+
+## Tools
+
+Tools are the agent's hands. Each tool needs a narrow contract: typed
+inputs, typed outputs, documented failure modes. Three rules hold up in
+practice:
+
+- **Least privilege.** A research tool reads. It does not write, delete,
+  or send. Permissions match the task, not the user.
+- **Idempotency.** Tools with side effects accept a caller-supplied key so
+  retries never double-apply. Network calls fail; the architecture assumes
+  it.
+- **Honest errors.** A tool returns structured failures the model can act
+  on: not a stack trace, not a silent empty result. Partial data is
+  labeled partial.
+
+## Memory
+
+Memory is state with a retrieval policy. Three tiers cover most systems:
+
+- **Short-term.** The current run: conversation, tool results, working
+  notes. Lives in context, bounded by the window. Summarize and compact
+  when it grows.
+- **Long-term.** Facts that survive across runs: user preferences, learned
+  constraints, prior outcomes. Stored externally, retrieved by relevance,
+  stamped with provenance and time. Memory without a source and a date
+  becomes folklore.
+- **External.** Documents, tickets, database rows the agent reads but does
+  not own. Retrieval quality decides output quality: when answers degrade,
+  check retrieval before blaming the model.
+
+## Orchestration
+
+One agent handles one bounded job well. Split when jobs have different
+trust levels, different tools, or genuinely parallel work: a planner that
+routes to specialists, each with its own permissions and context. The cost
+is coordination overhead and more traces to read, so a single agent with
+good tools beats a multi-agent diagram until the boundaries are real. For
+the single-agent starting point, see
+[AI agent workflows](/blog/ai-agent-workflows).
+
+## Guardrails and identity
+
+Guardrails sit outside the model: input validation, tool permission checks,
+output filters, and human approval at defined boundaries (spending,
+external sends, irreversible writes). In multi-agent or enterprise setups,
+agents also need identity: which agent acted, with whose authority. A
+[registry with signed identity](/blog/agentdna-enterprise-ai-agent-infrastructure)
+turns "the agent did it" into an auditable claim.
+
+## Observability
+
+Log the trace of every run: inputs, model decisions, tool calls with
+latency, token usage and cost, errors, and the final outcome. Three signals
+cover most debugging: cost per completed task, tool failure rate by tool,
+and the step count distribution. A sudden shift in any of them is the early
+warning.
+
+## Evals
+
+Evals are the test suite. A regression set of representative tasks with
+regression set of representative tasks with known-good outcomes runs on
+every prompt, tool, or model change. Start by scoring task success; add
+trajectory checks (did it take a sane path?) and
+guardrail checks (did it refuse what it should refuse?) next. An agent
+without evals is untestable code in production.
+
+# How a request flows
+
+A typical run through the architecture:
+
+1. Request arrives with user input and a trace ID.
+2. System loads short-term state and retrieves relevant long-term memory.
+3. Loop runs: model decides, tools execute under permission checks, results
+   append to the trace.
+4. Approval gate pauses the loop at defined boundaries; a human approves or
+   rejects with the full trace visible.
+5. Loop terminates on goal completion, explicit stop, or step budget.
+6. Outcome, trace, cost, and latency persist. The eval suite replays the
+   regression set on schedule.
+
+# Trade-offs
+
+- Autonomy costs. Each loop step burns tokens and latency. Cap steps
+  and put cheap checks (validation, cache lookup) before model calls.
+- Context needs precision. More context helps reasoning until retrieval
+  noise drowns the signal. Prefer precise retrieval over a bigger window.
+- One agent vs. many. One agent is simpler to trace, test, and secure.
+  Many agents isolate failure domains and permissions. Split on trust
+  boundaries, not on org-chart aesthetics.
+- Model size vs. reliability. A smaller model with good tools and evals
+  outperforms a larger model wired directly to production systems.
+
+# Mistakes that recur
+
+- Unbounded loops with no step budget or stop condition.
+- Tools with side effects and no idempotency keys.
+- Memory with no provenance: the agent asserts facts nobody can source.
+- Secrets or credentials pasted into prompts instead of tool-side auth.
+- Evals added after launch, measuring whatever is convenient.
+- Approval gates the approver cannot meaningfully use (no trace, no
+  context, approve-or-cancel with no middle path).
+
+# Recommendations
+
+1. Draw the loop before writing code: inputs, tools, memory stores,
+   approval points, termination.
+2. Give every tool a typed contract, least privilege, and idempotency.
+3. Ship the trace and cost logging from the start, not later.
+4. Write ten eval tasks before the eleventh feature.
+5. Put business rules in code, not prompts.
+6. Start with one agent. Split when trust boundaries demand it.

@@ -29,6 +29,7 @@ export type InventoryEntry = {
 };
 
 export const CONTENT_INVENTORY: InventoryEntry[] = [
+  { slug: "ai-agent-architecture", pillar: "ai-agents", class: "core-authority", intent: "technical", cluster: "production-agents", action: "keep" },
   { slug: "agentdna-enterprise-ai-agent-infrastructure", pillar: "ai-agents", class: "core-authority", intent: "strategic", cluster: "production-agents", action: "keep" },
   { slug: "ai-agent-workflows", pillar: "ai-agents", class: "supporting", intent: "technical", cluster: "orchestration", action: "keep" },
   { slug: "building-ai-agent-workflows-n8n-langchain", pillar: "ai-automation", class: "supporting", intent: "technical", cluster: "n8n-agents", action: "keep" },
