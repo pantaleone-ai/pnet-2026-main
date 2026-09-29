@@ -62,5 +62,6 @@ transform, `imgsquash.pantaleone.net`), `API abuse guard` (ratelimit),
 - **`/_next/image`**: `next/image` is used widely but `unoptimized: true` renders plain
   `<img>` — the optimizer path serves no traffic. Left at 1-month edge TTL (harmless);
   NOT firewall-blocked (blocking a framework path is a break-the-app risk for zero measured abuse).
-- **`@vercel/analytics` beacon** stays mounted in `components/Providers.tsx` until someone
-  confirms the dashboard is unread. Speed Insights is already removed.
+- **`@vercel/analytics` beacon** removed 2026-09-29 (pass 2): it fired ungated for
+  100% of visitors while GA/Meta/PostHog are consent-gated. Speed Insights was
+  already removed. GA4, Meta Pixel, and PostHog are untouched.
