@@ -1,0 +1,36 @@
+name: cf-purge-on-deploy
+
+# P4 staleness contract: Cloudflare (outer edge) has NO deploy integration —
+# Vercel purges its own CDN on every production deploy, Cloudflare does not.
+# Without this hook, Cloudflare keeps serving pre-deploy HTML for up to the
+# origin s-maxage (300s for HTML; previously a 1-YEAR stale pin — observed
+# 2026-09-29: homepage served 9h-old bytes with pre-fix headers AFTER deploy).
+#
+# Required repository secrets:
+#   CLOUDFLARE_API_TOKEN  token with Cache Purge on the zone (zone-scoped is fine)
+#   CLOUDFLARE_ZONE_ID    (default baked into the script as fallback)
+#
+# Manual backstop: ./scripts/cf-purge-zone.sh (see docs/cf-edge-cache-runbook.md)
+
+on:
+  deployment_status:
+  workflow_dispatch:
+
+jobs:
+  purge:
+    # Vercel's GitHub integration emits deployment_status events. Purge only
+    # on successful PRODUCTION deployments — previews carry uncached/no-store
+    # auth-layer responses and must never be used to validate or fill the edge.
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment_status.environment == 'Production')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Purge Cloudflare edge cache
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        run: ./scripts/cf-purge-zone.sh
