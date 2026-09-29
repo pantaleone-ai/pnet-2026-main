@@ -39,8 +39,14 @@ All owned rules are prefixed `[pnet-2026]` and applied idempotently by `scripts/
    follows origin `Cache-Control` (300s HTML, 1yr static feeds/assets).
 
 Foreign rules you must NOT touch: `R2 public assets CORP` (response-header
-transform, `imgsquash.pantaleone.net`), `API abuse guard` (ratelimit),
-`pnet-2026 scanner probes` (WAF custom). The applier only writes the cache-settings phase.
+transform, `imgsquash.pantaleone.net`), `API abuse guard` (ratelimit, 20
+req/10s/IP on `/api/*`). Owned but separate: `[pnet-2026] Block vulnerability
+scanner probes` (WAF custom, applied by `scripts/cf-waf-rules.sh` — blocks
+`.env`, `.git`, `wp-`, `.php`, `phpmyadmin`, `cgi-bin`, `actuator`; all
+probe-only on this PHP-less/WordPress-less site). The applier scripts only
+write their own phase. NOTE: phase ruleset NAMEs are API-immutable, so the
+legacy `(TEST-disabled)` suffix on ruleset names cannot be removed — the rules
+inside are correctly tagged and enabled; do not let the name confuse you.
 
 ## Gotchas (probe-verified 2026-09-29)
 
