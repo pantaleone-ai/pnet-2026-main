@@ -128,19 +128,20 @@ const config = {
   async headers() {
     return [
       {
-        // Long-lived CDN caching for fully static pages (all force-static,
-        // redeployed on content change; Vercel purges CDN on deploy).
-        // Eliminates ISR Data Cache lookups — the CDN serves directly.
-        // NOTE: no `immutable` here — that directive is only valid for
-        // fingerprinted assets (/_next/static). On HTML it risks stale
-        // serves that never revalidate. Browser TTL stays heuristic
-        // (no max-age) while the CDN TTL is explicit below.
+        // HTML caching split for Cloudflare-proxy safety: Vercel purges its
+        // CDN on deploy, but Cloudflare (now proxied in front, no purge
+        // integration) honors the generic Cache-Control s-maxage. A 1yr
+        // s-maxage would pin stale HTML — including stale GA/Meta IDs and
+        // tracker logic — at the Cloudflare edge (observed cf-cache-status:
+        // HIT with age ~8h). Keep Vercel edge long, keep shared-cache TTL
+        // short so Cloudflare revalidates within minutes.
+        // NOTE: no `immutable` here — only valid for fingerprinted assets.
         source:
           "/((?!api|_next|_vercel|checkout|robots\\.txt|sitemap|favicon\\.ico|opengraph-image|llms\\.txt|llms-full\\.txt|shop\\.md|projects\\.md|index\\.md|services\\.md|b2b\\.md|contact\\.md|blog\\.mdx|rss\\.xml).*)",
         headers: [
           {
             key: "Cache-Control",
-            value: "public, s-maxage=31536000, stale-while-revalidate=31536000",
+            value: "public, s-maxage=300, stale-while-revalidate=86400",
           },
           {
             key: "Vercel-CDN-Cache-Control",
@@ -321,7 +322,7 @@ const config = {
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https: blob: https://i.ebayimg.com https://ebayimg.com https://www.facebook.com",
               "font-src 'self' data:",
-              "connect-src 'self' https://*.posthog.com https://vercel.live https://*.google-analytics.com https://*.googleadservices.com https://*.doubleclick.net https://cdn.syndication.twimg.com https://api.github.com https://www.facebook.com https://graph.facebook.com https://*.an.facebook.com",
+              "connect-src 'self' https://*.posthog.com https://vercel.live https://www.googletagmanager.com https://*.google-analytics.com https://*.googleadservices.com https://*.doubleclick.net https://cdn.syndication.twimg.com https://api.github.com https://www.facebook.com https://graph.facebook.com https://*.an.facebook.com",
               "frame-src 'self' https://www.youtube.com https://platform.twitter.com",
               "frame-ancestors 'none'",
               "base-uri 'self'",

@@ -194,6 +194,37 @@ export default function RootLayout({ children }: RootLayoutProps) {
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: darkModeScript }} />
+        {/* Google Consent Mode v2 defaults — denied until c15t measurement consent.
+            PageTracker + analytics helpers re-check consent before any event,
+            so no page_view / PageView fires for opted-out visitors. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('consent', 'default', {
+                ad_storage: 'denied',
+                ad_user_data: 'denied',
+                ad_personalization: 'denied',
+                analytics_storage: 'denied',
+                functionality_storage: 'denied',
+                personalization_storage: 'denied',
+                security_storage: 'granted',
+                wait_for_update: 500,
+              });
+              try {
+                if (window.localStorage.getItem('pnet-measurement-consent') === 'granted') {
+                  gtag('consent', 'update', {
+                    ad_storage: 'granted',
+                    ad_user_data: 'granted',
+                    ad_personalization: 'granted',
+                    analytics_storage: 'granted',
+                  });
+                }
+              } catch (_) {}
+            `,
+          }}
+        />
         <link rel="describedby" href="/llms.txt" />
         <link rel="alternate" type="text/markdown" href="/index.md" />
         <link
@@ -242,7 +273,10 @@ export default function RootLayout({ children }: RootLayoutProps) {
         {/* Page tracking for SPA route changes */}
         <PageTracker />
 
-        {/* Google Analytics - Always loads, events gated by consent */}
+        {/* Google Analytics - script loads so Consent Mode works; PageTracker
+            sends a single page_view per route only when measurement consent
+            is granted. Init uses send_page_view:false to avoid double counting
+            with the SPA tracker. */}
         {analyticsConfig.googleAnalytics.enabled && (
           <>
             <Script
@@ -260,6 +294,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
                   gtag('js', new Date());
                   gtag('config', '${analyticsConfig.googleAnalytics.id}', {
                     page_path: window.location.pathname,
+                    send_page_view: false,
                   });
                 `,
               }}
@@ -267,7 +302,9 @@ export default function RootLayout({ children }: RootLayoutProps) {
           </>
         )}
 
-        {/* Meta Pixel - Always loads, events gated by consent */}
+        {/* Meta Pixel - library loads for consented PageView events only.
+            PageTracker fires fbq('track','PageView') after checking consent;
+            no auto PageView here so opt-outs are never tracked. */}
         {analyticsConfig.metaPixel.enabled && (
           <>
             <Script
@@ -284,7 +321,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
                   s.parentNode.insertBefore(t,s)}(window, document,'script',
                   'https://connect.facebook.net/en_US/fbevents.js');
                   fbq('init', '${analyticsConfig.metaPixel.id}');
-                  fbq('track', 'PageView');
                 `,
               }}
             />

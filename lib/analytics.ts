@@ -96,6 +96,42 @@ export interface SearchResultClickEvent {
   resultTitle: string;
 }
 
+export const MEASUREMENT_CONSENT_KEY = "pnet-measurement-consent";
+
+export function hasMeasurementConsent(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(MEASUREMENT_CONSENT_KEY) === "granted";
+  } catch {
+    return false;
+  }
+}
+
+export function setMeasurementConsent(granted: boolean): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(
+      MEASUREMENT_CONSENT_KEY,
+      granted ? "granted" : "denied",
+    );
+  } catch {
+    // storage unavailable (private mode) — still propagate to vendors below
+  }
+  try {
+    const gtagFn = window.gtag;
+    if (typeof gtagFn === "function") {
+      gtagFn("consent", "update", {
+        ad_storage: granted ? "granted" : "denied",
+        ad_user_data: granted ? "granted" : "denied",
+        ad_personalization: granted ? "granted" : "denied",
+        analytics_storage: granted ? "granted" : "denied",
+      });
+    }
+  } catch {
+    // gtag not ready yet — defaults in layout head stay denied
+  }
+}
+
 export function isAnalyticsEnabled(): boolean {
   if (typeof window === "undefined") return false;
   try {
@@ -107,11 +143,13 @@ export function isAnalyticsEnabled(): boolean {
 
 export function isGaEnabled(): boolean {
   if (typeof window === "undefined") return false;
+  if (!hasMeasurementConsent()) return false;
   return !!(window as any).gtag && !!process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
 }
 
 export function isMetaPixelEnabled(): boolean {
   if (typeof window === "undefined") return false;
+  if (!hasMeasurementConsent()) return false;
   return !!(window as any).fbq && !!process.env.NEXT_PUBLIC_META_PIXEL_ID;
 }
 
@@ -654,6 +692,8 @@ export const track = {
     ga4.viewItem(product);
     if (isAnalyticsEnabled()) {
       posthogAnalytics.productViewed(product);
+    }
+    if (isMetaPixelEnabled()) {
       metaPixel.viewContent(product);
     }
   },
@@ -662,6 +702,8 @@ export const track = {
     ga4.addToCart(product);
     if (isAnalyticsEnabled()) {
       posthogAnalytics.addToCart(product);
+    }
+    if (isMetaPixelEnabled()) {
       metaPixel.addToCart(product);
     }
   },
@@ -670,6 +712,8 @@ export const track = {
     ga4.beginCheckout(product);
     if (isAnalyticsEnabled()) {
       posthogAnalytics.checkoutStarted(product);
+    }
+    if (isMetaPixelEnabled()) {
       metaPixel.initiateCheckout(product);
     }
   },
@@ -678,41 +722,43 @@ export const track = {
     ga4.purchase(purchase);
     if (isAnalyticsEnabled()) {
       posthogAnalytics.purchaseCompleted(purchase);
+    }
+    if (isMetaPixelEnabled()) {
       metaPixel.purchase(purchase);
     }
   },
 
   removeFromCart: (product: ProductEvent) => {
     ga4.removeFromCart(product);
-    if (isAnalyticsEnabled()) {
+    if (isMetaPixelEnabled()) {
       metaPixel.removeFromCart(product);
     }
   },
 
   viewCart: (products: ProductEvent[], total: number) => {
     ga4.viewCart(products, total);
-    if (isAnalyticsEnabled()) {
+    if (isMetaPixelEnabled()) {
       metaPixel.viewCart(products, total);
     }
   },
 
   addToWishlist: (product: ProductEvent) => {
     ga4.addToWishlist(product);
-    if (isAnalyticsEnabled()) {
+    if (isMetaPixelEnabled()) {
       metaPixel.addToWishlist(product);
     }
   },
 
   addShippingInfo: (product: ProductEvent, shippingTier: string) => {
     ga4.addShippingInfo(product, shippingTier);
-    if (isAnalyticsEnabled()) {
+    if (isMetaPixelEnabled()) {
       metaPixel.addShippingInfo(product, shippingTier);
     }
   },
 
   addPaymentInfo: (product: ProductEvent, paymentType: string) => {
     ga4.addPaymentInfo(product, paymentType);
-    if (isAnalyticsEnabled()) {
+    if (isMetaPixelEnabled()) {
       metaPixel.addPaymentInfo(product, paymentType);
     }
   },
@@ -731,7 +777,7 @@ export const track = {
 
   refund: (refund: RefundEvent) => {
     ga4.refund(refund);
-    if (isAnalyticsEnabled()) {
+    if (isMetaPixelEnabled()) {
       metaPixel.refund(refund);
     }
   },
@@ -760,6 +806,8 @@ export const track = {
           search_queries: search.query,
         },
       });
+    }
+    if (isMetaPixelEnabled()) {
       metaPixel.search(search.query);
     }
     if (isGaEnabled()) {
@@ -830,7 +878,8 @@ export const track = {
 export const serverTrack = {
   purchase: async (purchase: PurchaseEvent, clientId?: string) => {
     const measurementId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
-    const apiSecret = process.env.GA_API_SECRET;
+    const apiSecret =
+      process.env.GOOGLE_ANALYTICS_API_SECRET || process.env.GA_API_SECRET;
     if (!measurementId || !apiSecret) return;
     try {
       const payload = {
@@ -874,7 +923,8 @@ export const serverTrack = {
 
   refund: async (refund: RefundEvent, clientId?: string) => {
     const measurementId = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
-    const apiSecret = process.env.GA_API_SECRET;
+    const apiSecret =
+      process.env.GOOGLE_ANALYTICS_API_SECRET || process.env.GA_API_SECRET;
     if (!measurementId || !apiSecret) return;
     try {
       const payload = {

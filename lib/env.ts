@@ -35,6 +35,19 @@ const envSchema = z.object({
   NEXT_PUBLIC_POSTHOG_HOST: z.string().url().optional(),
   NEXT_PUBLIC_POSTHOG_UI_HOST: z.string().url().optional(),
 
+  // Optional analytics (Google Analytics 4 + Meta Pixel, client IDs)
+  NEXT_PUBLIC_GOOGLE_ANALYTICS_ID: z
+    .string()
+    .regex(/^G-[A-Z0-9]+$/, "Must be a GA4 measurement ID (G-XXXXXXXXXX)")
+    .optional(),
+  NEXT_PUBLIC_META_PIXEL_ID: z.string().regex(/^\d+$/, "Must be numeric").optional(),
+
+  // Optional server-side analytics (Measurement Protocol + Meta CAPI).
+  // Supports both GA_API_SECRET and GOOGLE_ANALYTICS_API_SECRET aliases.
+  GA_API_SECRET: z.string().optional(),
+  GOOGLE_ANALYTICS_API_SECRET: z.string().optional(),
+  META_ACCESS_TOKEN: z.string().optional(),
+
   // Optional base URL (auto-detected if not provided)
   NEXT_PUBLIC_BASE_URL: z.string().url().optional(),
 
