@@ -2,12 +2,14 @@ import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
 import ShopHero from "@/features/shop/components/ShopHero";
 import ShopCategories from "@/features/shop/components/ShopCategories";
+import ShopCheckoutSuccessTracker from "@/features/shop/components/ShopCheckoutSuccessTracker";
 import { getProducts } from "@/features/shop/data/shopSource";
 import { ProductListJsonLd } from "@/lib/schema/json-ld";
 import { getBaseUrl } from "@/lib/helpers";
 import type { HeadType } from "@/types";
 import type { Metadata } from "next";
 import HeadingTitle from "@/components/HeadingTitle";
+import { Suspense } from "react";
 
 // Validate SEO configuration to ensure all required fields are present
 // This helps catch missing or incomplete SEO setup early
@@ -44,6 +46,12 @@ export default async function ShopPage() {
 
   return (
     <>
+      {/* Stripe success landing (?checkout=success): fires the browser half
+          of the Purchase dedup pair. Suspense boundary keeps the static
+          prerender intact while searchParams resolve at runtime. */}
+      <Suspense fallback={null}>
+        <ShopCheckoutSuccessTracker />
+      </Suspense>
       <ProductListJsonLd products={products} />
       <SeparatorHorizontal borderTop={false} />
       <HeadingTitle title="Shop" />

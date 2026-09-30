@@ -15,6 +15,7 @@ import {
   DEFAULT_FROM_EMAIL,
   parseRecipients,
 } from "@/lib/resendClient";
+import { sendLeadCapi } from "@/lib/meta-capi";
 import { randomUUID } from "crypto";
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
@@ -212,6 +213,22 @@ export async function POST(request: Request) {
           }),
         },
       ).catch(() => {});
+    }
+
+    // Meta CAPI Lead (dedups with the browser Lead via the shared eventID
+    // the client minted and sent as meta_event_id; hashed email + IP/UA
+    // carry the match quality. Silent on preview/localhost runtimes.)
+    {
+      const rawEventId =
+        typeof body?.meta_event_id === "string" &&
+        body.meta_event_id.length <= 128
+          ? body.meta_event_id
+          : undefined;
+      await sendLeadCapi("contact", rawEventId, {
+        email,
+        request,
+        eventSourceUrl: "https://pantaleone.net/contact",
+      });
     }
 
     return NextResponse.json(

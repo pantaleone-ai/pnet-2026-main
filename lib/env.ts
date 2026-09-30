@@ -46,7 +46,14 @@ const envSchema = z.object({
   // Supports both GA_API_SECRET and GOOGLE_ANALYTICS_API_SECRET aliases.
   GA_API_SECRET: z.string().optional(),
   GOOGLE_ANALYTICS_API_SECRET: z.string().optional(),
+  // Meta Conversions API token (server-only — never NEXT_PUBLIC_).
+  // Mint from the CAPI System User in Events Manager. Legacy
+  // META_ACCESS_TOKEN is accepted as a fallback alias.
+  META_CAPI_ACCESS_TOKEN: z.string().optional(),
   META_ACCESS_TOKEN: z.string().optional(),
+  // Optional CAPI test event code (Meta Test Events tab). Never set in
+  // production — it keeps events out of delivery/optimization.
+  META_TEST_EVENT_CODE: z.string().optional(),
 
   // Optional base URL (auto-detected if not provided)
   NEXT_PUBLIC_BASE_URL: z.string().url().optional(),

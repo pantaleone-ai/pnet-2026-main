@@ -21,6 +21,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { track } from "@/lib/analytics";
+import { newEventId } from "@/lib/meta-pixel";
+
 export function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -38,13 +41,15 @@ export function ContactForm() {
 
   async function onSubmit(data: ContactFormValues) {
     setIsSubmitting(true);
+    // Shared eventID: the server CAPI Lead reuses it for browser+server dedup.
+    const metaEventId = newEventId();
     try {
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, meta_event_id: metaEventId }),
       });
 
       const result = await response.json();
@@ -55,6 +60,7 @@ export function ContactForm() {
         );
       }
 
+      track.lead("contact", metaEventId);
       toast.success("Message sent. I reply within two business days.");
       form.reset();
     } catch (error) {

@@ -36,6 +36,32 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
 
+    // Session-summary branch for the success-page browser Purchase:
+    // returns amount/currency (no PII) so the client can fire fbq with
+    // value+currency using eventID = session.id (dedups with the webhook).
+    const sessionId = searchParams.get("session_id");
+    if (sessionId) {
+      if (!sessionId.startsWith("cs_")) {
+        return NextResponse.redirect(`${APP_URL}/shop`, { headers: NO_STORE });
+      }
+      try {
+        const stripe = getStripeClient();
+        const session = await stripe.checkout.sessions.retrieve(sessionId);
+        return NextResponse.json(
+          {
+            id: session.id,
+            amount_total: session.amount_total,
+            currency: session.currency,
+            payment_status: session.payment_status,
+          },
+          { headers: NO_STORE },
+        );
+      } catch (error) {
+        console.error("Checkout session lookup error:", error);
+        return NextResponse.redirect(`${APP_URL}/shop`, { headers: NO_STORE });
+      }
+    }
+
     const productsParam = searchParams.get("products");
     const couponCode = searchParams.get("coupon") || undefined;
     const cartOrigin = searchParams.get("cart_origin") || undefined;

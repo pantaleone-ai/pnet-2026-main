@@ -26,6 +26,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { track } from "@/lib/analytics";
+import { newEventId } from "@/lib/meta-pixel";
 import {
   HONEYPOT_FIELD,
   INQUIRY_TYPES,
@@ -106,11 +108,14 @@ export function ContactForm({ className }: { className?: string }) {
 
   async function onSubmit(data: ContactFormValues) {
     setSubmitState("sending");
+    // Client-minted eventID shared with the server CAPI Lead so Meta
+    // dedups the browser+server pair (consent/host gated in track.lead).
+    const metaEventId = newEventId();
     try {
       const response = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, meta_event_id: metaEventId }),
       });
       const result = (await response.json().catch(() => ({}))) as {
         success?: boolean;
@@ -121,6 +126,7 @@ export function ContactForm({ className }: { className?: string }) {
         throw new Error(result.error ?? "Message not sent. Please try again.");
       }
       setSubmitState("sent");
+      track.lead("contact", metaEventId);
       toast.success("Message sent. I reply within two business days.");
       form.reset({
         name: "",

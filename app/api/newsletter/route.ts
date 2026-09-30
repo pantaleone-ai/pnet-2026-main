@@ -10,6 +10,8 @@ import { escape } from "html-escaper";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { sendLeadCapi } from "@/lib/meta-capi";
+
 const newsletterSchema = z.object({
   email: z.string().email("Please enter a valid email address.").max(254),
 });
@@ -106,6 +108,27 @@ export async function POST(request: Request) {
         { error: "Subscription failed. Please try again later." },
         { status: 500, headers: NO_STORE },
       );
+    }
+
+    // Meta CAPI CompleteRegistration-reuse: newsletter signups map to Lead
+    // (dedups with the browser event via client-minted meta_event_id).
+    {
+      let rawEventId: string | undefined;
+      try {
+        const raw = body as { meta_event_id?: unknown };
+        rawEventId =
+          typeof raw.meta_event_id === "string" &&
+          raw.meta_event_id.length <= 128
+            ? raw.meta_event_id
+            : undefined;
+      } catch {
+        rawEventId = undefined;
+      }
+      await sendLeadCapi("newsletter", rawEventId, {
+        email,
+        request,
+        eventSourceUrl: "https://pantaleone.net/",
+      });
     }
 
     return NextResponse.json({ success: true }, { headers: NO_STORE });

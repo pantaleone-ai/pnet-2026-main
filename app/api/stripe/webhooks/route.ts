@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { track, serverTrack } from '@/lib/analytics';
+import { sendPurchaseCapi, sendRefundCapi } from '@/lib/meta-capi';
 import { headers } from 'next/headers';
 import { sendEmail } from '@/lib/resendClient';
 
@@ -128,11 +129,20 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
     console.log('Tracking purchase:', purchaseData);
     track.purchase(purchaseData);
 
-    // Server-side tracking via GA4 Measurement Protocol and Meta CAPI
+    // Server-side tracking via GA4 Measurement Protocol and Meta CAPI.
+    // CAPI uses eventID = session.id so the success-page browser Purchase
+    // (same eventID) dedups to a single conversion. sendCapiEvents fails
+    // closed on preview/dev runtimes so test traffic never pollutes
+    // dataset pantaleone.net-2026 (1764032770941978).
     const clientId = session.customer as string || 'anonymous';
+    const customerEmail =
+      session.customer_details?.email || session.customer_email || undefined;
     await Promise.all([
       serverTrack.purchase(purchaseData, clientId),
-      serverTrack.purchaseMeta(purchaseData, session.id),
+      sendPurchaseCapi(purchaseData, session.id, {
+        email: customerEmail,
+        eventSourceUrl: "https://pantaleone.net/shop",
+      }),
     ]);
 
     // Automated fulfillment: Send purchase confirmation email
@@ -261,7 +271,10 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
     // Server-side tracking
     await Promise.all([
       serverTrack.purchase(purchaseData, paymentIntent.customer as string || 'anonymous'),
-      serverTrack.purchaseMeta(purchaseData, paymentIntent.id),
+      sendPurchaseCapi(purchaseData, paymentIntent.id, {
+        email: paymentIntent.receipt_email || undefined,
+        eventSourceUrl: "https://pantaleone.net/shop",
+      }),
     ]);
 
     console.log(`💰 Payment intent tracked: $${purchaseData.value} ${purchaseData.currency}`);
@@ -326,7 +339,12 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
     const clientId = charge.customer as string || 'anonymous';
     await Promise.all([
       serverTrack.refund(refundData, clientId),
-      serverTrack.refundMeta(refundData, `refund_${charge.id}`),
+      sendRefundCapi(
+        refundData,
+        refundData.products.map((p) => p.id),
+        refundData.products.map((p) => p.quantity),
+        `refund_${charge.id}`,
+      ),
     ]);
 
     console.log(`💸 Refund processed: $${refundData.value} ${refundData.currency} - ${charge.id}`);

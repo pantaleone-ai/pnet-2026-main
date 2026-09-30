@@ -5,6 +5,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import posthog from "posthog-js";
 
 import { isGaEnabled, isMetaPixelEnabled } from "@/lib/analytics";
+import { metaTrack } from "@/lib/meta-pixel";
 
 function PageTrackingInner() {
   const pathname = usePathname();
@@ -26,9 +27,12 @@ function PageTrackingInner() {
       });
     }
 
-    // Meta Pixel page tracking (requires measurement consent)
+    // Meta Pixel page tracking — single PageView per SPA route (App Router
+    // dedupe: this callback re-runs only when pathname/searchParams change).
+    // Consent + prod-host gated inside metaTrack; the minted eventID is
+    // mirrored server-side via the CAPI relay for browser+server dedup.
     if (isMetaPixelEnabled()) {
-      window.fbq("track", "PageView");
+      metaTrack("PageView", undefined, { relay: true });
     }
 
     // PostHog page tracking (requires consent)

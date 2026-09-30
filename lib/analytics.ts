@@ -5,6 +5,8 @@
 
 import { posthog } from "posthog-js";
 
+import { isProdHost, metaTrack } from "@/lib/meta-pixel";
+
 export interface ProductEvent {
   id: string;
   name: string;
@@ -150,6 +152,9 @@ export function isGaEnabled(): boolean {
 export function isMetaPixelEnabled(): boolean {
   if (typeof window === "undefined") return false;
   if (!hasMeasurementConsent()) return false;
+  // Domain gate (fixes preview-URL dataset pollution): PageView and all
+  // funnel events fire only on prod hosts — never localhost/*.vercel.app.
+  if (!isProdHost()) return false;
   return !!(window as any).fbq && !!process.env.NEXT_PUBLIC_META_PIXEL_ID;
 }
 
@@ -483,136 +488,249 @@ export const posthogAnalytics = {
 };
 
 export const metaPixel = {
-  viewContent: (product: ProductEvent) => {
-    if (!isMetaPixelEnabled()) return;
-    (window as any).fbq("track", "ViewContent", {
-      content_type: "product",
-      content_ids: [product.id],
-      content_name: product.name,
-      content_category: product.category,
-      value: product.price,
-      currency: product.currency || "USD",
-    });
+  viewContent: (product: ProductEvent, eventID?: string): string | null => {
+    if (!isMetaPixelEnabled()) return null;
+    return metaTrack(
+      "ViewContent",
+      {
+        content_type: "product",
+        content_ids: [product.id],
+        content_name: product.name,
+        content_category: product.category,
+        value: product.price,
+        currency: product.currency || "USD",
+      },
+      { eventID, relay: true },
+    );
   },
 
-  addToCart: (product: ProductEvent) => {
-    if (!isMetaPixelEnabled()) return;
-    (window as any).fbq("track", "AddToCart", {
-      content_ids: [product.id],
-      content_name: product.name,
-      content_category: product.category,
-      value: product.price,
-      currency: product.currency || "USD",
-    });
+  addToCart: (product: ProductEvent, eventID?: string): string | null => {
+    if (!isMetaPixelEnabled()) return null;
+    return metaTrack(
+      "AddToCart",
+      {
+        content_ids: [product.id],
+        content_name: product.name,
+        content_category: product.category,
+        value: product.price,
+        currency: product.currency || "USD",
+      },
+      { eventID, relay: true },
+    );
   },
 
-  initiateCheckout: (product: ProductEvent) => {
-    if (!isMetaPixelEnabled()) return;
-    (window as any).fbq("track", "InitiateCheckout", {
-      content_ids: [product.id],
-      content_name: product.name,
-      content_category: product.category,
-      value: product.price,
-      currency: product.currency || "USD",
-      num_items: 1,
-    });
+  initiateCheckout: (
+    product: ProductEvent,
+    eventID?: string,
+  ): string | null => {
+    if (!isMetaPixelEnabled()) return null;
+    return metaTrack(
+      "InitiateCheckout",
+      {
+        content_ids: [product.id],
+        content_name: product.name,
+        content_category: product.category,
+        value: product.price,
+        currency: product.currency || "USD",
+        num_items: 1,
+      },
+      { eventID, relay: true },
+    );
   },
 
-  purchase: (purchase: PurchaseEvent) => {
-    if (!isMetaPixelEnabled()) return;
-    (window as any).fbq("track", "Purchase", {
-      content_ids: purchase.products.map((p) => p.id),
-      content_type: "product",
-      value: purchase.value,
-      currency: purchase.currency,
-      num_items: purchase.products.reduce((sum, p) => sum + p.quantity, 0),
-    });
+  purchase: (
+    purchase: PurchaseEvent,
+    eventID?: string,
+  ): string | null => {
+    if (!isMetaPixelEnabled()) return null;
+    return metaTrack(
+      "Purchase",
+      {
+        content_ids: purchase.products.map((p) => p.id),
+        content_type: "product",
+        value: purchase.value,
+        currency: purchase.currency,
+        num_items: purchase.products.reduce((sum, p) => sum + p.quantity, 0),
+      },
+      { eventID: eventID ?? purchase.transactionId, relay: true },
+    );
   },
 
-  search: (query: string, value?: number, currency?: string) => {
-    if (!isMetaPixelEnabled()) return;
-    (window as any).fbq("track", "Search", {
-      search_string: query,
-      value: value,
-      currency: currency || "USD",
-    });
+  search: (
+    query: string,
+    value?: number,
+    currency?: string,
+    eventID?: string,
+  ): string | null => {
+    if (!isMetaPixelEnabled()) return null;
+    return metaTrack(
+      "Search",
+      {
+        search_string: query,
+        value: value,
+        currency: currency || "USD",
+      },
+      { eventID, relay: true },
+    );
   },
 
-  addToWishlist: (product: ProductEvent) => {
-    if (!isMetaPixelEnabled()) return;
-    (window as any).fbq("track", "AddToWishlist", {
-      content_ids: [product.id],
-      content_name: product.name,
-      content_category: product.category,
-      value: product.price,
-      currency: product.currency || "USD",
-    });
+  addToWishlist: (
+    product: ProductEvent,
+    eventID?: string,
+  ): string | null => {
+    if (!isMetaPixelEnabled()) return null;
+    return metaTrack(
+      "AddToWishlist",
+      {
+        content_ids: [product.id],
+        content_name: product.name,
+        content_category: product.category,
+        value: product.price,
+        currency: product.currency || "USD",
+      },
+      { eventID, relay: true },
+    );
   },
 
-  viewCart: (products: ProductEvent[], total: number) => {
-    if (!isMetaPixelEnabled()) return;
-    (window as any).fbq("track", "ViewCart", {
-      content_ids: products.map((p) => p.id),
-      content_type: "product",
-      value: total,
-      currency: products[0]?.currency || "USD",
-      num_items: products.reduce((sum, p) => sum + (p.quantity || 1), 0),
-    });
+  viewCart: (
+    products: ProductEvent[],
+    total: number,
+    eventID?: string,
+  ): string | null => {
+    if (!isMetaPixelEnabled()) return null;
+    return metaTrack(
+      "ViewCart",
+      {
+        content_ids: products.map((p) => p.id),
+        content_type: "product",
+        value: total,
+        currency: products[0]?.currency || "USD",
+        num_items: products.reduce((sum, p) => sum + (p.quantity || 1), 0),
+      },
+      { eventID, relay: false },
+    );
   },
 
-  removeFromCart: (product: ProductEvent) => {
-    if (!isMetaPixelEnabled()) return;
-    (window as any).fbq("track", "RemoveFromCart", {
-      content_ids: [product.id],
-      content_name: product.name,
-      content_category: product.category,
-      value: product.price,
-      currency: product.currency || "USD",
-    });
+  removeFromCart: (
+    product: ProductEvent,
+    eventID?: string,
+  ): string | null => {
+    if (!isMetaPixelEnabled()) return null;
+    return metaTrack(
+      "RemoveFromCart",
+      {
+        content_ids: [product.id],
+        content_name: product.name,
+        content_category: product.category,
+        value: product.price,
+        currency: product.currency || "USD",
+      },
+      { eventID, relay: false },
+    );
   },
 
-  addPaymentInfo: (product: ProductEvent, paymentType: string) => {
-    if (!isMetaPixelEnabled()) return;
-    (window as any).fbq("track", "AddPaymentInfo", {
-      content_ids: [product.id],
-      content_name: product.name,
-      content_category: product.category,
-      value: product.price,
-      currency: product.currency || "USD",
-      payment_type: paymentType,
-    });
+  addPaymentInfo: (
+    product: ProductEvent,
+    paymentType: string,
+    eventID?: string,
+  ): string | null => {
+    if (!isMetaPixelEnabled()) return null;
+    return metaTrack(
+      "AddPaymentInfo",
+      {
+        content_ids: [product.id],
+        content_name: product.name,
+        content_category: product.category,
+        value: product.price,
+        currency: product.currency || "USD",
+        payment_type: paymentType,
+      },
+      { eventID, relay: true },
+    );
   },
 
-  addShippingInfo: (product: ProductEvent, shippingTier: string) => {
-    if (!isMetaPixelEnabled()) return;
-    (window as any).fbq("track", "AddShippingInfo", {
-      content_ids: [product.id],
-      content_name: product.name,
-      content_category: product.category,
-      value: product.price,
-      currency: product.currency || "USD",
-      shipping_tier: shippingTier,
-    });
+  addShippingInfo: (
+    product: ProductEvent,
+    shippingTier: string,
+    eventID?: string,
+  ): string | null => {
+    if (!isMetaPixelEnabled()) return null;
+    return metaTrack(
+      "AddShippingInfo",
+      {
+        content_ids: [product.id],
+        content_name: product.name,
+        content_category: product.category,
+        value: product.price,
+        currency: product.currency || "USD",
+        shipping_tier: shippingTier,
+      },
+      { eventID, relay: true },
+    );
   },
 
-  contact: (contentName: string, contentCategory?: string) => {
-    if (!isMetaPixelEnabled()) return;
-    (window as any).fbq("track", "Contact", {
-      content_name: contentName,
-      content_category: contentCategory,
-    });
+  contact: (
+    contentName: string,
+    contentCategory?: string,
+    eventID?: string,
+  ): string | null => {
+    if (!isMetaPixelEnabled()) return null;
+    return metaTrack(
+      "Contact",
+      {
+        content_name: contentName,
+        content_category: contentCategory,
+      },
+      { eventID, relay: true },
+    );
   },
 
-  refund: (refund: RefundEvent) => {
-    if (!isMetaPixelEnabled()) return;
-    (window as any).fbq("track", "Refund", {
-      content_ids: refund.products.map((p) => p.id),
-      content_type: "product",
-      value: refund.value,
-      currency: refund.currency,
-      num_items: refund.products.reduce((sum, p) => sum + p.quantity, 0),
-      transaction_id: refund.transactionId,
-    });
+  lead: (
+    contentName: string,
+    contentCategory?: string,
+    eventID?: string,
+  ): string | null => {
+    if (!isMetaPixelEnabled()) return null;
+    return metaTrack(
+      "Lead",
+      {
+        content_name: contentName,
+        content_category: contentCategory,
+      },
+      { eventID, relay: true },
+    );
+  },
+
+  completeRegistration: (
+    contentName: string,
+    status?: boolean,
+    eventID?: string,
+  ): string | null => {
+    if (!isMetaPixelEnabled()) return null;
+    return metaTrack(
+      "CompleteRegistration",
+      {
+        content_name: contentName,
+        status: status ?? true,
+      },
+      { eventID, relay: true },
+    );
+  },
+
+  refund: (refund: RefundEvent, eventID?: string): string | null => {
+    if (!isMetaPixelEnabled()) return null;
+    return metaTrack(
+      "Refund",
+      {
+        content_ids: refund.products.map((p) => p.id),
+        content_type: "product",
+        value: refund.value,
+        currency: refund.currency,
+        num_items: refund.products.reduce((sum, p) => sum + p.quantity, 0),
+        transaction_id: refund.transactionId,
+      },
+      { eventID: eventID ?? `refund_${refund.transactionId}`, relay: false },
+    );
   },
 };
 
@@ -857,6 +975,29 @@ export const track = {
     }
   },
 
+  lead: (contentName: string, eventID?: string) => {
+    if (isGaEnabled()) {
+      (window as any).gtag("event", "generate_lead", {
+        form_name: contentName,
+        success: true,
+      });
+    }
+    if (isMetaPixelEnabled()) {
+      metaPixel.lead(contentName, "form", eventID);
+    }
+  },
+
+  completeRegistration: (contentName: string, eventID?: string) => {
+    if (isGaEnabled()) {
+      (window as any).gtag("event", "sign_up", {
+        method: contentName,
+      });
+    }
+    if (isMetaPixelEnabled()) {
+      metaPixel.completeRegistration(contentName, true, eventID);
+    }
+  },
+
   outboundLinkClicked: (url: string, linkText: string) => {
     if (isAnalyticsEnabled()) {
       posthog.capture("outbound_link_clicked", {
@@ -960,68 +1101,8 @@ export const serverTrack = {
       console.error("GA4 Measurement Protocol refund error:", error);
     }
   },
-
-  purchaseMeta: async (purchase: PurchaseEvent, eventId?: string) => {
-    const pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID;
-    const accessToken = process.env.META_ACCESS_TOKEN;
-    if (!pixelId || !accessToken) return;
-    try {
-      const eventData = {
-        event_name: "Purchase",
-        event_time: Math.floor(Date.now() / 1000),
-        action_source: "website",
-        event_id: eventId || purchase.transactionId,
-        custom_data: {
-          content_ids: purchase.products.map((p) => p.id),
-          content_type: "product",
-          value: purchase.value,
-          currency: purchase.currency,
-          num_items: purchase.products.reduce((sum, p) => sum + p.quantity, 0),
-          transaction_id: purchase.transactionId,
-        },
-      };
-      await fetch(`https://graph.facebook.com/v18.0/${pixelId}/events`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          data: [eventData],
-          access_token: accessToken,
-        }),
-      });
-    } catch (error) {
-      console.error("Meta CAPI purchase error:", error);
-    }
-  },
-
-  refundMeta: async (refund: RefundEvent, eventId?: string) => {
-    const pixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID;
-    const accessToken = process.env.META_ACCESS_TOKEN;
-    if (!pixelId || !accessToken) return;
-    try {
-      const eventData = {
-        event_name: "Refund",
-        event_time: Math.floor(Date.now() / 1000),
-        action_source: "website",
-        event_id: eventId || `refund_${refund.transactionId}`,
-        custom_data: {
-          content_ids: refund.products.map((p) => p.id),
-          content_type: "product",
-          value: refund.value,
-          currency: refund.currency,
-          num_items: refund.products.reduce((sum, p) => sum + p.quantity, 0),
-          transaction_id: refund.transactionId,
-        },
-      };
-      await fetch(`https://graph.facebook.com/v18.0/${pixelId}/events`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          data: [eventData],
-          access_token: accessToken,
-        }),
-      });
-    } catch (error) {
-      console.error("Meta CAPI refund error:", error);
-    }
-  },
 };
+
+// NOTE: Meta CAPI senders live in @/lib/meta-capi (server-only) so the
+// access token can never be bundled into client chunks. Server routes
+// import { sendPurchaseCapi, sendLeadCapi, ... } from "@/lib/meta-capi".

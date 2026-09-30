@@ -9,6 +9,8 @@ import { escape } from "html-escaper";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { sendLeadCapi } from "@/lib/meta-capi";
+
 const leadMagnetSchema = z.object({
   email: z.string().email("Please enter a valid email address.").max(254),
   guide: z.string().min(1).max(200).optional().default("guide"),
@@ -113,6 +115,26 @@ export async function POST(request: Request) {
         { error: "Delivery failed. Please try again later." },
         { status: 500, headers: NO_STORE },
       );
+    }
+
+    // Meta CAPI Lead (dedups with the browser event via meta_event_id).
+    {
+      let rawEventId: string | undefined;
+      try {
+        const raw = body as { meta_event_id?: unknown };
+        rawEventId =
+          typeof raw.meta_event_id === "string" &&
+          raw.meta_event_id.length <= 128
+            ? raw.meta_event_id
+            : undefined;
+      } catch {
+        rawEventId = undefined;
+      }
+      await sendLeadCapi(guide, rawEventId, {
+        email,
+        request,
+        eventSourceUrl: "https://pantaleone.net/",
+      });
     }
 
     return NextResponse.json({ success: true }, { headers: NO_STORE });
