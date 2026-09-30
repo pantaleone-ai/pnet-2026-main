@@ -39,8 +39,14 @@ All owned rules are prefixed `[pnet-2026]` and applied idempotently by `scripts/
    follows origin `Cache-Control` (300s HTML, 1yr static feeds/assets).
 
 Foreign rules you must NOT touch: `R2 public assets CORP` (response-header
-transform, `imgsquash.pantaleone.net`), `API abuse guard` (ratelimit),
-`pnet-2026 scanner probes` (WAF custom). The applier only writes the cache-settings phase.
+transform, `imgsquash.pantaleone.net`), `API abuse guard` (ratelimit, 20
+req/10s/IP on `/api/*`). Owned but separate: `[pnet-2026] Block vulnerability
+scanner probes` (WAF custom, applied by `scripts/cf-waf-rules.sh` — blocks
+`.env`, `.git`, `wp-`, `.php`, `phpmyadmin`, `cgi-bin`, `actuator`; all
+probe-only on this PHP-less/WordPress-less site). The applier scripts only
+write their own phase. NOTE: phase ruleset NAMEs are API-immutable, so the
+legacy `(TEST-disabled)` suffix on ruleset names cannot be removed — the rules
+inside are correctly tagged and enabled; do not let the name confuse you.
 
 ## Gotchas (probe-verified 2026-09-29)
 
@@ -62,5 +68,6 @@ transform, `imgsquash.pantaleone.net`), `API abuse guard` (ratelimit),
 - **`/_next/image`**: `next/image` is used widely but `unoptimized: true` renders plain
   `<img>` — the optimizer path serves no traffic. Left at 1-month edge TTL (harmless);
   NOT firewall-blocked (blocking a framework path is a break-the-app risk for zero measured abuse).
-- **`@vercel/analytics` beacon** stays mounted in `components/Providers.tsx` until someone
-  confirms the dashboard is unread. Speed Insights is already removed.
+- **`@vercel/analytics` beacon** removed 2026-09-29 (pass 2): it fired ungated for
+  100% of visitors while GA/Meta/PostHog are consent-gated. Speed Insights was
+  already removed. GA4, Meta Pixel, and PostHog are untouched.
