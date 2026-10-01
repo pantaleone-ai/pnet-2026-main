@@ -1,16 +1,39 @@
 import { truncateDescription, truncateTitle } from "@/lib/seo";
 import type { HeadType } from "@/types";
 
+/**
+ * Page-level metadata registry — one entry per important public route.
+ * Titles describe the actual intent of the page; descriptions are written
+ * for humans and search snippets, not keyword lists.
+ */
 const HEAD: HeadType[] = [
   {
     page: "Home",
     title: truncateTitle(
-      "Pantaleone.ai | AI Systems, Automation & LLM Integration",
+      "Pantaleone | AI Agents, Automation & Custom AI Software",
     ),
     description: truncateDescription(
-      "AI agents, automation, and software that run real work. N8N workflows, Next.js apps, and build notes.",
+      "We build AI systems that eliminate expensive manual work: AI agents, workflow automation, AI integration, and custom AI software.",
     ),
     slug: "/",
+  },
+  {
+    page: "Services",
+    title: truncateTitle(
+      "Services & Pricing | AI Workflow Audit and Builds",
+    ),
+    description: truncateDescription(
+      "Fixed-price workflow audit, monthly build engagement, and retainer. N8N, LangChain, and Next.js with repo and runbook handoff.",
+    ),
+    slug: "/services",
+  },
+  {
+    page: "B2B",
+    title: truncateTitle("AI Work for Teams | Pantaleone"),
+    description: truncateDescription(
+      "N8N workflows, LangChain pipelines, and LLM integrations for teams. Audit, build, and handoff with measured outcomes.",
+    ),
+    slug: "/b2b",
   },
   {
     page: "About",
@@ -63,6 +86,32 @@ const HEAD: HeadType[] = [
     slug: "/shop",
   },
   {
+    page: "ShopAiApps",
+    title: truncateTitle("AI Apps | Ready-to-Run Software"),
+    description: truncateDescription(
+      "Production-ready AI apps and starters: Next.js kits, image tools, and utilities your team can deploy today.",
+    ),
+    slug: "/shop/ai-apps",
+  },
+  {
+    page: "ShopAiWorkflows",
+    title: truncateTitle("AI Workflows | N8N Automation Packs"),
+    description: truncateDescription(
+      "Downloadable N8N workflow packs and prompt systems for support triage, content ops, and back-office automation.",
+    ),
+    slug: "/shop/ai-workflows",
+  },
+  {
+    page: "AIReadinessGuide",
+    title: truncateTitle(
+      "AI Readiness Guide | Prepare Your Team for AI Agents",
+    ),
+    description: truncateDescription(
+      "A practical checklist for preparing your processes, data, and team before automating with AI agents.",
+    ),
+    slug: "/resources/ai-readiness-guide",
+  },
+  {
     page: "Contact",
     title: truncateTitle("Contact | AI Engineering & Automation Consulting"),
     description: truncateDescription(
@@ -74,7 +123,7 @@ const HEAD: HeadType[] = [
     page: "Privacy",
     title: truncateTitle("Privacy Policy | Pantaleone Digital Services"),
     description: truncateDescription(
-      "Privacy practices and data protection policies for pantaleone.net, rapigent.com, and aiceo.io.",
+      "Privacy practices and data protection policies for pantaleone.net and its products.",
     ),
     slug: "/privacy",
   },

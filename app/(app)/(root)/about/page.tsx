@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Web from "@/features/about/components/Web";
 import LastModified from "@/components/LastModified";
-import { siteConfig } from "@/config/site";
+import { ENTITY } from "@/lib/seo/ai-discovery";
 
 export const dynamic = "force-static";
 
@@ -15,28 +15,20 @@ function getMemberJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "Person",
-    name: "Matt Pantaleone",
-    jobTitle: "Senior AI Engineer & Automation Strategist",
-    url: getBaseUrl("/about"),
-    image: `${siteConfig.url}/images/horizontal-profile-about.jpg`,
+    "@id": ENTITY.person.id,
+    name: ENTITY.person.name,
+    jobTitle: ENTITY.person.jobTitle,
+    description: ENTITY.person.description,
+    url: ENTITY.person.url,
+    image: ENTITY.person.image,
     worksFor: {
       "@type": "Organization",
-      name: "Pantaleone Digital Services LLC",
-      url: siteConfig.url,
+      "@id": ENTITY.org.id,
+      name: ENTITY.org.name,
+      url: ENTITY.org.url,
     },
-    knowsAbout: [
-      "Agentic AI",
-      "Business Automation",
-      "AI Strategy Consulting",
-      "Enterprise Automation",
-      "LLM Integration",
-      "Workflow Orchestration",
-    ],
-    sameAs: [
-      siteConfig.links.twitter,
-      siteConfig.links.linkedin,
-      siteConfig.links.github,
-    ].filter(Boolean),
+    knowsAbout: [...ENTITY.person.knowsAbout],
+    sameAs: [...ENTITY.person.sameAs],
   };
 }
 
@@ -113,6 +105,7 @@ export default async function AboutMePage() {
           title="Hello, I'm Matt Pantaleone"
           textStyleClassName="text-3xl font-semibold md:text-4xl"
           gridId="grid-about"
+          as="h1"
         />
         <SeparatorHorizontal short={true} />
         <div className="border-border relative min-h-52 max-w-full">

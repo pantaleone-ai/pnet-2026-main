@@ -9,19 +9,64 @@
 
 export const CANONICAL_ORIGIN = "https://pantaleone.net";
 
+/**
+ * Canonical entity model — the single source of truth for site identity.
+ *
+ * Rules enforced here:
+ * - Person `name` is the real human name ("Matt Pantaleone"); the role
+ *   lives in `jobTitle`/`description`, never in the name string.
+ * - `sameAs` lists only genuinely equivalent profiles of the same entity
+ *   (social/profile pages). Owned product domains are NOT sameAs — they
+ *   are linked from ecosystem/project data with explicit relationships.
+ * - No specific business locality is claimed in structured data: public
+ *   signals conflict and no authoritative canonical source exists, so the
+ *   field is omitted rather than guessed. Service area is country-level.
+ */
 export const ENTITY = {
+  siteName: "Pantaleone",
   org: {
     name: "Pantaleone Digital Services LLC",
     brand: "Pantaleone",
     url: CANONICAL_ORIGIN,
+    id: `${CANONICAL_ORIGIN}/#organization`,
     description:
       "We build AI systems that eliminate expensive manual work: AI agents, workflow automation, AI integration, and custom AI software.",
     logo: `${CANONICAL_ORIGIN}/logo.png`,
+    ogImage: `${CANONICAL_ORIGIN}/opengraph-image`,
     areaServed: ["United States", "Canada", "Europe"],
+    sameAs: [
+      "https://twitter.com/m_pantaleone",
+      "https://github.com/pantaleone-ai",
+      "https://linkedin.com/in/m_pantaleone",
+    ],
   },
   person: {
     name: "Matt Pantaleone",
+    id: `${CANONICAL_ORIGIN}/#person`,
+    url: `${CANONICAL_ORIGIN}/about`,
     jobTitle: "Founder & Lead Developer",
+    description:
+      "Matt Pantaleone builds AI agents, workflow automation, and custom AI software for businesses through Pantaleone Digital Services LLC.",
+    image: `${CANONICAL_ORIGIN}/images/horizontal-profile-about.jpg`,
+    worksFor: `${CANONICAL_ORIGIN}/#organization`,
+    sameAs: [
+      "https://twitter.com/m_pantaleone",
+      "https://github.com/pantaleone-ai",
+      "https://linkedin.com/in/m_pantaleone",
+    ],
+    knowsAbout: [
+      "AI agents",
+      "Workflow automation",
+      "LLM integration",
+      "Next.js",
+      "TypeScript",
+      "N8N Workflows",
+      "RAG pipelines",
+    ],
+  },
+  website: {
+    id: `${CANONICAL_ORIGIN}/#website`,
+    name: "Pantaleone",
     url: CANONICAL_ORIGIN,
   },
 } as const;

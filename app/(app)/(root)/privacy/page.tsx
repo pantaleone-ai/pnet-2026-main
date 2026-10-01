@@ -68,6 +68,7 @@ export default async function PrivacyPage() {
           title={title ?? "Privacy Policy"}
           textStyleClassName="text-3xl font-semibold md:text-4xl"
           gridId="grid-privacy"
+          as="h1"
         />
         <SeparatorHorizontal short={true} />
         <div className="border-border relative min-h-52 max-w-full">

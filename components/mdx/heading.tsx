@@ -4,10 +4,17 @@ import { cn } from "@/lib/utils";
 type Types = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 type HeadingProps<T extends Types> = Omit<ComponentPropsWithoutRef<T>, "as"> & {
   as?: T;
+  /**
+   * Visual size independent of the semantic level. Used when content
+   * authored with `#` (h1) must render below a page-level H1: semantics
+   * become h2 while the established visual scale is preserved.
+   */
+  sizeAs?: Types;
 };
 
 export function Heading<T extends Types = "h1">({
   as,
+  sizeAs,
   className,
   ...props
 }: HeadingProps<T>): React.ReactElement {
@@ -22,7 +29,7 @@ export function Heading<T extends Types = "h1">({
     h6: "text-sm",
   };
 
-  const size = sizes[As];
+  const size = sizes[sizeAs ?? As];
 
   if (!props.id) return <As className={className} {...props} />;
 

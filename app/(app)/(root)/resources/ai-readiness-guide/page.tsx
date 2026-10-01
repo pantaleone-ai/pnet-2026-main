@@ -34,6 +34,7 @@ export default function AIReadinessGuidePage() {
         <Heading
           title="AI readiness guide"
           textStyleClassName="text-3xl font-semibold md:text-4xl"
+          as="h1"
           gridId="grid-ai-guide"
         />
         <SeparatorHorizontal short={true} />

@@ -1,15 +1,26 @@
 import { cn } from "@/lib/utils";
 
+type HeadingLevel = "h1" | "h2" | "h3";
+
 interface HeadingTitleProps {
   title: string;
   textStyleClassName?: string;
   gridId?: string;
+  /**
+   * Semantic heading level. Defaults to "h2" to preserve existing
+   * section-heading behavior. Page titles should pass `as="h1"` so every
+   * important indexable page has exactly one primary H1. Visual appearance
+   * is controlled by `textStyleClassName`, not by the level.
+   */
+  as?: HeadingLevel;
 }
 export default function HeadingTitle({
   title,
   textStyleClassName = "text-2xl sm:text-3xl font-semibold",
   gridId = "grid-default",
+  as = "h2",
 }: HeadingTitleProps) {
+  const Tag = as;
   return (
     <div
       className={cn(
@@ -60,14 +71,14 @@ export default function HeadingTitle({
           mask={`url(#${gridId}-mask)`}
         ></rect>
       </svg>
-      <h2
+      <Tag
         className={cn(
           "text-foreground relative mx-auto text-center tracking-tight",
           textStyleClassName,
         )}
       >
         {title}
-      </h2>
+      </Tag>
     </div>
   );
 }

@@ -130,8 +130,11 @@ const defaultMdxComponents = {
       {...props}
     />
   ),
+  // MDX bodies are always rendered below a page-level H1 (blog post title,
+  // product title, or page heading), so author-level `#` headings demote to
+  // h2 semantically while keeping the established h1 visual scale.
   h1: (props: HTMLAttributes<HTMLHeadingElement>) => (
-    <Heading as="h1" {...props} />
+    <Heading as="h2" sizeAs="h1" {...props} />
   ),
   h2: (props: HTMLAttributes<HTMLHeadingElement>) => (
     <Heading as="h2" {...props} />

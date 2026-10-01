@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { getBlogPosts } from "@/features/blog/data/blogSource";
-import { getCategories, getProducts } from "@/features/shop/data/shopSource";
+import { getCategories } from "@/features/shop/data/shopSource";
 import { getBaseUrl, getProductCategorySlug } from "@/lib/helpers";
 
 // Deploy revision date for undated static pages (services, b2b, contact,
@@ -59,6 +59,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly" as const,
       priority: 0.7,
     },
+    // NOTE: /about, /experience, and /education are intentionally absent.
+    // next.config.mjs permanently redirects them to the homepage, so they
+    // are not indexable 200 pages. Removing those redirects (a public URL
+    // behavior change) is a separate human decision; if they ever become
+    // live pages, add them here with real lastModified dates.
     {
       url: getBaseUrl("/privacy"),
       lastModified: LAST_MODIFIED,
@@ -97,22 +102,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
-  // Add shop product pages - use directory-based category URLs
-  const shopProducts = getProducts().map((product) => {
-    const categorySlug = getProductCategorySlug(product.category);
-    return {
-      url: getBaseUrl(`/shop/${categorySlug}/${product.slug}`),
-      lastModified: LAST_MODIFIED,
-      changeFrequency: "weekly" as const,
-      priority: 0.7,
-    };
-  });
-
-  return [
-    ...staticPages,
-    ...blogPosts,
-    shopMainPage,
-    ...shopCategories,
-    ...shopProducts,
-  ];
+  // Product detail URLs live in /products/sitemap.xml
+  // (app/products/sitemap.ts) so each URL appears in exactly one sitemap.
+  return [...staticPages, ...blogPosts, shopMainPage, ...shopCategories];
 }

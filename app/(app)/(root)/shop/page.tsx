@@ -54,7 +54,7 @@ export default async function ShopPage() {
       </Suspense>
       <ProductListJsonLd products={products} />
       <SeparatorHorizontal borderTop={false} />
-      <HeadingTitle title="Shop" />
+      <HeadingTitle title="Shop" as="h1" />
       <SeparatorHorizontal short={true} />
       <ShopHero />
       <SeparatorHorizontal short={true} />

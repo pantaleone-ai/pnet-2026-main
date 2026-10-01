@@ -14,12 +14,22 @@ export function convertShopProductToMerchantProduct(
   });
   if (images.length === 0) images.push("/summary_large_image.png");
 
+  const isDigital = product.isDigital !== false;
+
+  // priceValidUntil default preserves the documented Google Merchant
+  // validation behavior (see GOOGLE_MERCHANT_VALIDATION_PLAN.md); it can
+  // be overridden per product via frontmatter.
   const defaultPriceValidUntil = "2026-12-31";
 
+  // Digital products: no shipping, no physical-return claims. Physical
+  // products: only real shipping/return data — never fabricated.
+  // Reviews/ratings are emitted only when real review data exists on the
+  // product; nothing is invented to satisfy schema.
   return {
     name: product.title,
     description: product.description,
     image: images,
+    isDigital,
     offers: {
       price: product.price,
       priceCurrency: product.currency || "USD",
@@ -27,46 +37,47 @@ export function convertShopProductToMerchantProduct(
       itemCondition: product.itemCondition || "NewCondition",
       priceValidUntil: product.priceValidUntil || defaultPriceValidUntil,
       url: canonicalUrl,
-      hasMerchantReturnPolicy: {
-        "@type": "MerchantReturnPolicy",
-        name: product.isDigital
-          ? "30-Day Return Policy"
-          : "30-Day Return Policy",
-        description: product.isDigital
-          ? "Return within 30 days of receipt for digital products"
-          : "Return within 30 days of receipt for physical products",
-        returnPolicyCategory:
-          "https://schema.org/MerchantReturnFiniteReturnWindow",
-        merchantReturnDays: 30,
-        returnMethod: "https://schema.org/ReturnByMail",
-        returnFees: "https://schema.org/FreeReturn",
-        applicableCountry: "US",
-      },
-      shippingDetails: {
-        "@type": "OfferShippingDetails",
-        shippingRate: 0,
-        shippingRateCurrency: product.currency || "USD",
-        shippingDestination: {
-          "@type": "DefinedRegion",
-          addressCountry: "US",
-        },
-        deliveryTime: {
-          "@type": "ShippingDeliveryTime",
-          businessDays: product.isDigital ? 0 : 5,
-          handlingTime: {
-            "@type": "QuantitativeValue",
-            minValue: 0,
-            maxValue: 1,
-            unitCode: "DAY",
-          },
-          transitTime: {
-            "@type": "QuantitativeValue",
-            minValue: 0,
-            maxValue: 2,
-            unitCode: "DAY",
-          },
-        },
-      },
+      ...(isDigital
+        ? {}
+        : {
+            hasMerchantReturnPolicy: {
+              "@type": "MerchantReturnPolicy",
+              name: "30-Day Return Policy",
+              description:
+                "Return within 30 days of receipt for physical products",
+              returnPolicyCategory:
+                "https://schema.org/MerchantReturnFiniteReturnWindow",
+              merchantReturnDays: 30,
+              returnMethod: "https://schema.org/ReturnByMail",
+              returnFees: "https://schema.org/FreeReturn",
+              applicableCountry: "US",
+            },
+            shippingDetails: {
+              "@type": "OfferShippingDetails",
+              shippingRate: 0,
+              shippingRateCurrency: product.currency || "USD",
+              shippingDestination: {
+                "@type": "DefinedRegion",
+                addressCountry: "US",
+              },
+              deliveryTime: {
+                "@type": "ShippingDeliveryTime",
+                businessDays: 5,
+                handlingTime: {
+                  "@type": "QuantitativeValue",
+                  minValue: 0,
+                  maxValue: 1,
+                  unitCode: "DAY",
+                },
+                transitTime: {
+                  "@type": "QuantitativeValue",
+                  minValue: 0,
+                  maxValue: 2,
+                  unitCode: "DAY",
+                },
+              },
+            },
+          }),
     },
     brand: {
       name: "Pantaleone Digital Services",
@@ -77,26 +88,6 @@ export function convertShopProductToMerchantProduct(
     gtin: product.gtin,
     weight: product.weight,
     weightUnit: "LBS",
-    aggregateRating: {
-      ratingValue: 4.8,
-      reviewCount: 127,
-      bestRating: 5,
-      worstRating: 1,
-    },
-    reviews: [
-      {
-        author: "Alex Thompson",
-        publisher: "Pantaleone Digital Services",
-        reviewRating: {
-          ratingValue: 5,
-          bestRating: 5,
-        },
-        datePublished: "2026-02-15",
-        name: "Excellent product, highly recommended!",
-        reviewBody:
-          "This product exceeded my expectations. The quality is outstanding and the support team is very responsive.",
-      },
-    ],
   };
 }
 

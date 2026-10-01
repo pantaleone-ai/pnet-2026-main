@@ -12,9 +12,9 @@ import { PageTracker } from "@/hooks/usePageTracking";
 
 // --- CHANGED: Now importing from your new unified config ---
 import { siteConfig } from "@/config/site";
-import { ECOSYSTEM_URLS } from "@/config/ecosystem";
 import { META_THEME_COLORS } from "@/config/theme"; // Assuming you kept the theme config
 import { analyticsConfig } from "@/config/analytics";
+import { ENTITY } from "@/lib/seo/ai-discovery";
 import { fontMono, fontSans } from "@/lib/fonts";
 // import { getBaseUrl } from "@/lib/helpers";
 
@@ -27,82 +27,82 @@ function getWebSiteJsonLd(): WithContext<WebSite> {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "@id": `${siteConfig.url}/#website`,
-    name: siteConfig.name,
-    url: siteConfig.url,
-    description: siteConfig.description,
+    "@id": ENTITY.website.id,
+    name: ENTITY.website.name,
+    url: ENTITY.website.url,
+    description: ENTITY.org.description,
     author: {
       "@type": "Person",
-      "@id": `${siteConfig.url}/#person`,
-      name: siteConfig.name,
+      "@id": ENTITY.person.id,
+      name: ENTITY.person.name,
+    },
+    publisher: {
+      "@type": "Organization",
+      "@id": ENTITY.org.id,
+      name: ENTITY.org.name,
     },
   };
 }
 
-// 2. JSON-LD: Person/Professional Definition (Updated for AI/Architecture)
+// 2. JSON-LD: Person definition — name is the real human name; the
+// professional role lives in jobTitle/description, never in `name`.
 function getPersonJsonLd(): WithContext<Person> {
   return {
     "@context": "https://schema.org",
     "@type": "Person",
-    "@id": `${siteConfig.url}/#person`,
-    name: siteConfig.name,
-    url: siteConfig.url,
-    image: siteConfig.ogImage,
-    jobTitle: "Senior Systems Architect",
-    description: siteConfig.description,
-    sameAs: [
-      siteConfig.links.twitter,
-      siteConfig.links.github,
-      siteConfig.links.linkedin,
-    ].filter(Boolean),
-    knowsAbout: [
-      "Next.js 16",
-      "React Server Components",
-      "AI Systems Architecture",
-      "TypeScript",
-      "Agentic Workflows",
-      "System Design",
-    ],
+    "@id": ENTITY.person.id,
+    name: ENTITY.person.name,
+    url: ENTITY.person.url,
+    image: ENTITY.person.image,
+    jobTitle: ENTITY.person.jobTitle,
+    description: ENTITY.person.description,
+    worksFor: {
+      "@type": "Organization",
+      "@id": ENTITY.org.id,
+      name: ENTITY.org.name,
+      url: ENTITY.org.url,
+    },
+    sameAs: [...ENTITY.person.sameAs],
+    knowsAbout: [...ENTITY.person.knowsAbout],
   };
 }
 
-// 3. JSON-LD: Organization + LocalBusiness (simplified for type safety)
+// 3. JSON-LD: Organization. sameAs holds only equivalent profiles —
+// owned product domains are linked from ecosystem/project content,
+// not claimed as the same entity. No locality is asserted: public
+// signals conflict and no authoritative source exists, so the field
+// is omitted instead of guessed.
 function getOrganizationJsonLd() {
   return {
     "@context": "https://schema.org",
-    "@type": ["Organization", "LocalBusiness"],
-    "@id": `${siteConfig.url}/#organization`,
-    name: "Pantaleone Digital Services LLC",
-    url: siteConfig.url,
-    logo: `${siteConfig.url}/logo.png`,
-    description:
-      "We build AI systems that eliminate expensive manual work: AI agents, workflow automation, AI integration, and custom AI software.",
-    address: {
-      "@type": "PostalAddress",
-      addressLocality: "New York",
-      addressRegion: "NY",
-      addressCountry: "US",
-    },
-    areaServed: ["United States", "Canada", "Europe"],
-    sameAs: [
-      siteConfig.links.twitter,
-      siteConfig.links.github,
-      siteConfig.links.linkedin,
-      ...ECOSYSTEM_URLS,
-    ].filter(Boolean),
+    "@type": "Organization",
+    "@id": ENTITY.org.id,
+    name: ENTITY.org.name,
+    alternateName: ENTITY.org.brand,
+    url: ENTITY.org.url,
+    logo: ENTITY.org.logo,
+    description: ENTITY.org.description,
+    areaServed: [...ENTITY.org.areaServed],
+    sameAs: [...ENTITY.org.sameAs],
   };
 }
 
-// 4. JSON-LD: ProfessionalService (simplified for type safety)
+// 4. JSON-LD: ProfessionalService
 function getProfessionalServiceJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "ProfessionalService",
-    name: "Pantaleone Digital Services",
-    image: siteConfig.ogImage,
-    priceRange: "$$$",
-    description:
-      "AI agents, workflow automation, AI integration, and custom AI software for businesses.",
+    "@id": `${ENTITY.org.url}/services#service`,
+    name: ENTITY.org.name,
+    url: ENTITY.org.url,
+    image: ENTITY.org.ogImage,
+    description: ENTITY.org.description,
+    provider: {
+      "@type": "Organization",
+      "@id": ENTITY.org.id,
+      name: ENTITY.org.name,
+      url: ENTITY.org.url,
+    },
   };
 }
 
