@@ -1,6 +1,9 @@
 import posthog from "posthog-js";
 import { z } from "zod";
 
+import { track as normalizeGrowthEvent } from "@/lib/growth/events";
+import type { TrackInput } from "@/lib/growth/events";
+
 const eventSchema = z.object({
   name: z.enum([
     "open_command_menu",
@@ -44,4 +47,20 @@ export function captureException(
   properties?: Record<string, unknown>,
 ) {
   posthog.captureException(error, properties);
+}
+
+/**
+ * Growth bridge: normalize a portfolio event through `lib/growth` (injects
+ * `app_id`, `event_id`, UTM, consent) then capture to PostHog. Existing
+ * `trackEvent` callers are untouched.
+ */
+export function trackGrowthEvent(input: TrackInput) {
+  const normalized = normalizeGrowthEvent(input);
+  posthog.capture(normalized.event, {
+    app_id: normalized.app_id,
+    event_id: normalized.event_id,
+    ...normalized.utm,
+    ...normalized.properties,
+  });
+  return normalized;
 }

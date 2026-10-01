@@ -94,6 +94,22 @@ checks.push({
 });
 
 const robots = read("app/robots.ts");
+const agents = read("app/(llms)/agents.md/route.ts");
+checks.push({
+  name: "agents.md is force-static and lists the portfolio registry",
+  pass: has(agents, /force-static/) && has(agents, /PORTFOLIO_APPS/),
+  critical: true,
+});
+checks.push({
+  name: "agents.md states independent data (no shared pixels)",
+  pass: has(agents, /independent data/) && has(agents, /No shared pixels/),
+  critical: false,
+});
+checks.push({
+  name: "robots allows /agents.md",
+  pass: has(robots, /agents\.md/),
+  critical: true,
+});
 checks.push({
   name: "robots allows * and keeps machine resources crawlable",
   pass:

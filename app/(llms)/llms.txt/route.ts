@@ -103,6 +103,7 @@ ${ecosystem}
 ## Optional
 
 - [llms-full.txt](${abs("/llms-full.txt")}): Consolidated company, services, projects, and selected articles.
+- [agents.md](${abs("/agents.md")}): Machine-readable portfolio index for AI agents.
 - [Sitemap](${abs("/sitemap.xml")}): Canonical URL discovery.
 - [RSS feed](${abs("/rss.xml")}): Freshness discovery for posts and products.
 - [Projects (markdown)](${abs("/projects.md")}): Machine-readable project list.

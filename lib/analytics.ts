@@ -1106,3 +1106,34 @@ export const serverTrack = {
 // NOTE: Meta CAPI senders live in @/lib/meta-capi (server-only) so the
 // access token can never be bundled into client chunks. Server routes
 // import { sendPurchaseCapi, sendLeadCapi, ... } from "@/lib/meta-capi".
+
+// ── Growth bridge (lib/growth) ─────────────────────────────────────
+// Per-app integration point. `trackGrowthActivation` normalizes a portfolio
+// activation through the growth taxonomy (app_id, event_id, UTM, consent)
+// and fans out to the existing funnel calls above. No existing caller is
+// modified; unmapped events capture PostHog-only.
+import { track as normalizeGrowth } from "@/lib/growth/events";
+import type { GrowthEventName } from "@/lib/growth/events";
+
+export const growth = {
+  trackActivation: (
+    app: string,
+    event: GrowthEventName,
+    opts?: { consented?: boolean; properties?: Record<string, string | number | boolean | null> },
+  ) => {
+    const normalized = normalizeGrowth({
+      app,
+      event,
+      consented: opts?.consented ?? hasMeasurementConsent(),
+      properties: opts?.properties,
+    });
+    if (isAnalyticsEnabled()) {
+      posthog.capture(normalized.event, {
+        app_id: normalized.app_id,
+        event_id: normalized.event_id,
+        ...normalized.properties,
+      });
+    }
+    return normalized;
+  },
+};

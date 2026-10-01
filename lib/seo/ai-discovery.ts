@@ -186,6 +186,7 @@ export const MARKDOWN_ROUTES = [
   "/contact.md",
   "/projects.md",
   "/shop.md",
+  "/agents.md",
 ] as const;
 
 export function abs(path: string): string {
