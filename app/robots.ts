@@ -29,6 +29,7 @@ export default function robots(): MetadataRoute.Robots {
           "/api/products/feed",
           "/llms.txt",
           "/llms-full.txt",
+          "/agents.md",
           "/sitemap.xml",
           "/rss.xml",
           "/*.md",

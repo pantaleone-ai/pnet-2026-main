@@ -78,6 +78,14 @@ const HEAD: HeadType[] = [
     slug: "/projects",
   },
   {
+    page: "Apps",
+    title: truncateTitle("Apps | Pantaleone Portfolio Products"),
+    description: truncateDescription(
+      "Live Pantaleone products: generative art, drink recipes, swing analysis, image tools, 3D prints, and AI platforms.",
+    ),
+    slug: "/apps",
+  },
+  {
     page: "Shop",
     title: truncateTitle("Shop | AI Workflows, Apps & Services"),
     description: truncateDescription(

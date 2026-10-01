@@ -7,6 +7,7 @@ import {
   // FileTextIcon as ExperienceIcon,
   HomeIcon,
   ArchiveIcon as ProjectsIcon,
+  LayoutGridIcon as AppsIcon,
   // MailIcon as ContactIcon,
   ShoppingCartIcon as ShopIcon,
   BrainIcon,
@@ -108,6 +109,11 @@ const NAVIGATION_LINKS: NavigationLinkType[] = [
     icon: ProjectsIcon,
     href: "/projects",
     label: "Projects",
+  },
+  {
+    icon: AppsIcon,
+    href: "/apps",
+    label: "Apps",
   },
 
   {

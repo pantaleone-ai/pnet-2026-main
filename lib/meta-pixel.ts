@@ -9,6 +9,12 @@
  * (CAPI relay / webhooks) so Meta dedups browser+server pairs.
  */
 
+import {
+  hasConsent as growthHasConsent,
+  isProdHost as growthIsProdHost,
+  newEventId as growthNewEventId,
+} from "@/lib/growth/gates";
+
 export const META_PIXEL_ID =
   process.env.NEXT_PUBLIC_META_PIXEL_ID || "1764032770941978";
 
@@ -19,7 +25,7 @@ const CONSENT_KEY = "pnet-measurement-consent";
 export function hasMarketingConsent(): boolean {
   if (typeof window === "undefined") return false;
   try {
-    return window.localStorage.getItem(CONSENT_KEY) === "granted";
+    return growthHasConsent(window.localStorage.getItem(CONSENT_KEY));
   } catch {
     return false;
   }
@@ -32,9 +38,7 @@ export function hasMarketingConsent(): boolean {
  * fingerprint fails closed unless the hostname itself is allowlisted.
  */
 export function isProdHostname(hostname: string): boolean {
-  const host = hostname.trim().toLowerCase();
-  if (META_PROD_HOSTS.includes(host)) return true;
-  return false;
+  return growthIsProdHost(hostname, META_PROD_HOSTS);
 }
 
 export function isProdHost(): boolean {
@@ -53,8 +57,7 @@ export function isProdHost(): boolean {
 /** Server-side counterpart: gate API-route CAPI sends on prod origin. */
 export function isProdRequestHost(host: string | null | undefined): boolean {
   if (!host) return false;
-  const bare = (host.split(":")[0] ?? "").toLowerCase();
-  return META_PROD_HOSTS.includes(bare);
+  return growthIsProdHost(host, META_PROD_HOSTS);
 }
 
 /** True on Vercel preview / dev runtimes — CAPI must stay silent there. */
@@ -65,19 +68,7 @@ export function isNonProdRuntime(): boolean {
 }
 
 export function newEventId(): string {
-  try {
-    if (
-      typeof crypto !== "undefined" &&
-      typeof crypto.randomUUID === "function"
-    ) {
-      return crypto.randomUUID();
-    }
-  } catch {
-    // fall through to Math.random fallback
-  }
-  return `${Date.now().toString(36)}-${Math.random()
-    .toString(36)
-    .slice(2, 12)}`;
+  return growthNewEventId();
 }
 
 function readCookie(name: string): string | undefined {
