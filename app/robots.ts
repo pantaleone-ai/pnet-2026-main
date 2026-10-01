@@ -7,9 +7,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        // Allow crawlers on public static feeds, but keep them off the
-        // uncached dynamic API functions (/api/search, /api/channels,
-        // /api/campaigns, /api/metrics, …) to avoid bot-driven executions.
+        // Public canonical content stays crawlable: HTML pages, sitemaps,
+        // RSS, images, llms.txt, and Markdown representations.
         // AI search, AI assistants, and retrieval agents are allowed via "*".
         // This includes Googlebot, Bingbot, OAI-SearchBot (search/retrieval),
         // ClaudeBot, and CCBot. Training use is signaled separately via the
@@ -22,8 +21,8 @@ export default function robots(): MetadataRoute.Robots {
         //   Blocking GPTBot does not block OAI-SearchBot and vice versa.
         // - ClaudeBot/CCBot behavior follows Anthropic/Common Crawl docs;
         //   both remain allowed here for search/retrieval.
-        // No per-bot disallow is added: public canonical content, llms.txt,
-        // sitemap, Markdown endpoints, images, and blog content stay crawlable.
+        // No per-bot disallow is added. robots.txt is not used for
+        // canonicalization — canonical URLs handle that.
         allow: [
           "/",
           "/api/feeds/",
@@ -35,17 +34,28 @@ export default function robots(): MetadataRoute.Robots {
           "/*.md",
           "/blog.mdx/",
         ],
+        // Private, internal, and execution-triggering routes stay blocked.
+        // /checkout is a dynamic flow with no indexable value. /about,
+        // /experience, and /education are disallowed because next.config.mjs
+        // permanently redirects them to the homepage — they are not
+        // indexable content pages. If those redirects are ever removed (a
+        // public URL behavior change requiring its own migration plan),
+        // remove them from this list.
         disallow: [
           "/api/",
           "/_next/",
           "/_vercel/",
           "/private/",
+          "/checkout",
           "/about",
           "/experience",
           "/education",
         ],
       },
     ],
+    // Both sitemaps are generated at build time:
+    // - /sitemap.xml covers static pages, blog posts, and shop hubs.
+    // - /products/sitemap.xml (app/products/sitemap.ts) covers product detail.
     sitemap: [getBaseUrl("/sitemap.xml"), getBaseUrl("/products/sitemap.xml")],
   };
 }

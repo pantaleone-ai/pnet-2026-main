@@ -85,6 +85,7 @@ export default async function BlogPage() {
       <HeadingTitle
         title="Blog"
         textStyleClassName="text-2xl font-bold sm:text-3xl"
+        as="h1"
       />
       <SeparatorHorizontal short={true} />
       <BlogPostList posts={serializablePosts} />

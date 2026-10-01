@@ -4,12 +4,19 @@ interface BlogPostTitleProps {
   title: string;
   textStyleClassName?: string;
   gridId?: string;
+  /**
+   * Semantic heading level. Post titles render as the page's primary H1
+   * by default; pass `as="h2"` only for non-page contexts.
+   */
+  as?: "h1" | "h2" | "h3";
 }
 export default function BlogPostTitle({
   title,
   textStyleClassName = "text-3xl sm:text-4xl font-bold",
   gridId = "grid-default",
+  as = "h1",
 }: BlogPostTitleProps) {
+  const Tag = as;
   return (
     <div
       className={cn(
@@ -60,14 +67,14 @@ export default function BlogPostTitle({
           mask={`url(#${gridId}-mask)`}
         ></rect>
       </svg>
-      <h2
+      <Tag
         className={cn(
           "text-foreground relative text-left tracking-tight",
           textStyleClassName,
         )}
       >
         {title}
-      </h2>
+      </Tag>
     </div>
   );
 }

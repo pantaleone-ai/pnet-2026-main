@@ -110,6 +110,7 @@ export default function B2BPage() {
             title="AI work for teams"
             textStyleClassName="text-4xl font-bold md:text-5xl"
             gridId="grid-b2b"
+            as="h1"
           />
           <SeparatorHorizontal short={true} />
           <div className="prose dark:prose-invert mx-auto max-w-3xl">

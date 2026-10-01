@@ -52,6 +52,8 @@ export interface MerchantProduct {
   description: string;
   image: string[];
   offers: MerchantOffer;
+  /** True for digital/downloadable goods: no shipping or physical-return claims. */
+  isDigital?: boolean;
   brand: {
     name: string;
     logo?: string;

@@ -17,26 +17,38 @@ if (!HEAD || HEAD.length === 0) {
   console.error("⚠️ HEAD configuration is missing or empty");
 }
 
-// Define the current page for SEO configuration
-const PAGE = "Shop";
+const FALLBACK_PAGE = "Shop";
 
-// Get SEO configuration for the current page from the HEAD array
-const page = HEAD.find((page: HeadType) => page.page === PAGE) as HeadType;
+function getCategoryEntry(categorySlug: string): HeadType {
+  const bySlug = HEAD.find(
+    (entry: HeadType) => entry.slug === `/shop/${categorySlug}`,
+  );
+  if (bySlug) return bySlug;
+  return HEAD.find((entry: HeadType) => entry.page === FALLBACK_PAGE) as HeadType;
+}
 
-// Configure comprehensive metadata for SEO and social sharing
-// This includes all necessary meta tags for search engines and social media platforms
-export const metadata: Metadata = {
-  // Basic metadata
-  title: page.title,
-  applicationName: page.title,
-  description: page.description,
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ category: string }>;
+}): Promise<Metadata> {
+  const { category } = await params;
+  const entry = getCategoryEntry(category);
+  const canonical =
+    entry.slug === "/shop"
+      ? getBaseUrl(`/shop/${category}`)
+      : getBaseUrl(entry.slug);
 
-  // URL configurations for canonical links and RSS feed
-  metadataBase: new URL(getBaseUrl(page.slug)),
-  alternates: {
-    canonical: getBaseUrl(page.slug),
-  },
-};
+  return {
+    title: entry.title,
+    applicationName: entry.title,
+    description: entry.description,
+    metadataBase: new URL(canonical),
+    alternates: {
+      canonical,
+    },
+  };
+}
 
 // Categories are derived from static content, so pre-render them at build
 // time instead of server-rendering on every request.
@@ -50,6 +62,18 @@ export function generateStaticParams() {
     category: getProductCategorySlug(category),
   }));
 }
+
+const CATEGORY_H1: Record<string, string> = {
+  "ai-apps": "AI Apps",
+  "ai-workflows": "AI Workflows",
+};
+
+const CATEGORY_INTRO: Record<string, string> = {
+  "ai-apps":
+    "Ready-to-run AI software: starters, tools, and utilities your team can deploy today.",
+  "ai-workflows":
+    "Downloadable N8N workflow packs and prompt systems for support triage, content ops, and back-office automation.",
+};
 
 export default async function ShopCategoryPage({
   params,
@@ -73,7 +97,12 @@ export default async function ShopCategoryPage({
     <>
       <ProductListJsonLd products={products} categoryName={categoryName} />
       <SeparatorHorizontal borderTop={false} />
-      <HeadingTitle title={`Shop - ${categoryName}`} />
+      <HeadingTitle title={CATEGORY_H1[category] ?? categoryName} as="h1" />
+      {CATEGORY_INTRO[category] ? (
+        <p className="mx-auto max-w-2xl px-6 text-center text-lg/8 text-foreground/80">
+          {CATEGORY_INTRO[category]}
+        </p>
+      ) : null}
       <SeparatorHorizontal short={true} />
       <ShopCategoryProducts category={categoryName} />
       <SeparatorHorizontal short={true} />

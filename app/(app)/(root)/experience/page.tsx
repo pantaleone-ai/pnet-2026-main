@@ -44,6 +44,7 @@ export default async function ExperiencePage() {
           title="Work Experience"
           textStyleClassName="text-3xl font-semibold md:text-4xl"
           gridId="grid-experience"
+          as="h1"
         />
         <SeparatorHorizontal short={true} />
         <div className="border-border relative min-h-52 max-w-full">

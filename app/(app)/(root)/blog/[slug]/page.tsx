@@ -55,6 +55,12 @@ function getPageJsonLd(post: BlogPostType): WithContext<BlogPosting> {
     image: post.image || BLOG_PLACEHOLDER_IMAGE,
     url: canonicalUrl,
     mainEntityOfPage: canonicalUrl,
+    isPartOf: {
+      "@type": "Blog",
+      "@id": `${SITE_INFO.url}/blog#blog`,
+      name: "Pantaleone Blog",
+      url: `${SITE_INFO.url}/blog`,
+    },
     datePublished: new Date(post.created).toISOString(),
     dateModified: new Date(post.lastUpdated || post.created).toISOString(),
     author: {
@@ -63,6 +69,12 @@ function getPageJsonLd(post: BlogPostType): WithContext<BlogPosting> {
       name: USER.displayName,
       identifier: USER.username,
       image: USER.avatar,
+    },
+    publisher: {
+      "@type": "Organization",
+      "@id": `${SITE_INFO.url}/#organization`,
+      name: "Pantaleone Digital Services LLC",
+      url: SITE_INFO.url,
     },
   };
 }
@@ -106,12 +118,16 @@ export async function generateMetadata({
     return notFound();
   }
   const data = post.data as unknown as BlogPostFrontmatter;
+  const description = data.description?.trim()
+    ? `${data.description.slice(0, 150)}${data.description.length > 150 ? "..." : ""}`
+    : "Practical notes on building production AI systems.";
+  const imageUrl = data.image?.startsWith("http")
+    ? data.image
+    : getBaseUrl(data.image || BLOG_PLACEHOLDER_IMAGE);
 
   return {
     title: data.title || "Blog Post",
-    description:
-      data.description?.slice(0, 100) + ("..." as string) ||
-      "Read this insightful blog post.",
+    description,
     keywords: data.seo?.join(", ") || "blog, mdx, next.js",
     alternates: {
       canonical: getBaseUrl(`blog/${slug}`),
@@ -125,10 +141,10 @@ export async function generateMetadata({
     },
     openGraph: {
       title: data.title,
-      description: data.description?.slice(0, 100) + ("..." as string),
+      description,
       images: [
         {
-          url: data.image || getBaseUrl(BLOG_PLACEHOLDER_IMAGE),
+          url: imageUrl,
           width: 1200,
           height: 630,
           alt: data.title,
@@ -141,8 +157,8 @@ export async function generateMetadata({
     twitter: {
       card: "summary_large_image",
       title: data.title,
-      description: data.description?.slice(0, 100) + ("..." as string),
-      images: [data.image || getBaseUrl(BLOG_PLACEHOLDER_IMAGE)],
+      description,
+      images: [imageUrl],
     },
     other: {
       "og:logo": "summary_large_image.png",

@@ -91,7 +91,6 @@ export async function generateMetadata({
       "product:price:amount": String(product.price),
       "product:price:currency": product.currency || "USD",
       "product:availability": availability,
-      "og:type": "product",
     },
   };
 }

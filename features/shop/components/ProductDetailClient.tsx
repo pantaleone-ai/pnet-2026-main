@@ -33,6 +33,11 @@ function getSoftwareApplicationJsonLd(
   });
   if (images.length === 0) images.push("/summary_large_image.png");
 
+  // Digital goods (the entire catalog today): no shipping details and no
+  // physical-return claims. Shipping/return blocks are attached only for
+  // real physical products.
+  const isDigital = product.isDigital !== false;
+
   const softwareApp: any = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
@@ -50,41 +55,46 @@ function getSoftwareApplicationJsonLd(
           ? "https://schema.org/OutOfStock"
           : "https://schema.org/InStock",
       url: canonicalUrl,
-      shippingDetails: {
-        "@type": "OfferShippingDetails",
-        shippingRate: {
-          "@type": "MonetaryAmount",
-          value: 0,
-          currency: "USD",
-        },
-        shippingDestination: {
-          "@type": "DefinedRegion",
-          addressCountry: "US",
-        },
-        deliveryTime: {
-          "@type": "ShippingDeliveryTime",
-          handlingTime: {
-            "@type": "QuantitativeValue",
-            minValue: 0,
-            maxValue: 2,
-            unitCode: "DAY",
-          },
-          transitTime: {
-            "@type": "QuantitativeValue",
-            minValue: 0,
-            maxValue: 0,
-            unitCode: "DAY",
-          },
-        },
-      },
-      hasMerchantReturnPolicy: {
-        "@type": "MerchantReturnPolicy",
-        applicableCountry: "US",
-        returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
-        merchantReturnDays: 30,
-        returnMethod: "https://schema.org/ReturnByMail",
-        returnFees: "https://schema.org/FreeReturn",
-      },
+      ...(isDigital
+        ? {}
+        : {
+            shippingDetails: {
+              "@type": "OfferShippingDetails",
+              shippingRate: {
+                "@type": "MonetaryAmount",
+                value: 0,
+                currency: "USD",
+              },
+              shippingDestination: {
+                "@type": "DefinedRegion",
+                addressCountry: "US",
+              },
+              deliveryTime: {
+                "@type": "ShippingDeliveryTime",
+                handlingTime: {
+                  "@type": "QuantitativeValue",
+                  minValue: 0,
+                  maxValue: 2,
+                  unitCode: "DAY",
+                },
+                transitTime: {
+                  "@type": "QuantitativeValue",
+                  minValue: 0,
+                  maxValue: 0,
+                  unitCode: "DAY",
+                },
+              },
+            },
+            hasMerchantReturnPolicy: {
+              "@type": "MerchantReturnPolicy",
+              applicableCountry: "US",
+              returnPolicyCategory:
+                "https://schema.org/MerchantReturnFiniteReturnWindow",
+              merchantReturnDays: 30,
+              returnMethod: "https://schema.org/ReturnByMail",
+              returnFees: "https://schema.org/FreeReturn",
+            },
+          }),
     },
     author: {
       "@type": "Organization",
@@ -119,6 +129,8 @@ function getProductJsonLd(
   });
   if (images.length === 0) images.push("/summary_large_image.png");
 
+  const isDigitalOffer = product.isDigital !== false;
+
   const offer: any = {
     "@type": "Offer",
     price: product.price,
@@ -130,41 +142,47 @@ function getProductJsonLd(
         : "https://schema.org/InStock",
     url: canonicalUrl,
     itemCondition: "https://schema.org/NewCondition",
-    shippingDetails: {
-      "@type": "OfferShippingDetails",
-      shippingRate: {
-        "@type": "MonetaryAmount",
-        value: 0,
-        currency: "USD",
-      },
-      shippingDestination: {
-        "@type": "DefinedRegion",
-        addressCountry: "US",
-      },
-      deliveryTime: {
-        "@type": "ShippingDeliveryTime",
-        handlingTime: {
-          "@type": "QuantitativeValue",
-          minValue: 0,
-          maxValue: 2,
-          unitCode: "DAY",
-        },
-        transitTime: {
-          "@type": "QuantitativeValue",
-          minValue: 0,
-          maxValue: 0,
-          unitCode: "DAY",
-        },
-      },
-    },
-    hasMerchantReturnPolicy: {
-      "@type": "MerchantReturnPolicy",
-      applicableCountry: "US",
-      returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
-      merchantReturnDays: 30,
-      returnMethod: "https://schema.org/ReturnByMail",
-      returnFees: "https://schema.org/FreeReturn",
-    },
+    // Digital goods: no shipping details and no physical-return claims.
+    ...(isDigitalOffer
+      ? {}
+      : {
+          shippingDetails: {
+            "@type": "OfferShippingDetails",
+            shippingRate: {
+              "@type": "MonetaryAmount",
+              value: 0,
+              currency: "USD",
+            },
+            shippingDestination: {
+              "@type": "DefinedRegion",
+              addressCountry: "US",
+            },
+            deliveryTime: {
+              "@type": "ShippingDeliveryTime",
+              handlingTime: {
+                "@type": "QuantitativeValue",
+                minValue: 0,
+                maxValue: 2,
+                unitCode: "DAY",
+              },
+              transitTime: {
+                "@type": "QuantitativeValue",
+                minValue: 0,
+                maxValue: 0,
+                unitCode: "DAY",
+              },
+            },
+          },
+          hasMerchantReturnPolicy: {
+            "@type": "MerchantReturnPolicy",
+            applicableCountry: "US",
+            returnPolicyCategory:
+              "https://schema.org/MerchantReturnFiniteReturnWindow",
+            merchantReturnDays: 30,
+            returnMethod: "https://schema.org/ReturnByMail",
+            returnFees: "https://schema.org/FreeReturn",
+          },
+        }),
   };
 
   if (product.priceValidUntil) offer.priceValidUntil = product.priceValidUntil;
@@ -301,9 +319,9 @@ export default function ProductDetailClient({
                   <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary uppercase tracking-widest">
                     {categoryName}
                   </span>
-                  <h2 className="text-2xl font-black tracking-tight leading-tight">
+                  <p className="text-2xl font-black tracking-tight leading-tight">
                     {product.title}
-                  </h2>
+                  </p>
                 </div>
                 <div className="flex items-center justify-center gap-2">
                   <span className="text-4xl font-black tracking-tighter">

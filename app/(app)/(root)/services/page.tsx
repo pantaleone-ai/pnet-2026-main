@@ -160,6 +160,7 @@ export default function ServicesPage() {
           title="Services and pricing"
           textStyleClassName="text-3xl font-semibold md:text-4xl"
           gridId="grid-services"
+          as="h1"
         />
         <SeparatorHorizontal short={true} />
 

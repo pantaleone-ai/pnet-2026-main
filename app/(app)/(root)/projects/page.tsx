@@ -45,7 +45,7 @@ export default async function ProjectsPage() {
       <SeparatorHorizontal borderTop={false} />
       <link rel="alternate" type="text/markdown" href="/projects.md" />
       <link rel="describedby" href="/llms.txt" />
-      <HeadingTitle title="Projects" />
+      <HeadingTitle title="Projects" as="h1" />
       <SeparatorHorizontal short={true} />
       <ProjectList />
       <SeparatorHorizontal short={true} />

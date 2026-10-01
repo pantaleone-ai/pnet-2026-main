@@ -50,6 +50,7 @@ export default async function ContactPage() {
           title={"Contact"}
           textStyleClassName="text-3xl font-semibold md:text-4xl"
           gridId="grid-contact"
+          as="h1"
         />
         <SeparatorHorizontal short={true} />
         <p className="mx-auto max-w-2xl px-4 pt-6 text-left text-base text-foreground/80">
