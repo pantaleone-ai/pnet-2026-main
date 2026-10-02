@@ -195,9 +195,10 @@ export const ga4 = {
 
   addToCart: (product: ProductEvent) => {
     if (!isGaEnabled()) return;
+    const quantity = product.quantity ?? 1;
     (window as any).gtag("event", "add_to_cart", {
       currency: product.currency || "USD",
-      value: product.price,
+      value: product.price * quantity,
       items: [
         {
           item_id: product.id,
@@ -205,7 +206,7 @@ export const ga4 = {
           item_category: product.category,
           price: product.price,
           currency: product.currency || "USD",
-          quantity: 1,
+          quantity,
           item_brand: product.brand || "Pantaleone Digital Services",
         },
       ],
@@ -214,9 +215,10 @@ export const ga4 = {
 
   beginCheckout: (product: ProductEvent) => {
     if (!isGaEnabled()) return;
+    const quantity = product.quantity ?? 1;
     (window as any).gtag("event", "begin_checkout", {
       currency: product.currency || "USD",
-      value: product.price,
+      value: product.price * quantity,
       items: [
         {
           item_id: product.id,
@@ -224,7 +226,7 @@ export const ga4 = {
           item_category: product.category,
           price: product.price,
           currency: product.currency || "USD",
-          quantity: 1,
+          quantity,
           item_brand: product.brand || "Pantaleone Digital Services",
         },
       ],
@@ -506,14 +508,17 @@ export const metaPixel = {
 
   addToCart: (product: ProductEvent, eventID?: string): string | null => {
     if (!isMetaPixelEnabled()) return null;
+    const quantity = product.quantity ?? 1;
     return metaTrack(
       "AddToCart",
       {
         content_ids: [product.id],
+        content_type: "product",
         content_name: product.name,
         content_category: product.category,
-        value: product.price,
+        value: product.price * quantity,
         currency: product.currency || "USD",
+        contents: [{ id: product.id, quantity }],
       },
       { eventID, relay: true },
     );
@@ -524,15 +529,18 @@ export const metaPixel = {
     eventID?: string,
   ): string | null => {
     if (!isMetaPixelEnabled()) return null;
+    const quantity = product.quantity ?? 1;
     return metaTrack(
       "InitiateCheckout",
       {
         content_ids: [product.id],
+        content_type: "product",
         content_name: product.name,
         content_category: product.category,
-        value: product.price,
+        value: product.price * quantity,
         currency: product.currency || "USD",
-        num_items: 1,
+        contents: [{ id: product.id, quantity }],
+        num_items: quantity,
       },
       { eventID, relay: true },
     );
@@ -550,6 +558,10 @@ export const metaPixel = {
         content_type: "product",
         value: purchase.value,
         currency: purchase.currency,
+        contents: purchase.products.map((p) => ({
+          id: p.id,
+          quantity: p.quantity,
+        })),
         num_items: purchase.products.reduce((sum, p) => sum + p.quantity, 0),
       },
       { eventID: eventID ?? purchase.transactionId, relay: true },

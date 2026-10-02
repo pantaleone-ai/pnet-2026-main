@@ -6,6 +6,7 @@ import LinkWrapper from "@/components/LinkWrapper";
 import BackgroundDots from "@/features/common/components/BackgroundDots";
 import ProductCard from "./ProductCard";
 import { track } from "@/lib/analytics";
+import { getCatalogProductId } from "@/lib/commerce-identity";
 import type { ShopProduct } from "../types/ShopProduct";
 
 interface FeaturedProductsSectionProps {
@@ -19,7 +20,7 @@ export default function FeaturedProductsSection({ products }: FeaturedProductsSe
   useEffect(() => {
     if (featuredProducts.length === 0) return;
     const productsToTrack = featuredProducts.slice(0, 3).map(product => ({
-      id: product.id.toString(),
+      id: getCatalogProductId(product),
       name: product.title,
       category: product.category,
       price: product.price,

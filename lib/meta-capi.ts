@@ -232,6 +232,10 @@ export async function sendPurchaseCapi(
         custom_data: {
           content_ids: purchase.products.map((p) => p.id),
           content_type: "product",
+          contents: purchase.products.map((p) => ({
+            id: p.id,
+            quantity: p.quantity,
+          })),
           value: purchase.value,
           currency: purchase.currency,
           num_items: purchase.products.reduce((sum, p) => sum + p.quantity, 0),

@@ -4,10 +4,12 @@ import LinkWrapper from "@/components/LinkWrapper";
 import Image from "next/image";
 import { Clock } from "lucide-react";
 import { track } from "@/lib/analytics";
+import { getCatalogProductId } from "@/lib/commerce-identity";
 
 interface ProductCardProps {
   product: {
     id: number | string;
+    sku?: string;
     title: string;
     description: string;
     price: number;
@@ -31,7 +33,7 @@ export default function ProductCard({
   const handleSelect = () => {
     track.selectItem(
       {
-        id: String(product.id),
+        id: getCatalogProductId(product),
         name: product.title,
         category: product.category,
         price: product.price,
