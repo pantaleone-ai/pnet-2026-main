@@ -52,14 +52,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check out controller scripts
-        uses: actions/checkout@v4
-        with:
-          repository: pantaleone-ai/cloudflare-cache-controller
-          ref: v1
-          path: .cf-controller
-          persist-credentials: false
-
       - name: Map changed files to edge URLs + cache tags
         id: map
         env:
@@ -80,7 +72,7 @@ jobs:
           else
             DIFF="$(git show --name-only --pretty=format: "$SHA" || true)"
           fi
-          APP_PREFIX="$APP_PREFIX" ROUTE_ROOT="$ROUTE_ROOT" HOSTS="$HOSTS" AGG_PATHS="$AGG_PATHS" PFX="$PFX" DATA_TAG="$DATA_TAG" DIFF="$DIFF" EXTRA="$EXTRA" python3 .cf-controller/scripts/map-diff.py
+          APP_PREFIX="$APP_PREFIX" ROUTE_ROOT="$ROUTE_ROOT" HOSTS="$HOSTS" AGG_PATHS="$AGG_PATHS" PFX="$PFX" DATA_TAG="$DATA_TAG" DIFF="$DIFF" EXTRA="$EXTRA" python3 scripts/cf-map-diff.py
   purge-cdn:
     needs: [compute-changed-urls, wait-for-vercel-cutover]
     if: needs.compute-changed-urls.outputs.count != '0'
