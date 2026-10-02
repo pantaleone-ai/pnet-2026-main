@@ -73,7 +73,7 @@ jobs:
             DIFF="$(git show --name-only --pretty=format: "$SHA" || true)"
           fi
           APP_PREFIX="$APP_PREFIX" ROUTE_ROOT="$ROUTE_ROOT" HOSTS="$HOSTS" AGG_PATHS="$AGG_PATHS" PFX="$PFX" DATA_TAG="$DATA_TAG" DIFF="$DIFF" EXTRA="$EXTRA" python3 scripts/cf-map-diff.py
-purge-cdn:
+  purge-cdn:
     needs: [compute-changed-urls, wait-for-vercel-cutover]
     if: needs.compute-changed-urls.outputs.files_json != '' && needs.compute-changed-urls.outputs.count != '0'
     runs-on: ubuntu-latest
@@ -104,7 +104,7 @@ purge-cdn:
           echo "$RESP"
           echo "$RESP" | jq -e '.success == true' > /dev/null || { echo "::error::purge failed"; exit 1; }
           echo "purge succeeded ($INV_TYPE)"
-purge-tags:
+  purge-tags:
     needs: [compute-changed-urls, wait-for-vercel-cutover]
     if: needs.compute-changed-urls.outputs.tags_csv != ''
     runs-on: ubuntu-latest
