@@ -15,10 +15,22 @@ No secrets in this file. IDs are public Graph IDs, not tokens.
   pixel events for the newest works pre-sync. No action.
 - Domain verification meta tag present on synthetic.pics (seen in homepage HTML).
 
-## The Shop itself — owner finishes in Commerce Manager (~15 min)
+## Shop creation test with asset group (2026-10-02)
 
-API cannot create the storefront: `shop_setup_status` returns `(#200)` —
-the app lacks commerce permissions (needs app review for a production shop).
+Owner grouped everything into `asset-group-all` (`108084458548741`, verified live).
+Test results:
+- Asset group: readable, correct. Grouping organizes assets; it does not grant
+  the app new capabilities.
+- Page `product_catalogs`: empty — catalog not yet linked to the Page.
+- Linking attempt `POST /product_catalogs`: `(#100/33)` unsupported — no API
+  path exists to attach a catalog to a Page.
+- `shop_setup_status` retry: still `(#200)` — commerce permissions require app
+  review; no token or grouping works around it.
+Conclusion: the storefront can only be created in Commerce Manager. Everything
+it asks for now sits in `asset-group-all`: select Page `Synthetic.pics`,
+catalog `synthetic.pics-catalog` (147 products after today's fetch), confirm
+the verified domain, add payouts + tax, publish.
+
 Exact path: business.facebook.com → Commerce Manager → Create shop → select
 Page `Synthetic.pics` (`1423764057476870`) → catalog `synthetic.pics-catalog` →
 confirm domain (already verified) → payouts + tax → publish. Checkout can stay
