@@ -47,10 +47,18 @@ jobs:
       count: ${{ steps.map.outputs.count }}
       tags_csv: ${{ steps.map.outputs.tags_csv }}
     steps:
-      - name: Checkout (for merge diff)
+      - name: Checkout caller (for merge diff)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Check out controller scripts
+        uses: actions/checkout@v4
+        with:
+          repository: pantaleone-ai/cloudflare-cache-controller
+          ref: v1
+          path: .cf-controller
+          persist-credentials: false
 
       - name: Map changed files to edge URLs + cache tags
         id: map
@@ -65,71 +73,14 @@ jobs:
           EXTRA: ${{ inputs.extra_paths }}
         run: |
           set -euo pipefail
-          SHA="${{ github.sha }}"
           BEFORE="${BEFORE:-}"
+          SHA="${{ github.sha }}"
           if [ -n "$BEFORE" ] && git cat-file -e "$BEFORE" 2>/dev/null; then
             DIFF="$(git diff --name-only "$BEFORE" "$SHA" || true)"
           else
             DIFF="$(git show --name-only --pretty=format: "$SHA" || true)"
           fi
-          BEFORE="$BEFORE" SHA="$SHA" DIFF="$DIFF" python3 - <<'PY'
-          import json, os
-          prefix, rroot = os.environ["APP_PREFIX"], os.environ["ROUTE_ROOT"]
-          hosts, aggs = os.environ["HOSTS"].split(), os.environ["AGG_PATHS"].split()
-          pfx, data_tag = os.environ["PFX"], os.environ["DATA_TAG"].strip()
-          files = [l for l in os.environ["DIFF"].splitlines() if l.strip()]
-          extra = [p.strip() for p in os.environ.get("EXTRA", "").replace(",", " ").split() if p.strip()]
-          urls, code_hit, data_hit = set(), False, False
-          def add(path):
-              if not path.startswith("/"): path = "/" + path
-              for h in hosts:
-                  urls.add(f"https://{h}{path}")
-                  if path != "/": urls.add(f"https://{h}{path.rstrip('/')}/")
-          def add_aggs():
-              for a in aggs: add(a)
-          CONTENT_TOPS = {"data", "content", "contents", "posts", "blog", "articles", "mdx", "recipes_mdx"}
-          for f in files:
-              g = f[len(prefix):] if prefix and f.startswith(prefix) else (f if not prefix else None)
-              if g is None:
-                  code_hit = True; add_aggs(); continue
-              if g.startswith("public/"):
-                  add(g[len("public/"):]); continue
-              if g.startswith(rroot + "/"):
-                  rel = g[len(rroot) + 1:]
-                  parts = [p for p in rel.split("/") if not (p.startswith("(") and p.endswith(")"))]
-                  if not parts:
-                      code_hit = True; add_aggs(); continue
-                  leaf, d = parts[-1], "/".join(parts[:-1])
-                  base = leaf.rsplit(".", 1)[0] if "." in leaf else leaf
-                  if base in ("page", "route", "layout", "loading", "error", "not-found", "template", "default"):
-                      url = "/" + d if d else "/"
-                  elif base == "sitemap": url = "/sitemap.xml"
-                  elif base == "robots": url = "/robots.txt"
-                  elif base == "manifest": url = "/manifest.webmanifest"
-                  elif leaf in ("favicon.ico", "icon.png", "icon1.png", "icon2.png", "apple-touch-icon.png"): url = ("/" + d + "/" + leaf) if d else ("/" + leaf)
-                  elif base in ("feed", "rss") or leaf in ("feed.xml", "rss.xml", "feed.json"): url = ("/" + d + "/" + leaf) if d else ("/" + leaf)
-                  elif leaf in ("llms.txt", "llms-full.txt", "agents.txt", "agents.md", "agents.json", "openapi.json"): url = ("/" + d + "/" + leaf) if d else ("/" + leaf)
-                  elif base in ("opengraph-image", "twitter-image"): url = ("/" + d + "/" + base) if d else ("/" + base)
-                  else: url = "/" + d if d else "/"
-                  if "[" in url: url = url.split("[")[0].rstrip("/") or "/"
-                  add(url); continue
-              top = g.split("/")[0]
-              if top in CONTENT_TOPS:
-                  data_hit = True; add_aggs(); continue
-              if g.startswith("api/") or "/api/" in g or top in ("admin",):
-                  continue
-              code_hit = True; add_aggs()
-          for p in extra: add(p)
-          tags = []
-          if code_hit: tags.append(f"{pfx}-html")
-          if data_hit and data_tag: tags.append(data_tag)
-          out = sorted(urls)[:1000]
-          print(f"Mapped {len(files)} changed file(s) -> {len(out)} URL(s), tags={tags or 'none'}")
-          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
-              fh.write("files_json=" + json.dumps(out, separators=(",", ":")) + "\n")
-              fh.write(f"count={len(out)}\n")
-              fh.write("tags_csv=" + ",".join(tags) + "\n")
-          PY
+          APP_PREFIX="$APP_PREFIX" ROUTE_ROOT="$ROUTE_ROOT" HOSTS="$HOSTS" AGG_PATHS="$AGG_PATHS" PFX="$PFX" DATA_TAG="$DATA_TAG" DIFF="$DIFF" EXTRA="$EXTRA" python3 .cf-controller/scripts/map-diff.py
   purge-cdn:
     needs: [compute-changed-urls, wait-for-vercel-cutover]
     if: needs.compute-changed-urls.outputs.count != '0'
