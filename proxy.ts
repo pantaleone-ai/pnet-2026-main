@@ -16,7 +16,7 @@ import type { NextRequest } from 'next/server';
  */
 const PFX = 'pnet';
 const FEED_PATHS = new Set<string>(['/sitemap.xml', '/robots.txt', '/llms.txt', '/llms-full.txt', '/manifest.webmanifest', '/agents.txt', '/agents.md', '/agents.json', '/openapi.json', '/rss.xml', '/feed.xml']);
-const FEED_PREFIXES: string[] = [['/feeds/', '/api/feeds/']];
+const FEED_PREFIXES: string[] = ['/feeds/', '/api/feeds/'];
 const SKIP_PREFIXES = ['/api/', '/admin/', '/_vercel/'];
 const SKIP_EXT = /\.(png|jpe?g|gif|webp|avif|ico|svg|css|js|map|woff2?|ttf|otf|eot|mp4|webm|mov|pdf|zip|gz|mp3|wav)$/i;
 
