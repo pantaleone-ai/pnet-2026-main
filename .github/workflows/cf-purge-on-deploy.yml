@@ -1,36 +1,135 @@
 name: cf-purge-on-deploy
 
-# P4 staleness contract: Cloudflare (outer edge) has NO deploy integration —
-# Vercel purges its own CDN on every production deploy, Cloudflare does not.
-# Without this hook, Cloudflare keeps serving pre-deploy HTML for up to the
-# origin s-maxage (300s for HTML; previously a 1-YEAR stale pin — observed
-# 2026-09-29: homepage served 9h-old bytes with pre-fix headers AFTER deploy).
+# Targeted edge invalidation: every merge/push to main purges ONLY the URLs
+# affected by that merge (derived from the merge diff) — never purge_everything.
 #
-# Required repository secrets:
-#   CLOUDFLARE_API_TOKEN  token with Cache Purge on the zone (zone-scoped is fine)
-#   CLOUDFLARE_ZONE_ID    (default baked into the script as fallback)
+# Mapping: public/* -> exact asset URLs; route files -> their page URLs
+# (dynamic [slug] segments collapse to the section index); content/data edits
+# and shared code/config -> small aggregate set (/ /sitemap.xml /rss.xml) so unrelated pages
+# stay cached. API/admin paths are skipped (not edge-cached page content).
+# Cap: 1000 URLs per run. Manual runs accept extra_paths (space/comma list).
 #
-# Manual backstop: ./scripts/cf-purge-zone.sh (see docs/cf-edge-cache-runbook.md)
+# Residual staleness note: shared-code changes purge aggregates only. If a
+# deploy ever leaves deep pages stale, adopt Cache-Tag headers at origin and
+# switch this caller to invalidation_type: tags.
 
 on:
-  deployment_status:
+  push:
+    branches: [main]
   workflow_dispatch:
+    inputs:
+      extra_paths:
+        description: "Extra space/comma-separated paths to purge (e.g. '/pricing /sitemap.xml')"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
 
 jobs:
-  purge:
-    # Vercel's GitHub integration emits deployment_status events. Purge only
-    # on successful PRODUCTION deployments — previews carry uncached/no-store
-    # auth-layer responses and must never be used to validate or fill the edge.
-    if: >
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.deployment_status.state == 'success' &&
-       github.event.deployment_status.environment == 'Production')
+  wait-for-vercel-cutover:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for Vercel production deploy to go live
+        # Purging before the new deployment serves traffic would just
+        # re-cache the OLD build.
+        run: sleep 180
+
+  compute-changed-urls:
+    name: Derive affected URLs from merge diff
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      files_json: ${{ steps.map.outputs.files_json }}
+      count: ${{ steps.map.outputs.count }}
     steps:
-      - uses: actions/checkout@v4
-      - name: Purge Cloudflare edge cache
+      - name: Checkout (for merge diff)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Map changed files to edge URLs
+        id: map
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ZONE_ID: ${{ secrets.CLOUDFLARE_ZONE_ID }}
-        run: ./scripts/cf-purge-zone.sh
+          APP_PREFIX: ""
+          ROUTE_ROOT: "app"
+          HOSTS: "www.pantaleone.net pantaleone.net"
+          AGG_PATHS: "/ /sitemap.xml /rss.xml"
+          BEFORE: ${{ github.event.before }}
+          EXTRA: ${{ inputs.extra_paths }}
+        run: |
+          set -euo pipefail
+          SHA="${{ github.sha }}"
+          BEFORE="${BEFORE:-}"
+          if [ -n "$BEFORE" ] && git cat-file -e "$BEFORE" 2>/dev/null; then
+            DIFF="$(git diff --name-only "$BEFORE" "$SHA" || true)"
+          else
+            DIFF="$(git show --name-only --pretty=format: "$SHA" || true)"
+          fi
+          BEFORE="$BEFORE" SHA="$SHA" DIFF="$DIFF" python3 - <<'PY'
+          import json, os
+          prefix, rroot = os.environ["APP_PREFIX"], os.environ["ROUTE_ROOT"]
+          hosts, aggs = os.environ["HOSTS"].split(), os.environ["AGG_PATHS"].split()
+          before, sha = os.environ["BEFORE"], os.environ["SHA"]
+          files = [l for l in os.environ["DIFF"].splitlines() if l.strip()]
+          extra = [p.strip() for p in os.environ.get("EXTRA", "").replace(",", " ").split() if p.strip()]
+          urls = set()
+          def add(path):
+              if not path.startswith("/"): path = "/" + path
+              for h in hosts:
+                  urls.add(f"https://{h}{path}")
+                  if path != "/": urls.add(f"https://{h}{path.rstrip('/')}/")
+          def add_aggs():
+              for a in aggs: add(a)
+          CONTENT_TOPS = {"data", "content", "contents", "posts", "blog", "articles", "mdx", "recipes_mdx"}
+          for f in files:
+              g = f[len(prefix):] if prefix and f.startswith(prefix) else (f if not prefix else None)
+              if g is None:
+                  add_aggs(); continue  # outside the app (monorepo root/tooling) -> aggregates
+              if g.startswith("public/"):
+                  add(g[len("public/"):]); continue
+              if g.startswith(rroot + "/"):
+                  rel = g[len(rroot) + 1:]
+                  parts = [p for p in rel.split("/") if not (p.startswith("(") and p.endswith(")"))]
+                  if not parts:
+                      add_aggs(); continue
+                  leaf, d = parts[-1], "/".join(parts[:-1])
+                  base = leaf.rsplit(".", 1)[0] if "." in leaf else leaf
+                  if base in ("page", "route", "layout", "loading", "error", "not-found", "template", "default"):
+                      url = "/" + d if d else "/"
+                  elif base == "sitemap": url = "/sitemap.xml"
+                  elif base == "robots": url = "/robots.txt"
+                  elif base == "manifest": url = "/manifest.webmanifest"
+                  elif leaf in ("favicon.ico", "icon.png", "icon1.png", "icon2.png", "apple-touch-icon.png"): url = ("/" + d + "/" + leaf) if d else ("/" + leaf)
+                  elif base in ("feed", "rss") or leaf in ("feed.xml", "rss.xml", "feed.json"): url = ("/" + d + "/" + leaf) if d else ("/" + leaf)
+                  elif leaf in ("llms.txt", "llms-full.txt", "agents.txt", "agents.json", "openapi.json"): url = ("/" + d + "/" + leaf) if d else ("/" + leaf)
+                  elif base in ("opengraph-image", "twitter-image"): url = ("/" + d + "/" + base) if d else ("/" + base)
+                  else: url = "/" + d if d else "/"  # colocated component/style/test -> section index
+                  if "[" in url:  # dynamic segment -> section prefix
+                      url = url.split("[")[0].rstrip("/") or "/"
+                  add(url); continue
+              top = g.split("/")[0]
+              if top in CONTENT_TOPS or g.startswith("api/") or "/api/" in g or top in ("admin",):
+                  if top in CONTENT_TOPS: add_aggs()
+                  continue  # api/admin responses are not edge-cached page content
+              add_aggs()  # shared code/config/styles -> aggregates (bounded, never everything)
+          for p in extra: add(p)
+          out = sorted(urls)[:1000]
+          print(f"Mapped {len(files)} changed file(s) -> {len(out)} URL(s)")
+          print("files_json=" + json.dumps(out, separators=(",", ":")))
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+              fh.write("files_json=" + json.dumps(out, separators=(",", ":")) + "\n")
+              fh.write(f"count={len(out)}\n")
+          PY
+  purge-cdn:
+    needs: [compute-changed-urls, wait-for-vercel-cutover]
+    if: needs.compute-changed-urls.outputs.count != '0'
+    uses: pantaleone-ai/cloudflare-cache-controller/.github/workflows/cloudflare-invalidate.yml@v1
+    with:
+      zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+      invalidation_type: files
+      invalidation_value: ${{ needs.compute-changed-urls.outputs.files_json }}
+    secrets:
+      cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
