@@ -10,6 +10,7 @@ import ReadingTimeIcon from "@/features/common/icons/reading-time-icon";
 import { formatDate, getProductCategorySlug } from "@/lib/helpers";
 import { cn } from "@/lib/utils";
 import { trackEvent } from "@/lib/events";
+import { getCatalogProductId } from "@/lib/commerce-identity";
 import LinkWrapper from "@/components/LinkWrapper";
 import { ArrowRightIcon } from "lucide-react";
 import Image from "next/image";
@@ -287,7 +288,7 @@ const ProductContent = ({
     trackEvent({
       name: "select_item",
       properties: {
-        item_id: String(item.id),
+        item_id: getCatalogProductId(item),
         item_name: item.title,
         item_category: item.category,
         price: item.price,

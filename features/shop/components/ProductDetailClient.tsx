@@ -18,6 +18,7 @@ import {
 import { ProductImageGallery } from "@/features/shop/components/ProductImageGallery";
 import ProductCard from "./ProductCard";
 import { track } from "@/lib/analytics";
+import { getCatalogProductId } from "@/lib/commerce-identity";
 import type { Product, WithContext } from "schema-dts";
 import type { ShopProduct } from "@/features/shop/types/ShopProduct";
 
@@ -236,10 +237,14 @@ export default function ProductDetailClient({
   relatedProducts: ShopProduct[];
   children: React.ReactNode;
 }) {
+  // Canonical catalog ID (sku || product-${id}) — must match the product
+  // feed `id` so Meta can match events to catalog products.
+  const catalogId = getCatalogProductId(product);
+
   // Track product view on component mount
   useEffect(() => {
     track.productView({
-      id: String(product.id || product.slug || "unknown"),
+      id: catalogId,
       name: product.title,
       category: category,
       price: product.price,
@@ -247,8 +252,7 @@ export default function ProductDetailClient({
       brand: "Pantaleone Digital Services",
     });
   }, [
-    product.id,
-    product.slug,
+    catalogId,
     product.title,
     product.price,
     product.currency,
@@ -258,7 +262,7 @@ export default function ProductDetailClient({
   // Handle payment link click tracking
   const handlePaymentClick = () => {
     track.addToCart({
-      id: String(product.id || product.slug || "unknown"),
+      id: catalogId,
       name: product.title,
       category: category,
       price: product.price,
@@ -266,7 +270,7 @@ export default function ProductDetailClient({
       brand: "Pantaleone Digital Services",
     });
     track.beginCheckout({
-      id: String(product.id || product.slug || "unknown"),
+      id: catalogId,
       name: product.title,
       category: category,
       price: product.price,

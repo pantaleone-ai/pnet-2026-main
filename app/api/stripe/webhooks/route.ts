@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { track, serverTrack } from '@/lib/analytics';
+import { resolveStripeLineItems } from '@/lib/stripe-catalog';
+import { getProductByFeedId } from '@/features/shop/data/shopSource';
+import { getCatalogProductId } from '@/lib/commerce-identity';
 import { sendPurchaseCapi, sendRefundCapi } from '@/lib/meta-capi';
 import { headers } from 'next/headers';
 import { sendEmail } from '@/lib/resendClient';
@@ -105,6 +108,25 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
       return;
     }
 
+    // Resolve Stripe line items to canonical catalog IDs (sku) so Meta
+    // content_ids match the product catalog. Stripe IDs (prod_... /
+    // price_...) do NOT exist in the catalog and must never be sent.
+    const resolution = resolveStripeLineItems(
+      lineItems.data.map((item) => ({
+        priceId: item.price?.id ?? undefined,
+        productId: (item.price?.product as Stripe.Product)?.id ?? undefined,
+        quantity: item.quantity ?? 1,
+        amountTotal: item.amount_total ?? undefined,
+        fallbackName: item.description ?? undefined,
+      })),
+    );
+    if (resolution.unmatched.length > 0) {
+      console.warn(
+        'Stripe webhook: unmatched line items have no catalog product:',
+        resolution.unmatched,
+      );
+    }
+
     // Extract purchase data
     const purchaseData = {
       transactionId: session.id,
@@ -112,17 +134,14 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
       currency: session.currency?.toUpperCase() || 'USD',
       tax: session.total_details?.amount_tax ? session.total_details.amount_tax / 100 : undefined,
       shipping: session.shipping_cost?.amount_total ? session.shipping_cost.amount_total / 100 : undefined,
-      products: lineItems.data.map(item => {
-        const product = item.price?.product as Stripe.Product;
-        return {
-          id: product?.id || item.price?.id || 'unknown',
-          name: product?.name || 'Unknown Product',
-          category: product?.metadata?.category || 'digital',
-          price: (item.amount_total || 0) / 100,
-          quantity: item.quantity || 1,
-          brand: 'Pantaleone Digital Services'
-        };
-      })
+      products: resolution.items.map(item => ({
+        id: item.catalogId,
+        name: item.name,
+        category: item.category,
+        price: item.price,
+        quantity: item.quantity,
+        brand: 'Pantaleone Digital Services'
+      }))
     };
 
     // Track purchase in all analytics platforms (client-side)
@@ -251,15 +270,24 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
       metadata: { ...paymentIntent.metadata, tracked: 'true' }
     });
 
+    // Canonicalize the product ID to the catalog feed ID when the
+    // metadata references a known product; raw Stripe IDs never match
+    // the Meta catalog.
+    const metadataProductId = paymentIntent.metadata?.product_id;
+    const catalogProduct = metadataProductId
+      ? getProductByFeedId(metadataProductId)
+      : null;
     // Extract basic purchase data from payment intent
     const purchaseData = {
       transactionId: paymentIntent.id,
       value: (paymentIntent.amount || 0) / 100,
       currency: paymentIntent.currency?.toUpperCase() || 'USD',
       products: [{
-        id: paymentIntent.metadata?.product_id || 'unknown',
-        name: paymentIntent.metadata?.product_name || 'Digital Product',
-        category: paymentIntent.metadata?.category || 'digital',
+        id: catalogProduct
+          ? getCatalogProductId(catalogProduct)
+          : metadataProductId || 'unknown',
+        name: catalogProduct?.title || paymentIntent.metadata?.product_name || 'Digital Product',
+        category: catalogProduct?.category || paymentIntent.metadata?.category || 'digital',
         price: (paymentIntent.amount || 0) / 100,
         quantity: 1,
         brand: 'Pantaleone Digital Services'
@@ -325,12 +353,18 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
       return;
     }
 
+    const chargeProductId = charge.metadata?.product_id;
+    const chargeCatalogProduct = chargeProductId
+      ? getProductByFeedId(chargeProductId)
+      : null;
     const refundData = {
       transactionId: charge.id,
       value: charge.amount_refunded / 100,
       currency: charge.currency?.toUpperCase() || 'USD',
       products: [{
-        id: charge.metadata?.product_id || 'unknown',
+        id: chargeCatalogProduct
+          ? getCatalogProductId(chargeCatalogProduct)
+          : chargeProductId || 'unknown',
         name: charge.metadata?.product_name || 'Digital Product',
         quantity: 1,
       }]

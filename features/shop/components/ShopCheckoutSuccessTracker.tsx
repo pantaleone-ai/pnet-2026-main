@@ -3,14 +3,34 @@
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 
-import { metaTrack } from "@/lib/meta-pixel";
+import { ga4, metaPixel } from "@/lib/analytics";
+
+interface SessionSummaryItem {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+  quantity: number;
+}
+
+interface SessionSummary {
+  id?: string;
+  amount_total?: number;
+  currency?: string;
+  payment_status?: string;
+  content_ids?: string[];
+  contents?: Array<{ id: string; quantity: number }>;
+  items?: SessionSummaryItem[];
+}
 
 /**
  * Stripe success landing: /shop?checkout=success&session_id=cs_...
  * Fires the browser Purchase with eventID = session.id so it dedups
  * against the webhook CAPI Purchase (same event_name + event_id).
- * Consent + prod-host gated inside metaTrack; the relay carries IP/UA
- * + fbc/fbp for the server half of the pair.
+ * Uses canonical catalog IDs from the session summary so Meta can match
+ * events to catalog products. Consent + prod-host gated inside the
+ * analytics helpers; sessionStorage guard prevents duplicate fires
+ * when the confirmation page is refreshed.
  */
 export default function ShopCheckoutSuccessTracker() {
   const searchParams = useSearchParams();
@@ -38,11 +58,7 @@ export default function ShopCheckoutSuccessTracker() {
           { cache: "no-store" },
         );
         if (!res.ok) return;
-        const summary = (await res.json()) as {
-          amount_total?: number;
-          currency?: string;
-          payment_status?: string;
-        };
+        const summary = (await res.json()) as SessionSummary;
         if (cancelled) return;
         if (
           summary.payment_status !== "paid" ||
@@ -50,14 +66,45 @@ export default function ShopCheckoutSuccessTracker() {
         ) {
           return;
         }
-        metaTrack(
-          "Purchase",
-          {
-            value: summary.amount_total / 100,
-            currency: (summary.currency || "USD").toUpperCase(),
-          },
-          { eventID: sessionId, relay: true },
-        );
+        const currency = (summary.currency || "USD").toUpperCase();
+        const value = summary.amount_total / 100;
+        const items: SessionSummaryItem[] = Array.isArray(summary.items)
+          ? summary.items.filter(
+              (item) =>
+                typeof item?.id === "string" &&
+                typeof item?.price === "number",
+            )
+          : [];
+
+        if (items.length > 0) {
+          const purchase = {
+            transactionId: sessionId,
+            value,
+            currency,
+            products: items.map((item) => ({
+              id: item.id,
+              name: item.name || item.id,
+              category: item.category || "digital",
+              price: item.price,
+              quantity: item.quantity ?? 1,
+              brand: "Pantaleone Digital Services",
+            })),
+          };
+          ga4.purchase(purchase);
+          metaPixel.purchase(purchase, sessionId);
+        } else {
+          // Fallback: catalog resolution unavailable — still record the
+          // conversion value (no content_ids, so no catalog match).
+          metaPixel.purchase(
+            {
+              transactionId: sessionId,
+              value,
+              currency,
+              products: [],
+            },
+            sessionId,
+          );
+        }
         try {
           window.sessionStorage.setItem(
             `pnet-purchase-tracked-${sessionId}`,

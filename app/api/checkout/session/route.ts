@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getStripeClient } from "@/lib/stripe";
 import { getIdentifier, rateLimit } from "@/lib/rate-limit";
+import { resolveStripeLineItems } from "@/lib/stripe-catalog";
 import {
   parseProductsParam,
   validateCart,
@@ -37,8 +38,9 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
 
     // Session-summary branch for the success-page browser Purchase:
-    // returns amount/currency (no PII) so the client can fire fbq with
-    // value+currency using eventID = session.id (dedups with the webhook).
+    // returns amount/currency + catalog line items (no PII) so the client
+    // can fire Purchase with canonical content_ids using eventID =
+    // session.id (dedups with the webhook CAPI Purchase).
     const sessionId = searchParams.get("session_id");
     if (sessionId) {
       if (!sessionId.startsWith("cs_")) {
@@ -47,12 +49,61 @@ export async function GET(request: NextRequest) {
       try {
         const stripe = getStripeClient();
         const session = await stripe.checkout.sessions.retrieve(sessionId);
+        let items: Array<{
+          id: string;
+          name: string;
+          category: string;
+          price: number;
+          quantity: number;
+        }> = [];
+        try {
+          const lineItems = await stripe.checkout.sessions.listLineItems(
+            sessionId,
+            { limit: 100 },
+          );
+          const resolution = resolveStripeLineItems(
+            lineItems.data.map((item) => ({
+              priceId: item.price?.id ?? undefined,
+              productId:
+                typeof item.price?.product === "string"
+                  ? item.price.product
+                  : (item.price?.product as { id?: string } | null)?.id ??
+                    undefined,
+              quantity: item.quantity ?? 1,
+              amountTotal: item.amount_total ?? undefined,
+              fallbackName: item.description ?? undefined,
+            })),
+          );
+          if (resolution.unmatched.length > 0) {
+            console.warn(
+              "Checkout summary: unmatched Stripe line items (no catalog SKU):",
+              resolution.unmatched,
+            );
+          }
+          items = resolution.items.map((resolved) => ({
+            id: resolved.catalogId,
+            name: resolved.name,
+            category: resolved.category,
+            price: resolved.price,
+            quantity: resolved.quantity,
+          }));
+        } catch (resolveError) {
+          // Catalog resolution must never break the summary — the client
+          // still gets amount/currency for a value-only Purchase fallback.
+          console.error("Checkout summary catalog resolve error:", resolveError);
+        }
         return NextResponse.json(
           {
             id: session.id,
             amount_total: session.amount_total,
             currency: session.currency,
             payment_status: session.payment_status,
+            content_ids: items.map((item) => item.id),
+            contents: items.map((item) => ({
+              id: item.id,
+              quantity: item.quantity,
+            })),
+            items,
           },
           { headers: NO_STORE },
         );
