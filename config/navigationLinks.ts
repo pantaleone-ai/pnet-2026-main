@@ -5,7 +5,6 @@ import {
   RssIcon as BlogIcon,
   // GraduationCapIcon as EducationIcon,
   // FileTextIcon as ExperienceIcon,
-  HomeIcon,
   ArchiveIcon as ProjectsIcon,
   LayoutGridIcon as AppsIcon,
   // MailIcon as ContactIcon,
@@ -19,11 +18,6 @@ import {
 } from "lucide-react";
 
 const NAVIGATION_LINKS: NavigationLinkType[] = [
-  {
-    icon: HomeIcon,
-    href: "/",
-    label: "Home",
-  },
   // {
   //   icon: AboutMeIcon,
   //   href: "/about",
