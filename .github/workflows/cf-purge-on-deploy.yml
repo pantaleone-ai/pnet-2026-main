@@ -135,7 +135,7 @@ jobs:
     if: needs.compute-changed-urls.outputs.count != '0'
     uses: pantaleone-ai/cloudflare-cache-controller/.github/workflows/cloudflare-invalidate.yml@v1
     with:
-      zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+      zone_id: ${{ vars.CLOUDFLARE_ZONE_ID }}
       invalidation_type: files
       invalidation_value: ${{ needs.compute-changed-urls.outputs.files_json }}
     secrets:
@@ -145,7 +145,7 @@ jobs:
     if: needs.compute-changed-urls.outputs.tags_csv != ''
     uses: pantaleone-ai/cloudflare-cache-controller/.github/workflows/cloudflare-invalidate.yml@v1
     with:
-      zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+      zone_id: ${{ vars.CLOUDFLARE_ZONE_ID }}
       invalidation_type: tags
       invalidation_value: ${{ needs.compute-changed-urls.outputs.tags_csv }}
     secrets:
