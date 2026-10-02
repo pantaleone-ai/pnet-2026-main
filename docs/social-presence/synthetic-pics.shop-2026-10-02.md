@@ -31,6 +31,16 @@ it asks for now sits in `asset-group-all`: select Page `Synthetic.pics`,
 catalog `synthetic.pics-catalog` (147 products after today's fetch), confirm
 the verified domain, add payouts + tax, publish.
 
+## Shop live check (2026-10-02)
+
+Shop `1093553196367905` under commerce account `1814429359558553`: readable,
+linked to the correct Page (`Synthetic.pics`), but `fb_sales_channel.status`
+is `DISABLED` — storefront not yet serving. No field metadata is exposed and
+writes need commerce permissions (app review), so no API adjustments were
+attempted — blind writes against a money object are out. Finish in Commerce
+Manager: payouts, tax, shipping/returns, submit for review, enable channel.
+Catalog meanwhile self-healed to 147/147 on today's fetch as predicted.
+
 Exact path: business.facebook.com → Commerce Manager → Create shop → select
 Page `Synthetic.pics` (`1423764057476870`) → catalog `synthetic.pics-catalog` →
 confirm domain (already verified) → payouts + tax → publish. Checkout can stay
