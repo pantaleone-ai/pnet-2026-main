@@ -19,8 +19,17 @@ import { siteConfig } from "@/config/site";
 
 function SectionFallback() {
   return (
-    <div className="relative mx-auto max-w-7xl px-6 py-8 md:py-10 lg:px-8">
-      <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 lg:max-w-none lg:grid-cols-3">
+    <div
+      role="status"
+      aria-busy="true"
+      aria-label="Loading section"
+      className="relative mx-auto max-w-5xl px-6 py-8 md:py-10"
+    >
+      <span className="sr-only">Loading…</span>
+      <div
+        aria-hidden="true"
+        className="mx-auto grid max-w-5xl grid-cols-1 gap-6 lg:grid-cols-3"
+      >
         {Array.from({ length: 3 }).map((_, index) => (
           <Skeleton key={index} className="h-64 w-full rounded-lg" />
         ))}

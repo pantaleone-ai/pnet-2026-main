@@ -330,6 +330,50 @@
     @apply scroll-mt-18;
   }
 
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  a:focus-visible,
+  button:focus-visible,
+  [role="button"]:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  @media (pointer: coarse) {
+    button,
+    [role="button"],
+    nav a,
+    input,
+    select,
+    textarea {
+      min-height: 44px;
+    }
+    nav a {
+      display: inline-flex;
+      align-items: center;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
   @keyframes show-top-mask {
     to {
       --top-mask-height: var(--mask-height);
