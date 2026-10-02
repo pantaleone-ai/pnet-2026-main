@@ -73,23 +73,65 @@ jobs:
             DIFF="$(git show --name-only --pretty=format: "$SHA" || true)"
           fi
           APP_PREFIX="$APP_PREFIX" ROUTE_ROOT="$ROUTE_ROOT" HOSTS="$HOSTS" AGG_PATHS="$AGG_PATHS" PFX="$PFX" DATA_TAG="$DATA_TAG" DIFF="$DIFF" EXTRA="$EXTRA" python3 scripts/cf-map-diff.py
-  purge-cdn:
+purge-cdn:
     needs: [compute-changed-urls, wait-for-vercel-cutover]
-    if: needs.compute-changed-urls.outputs.count != '0'
-    uses: pantaleone-ai/cloudflare-cache-controller/.github/workflows/cloudflare-invalidate.yml@v1
-    with:
-      zone_id: ${{ vars.CLOUDFLARE_ZONE_ID }}
-      invalidation_type: files
-      invalidation_value: ${{ needs.compute-changed-urls.outputs.files_json }}
-    secrets:
-      cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-  purge-tags:
+    if: needs.compute-changed-urls.outputs.files_json != '' && needs.compute-changed-urls.outputs.count != '0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Purge Cloudflare cache (files)
+        shell: bash
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ZONE_ID: ${{ vars.CLOUDFLARE_ZONE_ID }}
+          PAYLOAD_VALUE: ${{ needs.compute-changed-urls.outputs.files_json }}
+          INV_TYPE: "files"
+        run: |
+          set -euo pipefail
+          echo "::add-mask::$CF_TOKEN"
+          if [[ "$INV_TYPE" == "tags" ]]; then
+            PAYLOAD=$(printf '%s' "$PAYLOAD_VALUE" | tr ',' '\n' | jq -R -s -c '
+              split("\n")
+              | map(gsub("^\\s+|\\s+$"; ""))
+              | map(select(length > 0))
+              | {tags: .}
+            ')
+          else
+            PAYLOAD=$(printf '%s' "$PAYLOAD_VALUE" | jq -c '{files: .}')
+          fi
+          echo "Purging $INV_TYPE: $PAYLOAD"
+          RESP=$(curl -sS --max-time 30 --retry 2 --retry-delay 3 -X POST             -H "Authorization: Bearer ${CF_TOKEN}"             -H "Content-Type: application/json"             --data "$PAYLOAD"             "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/purge_cache")
+          echo "$RESP"
+          echo "$RESP" | jq -e '.success == true' > /dev/null || { echo "::error::purge failed"; exit 1; }
+          echo "purge succeeded ($INV_TYPE)"
+purge-tags:
     needs: [compute-changed-urls, wait-for-vercel-cutover]
     if: needs.compute-changed-urls.outputs.tags_csv != ''
-    uses: pantaleone-ai/cloudflare-cache-controller/.github/workflows/cloudflare-invalidate.yml@v1
-    with:
-      zone_id: ${{ vars.CLOUDFLARE_ZONE_ID }}
-      invalidation_type: tags
-      invalidation_value: ${{ needs.compute-changed-urls.outputs.tags_csv }}
-    secrets:
-      cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Purge Cloudflare cache (tags)
+        shell: bash
+        env:
+          CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ZONE_ID: ${{ vars.CLOUDFLARE_ZONE_ID }}
+          PAYLOAD_VALUE: ${{ needs.compute-changed-urls.outputs.tags_csv }}
+          INV_TYPE: "tags"
+        run: |
+          set -euo pipefail
+          echo "::add-mask::$CF_TOKEN"
+          if [[ "$INV_TYPE" == "tags" ]]; then
+            PAYLOAD=$(printf '%s' "$PAYLOAD_VALUE" | tr ',' '\n' | jq -R -s -c '
+              split("\n")
+              | map(gsub("^\\s+|\\s+$"; ""))
+              | map(select(length > 0))
+              | {tags: .}
+            ')
+          else
+            PAYLOAD=$(printf '%s' "$PAYLOAD_VALUE" | jq -c '{files: .}')
+          fi
+          echo "Purging $INV_TYPE: $PAYLOAD"
+          RESP=$(curl -sS --max-time 30 --retry 2 --retry-delay 3 -X POST             -H "Authorization: Bearer ${CF_TOKEN}"             -H "Content-Type: application/json"             --data "$PAYLOAD"             "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/purge_cache")
+          echo "$RESP"
+          echo "$RESP" | jq -e '.success == true' > /dev/null || { echo "::error::purge failed"; exit 1; }
+          echo "purge succeeded ($INV_TYPE)"
