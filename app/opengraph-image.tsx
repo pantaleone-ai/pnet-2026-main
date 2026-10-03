@@ -17,7 +17,7 @@ export default async function Image() {
   // force-cache: the font is immutable at a given deploy, so fetch it once
   // into the Data Cache instead of re-transferring on every OG regeneration.
   const fontData = await fetch(
-    `${process.env.APP_URL || "https://pantaleone.net"}/fonts/inter-bold.woff2`,
+    `${process.env.APP_URL || "https://www.pantaleone.net"}/fonts/inter-bold.woff2`,
     { cache: "force-cache" },
   ).then((res) => res.arrayBuffer());
 

@@ -43,7 +43,7 @@ export class IndexNowClient {
       throw new Error("IndexNow API key not configured. Set INDEXNOW_API_KEY environment variable.");
     }
 
-    const host = process.env.NEXT_PUBLIC_BASE_URL?.replace(/^https?:\/\//, '') || 'pantaleone.net';
+    const host = process.env.NEXT_PUBLIC_BASE_URL?.replace(/^https?:\/\//, '') || 'www.pantaleone.net';
 
     this.config = {
       apiKey: key,

@@ -114,7 +114,7 @@ See `.env.example` for required variables:
 
 **Core Application**:
 
-- `APP_URL` - Application base URL (e.g., `https://pantaleone.net`)
+- `APP_URL` - Application base URL (e.g., `https://www.pantaleone.net`)
 
 ## Deployment
 

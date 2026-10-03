@@ -12,7 +12,7 @@
   <br />
 
   <h3>
-    <a href="https://pantaleone.net">🌐 Live Demo</a>
+    <a href="https://www.pantaleone.net">🌐 Live Demo</a>
     <span> | </span>
     <a href="#-getting-started">🚀 Getting Started</a>
   </h3>

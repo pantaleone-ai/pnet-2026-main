@@ -207,7 +207,7 @@ export interface CapiProductData {
   currency?: string;
 }
 
-const SHOP_URL = "https://pantaleone.net/shop";
+const SHOP_URL = "https://www.pantaleone.net/shop";
 
 function serverEventId(): string {
   try {
@@ -294,7 +294,7 @@ export async function sendLeadCapi(
         event_name: "Lead",
         event_id: eventId || serverEventId(),
         event_source_url:
-          opts?.eventSourceUrl || "https://pantaleone.net/contact",
+          opts?.eventSourceUrl || "https://www.pantaleone.net/contact",
         user_data: userData,
         custom_data: { content_name: contentName },
       },

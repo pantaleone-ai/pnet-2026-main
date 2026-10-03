@@ -41,17 +41,17 @@ const config = {
       },
       {
         source: "/about",
-        destination: "https://pantaleone.net",
+        destination: "https://www.pantaleone.net",
         permanent: true, // 301 redirect
       },
       {
         source: "/education",
-        destination: "https://pantaleone.net",
+        destination: "https://www.pantaleone.net",
         permanent: true, // 301 redirect
       },
       {
         source: "/experience",
-        destination: "https://pantaleone.net",
+        destination: "https://www.pantaleone.net",
         permanent: true, // 301 redirect
       },
       // Feed redirects to RSS XML

@@ -17,13 +17,13 @@ export const USER: User = {
   address: "United States", 
   phoneNumber: "", // E.164 format, base64 encoded
   email: "matt@pantaleone.net",
-  website: "https://pantaleone.net",
+  website: "https://www.pantaleone.net",
   jobTitle: "Founder & Lead Developer",
   jobs: [
     {
       title: "Founder",
       company: "Pantaleone Digital Services LLC",
-      website: "https://pantaleone.net",
+      website: "https://www.pantaleone.net",
     },
     {
       title: "Lead Strategist",

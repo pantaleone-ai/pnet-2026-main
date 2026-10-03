@@ -100,7 +100,7 @@ function getSoftwareApplicationJsonLd(
     author: {
       "@type": "Organization",
       name: "Pantaleone Digital Services",
-      url: "https://pantaleone.net",
+      url: "https://www.pantaleone.net",
     },
   };
 
@@ -280,7 +280,7 @@ export default function ProductDetailClient({
   };
 
   // Build canonical URL for product page
-  const canonicalUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://pantaleone.net"}/shop/${category}/${product.slug}`;
+  const canonicalUrl = `${process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_BASE_URL || "https://www.pantaleone.net"}/shop/${category}/${product.slug}`;
 
   // Use SoftwareApplication schema for Apps, Product for others
   const jsonLdData = categoryName.toLowerCase().includes("app")

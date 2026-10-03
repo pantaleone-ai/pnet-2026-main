@@ -7,7 +7,7 @@ export const dynamic = "force-static";
 
 export async function GET() {
   const products = getProducts();
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://pantaleone.net";
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_BASE_URL || "https://www.pantaleone.net";
 
   const headers = [
     "id",

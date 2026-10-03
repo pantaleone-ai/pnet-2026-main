@@ -19,7 +19,7 @@ export interface FeedProduct {
 
 export async function getFeedProducts(): Promise<FeedProduct[]> {
   const products = getProducts();
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://pantaleone.net";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://www.pantaleone.net";
 
   return products.map((p: ShopProduct) => {
     // Map category names to URL slugs (consistent with other components)

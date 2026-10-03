@@ -48,7 +48,7 @@ interface ProductListJsonLdProps {
 export function ProductListJsonLd({ products, categoryName }: ProductListJsonLdProps) {
   if (!products || products.length === 0) return null;
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://pantaleone.net";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://www.pantaleone.net";
 
   const itemListElement = products.map((product, index) => ({
     "@type": "ListItem",

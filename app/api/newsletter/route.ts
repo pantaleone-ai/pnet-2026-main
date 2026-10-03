@@ -127,7 +127,7 @@ export async function POST(request: Request) {
       await sendLeadCapi("newsletter", rawEventId, {
         email,
         request,
-        eventSourceUrl: "https://pantaleone.net/",
+        eventSourceUrl: "https://www.pantaleone.net/",
       });
     }
 

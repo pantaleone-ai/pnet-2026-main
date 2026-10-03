@@ -110,9 +110,9 @@ export function buildMerchantReturnPolicy(): MerchantReturnPolicy {
 
 **Test Product URLs:**
 
-1. https://pantaleone.net/shop/ai-apps/profitsignals-app
-2. https://pantaleone.net/shop/ai-apps/nextjs-ai-starter-app
-3. https://pantaleone.net/shop/ai-workflows/100k-ai-prompts-pack
+1. https://www.pantaleone.net/shop/ai-apps/profitsignals-app
+2. https://www.pantaleone.net/shop/ai-apps/nextjs-ai-starter-app
+3. https://www.pantaleone.net/shop/ai-workflows/100k-ai-prompts-pack
 
 **Expected Results:**
 
@@ -442,18 +442,18 @@ Use this checklist after deployment:
 After deployment, test these URLs:
 
 1. **ProfitSignals.xyz**
-   - URL: https://pantaleone.net/shop/ai-apps/profitsignals-app
+    - URL: https://www.pantaleone.net/shop/ai-apps/profitsignals-app
    - SKU: PROFITSIGNALS-APP-001
    - Price: $750
    - Expected priceValidUntil: 2026-02-06 (1 year from today)
 
 2. **100k AI Prompts Pack**
-   - URL: https://pantaleone.net/shop/ai-workflows/100k-ai-prompts-pack
+    - URL: https://www.pantaleone.net/shop/ai-workflows/100k-ai-prompts-pack
    - Price: $29
    - Expected priceValidUntil: 2026-02-06
 
 3. **Next.js AI Starter App**
-   - URL: https://pantaleone.net/shop/ai-apps/nextjs-ai-starter-app
+    - URL: https://www.pantaleone.net/shop/ai-apps/nextjs-ai-starter-app
    - Price: $49
    - Expected priceValidUntil: 2026-02-06
 
