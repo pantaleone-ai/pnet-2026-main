@@ -135,3 +135,22 @@ jobs:
           echo "$RESP"
           echo "$RESP" | jq -e '.success == true' > /dev/null || { echo "::error::purge failed"; exit 1; }
           echo "purge succeeded ($INV_TYPE)"
+
+  warm-edge:
+    needs: [compute-changed-urls, wait-for-vercel-cutover]
+    if: needs.compute-changed-urls.outputs.count != '0'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Re-warm freshly purged URLs (one controlled fetch each)
+        # Without this, the first wave of visitors/crawlers after a purge
+        # stampedes the origin at once (ISR reads + transfer spike). Warming
+        # here pays one origin fetch per URL, then the edge serves everyone.
+        env:
+          FILES_JSON: ${{ needs.compute-changed-urls.outputs.files_json }}
+        run: |
+          set -euo pipefail
+          echo "$FILES_JSON" | jq -r '.[]' | head -n 25 | while IFS= read -r url; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "$url" || echo "000")
+            echo "$code $url"
+          done
