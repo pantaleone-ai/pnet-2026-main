@@ -94,7 +94,7 @@ export async function POST(request: Request) {
     }
 
     const downloadUrl =
-      process.env.LEAD_MAGNET_DOWNLOAD_URL || "https://pantaleone.net";
+      process.env.LEAD_MAGNET_DOWNLOAD_URL || "https://www.pantaleone.net";
 
     const { error } = await resend.emails.send({
       from: process.env.NEWSLETTER_FROM_EMAIL || DEFAULT_FROM_EMAIL,
@@ -133,7 +133,7 @@ export async function POST(request: Request) {
       await sendLeadCapi(guide, rawEventId, {
         email,
         request,
-        eventSourceUrl: "https://pantaleone.net/",
+        eventSourceUrl: "https://www.pantaleone.net/",
       });
     }
 

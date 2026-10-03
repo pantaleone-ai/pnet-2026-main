@@ -7,7 +7,7 @@
  * titles, descriptions, URLs, and curation so machine surfaces stay in sync.
  */
 
-export const CANONICAL_ORIGIN = "https://pantaleone.net";
+export const CANONICAL_ORIGIN = "https://www.pantaleone.net";
 
 /**
  * Canonical entity model — the single source of truth for site identity.

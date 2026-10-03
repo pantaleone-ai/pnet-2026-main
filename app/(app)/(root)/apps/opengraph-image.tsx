@@ -8,7 +8,7 @@ export const contentType = "image/png";
 
 export default async function Image() {
   const fontData = await fetch(
-    `${process.env.APP_URL || "https://pantaleone.net"}/fonts/inter-bold.woff2`,
+    `${process.env.APP_URL || "https://www.pantaleone.net"}/fonts/inter-bold.woff2`,
     { cache: "force-cache" },
   ).then((res) => res.arrayBuffer());
 

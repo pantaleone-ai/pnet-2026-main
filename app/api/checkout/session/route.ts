@@ -10,7 +10,7 @@ import {
   getCartMetadata,
 } from "@/lib/cart-utils";
 
-const APP_URL = process.env.APP_URL || "https://pantaleone.net";
+const APP_URL = process.env.APP_URL || "https://www.pantaleone.net";
 
 // Transactional Stripe redirect: per-cart, per-request. Never CDN-cacheable.
 // Explicit force-dynamic + no-store on every response; per-IP rate limit

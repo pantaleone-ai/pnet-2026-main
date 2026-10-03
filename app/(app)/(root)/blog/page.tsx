@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     description: page?.description,
     images: [
       {
-        url: "https://pantaleone.net/opengraph-image",
+        url: "https://www.pantaleone.net/opengraph-image",
         width: 1200,
         height: 630,
         alt: page?.title,
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: page?.title,
     description: page?.description,
-    images: ["https://pantaleone.net/opengraph-image"],
+    images: ["https://www.pantaleone.net/opengraph-image"],
   },
 
   // Additional meta tags

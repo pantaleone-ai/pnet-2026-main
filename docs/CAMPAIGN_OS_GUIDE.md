@@ -76,7 +76,7 @@ and wait for `POST …/approve`; L3+ auto-approve via the same code path
 ## 5. Running the loop (humans)
 
 ```bash
-BASE=https://pantaleone.net   # or http://localhost:1410 for dev
+BASE=https://www.pantaleone.net   # or http://localhost:1410 for dev
 
 # 1. Ingest blog posts as source content (deduplicates by URL)
 curl -X POST $BASE/api/campaigns/ingest \

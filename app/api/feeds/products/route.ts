@@ -8,7 +8,7 @@ export async function GET() {
   try {
     const products = await getFeedProducts();
     const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL || "https://pantaleone.net";
+      process.env.NEXT_PUBLIC_BASE_URL || "https://www.pantaleone.net";
 
     const xmlHeader = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">

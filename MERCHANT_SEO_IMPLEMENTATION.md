@@ -164,7 +164,7 @@ shipping?: {
 
 ### Google Rich Results Test
 1. Go to https://search.google.com/test/rich-results
-2. Enter a product URL (e.g., `https://pantaleone.net/shop/ai-apps/profitsignals-app`)
+2. Enter a product URL (e.g., `https://www.pantaleone.net/shop/ai-apps/profitsignals-app`)
 3. Verify:
    - Product schema is detected
    - All required fields are present

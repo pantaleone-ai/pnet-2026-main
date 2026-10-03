@@ -160,7 +160,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
       serverTrack.purchase(purchaseData, clientId),
       sendPurchaseCapi(purchaseData, session.id, {
         email: customerEmail,
-        eventSourceUrl: "https://pantaleone.net/shop",
+        eventSourceUrl: "https://www.pantaleone.net/shop",
       }),
     ]);
 
@@ -193,8 +193,8 @@ async function sendPurchaseConfirmationEmail(
       ? (lineItems[0].price.product as Stripe.Product).name
       : 'Your Purchase';
 
-    const purchaseUrl = session.metadata?.purchase_url || 'https://pantaleone.net/shop';
-    const appUrl = session.metadata?.app_url || 'https://pantaleone.net';
+    const purchaseUrl = session.metadata?.purchase_url || 'https://www.pantaleone.net/shop';
+    const appUrl = session.metadata?.app_url || 'https://www.pantaleone.net';
 
     const html = `
       <!DOCTYPE html>
@@ -301,7 +301,7 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
       serverTrack.purchase(purchaseData, paymentIntent.customer as string || 'anonymous'),
       sendPurchaseCapi(purchaseData, paymentIntent.id, {
         email: paymentIntent.receipt_email || undefined,
-        eventSourceUrl: "https://pantaleone.net/shop",
+        eventSourceUrl: "https://www.pantaleone.net/shop",
       }),
     ]);
 
