@@ -133,15 +133,15 @@ const config = {
         // integration) honors the generic Cache-Control s-maxage. A 1yr
         // s-maxage would pin stale HTML — including stale GA/Meta IDs and
         // tracker logic — at the Cloudflare edge (observed cf-cache-status:
-        // HIT with age ~8h). Keep Vercel edge long, keep shared-cache TTL
-        // short so Cloudflare revalidates within minutes.
+        // HIT with age ~8h). Keep Vercel edge long, keep shared-cache TTL at 20min so
+        // Cloudflare revalidates promptly; deploys purge instantly by tag.
         // NOTE: no `immutable` here — only valid for fingerprinted assets.
         source:
           "/((?!api|_next|_vercel|checkout|robots\\.txt|sitemap|favicon\\.ico|opengraph-image|llms\\.txt|llms-full\\.txt|shop\\.md|projects\\.md|index\\.md|services\\.md|b2b\\.md|contact\\.md|blog\\.mdx|rss\\.xml).*)",
         headers: [
           {
             key: "Cache-Control",
-            value: "public, s-maxage=300, stale-while-revalidate=86400",
+            value: "public, s-maxage=1200, stale-while-revalidate=86400",
           },
           {
             key: "Vercel-CDN-Cache-Control",
