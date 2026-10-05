@@ -64,6 +64,23 @@ Do not auto-publish unverified claims. Regulated topics (profitsignals) stay edu
 
 After `scripts/social-issues/seed-calendar.ts` live seed, `config/social-growth/calendar-30d.ts` is frozen reference. New posts go to Issues or the ingest route. Excluded: agentdna, agentlibrary, qrgen (no boards).
 
+## Projects (verified 2026-10-05, user-level under pantaleone-ai, board view, blank)
+
+| App | Project | Secret |
+| --- | --- | --- |
+| synthetic-pics | 2 | PROJECT_SYNTHETIC_PICS |
+| print3dmodels | 3 | PROJECT_PRINT3DMODELS |
+| mixphd | 4 | PROJECT_MIXPHD |
+| proswing | 5 | PROJECT_PROSWING |
+| imgsquash | 6 | PROJECT_IMGSQUASH |
+| aicapturelab | 7 | PROJECT_AICAPTURELAB |
+| profitsignals | 8 | PROJECT_PROFITSIGNALS |
+| aiceo | 9 | PROJECT_AICEO |
+| pantaleone | 10 | PROJECT_PANTALEONE |
+
+Code map: `config/social-growth/projects.ts`. Feed: `social-to-projects.yml` (fail-soft).
+Token note: local and default `GITHUB_TOKEN` lack Projects scope (verified: `user.projectsV2` not accessible). For live auto-add, create a fine-grained PAT (owner pantaleone-ai, Projects read/write, Issues read) and save as `PROJECTS_TOKEN`. Until then the workflow logs skip lines and the queue is unaffected.
+
 ## Analytics and KPIs
 
 Level 1 business (revenue, purchases, subs), Level 2 conversion (activations, trials, clicks), Level 3 traffic (CTR, visits), Level 4 distribution (reach, completion), Level 5 engagement (saves, shares). Content mix starts 40/25/15/10/10 useful/product/proof/discovery/conversion, reweighted by conversion.
