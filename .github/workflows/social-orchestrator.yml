@@ -1,0 +1,68 @@
+name: social-orchestrator
+
+# Shared social queue orchestration (offset from content-orchestrator :17 and campaign-tick :17).
+# Every 12h at minute 47: claim the next queued social post (p1 first, oldest first).
+# On merged social/* PRs: close the linked issue with an evidence bundle.
+
+on:
+  schedule:
+    - cron: "47 */12 * * *"
+  workflow_dispatch:
+  pull_request:
+    types: [closed]
+
+concurrency:
+  group: social-orchestrator
+  cancel-in-progress: false
+
+permissions:
+  issues: write
+  pull-requests: read
+  contents: read
+
+jobs:
+  pick-and-claim:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - run: npm ci
+      - name: Ensure labels
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx tsx scripts/content-issues/labels.ts
+      - name: Pick and claim next social post
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx tsx scripts/social-issues/pick-next-social.ts
+
+  evidence-and-close:
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'social/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - run: npm ci
+      - name: Extract issue number and close
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH_NAME="${{ github.event.pull_request.head.ref }}"
+          ISSUE_NUM="$(echo "$BRANCH_NAME" | cut -d'/' -f2 | cut -d'-' -f1)"
+          if ! echo "$ISSUE_NUM" | grep -Eq '^[0-9]+$'; then
+            echo "Branch $BRANCH_NAME does not carry an issue number; skipping."
+            exit 0
+          fi
+          npx tsx scripts/social-issues/close-with-evidence-social.ts \
+            --issue "$ISSUE_NUM" \
+            --pr "${{ github.event.pull_request.number }}" \
+            --sha "${{ github.event.pull_request.merge_commit_sha }}"

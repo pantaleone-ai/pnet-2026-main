@@ -1,0 +1,60 @@
+name: social-to-projects
+
+# Feed the shared social queue into per-app GitHub Projects (org: pantaleone-ai).
+# On issue opened/labeled with social + site:<app>, add it to that app's project.
+# Required secrets (project numbers from `gh project list --owner pantaleone-ai`):
+# PROJECT_SYNTHETIC_PICS, PROJECT_PRINT3DMODELS, PROJECT_MIXPHD, PROJECT_PROSWING,
+# PROJECT_IMGSQUASH, PROJECT_AICAPTURELAB, PROJECT_PROFITSIGNALS, PROJECT_AICEO,
+# PROJECT_PANTALEONE. Missing secrets are skipped (fail-soft, never block the queue).
+
+on:
+  issues:
+    types: [opened, labeled]
+
+permissions:
+  issues: read
+
+jobs:
+  add-to-project:
+    if: contains(github.event.issue.labels.*.name, 'social')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Add to per-app project
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+          LABELS: ${{ toJson(github.event.issue.labels.*.name) }}
+          PROJECT_SYNTHETIC_PICS: ${{ secrets.PROJECT_SYNTHETIC_PICS }}
+          PROJECT_PRINT3DMODELS: ${{ secrets.PROJECT_PRINT3DMODELS }}
+          PROJECT_MIXPHD: ${{ secrets.PROJECT_MIXPHD }}
+          PROJECT_PROSWING: ${{ secrets.PROJECT_PROSWING }}
+          PROJECT_IMGSQUASH: ${{ secrets.PROJECT_IMGSQUASH }}
+          PROJECT_AICAPTURELAB: ${{ secrets.PROJECT_AICAPTURELAB }}
+          PROJECT_PROFITSIGNALS: ${{ secrets.PROJECT_PROFITSIGNALS }}
+          PROJECT_AICEO: ${{ secrets.PROJECT_AICEO }}
+          PROJECT_PANTALEONE: ${{ secrets.PROJECT_PANTALEONE }}
+        run: |
+          resolve_project() {
+            case "$1" in
+              site:synthetic-pics) echo "$PROJECT_SYNTHETIC_PICS" ;;
+              site:print3dmodels) echo "$PROJECT_PRINT3DMODELS" ;;
+              site:mixphd) echo "$PROJECT_MIXPHD" ;;
+              site:proswing) echo "$PROJECT_PROSWING" ;;
+              site:imgsquash) echo "$PROJECT_IMGSQUASH" ;;
+              site:aicapturelab) echo "$PROJECT_AICAPTURELAB" ;;
+              site:profitsignals) echo "$PROJECT_PROFITSIGNALS" ;;
+              site:aiceo) echo "$PROJECT_AICEO" ;;
+              site:pantaleone) echo "$PROJECT_PANTALEONE" ;;
+              *) echo "" ;;
+            esac
+          }
+          echo "$LABELS" | grep -o 'site:[a-z-]*' | sort -u | while read -r site; do
+            PROJECT_NUMBER="$(resolve_project "$site")"
+            if [ -z "$PROJECT_NUMBER" ]; then
+              echo "skip $site: project secret not set (create board in pantaleone-ai first)."
+              continue
+            fi
+            echo "adding $ISSUE_URL to $site (project $PROJECT_NUMBER)"
+            gh project item-add "$PROJECT_NUMBER" --owner pantaleone-ai --url "$ISSUE_URL" || echo "add failed for $site (non-blocking)"
+          done
