@@ -1,0 +1,83 @@
+name: social-to-projects
+
+# Feed the shared social queue into per-app GitHub Projects (user-level boards under pantaleone-ai).
+# On issue opened/labeled with social + site:<app>, add it to that app's project.
+# Required secrets (verified 2026-10-05, board view, fully blank):
+# PROJECT_SYNTHETIC_PICS=2, PROJECT_PRINT3DMODELS=3, PROJECT_MIXPHD=4,
+# PROJECT_PROSWING=5, PROJECT_IMGSQUASH=6, PROJECT_AICAPTURELAB=7,
+# PROJECT_PROFITSIGNALS=8, PROJECT_AICEO=9, PROJECT_PANTALEONE=10.
+# Token: PROJECTS_TOKEN (fine-grained PAT with Projects read/write) preferred;
+# falls back to GITHUB_TOKEN which lacks project scope and will skip with a log line.
+# Missing secrets are skipped (fail-soft, never block the queue).
+
+on:
+  issues:
+    types: [opened, labeled]
+
+permissions:
+  issues: read
+
+jobs:
+  add-to-project:
+    if: contains(github.event.issue.labels.*.name, 'social')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Add to per-app project
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
+          ISSUE_URL: ${{ github.event.issue.html_url }}
+          LABELS: ${{ toJson(github.event.issue.labels.*.name) }}
+          PROJECT_SYNTHETIC_PICS: ${{ secrets.PROJECT_SYNTHETIC_PICS }}
+          PROJECT_PRINT3DMODELS: ${{ secrets.PROJECT_PRINT3DMODELS }}
+          PROJECT_MIXPHD: ${{ secrets.PROJECT_MIXPHD }}
+          PROJECT_PROSWING: ${{ secrets.PROJECT_PROSWING }}
+          PROJECT_IMGSQUASH: ${{ secrets.PROJECT_IMGSQUASH }}
+          PROJECT_AICAPTURELAB: ${{ secrets.PROJECT_AICAPTURELAB }}
+          PROJECT_PROFITSIGNALS: ${{ secrets.PROJECT_PROFITSIGNALS }}
+          PROJECT_AICEO: ${{ secrets.PROJECT_AICEO }}
+          PROJECT_PANTALEONE: ${{ secrets.PROJECT_PANTALEONE }}
+        run: |
+          resolve_project() {
+            case "$1" in
+              site:synthetic-pics) echo "$PROJECT_SYNTHETIC_PICS" ;;
+              site:print3dmodels) echo "$PROJECT_PRINT3DMODELS" ;;
+              site:mixphd) echo "$PROJECT_MIXPHD" ;;
+              site:proswing) echo "$PROJECT_PROSWING" ;;
+              site:imgsquash) echo "$PROJECT_IMGSQUASH" ;;
+              site:aicapturelab) echo "$PROJECT_AICAPTURELAB" ;;
+              site:profitsignals) echo "$PROJECT_PROFITSIGNALS" ;;
+              site:aiceo) echo "$PROJECT_AICEO" ;;
+              site:pantaleone) echo "$PROJECT_PANTALEONE" ;;
+              *) echo "" ;;
+            esac
+          }
+          echo "$LABELS" | grep -o 'site:[a-z-]*' | sort -u | while read -r site; do
+            PROJECT_NUMBER="$(resolve_project "$site")"
+            if [ -z "$PROJECT_NUMBER" ]; then
+              echo "skip $site: project secret not set."
+              continue
+            fi
+            if [ -z "$GH_TOKEN" ]; then
+              echo "skip $site (project $PROJECT_NUMBER): PROJECTS_TOKEN not set; GITHUB_TOKEN lacks project scope. Add a classic PAT with project scope as PROJECTS_TOKEN."
+              continue
+            fi
+            # NOTE: gh project item-add --owner fails with "unknown owner type" for
+            # user-owned boards, so use raw GraphQL (verified 2026-10-05, idempotent:
+            # re-adding returns the existing item instead of duplicating).
+            echo "adding $ISSUE_URL to $site (project $PROJECT_NUMBER)"
+            PROJECT_ID="$(gh api graphql -f query="{user(login:\"pantaleone-ai\"){projectV2(number:$PROJECT_NUMBER){id}}}" --jq '.data.user.projectV2.id' 2>/dev/null)" || PROJECT_ID=""
+            if [ -z "$PROJECT_ID" ] || [ "$PROJECT_ID" = "null" ]; then
+              echo "add failed for $site: could not resolve project node (non-blocking)"
+              continue
+            fi
+            ISSUE_ID="$(gh api repos/pantaleone-ai/pnet-2026-main/issues/${{ github.event.issue.number }} --jq '.node_id' 2>/dev/null)" || ISSUE_ID=""
+            if [ -z "$ISSUE_ID" ] || [ "$ISSUE_ID" = "null" ]; then
+              echo "add failed for $site: could not resolve issue node (non-blocking)"
+              continue
+            fi
+            gh api graphql -f query="mutation{addProjectV2ItemById(input:{projectId:\"$PROJECT_ID\" contentId:\"$ISSUE_ID\"}){item{id}}}" >/dev/null 2>&1 \
+              && echo "added to $site" \
+              || echo "add failed for $site (non-blocking)"
+          done

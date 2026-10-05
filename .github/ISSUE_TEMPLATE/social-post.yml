@@ -1,0 +1,159 @@
+name: Social post
+description: Propose or queue one portfolio social post. One issue per post.
+title: "[Social] "
+labels: ["social", "status:queued"]
+body:
+  - type: dropdown
+    id: app_id
+    attributes:
+      label: App
+      description: "Registry app id from config/portfolio.ts. Excluded for now: agentdna, agentlibrary, qrgen."
+      options:
+        - synthetic-pics
+        - print3dmodels
+        - mixphd
+        - proswing
+        - imgsquash
+        - aicapturelab
+        - profitsignals
+        - aiceo
+        - pantaleone
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      description: Must match platform fit in config/social-growth/platform-matrix.ts.
+      options:
+        - pinterest
+        - instagram
+        - facebook
+        - x
+        - reddit
+        - linkedin
+        - youtube-shorts
+    validations:
+      required: true
+  - type: dropdown
+    id: social_pillar
+    attributes:
+      label: Social pillar
+      description: Distribution pillar from config/social-growth/taxonomy.ts.
+      options:
+        - product
+        - proof
+        - education
+        - discovery
+        - how-to
+        - insight
+        - comparison
+        - use-case
+        - feature
+        - social-proof
+        - build
+        - experiment
+        - portfolio
+    validations:
+      required: true
+  - type: dropdown
+    id: content_type
+    attributes:
+      label: Content type
+      options:
+        - pin
+        - carousel
+        - reel-concept
+        - short-demo-concept
+        - x-post
+        - linkedin-post
+        - facebook-post
+        - reddit-answer
+        - before-after
+        - how-to-card
+        - short-recipe-card
+    validations:
+      required: true
+  - type: input
+    id: content_id
+    attributes:
+      label: Content ID
+      description: "Stable kebab-case id, e.g. syn-pin-drop-01. Used for idempotent ingest."
+      placeholder: syn-pin-drop-01
+    validations:
+      required: true
+  - type: input
+    id: hook
+    attributes:
+      label: Hook
+      description: "First line. Max 220 chars. One idea."
+      placeholder: "New drop: deep indigo abstract for calm rooms."
+    validations:
+      required: true
+  - type: textarea
+    id: body_text
+    attributes:
+      label: Body
+      description: "Short, specific, useful. Max ~2000 chars. No invented stats."
+      placeholder: "Human-guided generative piece. See detail crops in the gallery."
+    validations:
+      required: true
+  - type: input
+    id: cta
+    attributes:
+      label: CTA
+      description: "One primary CTA, e.g. Explore the gallery."
+      placeholder: Explore the gallery
+    validations:
+      required: true
+  - type: input
+    id: destination_url
+    attributes:
+      label: Destination URL
+      description: "Registry domain with UTM (utm_medium must be organic_social)."
+      placeholder: "https://www.synthetic.pics?utm_source=pinterest&utm_medium=organic_social&utm_campaign=..."
+    validations:
+      required: true
+  - type: input
+    id: media_url
+    attributes:
+      label: Media URL
+      description: "R2/public asset URL or creative spec reference. Never commit secrets."
+      placeholder: https://img.pantaleone.net/social/syn-drop-01.png
+    validations:
+      required: false
+  - type: input
+    id: campaign_id
+    attributes:
+      label: Campaign ID
+      description: "6 segments uppercase, e.g. SYN_PINT_DISCOVERY_ARTBUYERS_US_202610."
+      placeholder: SYN_PINT_DISCOVERY_ARTBUYERS_US_202610
+    validations:
+      required: true
+  - type: input
+    id: creative_id
+    attributes:
+      label: Creative ID
+      description: "4 segments uppercase, e.g. SYN_DROP_PIN_V1."
+      placeholder: SYN_DROP_PIN_V1
+    validations:
+      required: true
+  - type: input
+    id: publish_at
+    attributes:
+      label: Publish at
+      description: ISO8601 UTC target slot.
+      placeholder: 2026-10-06T14:00:00Z
+    validations:
+      required: false
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: "p1 = Tier 1 / revenue-proximate. p3 = experimental."
+      options:
+        - p1
+        - p2
+        - p3
+    validations:
+      required: true
