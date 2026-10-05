@@ -1,6 +1,6 @@
 // Claim the next queued social post. Invoked by the 12h social-orchestrator cron.
 // Run: npx tsx scripts/social-issues/pick-next-social.ts [--dry-run]
-// Selects p1 first, then oldest queued. Reverts stale in-progress locks (>7d, no open PR).
+// Selects spri:p1 first, then oldest queued. Reverts stale in-progress locks (>7d, no open PR).
 // Auth: GITHUB_TOKEN (Actions) or `gh auth login` (local).
 import { gh, ghJson, hasLabel, isDryRun, type IssueRef } from "../content-issues/gh";
 
@@ -23,8 +23,8 @@ function listOpenSocialIssues(): IssueRef[] {
 
 function priorityRank(issue: IssueRef): number {
   const names = issue.labels.map((l) => l.name);
-  if (names.includes("p1")) return 0;
-  if (names.includes("p2")) return 1;
+  if (names.includes("spri:p1")) return 0;
+  if (names.includes("spri:p2")) return 1;
   return 2;
 }
 

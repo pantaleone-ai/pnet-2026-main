@@ -7,24 +7,29 @@ import { socialIssueBody, socialIssueTitle } from "@/lib/social-growth/issue-bod
 import { validateSocialNaming } from "@/lib/social-growth/social-utm";
 import { gh, ghJson, isDryRun } from "../content-issues/gh";
 
-function titleExists(title: string): boolean {
-  const rows = ghJson<Array<{ number: number }>>([
-    "issue",
-    "list",
-    "--state",
-    "all",
-    "--search",
-    `in:title "${title}"`,
-    "--json",
-    "number",
-    "--limit",
-    "10",
-  ]);
-  return rows.length > 0;
+function existingTitles(): Set<string> {
+  try {
+    const rows = ghJson<Array<{ title: string }>>([
+      "issue",
+      "list",
+      "--label",
+      "social",
+      "--state",
+      "all",
+      "--limit",
+      "200",
+      "--json",
+      "title",
+    ]);
+    return new Set(rows.map((r) => r.title));
+  } catch {
+    return new Set();
+  }
 }
 
-function main(): void {
+async function main(): Promise<void> {
   const dryRun = isDryRun();
+  const seen = existingTitles();
   let created = 0;
   let skipped = 0;
   for (const post of CALENDAR_30D) {
@@ -35,7 +40,7 @@ function main(): void {
       continue;
     }
     const title = socialIssueTitle(post.contentId, post.hook);
-    if (titleExists(title)) {
+    if (seen.has(title)) {
       skipped += 1;
       console.log(`skip - exists: ${title}`);
       continue;
@@ -45,7 +50,7 @@ function main(): void {
       `site:${post.appId}`,
       `platform:${post.platform}`,
       `spillar:${post.pillar}`,
-      post.priority,
+      `spri:${post.priority}`,
       "status:queued",
     ].join(",");
     const body = socialIssueBody({
@@ -73,7 +78,25 @@ function main(): void {
       created += 1;
       continue;
     }
-    gh(["issue", "create", "--title", title, "--label", labels, "--body-file", "-"], body);
+    // Resilient create: retry transient network failures, never abort the run.
+    let done = false;
+    for (let attempt = 1; attempt <= 4 && !done; attempt += 1) {
+      try {
+        gh(["issue", "create", "--title", title, "--label", labels, "--body-file", "-"], body);
+        done = true;
+      } catch {
+        if (attempt === 4) {
+          console.log(`fail - gave up after 4 attempts: ${title}`);
+        } else {
+          await new Promise((r) => setTimeout(r, attempt * 5000));
+        }
+      }
+    }
+    if (!done) {
+      skipped += 1;
+      continue;
+    }
+    seen.add(title);
     created += 1;
     console.log(`created - ${title}`);
   }

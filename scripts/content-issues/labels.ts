@@ -21,9 +21,9 @@ const LABELS: Array<{ name: string; color: string; description: string }> = [
   { name: "status:done", color: "0e8a16", description: "Merged with evidence bundle. Closed." },
   { name: "needs-evidence", color: "b60205", description: "Merged PR lacked required validation logs." },
   { name: "social", color: "5319e7", description: "Portfolio social post in the shared queue." },
-  { name: "p1", color: "b60205", description: "Social P1: Tier 1 / revenue-proximate. Claim first." },
-  { name: "p2", color: "fbca04", description: "Social P2: standard priority." },
-  { name: "p3", color: "0e8a16", description: "Social P3: experimental." },
+  { name: "spri:p1", color: "b60205", description: "Social P1: Tier 1 / revenue-proximate. Claim first." },
+  { name: "spri:p2", color: "fbca04", description: "Social P2: standard priority." },
+  { name: "spri:p3", color: "0e8a16", description: "Social P3: experimental." },
   { name: "site:synthetic-pics", color: "0e8a16", description: "Site: synthetic.pics." },
   { name: "site:print3dmodels", color: "0e8a16", description: "Site: print3dmodels.com." },
   { name: "site:mixphd", color: "0e8a16", description: "Site: mixphd.com." },
@@ -79,33 +79,55 @@ function main(): void {
   const existing = existingLabels();
   let created = 0;
   let updated = 0;
+  let failed = 0;
   for (const label of LABELS) {
-    if (existing.has(label.name)) {
-      gh([
-        "label",
-        "edit",
-        label.name,
-        "--color",
-        label.color,
-        "--description",
-        label.description,
-      ]);
-      updated += 1;
-    } else {
-      gh([
-        "label",
-        "create",
-        label.name,
-        "--color",
-        label.color,
-        "--description",
-        label.description,
-      ]);
-      created += 1;
+    try {
+      if (existing.has(label.name)) {
+        gh([
+          "label",
+          "edit",
+          label.name,
+          "--color",
+          label.color,
+          "--description",
+          label.description,
+        ]);
+        updated += 1;
+      } else {
+        try {
+          gh([
+            "label",
+            "create",
+            label.name,
+            "--color",
+            label.color,
+            "--description",
+            label.description,
+          ]);
+          created += 1;
+        } catch {
+          // Race: label appeared after listing (or case-variant exists).
+          // Force-update instead of crashing the whole run.
+          gh([
+            "label",
+            "create",
+            label.name,
+            "--force",
+            "--color",
+            label.color,
+            "--description",
+            label.description,
+          ]);
+          updated += 1;
+        }
+      }
+      console.log(`ok - ${label.name}`);
+    } catch (error) {
+      failed += 1;
+      console.log(`fail - ${label.name} (non-blocking, continuing)`);
     }
-    console.log(`ok - ${label.name}`);
   }
-  console.log(`\nlabels: created=${created} updated=${updated} total=${LABELS.length}`);
+  console.log(`\nlabels: created=${created} updated=${updated} failed=${failed} total=${LABELS.length}`);
 }
 
 main();

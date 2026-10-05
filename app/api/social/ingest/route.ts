@@ -62,7 +62,7 @@ export async function POST(request: Request) {
       `site:${content.appId}`,
       `platform:${content.platform}`,
       `spillar:${content.pillar}`,
-      content.priority,
+      `spri:${content.priority}`,
       "status:queued",
     ];
     const res = await fetch(`${GITHUB_API}/repos/${repoInfo.owner}/${repoInfo.repo}/issues`, {
