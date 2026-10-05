@@ -60,9 +60,24 @@ jobs:
               continue
             fi
             if [ -z "$GH_TOKEN" ]; then
-              echo "skip $site (project $PROJECT_NUMBER): PROJECTS_TOKEN not set; GITHUB_TOKEN lacks project scope. Add a PAT with Projects read/write as PROJECTS_TOKEN."
+              echo "skip $site (project $PROJECT_NUMBER): PROJECTS_TOKEN not set; GITHUB_TOKEN lacks project scope. Add a classic PAT with project scope as PROJECTS_TOKEN."
               continue
             fi
+            # NOTE: gh project item-add --owner fails with "unknown owner type" for
+            # user-owned boards, so use raw GraphQL (verified 2026-10-05, idempotent:
+            # re-adding returns the existing item instead of duplicating).
             echo "adding $ISSUE_URL to $site (project $PROJECT_NUMBER)"
-            gh project item-add "$PROJECT_NUMBER" --owner pantaleone-ai --url "$ISSUE_URL" || echo "add failed for $site (non-blocking)"
+            PROJECT_ID="$(gh api graphql -f query="{user(login:\"pantaleone-ai\"){projectV2(number:$PROJECT_NUMBER){id}}}" --jq '.data.user.projectV2.id' 2>/dev/null)" || PROJECT_ID=""
+            if [ -z "$PROJECT_ID" ] || [ "$PROJECT_ID" = "null" ]; then
+              echo "add failed for $site: could not resolve project node (non-blocking)"
+              continue
+            fi
+            ISSUE_ID="$(gh api repos/pantaleone-ai/pnet-2026-main/issues/${{ github.event.issue.number }} --jq '.node_id' 2>/dev/null)" || ISSUE_ID=""
+            if [ -z "$ISSUE_ID" ] || [ "$ISSUE_ID" = "null" ]; then
+              echo "add failed for $site: could not resolve issue node (non-blocking)"
+              continue
+            fi
+            gh api graphql -f query="mutation{addProjectV2ItemById(input:{projectId:\"$PROJECT_ID\" contentId:\"$ISSUE_ID\"}){item{id}}}" >/dev/null 2>&1 \
+              && echo "added to $site" \
+              || echo "add failed for $site (non-blocking)"
           done
