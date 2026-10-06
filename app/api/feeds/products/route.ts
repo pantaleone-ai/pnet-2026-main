@@ -42,7 +42,7 @@ export async function GET() {
         <g:identifier_exists>${product.gtin ? "yes" : "no"}</g:identifier_exists>
         <g:quantity>${product.quantity}</g:quantity>
         ${product.excluded_destination?.map((dest) => `<g:excluded_destination>${dest}</g:excluded_destination>`).join("\n        ") || ""}
-        ${product.checkout_link ? `<g:checkout_link>${product.checkout_link}</g:checkout_link>` : ""}
+        ${product.checkout_link ? `<g:checkout_link><![CDATA[${product.checkout_link.trim()}]]></g:checkout_link>` : ""}
     </item>
 `,
       )
