@@ -7,7 +7,28 @@ export const dynamic = "force-static";
 
 export async function GET() {
   const products = getProducts();
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_BASE_URL || "https://www.pantaleone.net";
+  // Sanitize: production env carried a trailing newline which embedded
+  // `\n` in every link (Missing product page for all products in
+  // Merchant Center). Trim and strip trailing slashes defensively.
+  const baseUrl = (
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.NEXT_PUBLIC_BASE_URL ||
+    "https://www.pantaleone.net"
+  )
+    .trim()
+    .replace(/\/+$/, "");
+
+  // Canonical shop category slugs (must match /shop/[category] routes).
+  const categoryMapping: Record<string, string> = {
+    Apps: "ai-apps",
+    "Ai Workflows": "ai-workflows",
+  };
+
+  // TSV cells must not contain tabs/newlines; strip them per field.
+  const cell = (value: unknown): string =>
+    String(value ?? "")
+      .replace(/[\t\n\r]+/g, " ")
+      .trim();
 
   const headers = [
     "id",
@@ -28,28 +49,30 @@ export async function GET() {
   ];
 
   const rows = products.map((product) => {
-    const categorySlug = product.category.toLowerCase().replace(/\s+/g, "-");
-    const link = `${baseUrl}/shop/${categorySlug}/${product.slug}`;
-    const additionalImages = product.additionalImages
+    const categorySlug =
+      categoryMapping[product.category] ||
+      product.category.toLowerCase().replace(/\s+/g, "-");
+    const link = `${baseUrl}/shop/${categorySlug}/${product.slug}`.trim();
+    const additionalImages = (product.additionalImages ?? [])
       ?.map((img) => img.url)
       .filter(Boolean)
       .join("|");
 
     return [
-      product.sku || `product-${product.id}`,
-      product.title,
-      product.description.replace(/\n/g, " ").replace(/\t/g, " "),
-      link,
-      product.imageUrl,
-      additionalImages || "",
-      product.availability || "in_stock",
-      `${product.price} ${product.currency}`,
-      product.brand || "Pantaleone Digital Services",
-      product.condition || "new",
-      product.googleProductCategory || "319",
-      product.productType || "Software & Apps",
+      cell(product.sku || `product-${product.id}`),
+      cell(product.title),
+      cell(product.description),
+      cell(link),
+      cell(product.imageUrl),
+      cell(additionalImages || ""),
+      cell(product.availability || "in_stock"),
+      cell(`${product.price} ${product.currency}`),
+      cell(product.brand || "Pantaleone Digital Services"),
+      cell(product.condition || "new"),
+      cell(product.googleProductCategory || "319"),
+      cell(product.productType || "Software & Apps"),
       product.identifierExists ? "true" : "false",
-      product.isDigital ? "0 lb" : `${product.weight || 0} lb`,
+      cell(product.isDigital ? "0 lb" : `${product.weight || 0} lb`),
       product.isDigital ? "yes" : "no",
     ].join("\t");
   });
