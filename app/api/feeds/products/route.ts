@@ -7,8 +7,14 @@ export const dynamic = "force-static";
 export async function GET() {
   try {
     const products = await getFeedProducts();
-    const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL || "https://www.pantaleone.net";
+    // Sanitize: production env carried a trailing newline which produced
+    // `<g:link>https://www.pantaleone.net\n/shop/...` for every item, so
+    // Merchant Center reported Missing product page for all products.
+    const baseUrl = (
+      process.env.NEXT_PUBLIC_BASE_URL || "https://www.pantaleone.net"
+    )
+      .trim()
+      .replace(/\/+$/, "");
 
     const xmlHeader = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
@@ -25,8 +31,8 @@ export async function GET() {
         <g:id><![CDATA[${product.id}]]></g:id>
         <g:title><![CDATA[${product.title}]]></g:title>
         <g:description><![CDATA[${product.description}]]></g:description>
-        <g:link>${product.link}</g:link>
-        <g:image_link>${product.image_link}</g:image_link>
+        <g:link><![CDATA[${product.link.trim()}]]></g:link>
+        <g:image_link><![CDATA[${product.image_link.trim()}]]></g:image_link>
         <g:condition>new</g:condition>
         <g:availability>${product.availability}</g:availability>
         <g:price>${product.price}</g:price>

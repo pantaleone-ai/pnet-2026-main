@@ -19,7 +19,12 @@ export interface FeedProduct {
 
 export async function getFeedProducts(): Promise<FeedProduct[]> {
   const products = getProducts();
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://www.pantaleone.net";
+  // Merchant Center rejects links with whitespace/control chars. The
+  // deployed NEXT_PUBLIC_BASE_URL carried a trailing newline, which broke
+  // every <g:link> (Missing product page for all products), so sanitize.
+  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || "https://www.pantaleone.net")
+    .trim()
+    .replace(/\/+$/, "");
 
   return products.map((p: ShopProduct) => {
     // Map category names to URL slugs (consistent with other components)
@@ -37,8 +42,8 @@ export async function getFeedProducts(): Promise<FeedProduct[]> {
       id: p.sku || `product-${p.id}`,
       title: p.title,
       description: p.description.substring(0, 5000), // Limit description length
-      link: `${baseUrl}/shop/${categorySlug}/${p.slug}`,
-      image_link: p.imageUrl,
+      link: `${baseUrl}/shop/${categorySlug}/${p.slug}`.trim(),
+      image_link: (p.imageUrl || "").trim(),
       price: `${p.price} ${p.currency}`,
       // Digital products are always in stock
       availability: "in_stock",
@@ -49,7 +54,7 @@ export async function getFeedProducts(): Promise<FeedProduct[]> {
       google_product_category: "Software > Computer Software", // Category for digital software
       // Exclude digital products from local inventory - they don't have physical store inventory
       excluded_destination: ["Free_local_listings", "Local_inventory_ads"],
-      checkout_link: `${baseUrl}/checkout?product_id=${p.sku || `product-${p.id}`}`, // URL template for Google checkout
+      checkout_link: `${baseUrl}/checkout?product_id=${p.sku || `product-${p.id}`}`.trim(), // URL template for Google checkout
     };
   });
 }
