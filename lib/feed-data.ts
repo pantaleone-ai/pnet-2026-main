@@ -7,6 +7,8 @@ export interface FeedProduct {
   description: string;
   link: string;
   image_link: string;
+  additional_image_link?: string[]; // Extra product images (Meta catalog quality signal)
+  product_type?: string; // Merchant-defined category path (Meta + Google)
   price: string; // "49.99 USD"
   availability: "in_stock" | "out_of_stock" | "preorder";
   quantity: number; // Inventory count (999 for unlimited digital products)
@@ -44,7 +46,14 @@ export async function getFeedProducts(): Promise<FeedProduct[]> {
       description: p.description.substring(0, 5000), // Limit description length
       link: `${baseUrl}/shop/${categorySlug}/${p.slug}`.trim(),
       image_link: (p.imageUrl || "").trim(),
-      price: `${p.price} ${p.currency}`,
+      additional_image_link: (p.additionalImages ?? [])
+        .map((img) => img.url)
+        .filter((url) => url && url !== p.imageUrl)
+        .slice(0, 10),
+      product_type: p.productType || undefined,
+      // Meta/Google require major units ("100.00 USD"). ShopProduct.price is
+      // canonical major units (see schema); format defensively to 2 decimals.
+      price: `${p.price.toFixed(2)} ${p.currency}`,
       // Digital products are always in stock
       availability: "in_stock",
       // 999 for unlimited digital inventory

@@ -2,6 +2,9 @@ import { z } from "zod";
 import { baseProjectSchema } from "@/config/schemas/base-schemas";
 
 export const shopProductSchema = baseProjectSchema.extend({
+  // Canonical unit: MAJOR currency units (e.g. dollars). Never store minor
+  // units (cents): display, JSON-LD, cart, and catalog feeds all read this
+  // value verbatim. Stripe amounts remain authoritative at checkout.
   price: z.number(),
   currency: z.string().default("USD"),
   sku: z.string().optional(),
