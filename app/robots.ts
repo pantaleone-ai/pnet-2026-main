@@ -37,7 +37,7 @@ export default function robots(): MetadataRoute.Robots {
         ],
         // Private, internal, and execution-triggering routes stay blocked.
         // /checkout is a dynamic flow with no indexable value. /about,
-        // /experience, and /education are disallowed because next.config.mjs
+        // /experience, and /education are disallowed because middleware.ts
         // permanently redirects them to the homepage — they are not
         // indexable content pages. If those redirects are ever removed (a
         // public URL behavior change requiring its own migration plan),

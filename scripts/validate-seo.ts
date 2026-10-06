@@ -158,26 +158,39 @@ if (!/<Heading as="h2" sizeAs="h1"/.test(mdx)) {
 
 // --- ROBOTS -----------------------------------------------------------------
 const robots = read("app/robots.ts");
-// /about, /experience, /education 308-redirect to / via next.config.mjs, so
+// /about, /experience, /education 301-redirect to / via middleware.ts, so
 // they must stay disallowed AND out of the sitemap. If those redirects are
 // ever removed, this gate forces the sitemap/robots update below.
-const nextConfig = read("next.config.mjs");
+const middleware = read("middleware.ts");
 const REDIRECTED_PAGES = ["/about", "/experience", "/education"];
-const redirectsExist = REDIRECTED_PAGES.every((p) => nextConfig.includes(`"${p}"`));
+const redirectsExist = REDIRECTED_PAGES.every((p) => middleware.includes(`"${p}"`));
 if (!redirectsExist) {
   warn(
-    "next.config.mjs no longer redirects /about, /experience, /education — " +
+    "middleware.ts no longer redirects /about, /experience, /education — " +
       "re-evaluate robots disallow and sitemap inclusion for those pages",
   );
 }
 for (const p of REDIRECTED_PAGES) {
   const disallowBlock = robots.slice(robots.indexOf("disallow"));
   if (redirectsExist && !disallowBlock.includes(`"${p}"`)) {
-    err(`robots.txt must disallow ${p} while it redirects (see next.config.mjs)`);
+    err(`robots.txt must disallow ${p} while it redirects (see middleware.ts)`);
   }
 }
 for (const p of ["/api/", "/_next/", "/private/", "/checkout"]) {
   if (!robots.includes(p)) err(`robots.txt missing protection for ${p}`);
+}
+// Dead legacy prefixes (/p, /tag, /nft-art, /product, ...) have no
+// equivalent page and must 410 via middleware.ts — a 301 to the homepage
+// is a soft-404 that keeps them in Search Console's "Page with redirect"
+// report indefinitely. This fails closed if homepage redirects return.
+const nextConfig = read("next.config.mjs");
+if (/destination:\s*["']\/["']/.test(nextConfig)) {
+  err("next.config.mjs must not 301 dead paths to the homepage (soft-404) — use the middleware.ts 410");
+}
+for (const seg of ["GONE_SEGMENTS", '"p"', '"tag"', '"nft-art"', "410"]) {
+  if (!middleware.includes(seg)) {
+    err(`middleware.ts missing dead-prefix 410 handling (${seg})`);
+  }
 }
 // A static public/robots.txt would shadow the app/robots.ts route in
 // production — the route must remain the single source.
@@ -206,7 +219,7 @@ for (const p of ["/services", "/b2b", "/shop", "/resources/ai-readiness-guide"])
 }
 for (const p of REDIRECTED_PAGES) {
   if (sitemap.includes(`"${p}"`) || sitemap.includes(`'${p}'`)) {
-    err(`sitemap.ts must not list ${p} while it redirects (see next.config.mjs)`);
+    err(`sitemap.ts must not list ${p} while it redirects (see middleware.ts)`);
   }
 }
 if (/shopProducts/.test(sitemap)) {

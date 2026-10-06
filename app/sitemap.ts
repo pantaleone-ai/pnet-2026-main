@@ -60,7 +60,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     // NOTE: /about, /experience, and /education are intentionally absent.
-    // next.config.mjs permanently redirects them to the homepage, so they
+    // middleware.ts permanently redirects them to the homepage, so they
     // are not indexable 200 pages. Removing those redirects (a public URL
     // behavior change) is a separate human decision; if they ever become
     // live pages, add them here with real lastModified dates.
