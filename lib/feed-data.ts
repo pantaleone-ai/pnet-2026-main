@@ -15,7 +15,9 @@ export interface FeedProduct {
   brand?: string;
   gtin?: string; // UPC/EAN
   google_product_category?: string; // For Google Merchant Center
-  checkout_link?: string; // Stripe payment link for checkout
+  // Google's valid attribute is checkout_link_template (checkout_link is
+  // rejected). Only set when the product has a real payment destination.
+  checkout_link_template?: string;
   excluded_destination?: string[]; // Exclude from local inventory ads (digital products) - must be repeated XML elements
 }
 
@@ -63,7 +65,11 @@ export async function getFeedProducts(): Promise<FeedProduct[]> {
       google_product_category: "Software > Computer Software", // Category for digital software
       // Exclude digital products from local inventory - they don't have physical store inventory
       excluded_destination: ["Free_local_listings", "Local_inventory_ads"],
-      checkout_link: `${baseUrl}/checkout?product_id=${p.sku || `product-${p.id}`}`.trim(), // URL template for Google checkout
+      // Omit the template when there is no payment link: Google requires
+      // the checkout URL to land on a purchasable checkout/cart page.
+      checkout_link_template: p.stripePaymentLink
+        ? `${baseUrl}/checkout?product_id=${p.sku || `product-${p.id}`}`.trim()
+        : undefined,
     };
   });
 }

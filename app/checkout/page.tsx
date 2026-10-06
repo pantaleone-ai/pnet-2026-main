@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { getProductByFeedId } from "@/features/shop/data/shopSource";
+import { getProductCategorySlug } from "@/lib/helpers";
 
 interface CheckoutPageProps {
   searchParams: Promise<{
@@ -49,7 +50,9 @@ export default async function CheckoutPage({
   }
 
   if (!product.stripePaymentLink) {
-    redirect(`/shop/${product.slug}`);
+    redirect(
+      `/shop/${getProductCategorySlug(product.category)}/${product.slug}`,
+    );
   }
 
   redirect(product.stripePaymentLink);

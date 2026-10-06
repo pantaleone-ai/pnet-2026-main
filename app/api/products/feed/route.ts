@@ -44,6 +44,7 @@ export async function GET() {
     "google_product_category",
     "product_type",
     "identifier_exists",
+    "checkout_link_template",
     "shipping_weight",
     "is_digital",
   ];
@@ -57,6 +58,12 @@ export async function GET() {
       ?.map((img) => img.url)
       .filter(Boolean)
       .join("|");
+    // Google's valid attribute is checkout_link_template (checkout_link is
+    // rejected). Omit when there is no payment link: the URL must land on
+    // a purchasable checkout/cart page.
+    const checkoutLinkTemplate = product.stripePaymentLink
+      ? `${baseUrl}/checkout?product_id=${product.sku || `product-${product.id}`}`.trim()
+      : "";
 
     return [
       cell(product.sku || `product-${product.id}`),
@@ -72,6 +79,7 @@ export async function GET() {
       cell(product.googleProductCategory || "319"),
       cell(product.productType || "Software & Apps"),
       product.identifierExists ? "true" : "false",
+      cell(checkoutLinkTemplate),
       cell(product.isDigital ? "0 lb" : `${product.weight || 0} lb`),
       product.isDigital ? "yes" : "no",
     ].join("\t");
