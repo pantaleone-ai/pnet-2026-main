@@ -33,6 +33,10 @@ export async function GET() {
         <g:description><![CDATA[${product.description}]]></g:description>
         <g:link><![CDATA[${product.link.trim()}]]></g:link>
         <g:image_link><![CDATA[${product.image_link.trim()}]]></g:image_link>
+        ${(product.additional_image_link ?? [])
+          .map((url) => `<g:additional_image_link><![CDATA[${url.trim()}]]></g:additional_image_link>`)
+          .join("\n        ")}
+        ${product.product_type ? `<g:product_type><![CDATA[${product.product_type}]]></g:product_type>` : ""}
         <g:condition>new</g:condition>
         <g:availability>${product.availability}</g:availability>
         <g:price>${product.price}</g:price>
