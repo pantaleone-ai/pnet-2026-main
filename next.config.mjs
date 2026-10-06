@@ -32,87 +32,11 @@ const config = {
       "react-tweet",
     ],
   },
-  async redirects() {
-    return [
-      {
-        source: "/blog/post/:slug*",
-        destination: "/blog/:slug*",
-        permanent: true, // 301 redirect
-      },
-      {
-        source: "/about",
-        destination: "https://www.pantaleone.net",
-        permanent: true, // 301 redirect
-      },
-      {
-        source: "/education",
-        destination: "https://www.pantaleone.net",
-        permanent: true, // 301 redirect
-      },
-      {
-        source: "/experience",
-        destination: "https://www.pantaleone.net",
-        permanent: true, // 301 redirect
-      },
-      // Feed redirects to RSS XML
-      {
-        source: "/feed",
-        destination: "/rss.xml",
-        permanent: true,
-      },
-      {
-        source: "/feed/",
-        destination: "/rss.xml",
-        permanent: true,
-      },
-      // Directory redirects to homepage
-      {
-        source: "/digital-asset-nft-tag/:slug*",
-        destination: "/",
-        permanent: true,
-      },
-      {
-        source: "/grid",
-        destination: "/shop",
-        permanent: true,
-      },
-      {
-        source: "/sets",
-        destination: "/shop",
-        permanent: true,
-      },
-      {
-        source: "/tag/:slug*",
-        destination: "/",
-        permanent: true,
-      },
-      {
-        source: "/p/:slug*",
-        destination: "/",
-        permanent: true,
-      },
-      {
-        source: "/nft-art/:slug*",
-        destination: "/",
-        permanent: true,
-      },
-      {
-        source: "/product/:slug*",
-        destination: "/",
-        permanent: true,
-      },
-      {
-        source: "/buy-nfts-and-custom-artwork",
-        destination: "/",
-        permanent: true,
-      },
-      {
-        source: "/buy-nfts-and-custom-artwork/",
-        destination: "/",
-        permanent: true,
-      },
-    ];
-  },
+  // NOTE: legacy-URL redirects (apex->www single-hop 301s, /grid->/shop,
+  // /blog/post/*->/blog/*, /feed->/rss.xml) and 410 Gone responses for dead
+  // prefixes (/p, /tag, /nft-art, /product, ...) live in middleware.ts, which
+  // runs before next.config redirects and collapses host+path fixes into one
+  // hop. Do not re-add redirects here without removing them there first.
   images: {
     // Keep images fully unoptimized (zero Image Optimization requests on
     // Vercel); originals are served directly from the edge/CDN.
