@@ -38,6 +38,17 @@ npx tsx scripts/social-issues/publish/publish-due.ts --issue <n> \
 CI: `.github/workflows/social-publish.yml` (dispatch-only, `dry-run`
 defaults to true). Mirror every env below as an Actions secret for CI runs.
 
+## Issue-driven automation
+
+Add the `publish:approved` label to a `status:packet-ready` social issue and
+`social-publish-on-approval.yml` publishes it live. Guards: issue must be
+open + `social` + `status:packet-ready` with no existing proof; credentials
+must be present; images resolve from the issue `**Images:**` field
+(backticked URLs) and Pinterest boards from `**Board:** `id``. Anything else
+gets an explanatory comment and the trigger label is removed (re-add after
+fixing — the run is idempotent, never double-posts). Proof without screenshot
+parks at `needs-screenshot`; attach the shot to close.
+
 ## Channels and credentials
 
 | Channel | Queue volume | Status | Envs needed |
