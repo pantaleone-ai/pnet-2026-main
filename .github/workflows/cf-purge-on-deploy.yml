@@ -97,12 +97,20 @@ jobs:
               | {tags: .}
             ')
           else
-            PAYLOAD=$(printf '%s' "$PAYLOAD_VALUE" | jq -c '{files: .}')
+            # Cloudflare caps single-file purges per call by plan (error 1094)
+            # — batch into chunks of 30 so large content edits still clear fully.
+            CHUNKS=$(printf '%s' "$PAYLOAD_VALUE" | jq -c '[_nwise(30)] | length')
+            echo "Purging $INV_TYPE in $CHUNKS batche(s) of <=30"
+            FAIL=0
+            for ((n = 0; n < CHUNKS; n++)); do
+              PAYLOAD=$(printf '%s' "$PAYLOAD_VALUE" | jq -c --argjson n "$n" '{files: ([_nwise(30)][$n])}')
+              echo "Purging $INV_TYPE batch $((n + 1))/$CHUNKS"
+              RESP=$(curl -sS --max-time 30 --retry 2 --retry-delay 3 -X POST             -H "Authorization: Bearer ${CF_TOKEN}"             -H "Content-Type: application/json"             --data "$PAYLOAD"             "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/purge_cache")
+              echo "$RESP"
+              echo "$RESP" | jq -e '.success == true' > /dev/null || { echo "::error::purge failed (batch $((n + 1)))"; FAIL=1; }
+            done
+            [ "$FAIL" = "0" ] || exit 1
           fi
-          echo "Purging $INV_TYPE: $PAYLOAD"
-          RESP=$(curl -sS --max-time 30 --retry 2 --retry-delay 3 -X POST             -H "Authorization: Bearer ${CF_TOKEN}"             -H "Content-Type: application/json"             --data "$PAYLOAD"             "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/purge_cache")
-          echo "$RESP"
-          echo "$RESP" | jq -e '.success == true' > /dev/null || { echo "::error::purge failed"; exit 1; }
           echo "purge succeeded ($INV_TYPE)"
   purge-tags:
     needs: [compute-changed-urls, wait-for-vercel-cutover]
@@ -128,12 +136,20 @@ jobs:
               | {tags: .}
             ')
           else
-            PAYLOAD=$(printf '%s' "$PAYLOAD_VALUE" | jq -c '{files: .}')
+            # Cloudflare caps single-file purges per call by plan (error 1094)
+            # — batch into chunks of 30 so large content edits still clear fully.
+            CHUNKS=$(printf '%s' "$PAYLOAD_VALUE" | jq -c '[_nwise(30)] | length')
+            echo "Purging $INV_TYPE in $CHUNKS batche(s) of <=30"
+            FAIL=0
+            for ((n = 0; n < CHUNKS; n++)); do
+              PAYLOAD=$(printf '%s' "$PAYLOAD_VALUE" | jq -c --argjson n "$n" '{files: ([_nwise(30)][$n])}')
+              echo "Purging $INV_TYPE batch $((n + 1))/$CHUNKS"
+              RESP=$(curl -sS --max-time 30 --retry 2 --retry-delay 3 -X POST             -H "Authorization: Bearer ${CF_TOKEN}"             -H "Content-Type: application/json"             --data "$PAYLOAD"             "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/purge_cache")
+              echo "$RESP"
+              echo "$RESP" | jq -e '.success == true' > /dev/null || { echo "::error::purge failed (batch $((n + 1)))"; FAIL=1; }
+            done
+            [ "$FAIL" = "0" ] || exit 1
           fi
-          echo "Purging $INV_TYPE: $PAYLOAD"
-          RESP=$(curl -sS --max-time 30 --retry 2 --retry-delay 3 -X POST             -H "Authorization: Bearer ${CF_TOKEN}"             -H "Content-Type: application/json"             --data "$PAYLOAD"             "https://api.cloudflare.com/client/v4/zones/${ZONE_ID}/purge_cache")
-          echo "$RESP"
-          echo "$RESP" | jq -e '.success == true' > /dev/null || { echo "::error::purge failed"; exit 1; }
           echo "purge succeeded ($INV_TYPE)"
 
   warm-edge:
@@ -150,7 +166,10 @@ jobs:
           FILES_JSON: ${{ needs.compute-changed-urls.outputs.files_json }}
         run: |
           set -euo pipefail
-          echo "$FILES_JSON" | jq -r '.[]' | head -n 25 | while IFS= read -r url; do
+          # Slice in jq (not `head`) so the writer never hits a closed pipe
+          # under pipefail; warming is best-effort (bot protection may 403
+          # runner IPs), so never fail the run here.
+          echo "$FILES_JSON" | jq -r '.[0:25][]' | while IFS= read -r url; do
             code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 20 "$url" || echo "000")
             echo "$code $url"
-          done
+          done || echo "warm-edge: best-effort only, continuing"
