@@ -49,8 +49,17 @@ function buildCaption(body: string): string {
 
 function proofPosted(comments: Array<{ body: string }>, channel: string): string | undefined {
   const hit = comments.find((c) => c.body.includes("Platform publish proof") && c.body.includes(channel));
-  const url = hit?.body.match(/https:\/\/(www\.)?(instagram\.com|facebook\.com)\/\S+/);
+  const url = hit?.body.match(/https:\/\/(www\.)?(instagram\.com|facebook\.com|pinterest\.com)\/\S+/);
   return url?.[0];
+}
+
+/** Board ID from a `**Board:** `id`` field (label-triggered runs have no CLI args). */
+function boardFromBody(body: string): string {
+  return body.match(/\*\*Board:\*\*\s*`([^`]+)`/i)?.[1]?.trim() ?? "";
+}
+export function imagesFromBody(body: string): string[] {
+  const fields = [...body.matchAll(/\*\*Images:\*\*\s*`([^`]+)`/gi)].map((m) => m[1] ?? "");
+  return fields.flatMap((f) => f.split(/[\s,]+/)).map((s) => s.trim()).filter((s) => /^https:\/\//.test(s));
 }
 
 async function main(): Promise<void> {
@@ -145,6 +154,7 @@ async function main(): Promise<void> {
     ? (await import("node:fs")).readFileSync(captionFile, "utf8")
     : buildCaption(issue.body);
   const images = (arg("--images") ?? "").split(",").map((s) => s.trim()).filter(Boolean);
+  if (images.length === 0) images.push(...imagesFromBody(issue.body));
 
   if (channel.id === "instagram") {
     if (!accounts.igUserId || images.length < 2) {
@@ -213,8 +223,7 @@ async function main(): Promise<void> {
   if (channel.id === "pinterest") {
     const { createPin, listBoards } = await import("./pinterest");
     const pinToken = process.env.PINTEREST_ACCESS_TOKEN ?? "";
-    let boardId = arg("--board-id") ?? process.env.PINTEREST_BOARD ?? "";
-    if (!boardId) {
+    let boardId = arg("--board-id") ?? process.env.PINTEREST_BOARD ?? boardFromBody(issue.body);    if (!boardId) {
       const boards = listBoards(pinToken);
       console.error(`pinterest needs --board-id. Available: ${boards.map((b) => `${b.name} (${b.id})`).join(", ") || "none"}`);
       process.exit(1);

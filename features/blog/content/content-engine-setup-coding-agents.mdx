@@ -1,0 +1,244 @@
+---
+title: "How to Run a Blog Content Engine with Coding Agents"
+description: "Rules, validation, and publishing loops for running blog content with coding agents without sacrificing quality."
+image: "/images/logo.png"
+imageAlt: "Content engine pipeline diagram"
+created: "2026-10-07"
+date: "2026-10-07"
+author: "Matt Pantaleone"
+authorAvatar: "/images/avatar.jpg"
+authorAvatarAlt: "Matt Pantaleone author avatar"
+tags:
+  - AI Engineering
+  - AI Agents
+category: "AI Engineering"
+pillar: "ai-engineering"
+cluster: "content-ops"
+intent: "technical"
+status: "published"
+seo:
+  - content engine coding agents
+  - blog automation ai agents
+  - editorial validation pipeline
+  - anti-slop workflow
+  - MDX publishing pipeline
+---
+
+# How to Run a Blog Content Engine with Coding Agents
+
+> Don't ask an AI agent to become your content team. Build it an operating system.
+
+An agent is only as reliable as the environment around it. Prompts are temporary context. Repository files, schemas, validators, and Git history are persistent controls. So this site runs its blog like code: content lives in versioned MDX, voice rules live in docs agents must read, deterministic checks reject what humans should never have to review twice, and nothing publishes without a pull request carrying evidence.
+
+This post explains that operating model end to end, using the real implementation on pantaleone.net as the example. The architecture is generic enough to reproduce on any MDX-based blog.
+
+## The Content Engine in 30 Seconds
+
+Content is code. Every article on this site is an MDX file under `features/blog/content/`, reviewed and deployed through the same Git workflow as application code. There is no CMS detour, no draft lost in a chat thread, no publish button that skips review.
+
+Agents operate against persistent rules, not prompts. Strategy, voice, content inventory, and linking rules live in files the agent reads at the start of every task. When the rules change, the files change, and every future draft follows the new version automatically.
+
+Validation is automated and publishing is gated. Scripts check metadata, titles, prohibited phrases, and prose quality before a human looks at the draft. The pull request is the publishing gate: it must carry editorial results, quality-gate results, a preview URL, and the internal links used. Merge deploys through Vercel.
+
+## Why "Just Give the Agent a Prompt" Fails
+
+A long prompt feels like control. It is not. The context window resets, the agent improvises around whatever the prompt forgot, and two drafts written a week apart follow two different standards. Six failure modes repeat everywhere I have seen this tried.
+
+Temporary context is the first. A prompt carries instructions for one session. It does not persist, version, or diff. When output quality drifts, there is nothing to inspect except the prompt you already overwrote.
+
+Inconsistent voice follows. Without a written voice spec with budgets and banned phrases, each draft picks its own register. One reads like documentation, the next like a vendor landing page.
+
+Unsupported claims are the expensive one. Agents invent customers, metrics, rankings, and credentials when the draft needs authority the research did not supply. A prompt that says "be accurate" does not catch a fabricated proof point. A claim filter plus a human gate does.
+
+Then there is no deterministic enforcement. Style guidance written in prose ("keep titles short") is interpreted differently every run. A script that fails the build on a stuffed title is interpreted the same way every run.
+
+No publishing accountability comes next. If the agent can publish directly, there is no record of what was checked, by what, and when. A PR that requires evidence creates that record for free.
+
+And there is no feedback loop. Publishing without measurement means the same weak pages sit untouched while new drafts repeat their mistakes. Search performance has to flow back into updates and relinking, or output grows while authority does not.
+
+The fix for all six is the same: move knowledge out of the prompt and into the repository.
+
+## The Architecture
+
+The full loop, before any implementation detail:
+
+```text
+Strategy
+   ↓
+Topic Queue
+   ↓
+Agent Orchestration
+   ↓
+Draft
+   ↓
+Editorial + Deterministic Validation
+   ↓
+Minimum Effective Corrections
+   ↓
+Git / PR
+   ↓
+Preview
+   ↓
+Publish
+   ↓
+Measure
+   ↓
+Refresh / Relink
+```
+
+Each layer has one job. Strategy decides what is worth writing. The queue decides what comes next. The agent drafts. Validators enforce what can be checked mechanically. Humans judge what cannot. Git records all of it. Measurement restarts the loop.
+
+The rest of this post walks each layer, then maps it to real files.
+
+## The Repository Is the Agent's Operating Environment
+
+A coding agent with repository access reads files more reliably than it follows chat instructions. Files are complete, ordered, and re-readable mid-task. Chat instructions are paraphrased from memory halfway through a long run. That asymmetry is the whole argument: put everything the agent must obey where it already looks.
+
+Here is the structure this site uses. Every path below exists in the repository.
+
+```text
+docs/CONTENT_ENGINE.md      strategy + orchestration rules, read before any content task
+docs/EDITORIAL.md           voice, budgets, title rules, claim policy
+config/content/             pillars, inventory, backlog reference
+features/blog/content/      *.mdx source of truth, one file per post
+config/seo/                 search config, kept out of visible prose
+modules/anti-slop/          vendored quality-control engine (L1–L4 scanner, quality gate)
+config/anti-slop/           project overrides: protected terms the scanner must not touch
+scripts/editorial-audit.py  `npm run editorial`, fails on blacklist and stuffed titles
+```
+
+Each layer earns its place. `CONTENT_ENGINE.md` is the entry point: one paragraph states the rule (fewer pages, stronger relationships), then a file map, pillar list, workflow, linking rules, metadata checklist, and quality gate. `EDITORIAL.md` owns voice: direct, technical, calm, with word budgets per surface and a banned-phrase list. `config/content/` owns structure: what exists, what is planned, what links to what. The MDX files own the words. The validators own enforcement.
+
+If you reproduce this, keep the same separation. One file per concern, each short enough that an agent reads all of it in one pass.
+
+Two honest notes on this implementation. First, pillars here are conceptual, not routing: URLs stay flat at `/blog/[slug]` and frontmatter `pillar` is advisory until hub pages ship. Do not rename URLs to match taxonomy. Second, the related-content scorer (`features/blog/lib/content-graph.ts`, rendered by `RelatedArticles.tsx`) exists as a component, but the post template currently renders chronological prev/next navigation, a `ConsultationCTA`, and newsletter signup automatically. Inline contextual links in the body therefore carry internal linking today; the scoring engine is the next wiring step, not a current one.
+
+## Building the Editorial Control Plane
+
+The control plane is everything the agent consults before writing a word. It has five parts.
+
+Strategy first. Name a small set of pillars and refuse to add one without merging or retiring another. This site runs six: `ai-agents`, `ai-engineering`, `mcp`, `ai-automation`, `enterprise-ai`, `lab`. Each pillar has entry queries it must answer. Every post gets exactly one primary intent: informational, technical, comparison, commercial, strategic, experimental, news, or navigational. One intent per post forces the draft to serve one reader and one query.
+
+Voice second. Write the voice down as budgets and bans, not adjectives about tone. This site's rules fit on one page: excerpts run 12–25 words, headlines 1–8, any paragraph holds at most two adjectives. Banned openers and title stuffers live in the voice doc as explicit lists:
+
+```text
+banned openers: Ultimate, Complete, Definitive, "Everything You Need to Know"
+title stuffers: Free, Modern, Official, Production-Ready
+```
+
+Stack details belong in metadata, not prose. Concrete constraints beat paragraphs of tone guidance because a script can check them.
+
+Inventory third. Keep a typed audit of every post: slug, pillar, class, intent, cluster, next action. In this repo that is `config/content/inventory.ts`, covering all 30 posts with verdicts like `core-authority`, `supporting`, `field-note`, `merge-candidate`. The agent looks up a post before touching it and learns whether to keep, refresh, merge, or leave it alone. Without an inventory, agents edit blind and duplicate what exists.
+
+Priorities fourth. A frozen title backlog (`config/content/backlog.ts`, P0 through P3) works as a seed reference, but live work enters through GitHub Issues labeled `content`, one issue per topic. Issues beat a static list for agent execution: explicit ownership, status (`queued` → `in-progress` → `in-review` → `done`), ordering by priority then age, stale-lock reversion, and a direct branch-to-PR relationship. An orchestrator picks the next queued issue on a schedule; the claim comment carries the target branch name.
+
+Metadata and linking fifth. Each post carries a frontmatter contract: specific title, 12–25 word description, controlled category and tags, `seo` keywords, image plus alt text, canonical `/blog/[slug]`, and BlogPosting JSON-LD with `datePublished`, `dateModified`, and a Person author. Search terms live in metadata and structured data, never stuffed into titles or prose. SEO terminology should still appear naturally where it helps the reader; metadata reinforces relevance, it does not compensate for weak prose. Internal links must continue the reader's research: same cluster first, then same pillar, then shared tags, capped at four related plus one continue-reading link. No FAQ schema unless a genuinely useful visible FAQ exists.
+
+## Building the Validation Layer
+
+Separate what code can check from what humans must judge, then automate everything in the first group. This repo runs five commands, all real:
+
+```bash
+npm run editorial                 # blacklist phrases, superlatives, stuffed titles, budgets
+npm run content:validate          # editorial + anti-slop audit over blog, projects, shop
+npm run anti-slop:scan -- <files> # report only, never rewrites, exits 0
+npm run anti-slop:strict -- <files> # fail on any hard gate (factual integrity)
+npm run check-types               # tsc --noEmit, for content-adjacent code changes
+```
+
+Deterministic checks enforce metadata completeness, schema shape, required fields, prohibited patterns, title constraints, protected terminology, structural rules, and link validity. The editorial auditor fails on marketing-default phrases, unsupported superlatives, stuffed titles, and banned openers across frontmatter, bodies, and chrome copy. It skips code fences, tables, blockquotes, and lines containing URLs, so quoted third-party text and code samples are never flagged as site voice.
+
+The anti-slop engine (`modules/anti-slop/`, vendored from `@forwardos/anti-slop`, provenance pinned in `modules/anti-slop/PROVENANCE.md`) is a quality-control layer, not a good-writing detector. It runs an L1–L4 scan, explains each finding, applies the minimum effective edit capped at two passes, and rechecks against a 13-item quality gate. Describe it that way to your agents: it catches concrete defects, it does not confer taste.
+
+The minimum-effective-edit rule matters more than it sounds. The goal is not to rewrite every article into one artificial voice. The goal is to identify a concrete problem, change only what is necessary, and rerun validation. Good content is left alone. That restraint is what keeps validated output sounding human instead of homogenized.
+
+Respect the exemptions explicitly: code fences, frontmatter, URLs, quoted material, and `config/anti-slop/protected-terms.json` (product names, brand terms, and SEO terms like MCP, n8n, RAG, llms.txt) are never flagged or rewritten. Taste overrides go in the engine's feedback store, never as one-off exceptions in prose.
+
+Treat results in three tiers. Hard failures block the PR: factual-integrity violations, missing required metadata, banned title patterns. Warnings get fixed or justified in the PR body. Everything else is editorial review, which belongs to a human reader doing one plain-English pass: shorter, concrete nouns, facts over claims, delete when in doubt.
+
+## Wiring Coding Agents Into the Workflow
+
+The agent in this system is not the writer. It is the orchestrator. Given a claimed issue, it reads the strategy docs, inspects the inventory for neighbors and duplicates, researches when the topic needs it, drafts the MDX, checks internal links, runs every validator, corrects failures with minimum edits, creates the branch, opens the PR, and attaches the evidence. That is a twelve-step job, and all twelve steps are specified in files, not in a prompt.
+
+The same agent patterns used for production systems apply here. If you orchestrate [AI agents with n8n and LangChain](/blog/building-ai-agent-workflows-n8n-langchain), or design [agent workflows](/blog/ai-agent-workflows) with retries and observability, run content the same way: separate orchestration from reasoning, log every step, retry corrections, alert on hard failures.
+
+MCP access to the validators is an optional acceleration layer. This repo ships a zero-dependency stdio server:
+
+```json
+{ "mcpServers": { "anti-slop": {
+  "command": "node",
+  "args": ["<repo>/modules/anti-slop/dist/mcp/server.js"]
+} } }
+```
+
+Rebuild first (`npm run anti-slop:build`; `dist/` is gitignored). Available tools include `anti_slop_scan`, `anti_slop_audit`, `anti_slop_rewrite`, and `anti_slop_quality_gate`, alongside design, SEO, code, and comparison tools. MCP is convenience, not control: it gives the agent callable access to deterministic capabilities, but the underlying CLI validators remain the source of truth. A run that passed only through MCP and never through `npm run content:validate` has not passed.
+
+Practical setup notes from this implementation: run agents against a local stack ([private AI stack setup](/blog/private-ai-stack-setup-in-minutes) covers the pattern) so drafts, scans, and rebuilds stay fast and private. Keep tool permissions narrow: the agent needs file read/write in content paths, shell access for the five commands, and Git for branching. It does not need production credentials or direct publish rights. Ever.
+
+## The Git-Based Publishing Loop
+
+All publishing goes through Git. The sequence:
+
+```text
+Issue → claim → branch → draft → validation → PR → preview → review → merge → deployment
+```
+
+Concretely: work happens on `content/<issue>-<slug>`. The PR references `Closes #<issue>` and carries an evidence section: editorial result, anti-slop result, type-check result when code changed, preview URL, and the internal links used. Missing evidence keeps the issue open under a `needs-evidence` label. On merge, Vercel builds from GitHub and the orchestrator closes the issue with the evidence bundle. Content changes require a redeploy since the sitemap builds at deploy time. Verify on the preview deployment, on desktop and mobile, before merging.
+
+`created` never changes. `lastUpdated` moves only on substantive edits. Old URLs are never silently renamed; if hub pages ship later, migrations go through 301s with canonical updates.
+
+Why this matters for agents: the PR is the one place where machine checks and human judgment meet with a durable record. The agent cannot bypass validation because CI runs it independently. The reviewer cannot wave through slop because the evidence section is empty. Git history shows what changed, the PR shows why, and rollback is one revert. That is what publishing accountability looks like, and it costs nothing beyond discipline.
+
+## What the Agent Should Control vs. What Code Should Control
+
+This distinction is the thesis in table form:
+
+| Agent (interpretation) | Code / System (enforcement) |
+|---|---|
+| Interpret the topic and angle | Validate frontmatter schema |
+| Research when evidence is thin | Enforce required metadata |
+| Draft prose and examples | Detect prohibited phrases and patterns |
+| Explain trade-offs and failure modes | Validate links and canonical URLs |
+| Choose useful code samples | Enforce title and budget constraints |
+| Propose minimum effective edits | Preserve Git history and PR evidence |
+| Summarize validation for review | Block merges on hard-gate failures |
+
+**Agent judgment handles interpretation. Code handles enforcement. Git handles accountability.**
+
+Anything appearing in the right column that you currently leave to agent judgment is a defect in your engine, not in your agent. Move it into code. Anything in the left column that you try to encode as a rule will produce stilted output; leave it to the agent and review it as a human.
+
+## Mistakes to Avoid
+
+Nine, observed in the wild and in this repo's own history:
+
+Trusting one giant prompt. It drifts, it cannot be diffed, and no validator can check it. Files first, prompts reference files.
+
+Letting agents invent proof. Every claim must answer: can we prove this? Missing proof gets an em dash and a label, never an invented number. Drafts that fail originality or expertise get deleted, not patched.
+
+Allowing agents to bypass validation. CI must run the same commands the agent runs. If the agent's local pass and the gate disagree, the gate wins and the discrepancy gets investigated.
+
+Hand-picking related content when deterministic linking exists. Use the scorer (`getRelatedPosts`, max four; `getContinueReading` for the next step) instead of whichever posts the agent remembers. This repo's scorer is built; wiring it into the template is the remaining step.
+
+Auto-merging near-duplicates without human review. This inventory carries two merge candidates right now. Merging changes URLs, canonicals, and reader expectations. Humans decide.
+
+Editing content directly in production. There is no CMS shortcut here for a reason. Every change is a branch, a PR, and a preview.
+
+Stuffing technology names into titles. Stack goes in `coreStack` and `techStacks` metadata and JSON-LD, not in the headline. Titles name the subject and the angle.
+
+Treating anti-slop detection as a substitute for editorial judgment. The scanner finds defects. It does not know whether the article is worth existing. The quality gate's commercial-fit and intent-match items need a human.
+
+Publishing without a measurable feedback loop. If you cannot name the metric that would trigger a rewrite, you are not running an engine. You are publishing into the void. Start from [measuring AI agent ROI](/blog/measuring-ai-agent-roi) thinking: define the outcome, instrument it, then let the numbers schedule the refresh.
+
+## The Real Advantage
+
+The advantage is not generating more words. Word count was never the constraint; judgment was. The advantage is a repeatable system where agents move quickly inside constraints that persist, quality is inspectable instead of vibes-based, every change is reversible, publishing is accountable, and the system compounds: each measurement cycle makes the inventory sharper and the rules more precise.
+
+A technical founder can build a simplified version in a weekend: one strategy doc, one voice doc with budgets, a typed inventory of existing posts, an issue queue, two scripts (one for prohibited patterns, one for metadata), and a PR template requiring evidence. Add the layered scanner when the basics hold. Wire MCP when agents complain about shell friction. Each step pays for itself before the next one costs anything.
+
+An agent with an operating system beats a better prompt every time. Build the system first. The drafts take care of themselves.
+
+## Build and Execution Support
+
+I build systems like this with my team: engine setup, rule porting, validator wiring, and ongoing content operations on your stack. The [MCP server pattern](/blog/mcp-ai-server-for-highquality-ai) and the agent workflow behind it transfer directly.
+
+Bring one content workflow to a 30-minute call. We scope the engine and leave your agents with checks that hold.

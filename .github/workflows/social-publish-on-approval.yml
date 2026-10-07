@@ -1,0 +1,70 @@
+name: social-publish-on-approval
+
+# Issue-driven publishing: adding the `publish:approved` label to an issue
+# publishes it live. Guards (all required — anything else is skipped with a
+# comment and the trigger label removed):
+#   - issue is open, labeled `social`, and `status:packet-ready`
+#   - no existing "Platform publish proof" comment (idempotent, no double-posts)
+#   - channel credentials present (else stays packet-ready with the env list)
+#   - images resolvable from --images input or the issue `**Images:**` field
+# Proof without screenshot parks at needs-screenshot; a second run with the
+# screenshot URL (dispatch) closes. Concurrency: one approval at a time.
+
+on:
+  issues:
+    types: [labeled]
+
+concurrency:
+  group: social-publish-approval
+  cancel-in-progress: false
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  publish:
+    if: github.event.label.name == 'publish:approved'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - run: npm ci
+      - name: Guard checks
+        id: guard
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE="${{ github.event.issue.number }}"
+          DATA="$(gh issue view "$ISSUE" --json state,labels,comments,body)"
+          echo "$DATA" | jq -e '.state == "OPEN"' >/dev/null || { echo "skip=not-open" >> "$GITHUB_OUTPUT"; exit 0; }
+          echo "$DATA" | jq -e '[.labels[].name] | contains(["social", "status:packet-ready"])' >/dev/null || { echo "skip=not-packet-ready" >> "$GITHUB_OUTPUT"; exit 0; }
+          echo "$DATA" | jq -e '[.comments[].body] | any(contains("Platform publish proof"))' >/dev/null && { echo "skip=already-published" >> "$GITHUB_OUTPUT"; exit 0; }
+          echo "skip=" >> "$GITHUB_OUTPUT"
+      - name: Comment on guard skip
+        if: steps.guard.outputs.skip != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue comment "${{ github.event.issue.number }}" --body "Approval ignored (guard: ${{ steps.guard.outputs.skip }}). Needs open + \`social\` + \`status:packet-ready\` with no existing proof. Fix and re-add \`publish:approved\`."
+          gh issue edit "${{ github.event.issue.number }}" --remove-label "publish:approved"
+      - name: Publish live
+        if: steps.guard.outputs.skip == ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          META_CAPI_ACCESS_TOKEN: ${{ secrets.META_CAPI_ACCESS_TOKEN }}
+          PINTEREST_ACCESS_TOKEN: ${{ secrets.PINTEREST_ACCESS_TOKEN }}
+        run: |
+          IMAGES="$(gh issue view "${{ github.event.issue.number }}" --json body --jq '.body' | grep -oE '\*\*Images:\*\*[^`]*`[^`]+`' | grep -oE 'https://[^` ,]+' | paste -sd, -)"
+          ARGS=(--issue "${{ github.event.issue.number }}")
+          if [ -n "$IMAGES" ]; then ARGS+=(--images "$IMAGES"); fi
+          npx tsx scripts/social-issues/publish/publish-due.ts "${ARGS[@]}"
+      - name: Consume trigger label
+        if: steps.guard.outputs.skip == ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh issue edit "${{ github.event.issue.number }}" --remove-label "publish:approved"

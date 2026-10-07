@@ -58,6 +58,7 @@ const LABELS: Array<{ name: string; color: string; description: string }> = [
   { name: "status:packet-ready", color: "fbca04", description: "Packet merged. Platform post pending — do not close." },
   { name: "needs-manual-post", color: "d93f0b", description: "Packet merged; owner must post manually then add post URL + screenshot." },
   { name: "needs-screenshot", color: "fbca04", description: "Live post URL present; screenshot still required to close." },
+  { name: "publish:approved", color: "0e8a16", description: "Human approval: publish this packet-ready issue now (one-shot trigger)." },
   { name: "status:analyzing", color: "fbca04", description: "Published, collecting metrics." },
   { name: "status:winner", color: "5319e7", description: "Winner. Recycle with new angle." },
 ];

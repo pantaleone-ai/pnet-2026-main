@@ -1,0 +1,36 @@
+name: ebay-verify
+
+# Proves the shared eBay app keys live from CI egress (some local networks
+# are blocked by eBay edge). Dispatch-only. Prints shapes/counts only —
+# tokens and secrets never logged.
+
+on:
+  workflow_dispatch:
+    inputs:
+      query:
+        description: "Browse demand query"
+        required: false
+        default: "3d print"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - run: npm ci
+      - name: Verify eBay keys + demand query
+        env:
+          EBAY_APP_ID: ${{ secrets.EBAY_APP_ID }}
+          EBAY_DEV_ID: ${{ secrets.EBAY_DEV_ID }}
+          EBAY_CERT_ID: ${{ secrets.EBAY_CERT_ID }}
+          EBAY_ENV: production
+          EBAY_MARKETPLACE: EBAY_US
+        run: npx tsx scripts/ebay/verify.ts --query "${{ inputs.query }}"
