@@ -12,6 +12,9 @@ What it checks (visible copy + frontmatter, not SEO metadata):
     blog excerpt 12-25w, CTA 1-4w, headline 1-8w
   - Banned title openers for blog posts (Ultimate/Complete/Definitive/...)
   - Title stuffing words (Free/Ultimate/Modern/Official/Production-Ready)
+  - Blog heading rule: body must open with a distinct `##` that builds on
+    the frontmatter title instead of duplicating it (no `#` first heading,
+    no generic "Introduction", title/heading similarity < 0.8)
 
 SEO metadata (config/seo/head.ts, MDX seo blocks) is intentionally NOT
 length-capped here — visible copy stays short, metadata stays searchable.
@@ -57,6 +60,45 @@ BLOG_OPENER_BAN = [
     "the definitive", "everything you need to know",
 ]
 
+# First body heading must build on the frontmatter title, not duplicate it.
+# The page chrome renders the title as the H1; the body opens with a `##`.
+GENERIC_FIRST_HEADINGS = {
+    "introduction", "overview", "summary", "conclusion",
+    "background", "preface",
+}
+
+
+def normalize_heading(value):
+    value = value.lower()
+    value = re.sub(r"[*_`#]", "", value)
+    value = re.sub(r"[^a-z0-9\s]", " ", value)
+    return re.sub(r"\s+", " ", value).strip()
+
+
+def heading_similarity(title, heading):
+    title, heading = normalize_heading(title), normalize_heading(heading)
+    if not title or not heading:
+        return 0.0
+    if title == heading:
+        return 1.0
+    if heading.startswith(title) or title.startswith(heading):
+        return 1.0
+    title_words, heading_words = set(title.split()), heading.split()
+    if not heading_words:
+        return 0.0
+    overlap = sum(1 for word in heading_words if word in title_words)
+    return overlap / len(heading_words)
+
+
+def first_body_heading(body):
+    """First `#`/`##` heading in the body, ignoring fenced code blocks."""
+    body = re.sub(r"```.*?```", "", body, flags=re.S)
+    for line in body.splitlines():
+        match = re.match(r"^(#{1,3})\s+(.+?)\s*$", line)
+        if match:
+            return match.group(1), match.group(2)
+    return None, None
+
 ADJECTIVES = [
     "powerful", "robust", "seamless", "innovative", "advanced",
     "sophisticated", "comprehensive", "intelligent", "ultimate",
@@ -87,6 +129,12 @@ def check_file(path, text, violations, stats):
             # standard terms are not marketing claims
             context = low[max(0, m.start() - 40):m.end() + 40]
             if re.search(r"best practices|best case|best-case|best possible|rarely the best|leading( and lagging)? indicators|leading lines", context):
+                continue
+            # Tailwind `leading-*` (line-height) classes are not copy claims
+            if sup.strip() == "leading" and (
+                (m.start() > 0 and low[m.start() - 1] in "-:") or
+                (m.end() < len(low) and low[m.end()] in "-[")
+            ):
                 continue
             line = text.count("\n", 0, m.start()) + 1
             violations.append(f"{path}:{line}: superlative '{sup.strip()}'")
@@ -153,6 +201,36 @@ def main():
                     and "http" not in ln and "\\{" not in ln]
             before = len(violations)
             check_file(f.relative_to(BASE), "\n".join(kept), violations, stats)
+
+    # Blog heading rule: the page chrome renders the frontmatter title as
+    # the H1, so the body must open with a distinct `##` that builds on the
+    # title instead of duplicating it.
+    for f in sorted((BASE / "features/blog/content").rglob("*.mdx")):
+        fm, body = frontmatter(f)
+        rel = f.relative_to(BASE)
+        level, heading = first_body_heading(body)
+        if heading is None:
+            violations.append(f"{rel}: no body heading found (open with a `##`)")
+            stats["slop"] += 1
+            continue
+        if level == "#":
+            violations.append(
+                f"{rel}: body opens with `#` (use `##`; the title is the H1)"
+            )
+            stats["slop"] += 1
+        if normalize_heading(heading) in GENERIC_FIRST_HEADINGS:
+            violations.append(
+                f"{rel}: generic first heading '{heading.strip()}' "
+                "(write a specific `##` that builds on the title)"
+            )
+            stats["slop"] += 1
+        title = fm.get("title", "")
+        if title and heading_similarity(title, heading) >= 0.8:
+            violations.append(
+                f"{rel}: first heading duplicates the title "
+                f"(title: '{title}' / heading: '{heading.strip()}')"
+            )
+            stats["slop"] += 1
 
     # TSX/TS data + chrome copy
     chrome = [

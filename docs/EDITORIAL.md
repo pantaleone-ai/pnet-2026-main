@@ -31,6 +31,10 @@ Sound like a founder who built the thing, not a marketing agency.
   Stack goes in metadata (`coreStack`, `techStacks`), not prose.
 - Blog posts: specific and direct. Never open with Ultimate, Complete,
   Comprehensive, Definitive, or "Everything You Need to Know".
+- Blog first heading: the frontmatter `title` renders as the page H1, so the
+  body must open with a distinct `##` that builds on the title (new angle,
+  outcome, or scope) instead of repeating it. Never open the body with `#`
+  or a generic `Introduction`/`Overview`. Enforced by `npm run editorial`.
 
 ## Claims
 
