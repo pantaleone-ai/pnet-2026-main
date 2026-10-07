@@ -1,0 +1,73 @@
+name: social-publish
+
+# Live platform publishing for packet-ready social issues.
+# Dispatch-only by design: publishing to production social accounts is a
+# deliberate act, never a cron side effect.
+# Flow: pick a status:packet-ready issue -> publish-due posts live ->
+# proof comment (post URL + media ID) -> screenshot -> published/done.
+# Channels without stored credentials report blocked and stay packet-ready.
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: "Social issue number (must be status:packet-ready)"
+        required: true
+      channel:
+        description: "Override channel (default: from platform:* label)"
+        required: false
+        default: ""
+      images:
+        description: "Comma-separated public image URLs (instagram, 2-10)"
+        required: false
+        default: ""
+      caption-file:
+        description: "Repo-relative caption file (default: built from issue body)"
+        required: false
+        default: ""
+      screenshot-url:
+        description: "Proof screenshot URL (closes the issue when present)"
+        required: false
+        default: ""
+      dry-run:
+        description: "Print the publish plan without posting (true/false)"
+        required: false
+        default: "true"
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - run: npm ci
+      - name: Publish to channel
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          META_CAPI_ACCESS_TOKEN: ${{ secrets.META_CAPI_ACCESS_TOKEN }}
+          PINTEREST_ACCESS_TOKEN: ${{ secrets.PINTEREST_ACCESS_TOKEN }}
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_TOKEN_SECRET: ${{ secrets.X_ACCESS_TOKEN_SECRET }}
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_PERSON_URN: ${{ secrets.LINKEDIN_PERSON_URN }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: |
+          ARGS=(--issue "${{ inputs.issue }}")
+          if [ -n "${{ inputs.channel }}" ]; then ARGS+=(--channel "${{ inputs.channel }}"); fi
+          if [ -n "${{ inputs.images }}" ]; then ARGS+=(--images "${{ inputs.images }}"); fi
+          if [ -n "${{ inputs.caption-file }}" ]; then ARGS+=(--caption-file "${{ inputs.caption-file }}"); fi
+          if [ -n "${{ inputs.screenshot-url }}" ]; then ARGS+=(--screenshot-url "${{ inputs.screenshot-url }}"); fi
+          if [ "${{ inputs.dry-run }}" = "true" ]; then ARGS+=(--dry-run); fi
+          npx tsx scripts/social-issues/publish/publish-due.ts "${ARGS[@]}"
