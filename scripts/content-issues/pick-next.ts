@@ -152,7 +152,7 @@ function main(): void {
     "comment",
     String(next.number),
     "--body",
-    `Claimed by Content Orchestrator at ${new Date().toISOString()}. Target branch: \`${branch}\`. Run: ${runUrl}`,
+    `Claimed by Content Orchestrator at ${new Date().toISOString()}. Target branch: \`${branch}\`. Run: ${runUrl}\n\nHeading rule: the title renders as the page H1 — open the body with a distinct \`##\` that builds on the title (never a repeat or generic Introduction). \`npm run editorial\` enforces this.`,
   ]);
   emitOutput(next, branch);
   console.log(`claimed - #${next.number} ${next.title} -> ${branch}`);

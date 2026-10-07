@@ -40,7 +40,7 @@ never silently rename.
 1. Look up the post in `config/content/inventory.ts` (pillar, cluster, class, intent, action).
 2. Check `docs/EDITORIAL.md` voice + budgets; run `npm run editorial` before committing.
 3. One primary intent per post: informational / technical / comparison / commercial / strategic / experimental / news / navigational.
-4. Title style: clear subject + useful angle. Example: `MCP vs APIs: What Changes When AI Agents Need Tools`. Never open with Ultimate/Complete/Definitive.
+4. Title style: clear subject + useful angle. Example: `MCP vs APIs: What Changes When AI Agents Need Tools`. Never open with Ultimate/Complete/Definitive. The title renders as the page H1, so open the body with a distinct `##` that builds on it (new angle, outcome, or scope) — never a repeat of the title or a generic `Introduction`. Enforced by `npm run editorial`.
 5. Article shape (adapt, do not force): direct answer → why it matters → core explanation → architecture/model → implementation → examples → trade-offs → mistakes → recommendations → related content.
 6. SEO separation: visible copy stays short; search terms live in `seo:` frontmatter, `config/seo/*`, and JSON-LD — never stuffed into prose or titles.
 7. Dates: `created` never changes. Bump `lastUpdated` only on substantive edits.
