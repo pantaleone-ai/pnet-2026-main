@@ -12,14 +12,15 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default async function Image() {
-  // Read font from the local bundle (public/fonts) instead of an HTTP
-  // self-fetch through ${`APP_URL`}/fonts. The old self-fetch paid origin
-  // transfer + Fluid CPU on every OG regeneration; a file-URL fetch reads
-  // from disk at build/render with zero origin cost. Keeps edge runtime
-  // (nodejs prerender rejects the WOFF2 signature). File is immutable per
-  // deploy and the /opengraph-image route is pinned 1yr at the CDN.
+  // Fetch font via HTTP self-fetch with force-cache (immutable per deploy).
+  // A file:// fetch was tried and reverted: undici/edge fetch only speaks
+  // http(s), so it throws at render time and 500s the OG on next regen
+  // (masked until then by the 1yr /opengraph-image CDN pin). The self-fetch
+  // transfers once into the Data Cache, then every regen reuses it; the
+  // 1yr CDN headers in next.config.mjs keep origin renders rare.
   const fontData = await fetch(
-    new URL("../public/fonts/inter-bold.woff2", import.meta.url),
+    `${process.env.APP_URL || "https://www.pantaleone.net"}/fonts/inter-bold.woff2`,
+    { cache: "force-cache" },
   ).then((res) => res.arrayBuffer());
 
   return new ImageResponse(
