@@ -164,7 +164,6 @@ def main():
         "app/(app)/(root)/b2b/page.tsx",
         "app/(app)/(root)/services/page.tsx",
         "app/(app)/(root)/about/page.tsx",
-        "components/newsletter/NewsletterSignup.tsx",
         "components/lead-magnet/LeadMagnetForm.tsx",
     ]
     for c in chrome:

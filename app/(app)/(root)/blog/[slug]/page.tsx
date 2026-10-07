@@ -10,7 +10,6 @@ import BlogPostTitle from "@/features/blog/components/BlogPostTitle";
 import BlogPostAnalytics from "@/features/blog/components/BlogPostAnalytics";
 import { blogSource, getBlogPosts } from "@/features/blog/data/blogSource";
 import FeaturedProductsSectionAsync from "@/features/shop/components/FeaturedProductsSectionAsync";
-import NewsletterSignup from "@/components/newsletter/NewsletterSignup";
 import { ConsultationCTA } from "@/components/mdx/ConsultationCTA";
 import type { BlogPostFrontmatter } from "@/features/blog/types/BlogPostFrontmatter";
 import type { BlogPostType } from "@/features/blog/types/BlogPostType";
@@ -280,10 +279,6 @@ export default async function BlogPost({ params }: BlogPostPageProps) {
       <LastModified
         lastModified={post.lastUpdated ?? post.created ?? "2026-07-29"}
       />
-      <SeparatorHorizontal short={true} />
-      <div className="mx-auto w-full max-w-3xl px-6 py-8">
-        <NewsletterSignup />
-      </div>
       <SeparatorHorizontal short={true} />
       <Suspense>
         <FeaturedProductsSectionAsync />
