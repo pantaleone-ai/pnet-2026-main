@@ -22,6 +22,11 @@ import sys
 
 CONTENT_TOPS = {"data", "content", "contents", "posts", "blog", "articles",
                 "mdx", "recipes_mdx"}
+# Blog posts live under features/blog/content/<slug>.mdx and render at both
+# the HTML page (/blog/<slug>) and the LLM text route (/blog.mdx/<slug>).
+# Map them explicitly so content edits purge the affected post URLs instead
+# of only the aggregate set.
+BLOG_CONTENT_PREFIX = "features/blog/content/"
 PAGE_LEAVES = {"page", "route", "layout", "loading", "error", "not-found",
                "template", "default"}
 SKIP_TOPS = {"admin"}
@@ -104,6 +109,13 @@ def main() -> int:
             add(url)
             continue
         top = g.split("/")[0]
+        if g.startswith(BLOG_CONTENT_PREFIX) and g.endswith(".mdx"):
+            slug = g[len(BLOG_CONTENT_PREFIX):-len(".mdx")]
+            if slug and "/" not in slug:
+                data_hit = True
+                add(f"/blog/{slug}")
+                add(f"/blog.mdx/{slug}")
+                continue
         if top in CONTENT_TOPS:
             data_hit = True
             add_aggs()
