@@ -58,7 +58,7 @@ jobs:
           APP_PREFIX: ""
           ROUTE_ROOT: "app"
           HOSTS: "www.pantaleone.net pantaleone.net"
-          AGG_PATHS: "/ /sitemap.xml /rss.xml"
+          AGG_PATHS: "/ /blog /sitemap.xml /rss.xml /llms.txt"
           PFX: "pnet"
           DATA_TAG: ""
           BEFORE: ${{ github.event.before }}
