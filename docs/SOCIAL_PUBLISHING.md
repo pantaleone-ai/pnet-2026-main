@@ -55,9 +55,12 @@ Also add `META_CAPI_ACCESS_TOKEN` as a GitHub Actions secret (same value as
 
 ## Owner setup steps (per blocked channel)
 
-- **Pinterest**: create a Pinterest app → production trial access → OAuth code
-  exchange → long-lived token (~60d, refreshable) → `PINTEREST_ACCESS_TOKEN`.
-  Board mapping defaults go next to `SITE_ACCOUNTS` (`accounts.ts`).
+- **Pinterest**: app credentials stored (`PINTEREST_APP_ID` + `PINTEREST_APP_SECRET`
+  in `.env.local`, synthetic.pics app). One owner step remains: approve OAuth once
+  (or Generate-token in the app dashboard) with scopes
+  `boards:read,boards:write,pins:read,pins:write,user_accounts:read`, then save the
+  resulting `PINTEREST_ACCESS_TOKEN` (+ `PINTEREST_REFRESH_TOKEN`) to `.env.local`.
+  Exchange/refresh helpers: `scripts/social-issues/publish/pinterest.ts`.
 - **X**: developer portal app with Read+Write user auth → 4-legged OAuth 1.0a
   user tokens → the four `X_*` envs. Free tier covers queue volume.
 - **LinkedIn**: app with `w_member_social` → 3-legged OAuth token (~60d

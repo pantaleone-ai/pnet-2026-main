@@ -25,7 +25,7 @@ export interface ChannelSpec {
 export const CHANNELS: ChannelSpec[] = [
   { id: "instagram", label: "platform:instagram", requiredEnvs: ["META_CAPI_ACCESS_TOKEN"], implemented: true, autoPost: true },
   { id: "facebook", label: "platform:facebook", requiredEnvs: ["META_CAPI_ACCESS_TOKEN"], implemented: true, autoPost: true },
-  { id: "pinterest", label: "platform:pinterest", requiredEnvs: ["PINTEREST_ACCESS_TOKEN"], implemented: false, autoPost: true },
+  { id: "pinterest", label: "platform:pinterest", requiredEnvs: ["PINTEREST_ACCESS_TOKEN"], implemented: true, autoPost: true },
   { id: "x", label: "platform:x", requiredEnvs: ["X_API_KEY", "X_API_SECRET", "X_ACCESS_TOKEN", "X_ACCESS_TOKEN_SECRET"], implemented: false, autoPost: true },
   { id: "linkedin", label: "platform:linkedin", requiredEnvs: ["LINKEDIN_ACCESS_TOKEN", "LINKEDIN_PERSON_URN"], implemented: false, autoPost: true },
   { id: "reddit", label: "platform:reddit", requiredEnvs: ["REDDIT_CLIENT_ID", "REDDIT_CLIENT_SECRET", "REDDIT_USERNAME", "REDDIT_PASSWORD"], implemented: false, autoPost: false },

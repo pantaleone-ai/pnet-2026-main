@@ -210,6 +210,49 @@ async function main(): Promise<void> {
     return;
   }
 
+  if (channel.id === "pinterest") {
+    const { createPin, listBoards } = await import("./pinterest");
+    const pinToken = process.env.PINTEREST_ACCESS_TOKEN ?? "";
+    let boardId = arg("--board-id") ?? process.env.PINTEREST_BOARD ?? "";
+    if (!boardId) {
+      const boards = listBoards(pinToken);
+      console.error(`pinterest needs --board-id. Available: ${boards.map((b) => `${b.name} (${b.id})`).join(", ") || "none"}`);
+      process.exit(1);
+    }
+    const image = images[0];
+    const hook = field(issue.body, "Hook");
+    const text = field(issue.body, "Body");
+    const cta = field(issue.body, "CTA");
+    const destination = field(issue.body, "Destination");
+    if (!image || !destination) {
+      console.error("pinterest needs --images <public-url> and a **Destination:** `url` in the issue body");
+      process.exit(1);
+    }
+    const description = [text, "", `${cta}: ${destination}`].join("\n");
+    if (dryRun) {
+      console.log(`would-publish-pinterest - #${issue.number} to board ${boardId}\n---title---\n${hook}\n---image---\n${image}\n---link---\n${destination}`);
+      return;
+    }
+    const res = createPin(pinToken, boardId, image, hook, description, destination);
+    const proof = [
+      `## Platform publish proof — ${channel.id}`,
+      ``,
+      `- Post: ${res.link}`,
+      `- Pin ID: \`${res.id}\``,
+      screenshotUrl ? `- Screenshot:\n\n![${channel.id} post proof](${screenshotUrl})` : `- Screenshot: pending (re-run with --screenshot-url to close)`,
+    ].join("\n");
+    gh(["issue", "comment", String(issue.number), "--body", proof]);
+    if (screenshotUrl) {
+      gh(["issue", "edit", String(issue.number), "--remove-label", "status:packet-ready", "--remove-label", "needs-manual-post", "--remove-label", "needs-screenshot", "--add-label", "status:published", "--add-label", "status:done"]);
+      gh(["issue", "close", String(issue.number), "--reason", "completed"]);
+      console.log(`published + closed - #${issue.number} ${res.link}`);
+    } else {
+      gh(["issue", "edit", String(issue.number), "--add-label", "status:packet-ready", "--add-label", "needs-screenshot", "--remove-label", "needs-manual-post"]);
+      console.log(`published, awaiting screenshot - #${issue.number} ${res.link}`);
+    }
+    return;
+  }
+
   console.error(`channel ${channel.id} marked implemented without a publish path`);
   process.exit(1);
 }
