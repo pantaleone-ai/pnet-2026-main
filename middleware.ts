@@ -104,6 +104,14 @@ export function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
+// Matcher excludes fingerprinted/static assets so the edge function never
+// runs (and never bills Fluid CPU) for cacheable bytes. Dynamic HTML,
+// /api/*, /checkout, legacy redirects (/grid, /blog/post/*, /feed) and
+// 410 prefixes (/p, /tag, ...) still run — apex->www single-hop 301,
+// legacy 301s, and 410 Gone are preserved. RSC/prefetch bypass lives in
+// Cloudflare cache rules (never cache flight data).
 export const config = {
-  matcher: "/:path*",
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.*|rss.xml|opengraph-image|fonts|images|favicons|files).*)",
+  ],
 };

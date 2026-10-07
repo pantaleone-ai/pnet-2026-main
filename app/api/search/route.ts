@@ -10,6 +10,10 @@ import { type NextRequest, NextResponse } from "next/server";
 // meaningfully stale results; errors and rate-limits stay no-store.
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+// Cost guard: bound Fluid CPU per search call. Fuzzy fallback is already
+// capped to title/slug in lib/search-server.ts; 5s is ample for exact
+// scans and prevents runaway edit-distance work from billing long tails.
+export const maxDuration = 5;
 
 const NO_STORE = { "Cache-Control": "no-store" } as const;
 const SHARED_SHORT = {

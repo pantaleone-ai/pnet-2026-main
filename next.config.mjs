@@ -53,19 +53,18 @@ const config = {
     return [
       {
         // HTML caching split for Cloudflare-proxy safety: Vercel purges its
-        // CDN on deploy, but Cloudflare (now proxied in front, no purge
-        // integration) honors the generic Cache-Control s-maxage. A 1yr
-        // s-maxage would pin stale HTML — including stale GA/Meta IDs and
-        // tracker logic — at the Cloudflare edge (observed cf-cache-status:
-        // HIT with age ~8h). Keep Vercel edge long, keep shared-cache TTL at 20min so
-        // Cloudflare revalidates promptly; deploys purge instantly by tag.
+        // CDN on deploy, and cf-purge-on-deploy.yml purges Cloudflare by
+        // tag/file on every main merge, so a short shared-cache TTL buys
+        // nothing — it only re-drives origin MISS traffic. Keep Vercel edge
+        // long (1yr), keep shared-cache TTL at 24h (86400) so Cloudflare
+        // serves HITs between deploys; deploys purge instantly by tag.
         // NOTE: no `immutable` here — only valid for fingerprinted assets.
         source:
           "/((?!api|_next|_vercel|checkout|robots\\.txt|sitemap|favicon\\.ico|opengraph-image|llms\\.txt|llms-full\\.txt|shop\\.md|projects\\.md|index\\.md|services\\.md|b2b\\.md|contact\\.md|blog\\.mdx|rss\\.xml).*)",
         headers: [
           {
             key: "Cache-Control",
-            value: "public, s-maxage=1200, stale-while-revalidate=86400",
+            value: "public, s-maxage=86400, stale-while-revalidate=86400",
           },
           {
             key: "Vercel-CDN-Cache-Control",

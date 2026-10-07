@@ -49,7 +49,15 @@ print(f'guard ok: {len(rules)} existing rule(s) are ours')
 # NOTE: http.cookie is NOT a valid field in the cache-settings phase, and
 # contains is an INFIX operator (not a function) — both probe-verified
 # 2026-09-29 via atomic PUT rejections (no rules changed on 400).
-BYPASS_EXPR='(http.host contains "pantaleone.net" and (http.request.headers["rsc"][0] == "1" or http.request.headers["next-router-prefetch"][0] == "1" or http.request.uri.query contains "_rsc=" or starts_with(http.request.uri.path, "/api/") or starts_with(http.request.uri.path, "/_next/data/") or starts_with(http.request.uri.path, "/checkout") or http.request.headers["cookie"][0] contains "__prerender_bypass" or http.request.headers["cookie"][0] contains "__next_preview_data"))'
+#
+# DECISION 2026-10 (cost): carve GET /api/search out of the bypass.
+# Old state (Vercel 60s + Cloudflare cache:false) = origin on every search.
+# CDN keys on the full URL incl. ?query=, so per-query 60s HITs are safe
+# (no cross-query poisoning); errors/429s stay no-store at origin and are
+# respected via respect_origin. POST/PUT/etc. still bypass (405 no-store).
+# HTML rule below is respect_origin, so carved GETs inherit the origin 60s
+# TTL with zero new rules. Revert: delete the trailing `and not (...)`.
+BYPASS_EXPR='(http.host contains "pantaleone.net" and (http.request.headers["rsc"][0] == "1" or http.request.headers["next-router-prefetch"][0] == "1" or http.request.uri.query contains "_rsc=" or starts_with(http.request.uri.path, "/api/") or starts_with(http.request.uri.path, "/_next/data/") or starts_with(http.request.uri.path, "/checkout") or http.request.headers["cookie"][0] contains "__prerender_bypass" or http.request.headers["cookie"][0] contains "__next_preview_data") and not (starts_with(http.request.uri.path, "/api/search") and http.request.method == "GET"))'
 HTML_EXPR='(http.host contains "pantaleone.net")'
 STATIC_EXPR='(http.host contains "pantaleone.net" and (starts_with(http.request.uri.path, "/_next/static/") or starts_with(http.request.uri.path, "/_next/image") or starts_with(http.request.uri.path, "/images/") or starts_with(http.request.uri.path, "/fonts/") or starts_with(http.request.uri.path, "/favicons/") or starts_with(http.request.uri.path, "/files/")))'
 
@@ -72,7 +80,7 @@ print(json.dumps({'rules': [
     'enabled': True,
   },
   {
-    'description': '[pnet-2026] HTML + feeds respect origin (300s HTML, 1yr static feeds)',
+    'description': '[pnet-2026] HTML + feeds respect origin (24h HTML, 1yr static feeds)',
     'expression': '''${HTML_EXPR}''',
     'action': 'set_cache_settings',
     'action_parameters': {
