@@ -39,7 +39,12 @@ assert desc.startswith('[pnet-2026]') or 'scanner probe' in desc.lower(), f'fore
 print(f'guard ok: single owned rule ({desc!r})')
 "
 
-EXPR='(http.request.uri.path contains "/.env" or http.request.uri.path contains "/.git" or http.request.uri.path contains "wp-" or http.request.uri.path contains ".php" or http.request.uri.path contains "phpmyadmin" or http.request.uri.path contains "cgi-bin" or http.request.uri.path contains "actuator")'
+# Tightened 2026-10: `wp-` -> `/wp-` (+ explicit /wp-admin, /wp-content)
+# to stop matching legit slugs containing `wp-`; `.php` ->
+# ends_with/`.php/` to stop matching `photo.php.jpg`-style false
+# positives; asset dirs excluded (never block /images|/fonts|/files/).
+# Action stays `block`; foreign rules untouched (guard above).
+EXPR='((http.request.uri.path contains "/.env" or http.request.uri.path contains "/.git" or http.request.uri.path contains "/wp-" or http.request.uri.path contains "/wp-admin" or http.request.uri.path contains "/wp-content" or ends_with(http.request.uri.path, ".php") or http.request.uri.path contains ".php/" or http.request.uri.path contains "phpmyadmin" or http.request.uri.path contains "cgi-bin" or http.request.uri.path contains "actuator") and not (starts_with(http.request.uri.path, "/images/") or starts_with(http.request.uri.path, "/fonts/") or starts_with(http.request.uri.path, "/files/")))'
 
 PAYLOAD="$(python3 -c "
 import json
