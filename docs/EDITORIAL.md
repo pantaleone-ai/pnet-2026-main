@@ -71,3 +71,60 @@ blog openers across all MDX frontmatter, bodies, and chrome copy.
 Run it before every content commit. Quoted third-party text (leaked prompts,
 docs excerpts) and standard terms (best practices, leading indicators) are
 exempt — the auditor skips code fences, tables, and blockquotes.
+
+---
+
+## Voice V2 appendix (additive — Oct 2026)
+
+The base voice above is unchanged. This appendix adds editorial judgment
+for the full archive. It does not replace directness with a new template.
+
+### Pantaleone standard
+
+Direct. Specific. Technical. Calm. Experienced. Economical. First-party.
+Credible. Write like someone who built and operates the system described.
+
+Prefer experience over abstraction:
+
+- "I use GitHub Issues as the queue because each topic needs a durable unit of work."
+- "The validator caught the title before the PR was opened."
+- "I don't let the agent publish."
+
+Prefer precise nouns and strong verbs: "the validator rejects the title",
+"the agent reads the inventory before drafting."
+
+Keep legitimate technical terms (agent, orchestration, validator, schema,
+MDX, TypeScript, PR, API, MCP, n8n, RAG, CI/CD, metadata, Search Console).
+Explain when needed. Do not dumb down to sound conversational.
+
+First person only for real first-party work (I built, I use, I tested,
+I found, I changed, I removed, I chose, I keep). Never invent experience,
+metrics, clients, failures, or outcomes. Missing proof = remove the claim.
+
+### Article-type voice (preserve format, share voice)
+
+- Tutorials: direct, procedural. Prerequisites, commands, decisions, failure modes, verification.
+- Architecture: analytical. Tradeoffs, constraints, why this option over that one.
+- Executive: compressed. What changed, why it matters, cost, risk removed, decision, next step.
+- Research/teardowns: forensic. Separate what the source says, what is verified, what is interpretation, what is recommendation.
+- Reference/collections: utilitarian. Reader is here to use the material. No marketing intro.
+- Opinion: strong but defensible. Explicit claim + reasoning + evidence.
+
+### Restraint rule
+
+Do not rewrite a strong sentence because it is short, uses an em dash,
+uses first person, is opinionated, or has personality. Ask: does it sound
+natural, specific, credible, and useful? If yes, keep it. Shared voice,
+not cloned prose. The Oct 2026 content-engine post informs the standard
+but is not a template.
+
+### Boundaries
+
+Never rewrite code blocks, prompt blocks, source excerpts, direct quotes,
+config, API examples, JSON, shell commands, identifiers, URLs, product or
+model names, or cited third-party language. Only Pantaleone prose is edited.
+Protected terms in `config/anti-slop/protected-terms.json` always survive.
+
+Full pattern list: `config/voice/anti-patterns.json`.
+Compact agent memory: `docs/VOICE_MEMORY.md`.
+Report-only scanner: `scripts/language-gate.py` (`npm run voice:gate`).

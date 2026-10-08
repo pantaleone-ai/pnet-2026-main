@@ -38,6 +38,7 @@
     "upgrade:tailwind": "npx @tailwindcss/upgrade@latest",
     "prepare": "husky",
     "editorial": "python3 scripts/editorial-audit.py --strict",
+    "voice:gate": "python3 scripts/language-gate.py",
     "anti-slop:build": "tsc -p modules/anti-slop",
     "anti-slop:test": "npm run anti-slop:build && node modules/anti-slop/tests/run.mjs",
     "anti-slop:scan": "npm run anti-slop:build && node modules/anti-slop/dist/cli.js scan --type markdown",

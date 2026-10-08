@@ -1,0 +1,74 @@
+{
+  "note": "High-signal review set, not a literal blacklist. Terms may remain when factually necessary, part of a product name, quotation, source, or genuinely clearest wording. Never sacrifice accuracy to satisfy this list.",
+  "marketing_hype": [
+    "transformational",
+    "revolutionary",
+    "game-changing",
+    "groundbreaking",
+    "cutting-edge",
+    "next-generation",
+    "unprecedented",
+    "the pinnacle",
+    "seamless",
+    "robust",
+    "comprehensive",
+    "definitive",
+    "ultimate",
+    "unlock",
+    "harness",
+    "leverage",
+    "supercharge",
+    "elevate",
+    "frictionless",
+    "future-proof",
+    "mission-critical",
+    "best-in-class",
+    "world-class",
+    "state-of-the-art",
+    "unlock new possibilities",
+    "unlock the potential",
+    "the future of"
+  ],
+  "generic_openers": [
+    "in today's rapidly changing",
+    "in today's AI landscape",
+    "as AI continues to evolve",
+    "the world of AI",
+    "AI is changing everything",
+    "Everyone wants to use AI",
+    "Technology has evolved"
+  ],
+  "filler_transitions": [
+    "here's the thing",
+    "let's dive in",
+    "let's unpack",
+    "let's break it down",
+    "it's important to note",
+    "this isn't just",
+    "this is more than",
+    "it goes beyond"
+  ],
+  "contrast_cliches": [
+    "the answer isn't",
+    "the goal isn't",
+    "the problem isn't",
+    "stop doing X, start doing Y",
+    "X is not Y. It is Z"
+  ],
+  "rhetorical_closers": [
+    "The future is",
+    "The real advantage is",
+    "This changes everything",
+    "Now is the time",
+    "Build the system first",
+    "Stop guessing. Start"
+  ],
+  "hedge_superlatives": [
+    "simply",
+    "just",
+    "clearly",
+    "obviously",
+    "fundamentally",
+    "powerful"
+  ]
+}

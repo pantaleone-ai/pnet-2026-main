@@ -1,6 +1,6 @@
 ---
 title: "What the Claude Code Leak Shows"
-description: "512,000 lines of source on how frontier labs build agents."
+description: "512,000 lines of leaked source showing how frontier labs build production agents."
 image: "https://img.pantaleone.net/claude-optimize.webp"
 created: "2026-04-03"
 date: "2026-04-03"
@@ -31,7 +31,7 @@ What was exposed? Over 512,000 lines of TypeScript, approximately 1,900 files, r
 
 ---
 
-# The Technical Anatomy of the Exposure
+## The Technical Anatomy of the Exposure
 
 The root cause was deceptively simple. Anthropic used the Bun JavaScript runtime for building Claude Code. Bun generates source maps by default to assist developers in debugging minified production code. A critical configuration oversight—likely a missing entry in `.npmignore` or the `files` field in `package.json`—allowed the inclusion of `cli.js.map`. This artifact contained the `sourcesContent` field, which mapped the compressed production code back to the original source tree.
 
@@ -39,7 +39,7 @@ The exposure revealed that Claude Code is not a simple CLI wrapper around an API
 
 ---
 
-# Inside the Claude Code Agent Architecture
+## Inside the Claude Code Agent Architecture
 
 ## The Terminal Rendering Layer
 
@@ -83,7 +83,7 @@ The system includes specific "recursion blockers" in the prompt logic to prevent
 
 ---
 
-# Solving Context Entropy
+## Solving Context Entropy
 
 One of the most significant technical revelations was how Claude Code manages "context entropy"—the tendency for models to become confused as sessions grow longer. The leak revealed a sophisticated four-stage pipeline:
 
@@ -96,7 +96,7 @@ The source revealed that Model Context Protocol (MCP) tool results are often exe
 
 ---
 
-# Security Implementation: Beyond Prompt Guardrails
+## Security Implementation: Beyond Prompt Guardrails
 
 The BashTool implementation is a masterclass in AI safety, moving beyond simple "prompt guardrails" to actual code-level validation.
 
@@ -156,9 +156,9 @@ async function updateMemory(key: string, value: string): Promise<void> {
 
 ---
 
-# Claude Code Unreleased Features: The Roadmap Exposed
+## Claude Code Unreleased Features: The Roadmap Exposed
 
-The leak provided an unprecedented view into Anthropic's unannounced roadmap, including 44 distinct feature flags.
+The leak exposed 44 feature flags from Anthropic's unannounced roadmap.
 
 ## KAIROS: The Autonomous Daemon
 
@@ -197,7 +197,7 @@ Documents and code references point toward a new flagship model codenamed Mythos
 
 ---
 
-# The Dark Side: Malware Exploits
+## The Dark Side: Malware Exploits
 
 The visibility of the leak was quickly exploited by threat actors. Within 48 hours, fake repositories appeared claiming to be "official forks" or "unlocked enterprise" versions with no message limits.
 
@@ -207,7 +207,7 @@ Always verify the source of any "leaked" code. The official package is `@anthrop
 
 ---
 
-# What Builders Should Actually Do
+## What Builders Should Actually Do
 
 The leak is a useful reference for developers building AI agents:
 
@@ -233,13 +233,9 @@ Background daemons and memory consolidation like KAIROS and AutoDream are where 
 
 ---
 
-# The New Standard
+## What the leak changes
 
-The Claude Code leak serves as a definitive moment of transparency in the evolution of autonomous AI systems. While no sensitive customer data or model weights were exposed, the "harness" is now a matter of public record.
-
-This event has effectively commoditized the orchestration logic that many companies considered their primary competitive advantage. The leak did not destroy Anthropic's moat, but it has undeniably narrowed the gap between frontier labs and the global developer community.
-
-For builders, this is a gift. The blueprints are now available. What's left is execution.
+No customer data or model weights were exposed. The orchestration logic is now public. Teams that treated that layer as their moat need a new plan. For builders, the blueprints are available. What remains is execution.
 
 ---
 

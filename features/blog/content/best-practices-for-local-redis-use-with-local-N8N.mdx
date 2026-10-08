@@ -1,6 +1,6 @@
 ---
 title: "Redis with Local n8n"
-description: "Faster runs, safe concurrency, resilient state. Laptop to production."
+description: "Faster n8n runs with safe concurrency and resilient state. Laptop to production notes."
 image: "https://img.pantaleone.net/blog-images/ai-stack.webp"
 created: "2025-09-05"
 date: "2025-09-05"
@@ -33,14 +33,14 @@ Pair local N8N with Redis to get the speed, concurrency, and reliability modern,
 
 Start local. Grow smoothly.
 
-# Why Redis for local N8N
+## Why Redis for local N8N
 - Performance: Redis keeps queues and state in memory, cutting I/O waits and keeping workflows responsive under parallel load.
 - Concurrency: Queue mode plus Redis enables safe, concurrent execution without stepping on shared state.
 - Reliability: AOF persistence and simple durability settings protect execution history and workflow state across restarts.
 - Scale‑ready: The same pattern (queue + Redis) extends from a laptop to a single VM to a distributed worker pool.
 - Operational clarity: Clear knobs for memory limits, eviction policy, and basic auth mean predictable behavior and safer defaults.
 
-# Quick start: minimal to solid
+## Quick start: minimal to solid
 ## Prerequisites
 - Redis installed locally (brew/apt) or via container.
 - N8N running locally.
@@ -82,7 +82,7 @@ N8N_REDIS_URL=redis://:strongpass@localhost:6379
 
 Restart N8N after changes.
 
-# Configure Redis: safe defaults
+## Configure Redis: safe defaults
 Open redis.conf (or pass flags via container). Aim for clear, minimal settings that prevent surprises.
 
 ## Persistence
@@ -119,7 +119,7 @@ logfile /var/log/redis/redis.log
 loglevel notice
 ```
 
-# Operate and observe
+## Operate and observe
 Tight feedback loops keep systems healthy and predictable.
 
 ## Redis CLI essentials
@@ -145,7 +145,7 @@ redis-cli MONITOR
 - Add a wait node plus a quick computation to simulate load.
 - Observe execution times and overlap before/after queue mode.
 
-# Troubleshooting: clear paths to green
+## Troubleshooting: clear paths to green
 - Connection refused: Verify Redis is running, host/port correct, and credentials match N8N_REDIS_URL.
 - Auth failures: Reset the password in redis.conf and N8N env; restart both services.
 - Slow under load: Increase maxmemory; confirm queue mode; reduce per‑workflow I/O; prefer smaller payloads in state.
@@ -153,20 +153,20 @@ redis-cli MONITOR
 - Evictions visible: Raise maxmemory or narrow retention; confirm eviction policy aligns with workload.
 - Log noise or retries: Check network bindings; avoid multiple N8N instances pointing at the same Redis unintentionally during local dev.
 
-# Builder patterns: from laptop to cluster
+## Builder patterns: from laptop to cluster
 - Single machine: N8N main + Redis on localhost. Simple and fast.
 - Single VM: Externalize Redis to a small VM instance; run N8N workers as services. Keep AOF on fast disk.
 - Horizontal scale: One Redis (or managed Redis) + multiple N8N workers. Use queue mode with named queues if segmenting workloads matters.
 
 Keep the configuration lean in each step. Add complexity only when a real constraint appears.
 
-# Security notes (right‑sized for local)
+## Security notes (right‑sized for local)
 - Bind to loopback in local work; require a password even on localhost.
 - Avoid exposing Redis ports to public networks.
 - Keep secrets out of source control; prefer environment variables or secret managers.
 - Rotate credentials on any team machine handoff.
 
-# Practical checklist
+## Practical checklist
 - Enable queue mode and set N8N_REDIS_URL.
 - Turn on AOF; set appendfsync everysec.
 - Cap memory with maxmemory and allkeys‑lru.
@@ -174,7 +174,7 @@ Keep the configuration lean in each step. Add complexity only when a real constr
 - Add basic logging; confirm logs roll and are readable.
 - Run a parallel test workflow; confirm overlap and stable duration.
 
-# Conclusion
+## Conclusion
 Agentic systems need a steady core. Redis gives local N8N the velocity, concurrency, and resilience that future work demands—without noise or ceremony. Start with queue mode and small, safe defaults, then scale in place.
 
 Next step: add N8N_EXECUTION_MODE=queue and N8N_REDIS_URL, restart N8N, and run a parallel test flow. Validate the improvement, commit the config, and keep building.
