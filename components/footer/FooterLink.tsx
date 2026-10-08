@@ -37,7 +37,7 @@ export default function FooterLink({
   const containerClasses = cn(
     buttonVariants({ variant: "link" }),
     "group flex items-center gap-1 text-sm font-medium",
-    "h-7 px-2 py-1 has-[>svg]:px-2 sm:h-9 sm:px-4 sm:py-2 sm:has-[>svg]:px-3",
+    "h-6 px-1.5 py-0.5 has-[>svg]:px-1.5 sm:h-9 sm:px-4 sm:py-2 sm:has-[>svg]:px-3",
     !href && "no-underline hover:no-underline cursor-default",
   );
 

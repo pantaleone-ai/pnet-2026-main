@@ -52,7 +52,7 @@ export default function Copyright() {
         className="sm:hidden"
         innerClassName="max-w-2xl border-b border-edge"
       >
-        <div className="flex items-center justify-center py-1 sm:py-2">
+        <div className="flex items-center justify-center py-0.5 sm:py-2">
           {renderLink("copyright")}
         </div>
       </FooterSection>

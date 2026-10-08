@@ -20,7 +20,7 @@ export default function FooterSection({
     >
       <div
         className={cn(
-          "mx-auto flex items-center justify-center gap-2 border-x border-edge px-4 sm:gap-3",
+          "mx-auto flex items-center justify-center gap-1.5 border-x border-edge px-4 sm:gap-3",
           innerClassName,
         )}
       >
