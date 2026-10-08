@@ -1,6 +1,6 @@
 ---
 title: "Next.js SaaS Stack"
-description: "App Router, Supabase, Drizzle, Stripe. Setup notes."
+description: "App Router, Supabase, Drizzle, and Stripe. Setup notes for a working SaaS."
 image: "https://img.pantaleone.net/blog-images/ai-stack.webp"
 created: "2025-09-14"
 date: "2025-09-14"
@@ -35,16 +35,16 @@ This guide provides that foundation. A clean, modular stack for builders who val
 
 This isn't an incremental improvement. It's a transformational shift in how you build.
 
-# The Foundation: A Modern Architecture
+## The Foundation: A Modern Architecture
 Clean separation of concerns isn't a "nice-to-have." It's everything. This stack is designed for clarity and durability.
 
 - **Next.js App Router**: The core for routes, middleware, and server components. It follows the standard Next.js App Router layout: routes, middleware, and Server Components where they fit.
 - **Better Auth + Drizzle on Supabase**: The single source of truth for identity. We own our user data on a managed Postgres instance, accessed via a type-safe, lightweight adapter. No provider-specific JWTs, no lock-in.
 - **Stripe**: The automated billing engine. We offload PCI scope, SCA/3DS, and subscription management to Stripe’s hosted Checkout and billing portal, integrated cleanly via webhooks.
 
-This isn't just a collection of tools. It's a deliberate architecture that puts the builder in control.
+The pieces are wired so one person can run auth, billing, and deploys.
 
-# Prerequisites
+## Prerequisites
 You're a builder. You probably have this ready.
 - Node.js LTS
 - A Next.js 14/15 project
@@ -52,7 +52,7 @@ You're a builder. You probably have this ready.
 - A Stripe account (test mode is fine)
 - Stripe CLI for local webhook testing
 
-# 1. Laying the Groundwork
+## 1. Laying the Groundwork
 First, we assemble the core components.
 
 ### Install Dependencies
@@ -76,7 +76,7 @@ STRIPE_SECRET_KEY="sk_test_xxx"
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY="pk_test_xxx"
 STRIPE_WEBHOOK_SECRET="whsec_xxx" # From Stripe CLI or dashboard
 ```
-# 2. The Database: Your Single Source of Truth
+## 2. The Database: Your Single Source of Truth
 We build on Supabase Postgres for its reliability and scalability. Drizzle gives us a type-safe, high-performance way to talk to it.
 
 ### Create the Drizzle Client
@@ -99,7 +99,7 @@ export const db = drizzle(pool, { schema });
 ### Generate and Run Migrations
 Use Drizzle Kit or the Better Auth CLI to generate the SQL for the auth tables. Apply it via the Supabase SQL Editor. Your foundation needs a schema.
 
-# 3. Identity: The Ownership Layer
+## 3. Identity: The Ownership Layer
 Better Auth gives you full control over your user model and authentication logic.
 
 ### Configure Better Auth
@@ -253,6 +253,6 @@ Redirect users to the Stripe Billing Portal to manage their subscriptions, payme
 - **Secret Management:** Keep BETTER_AUTH_SECRET and STRIPE_SECRET_KEY server-side. Never expose them to the client.
 
 # Wrap Up
-This is a blueprint - A robust, scalable, and modern foundation for building a real SaaS business. It’s designed to give you, the builder, maximum control and velocity by automating the tedious and abstracting the complex.
+This is a working starting point: App Router, Supabase, Drizzle, Stripe, with auth and billing wired.
 Stop wrestling with legacy auth providers and messy billing code.
 Build on a solid foundation. Expand.  Enhance. Then execute.

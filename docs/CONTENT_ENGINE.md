@@ -16,7 +16,7 @@ AI-generated. Never invent experience, customers, metrics, or credentials.
 | What | Path |
 |---|---|
 | Pillars, tags, intents, statuses | `config/content/pillars.ts` |
-| Audit of all 30 existing posts | `config/content/inventory.ts` |
+| Audit of all 32 live posts | `config/content/inventory.ts` |
 | Future title backlog (do not write yet) | `config/content/backlog.ts` |
 | Related-post scoring | `features/blog/lib/content-graph.ts` |
 | Related UI block | `features/blog/components/RelatedArticles.tsx` |

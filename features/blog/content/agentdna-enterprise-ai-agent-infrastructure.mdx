@@ -1,6 +1,6 @@
 ---
 title: "AgentDNA: Agent Infrastructure"
-description: "Agent registry, signed identity, and lifecycle management for AI agents."
+description: "Agent registry, signed identity, and lifecycle management for production AI agents in enterprises."
 image: "https://img.pantaleone.net/agent-dna1.webp"
 imageAlt: "AgentDNA Architecture Diagram"
 created: "2026-03-17"
@@ -75,9 +75,9 @@ This is critical. It means moving agent creation out of the data science lab and
 
 ![Flowchart showing the Agent Lifecycle Management from build and test to deploy and monitor.](https://img.pantaleone.net/agent-dna5.webp)
 
-## This Isn't Just Another MLOps Tool
+## How this differs from MLOps
 
-It's important to distinguish this from the MLOps platforms we've been using for years. MLOps is concerned with the model—training it, deploying it, monitoring its drift. The agentic stack operates a layer above that. It's concerned with the autonomous entity that _uses_ the model to perform tasks.
+MLOps covers the model: training, deploying, monitoring drift. The agentic stack operates one layer above: the autonomous entity that _uses_ the model to perform tasks.
 
 An agent has state, permissions, and tools. It executes multi-step logic. Its behavior is emergent. Managing that requires a different set of tools focused on identity, security, and governance—not just model performance metrics. AgentDNA appears to have understood this distinction correctly.
 
@@ -90,4 +90,4 @@ Related reading on AI agent tooling:
 
 ---
 
-We're past the point of being impressed by agent demos. The real work is in building the robust, secure, and manageable infrastructure to run them in production. That requires a dedicated stack. AgentDNA has laid out a logical blueprint for what a modern agentic stack looks like.
+Demos are easy. Production needs identity, permissions, versioning, and monitoring for agents. AgentDNA lays out one blueprint for that stack.

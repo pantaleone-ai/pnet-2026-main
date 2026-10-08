@@ -1,8 +1,12 @@
 /**
- * Content inventory — audit of the 30 existing posts (Sept 2026).
+ * Content inventory — audit of the 32 live posts (Oct 2026).
+ * Reconciled 2026-10-08: 32 MDX files under features/blog/content/.
  * Three agency/comparison posts removed 2026-09-18:
  * ai-agency-client-acquisition, ai-agency-pricing-models-2026,
  * ai-agent-vs-traditional-automation.
+ *
+ * Slugs match filenames verbatim (including dots in
+ * claude-opus-4.5-… and claude-opus-4.6-…). Do not normalize dots to dashes.
  *
  * How to use:
  * - `pillar` is the primary knowledge pillar (advisory, not routing).
@@ -45,8 +49,10 @@ export const CONTENT_INVENTORY: InventoryEntry[] = [
   { slug: "aisystem-prompts-hidden-blueprint", pillar: "lab", class: "field-note", intent: "experimental", cluster: "prompt-teardowns", action: "keep" },
   { slug: "claude-code-leak-agent-architecture", pillar: "lab", class: "field-note", intent: "experimental", cluster: "prompt-teardowns", action: "keep" },
   { slug: "claude-opus-4-7-system-prompt-analysis", pillar: "lab", class: "field-note", intent: "experimental", cluster: "prompt-teardowns", action: "keep" },
-  { slug: "claude-opus-4-5-system-prompt-analysis-prompt-tips-tricks", pillar: "lab", class: "field-note", intent: "experimental", cluster: "prompt-teardowns", action: "keep" },
-  { slug: "claude-opus-4-6-system-prompt-analysis-tuning-insights-template", pillar: "lab", class: "field-note", intent: "experimental", cluster: "prompt-teardowns", action: "keep" },
+  { slug: "claude-opus-4.5-system-prompt-analysis-prompt-tips-tricks", pillar: "lab", class: "field-note", intent: "experimental", cluster: "prompt-teardowns", action: "keep" },
+  { slug: "claude-opus-4.6-system-prompt-analysis-tuning-insights-template", pillar: "lab", class: "field-note", intent: "experimental", cluster: "prompt-teardowns", action: "keep" },
+  { slug: "claude-opus-5-5-system-prompt-analysis-prompting-guide", pillar: "lab", class: "field-note", intent: "experimental", cluster: "prompt-teardowns", action: "keep", note: "Added Oct 2026. Pairs with 4.7 teardown." },
+  { slug: "content-engine-setup-coding-agents", pillar: "ai-engineering", class: "core-authority", intent: "technical", cluster: "content-ops", action: "keep", note: "Added Oct 7 2026. Canonical voice reference. Do not clone its rhythm across archive." },
   { slug: "claude-sonnet-4-5-system-prompt-analysis", pillar: "lab", class: "field-note", intent: "experimental", cluster: "prompt-teardowns", action: "keep" },
   { slug: "claude-sonnet4-5-improve-quality", pillar: "lab", class: "field-note", intent: "experimental", cluster: "prompt-teardowns", action: "review", note: "Near-duplicate of Sonnet 4.5 analysis. Review for merge." },
   { slug: "gpt5-system-prompt-leak", pillar: "lab", class: "field-note", intent: "news", cluster: "prompt-teardowns", action: "keep" },
@@ -78,6 +84,7 @@ export const CLUSTERS: Record<string, { pillar: PillarId; label: string; hubPath
   "prompt-teardowns": { pillar: "lab", label: "Prompt Teardowns", hubPath: "/blog" },
   "prompt-libraries": { pillar: "ai-automation", label: "Prompt Libraries", hubPath: "/blog" },
   snippets: { pillar: "lab", label: "Snippets", hubPath: "/blog" },
+  "content-ops": { pillar: "ai-engineering", label: "Content Ops", hubPath: "/blog" },
   "ai-research": { pillar: "ai-automation", label: "AI Research", hubPath: "/blog" },
   misc: { pillar: "ai-engineering", label: "Misc", hubPath: "/blog" },
 };
