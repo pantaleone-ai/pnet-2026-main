@@ -49,7 +49,7 @@ function GroupBlock({ group }: { group: DirectoryGroup }) {
       >
         {group.heading}
       </h3>
-      <ul className="mt-3 space-y-2.5">
+      <ul className="mt-2 space-y-1.5 md:mt-3 md:space-y-2.5">
         {group.links.map((link) => (
           <li key={link.href}>
             <LinkWrapper
@@ -59,6 +59,7 @@ function GroupBlock({ group }: { group: DirectoryGroup }) {
                 "text-sm font-normal text-foreground/80 transition-colors duration-200 hover:text-muted-foreground",
                 "rounded-sm underline-offset-4 hover:underline",
                 "focus-visible:outline-2 focus-visible:outline-ring",
+                "leading-snug sm:leading-5",
               )}
             >
               {link.label}
@@ -83,7 +84,7 @@ export default function FooterDirectory() {
         ))}
       </div>
       {/* Mobile: compact stacked sections (server-rendered, no JS) */}
-      <div className="grid grid-cols-1 gap-8 px-4 py-10 sm:grid-cols-2 md:hidden">
+      <div className="grid grid-cols-1 gap-6 px-4 py-6 sm:grid-cols-2 sm:gap-8 sm:py-10 md:hidden">
         {GROUPS.map((group) => (
           <GroupBlock key={group.heading} group={group} />
         ))}
