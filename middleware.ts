@@ -51,6 +51,41 @@ function getLegacyDestination(pathname: string): string | null {
   return null;
 }
 
+/**
+ * App Router flight backstop (origin layer). The AUTHORITATIVE origin signal
+ * is the `next.config.mjs` flight `has:` blocks (verified: `RSC:1` renders
+ * `no-store`/`no-store`, `text/x-component`). This middleware branch is a
+ * second backstop for routes no config block matches.
+ *
+ * NOTE (verified 2026-10, Next 16): edge middleware receives `RSC` /
+ * `Next-Router-*` request headers as NULL, so only the `?_rsc=` query
+ * branch below ever fires. The header branches are kept for documentation
+ * and forward-compat. Cloudflare bypass (`[pnet-2026] bypass dynamic + RSC`
+ * rule) remains primary at the outer layer. See scripts/check-cache-headers.sh.
+ */
+function isFlightRequest(request: NextRequest): boolean {
+  if (request.headers.get("rsc") === "1") return true;
+  if (request.headers.get("next-router-prefetch") === "1") return true;
+  if (request.headers.get("next-router-state-tree") !== null) return true;
+  if (request.headers.get("next-router-segment-prefetch") !== null)
+    return true;
+  return request.nextUrl.searchParams.has("_rsc");
+}
+
+const NO_STORE_HEADERS = {
+  "Cache-Control": "no-store",
+  "Vercel-CDN-Cache-Control": "no-store",
+} as const;
+
+function applyNoStore(response: NextResponse): NextResponse {
+  response.headers.set("Cache-Control", NO_STORE_HEADERS["Cache-Control"]);
+  response.headers.set(
+    "Vercel-CDN-Cache-Control",
+    NO_STORE_HEADERS["Vercel-CDN-Cache-Control"],
+  );
+  return response;
+}
+
 const GONE_HTML = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"><title>Gone</title></head><body><h1>410 Gone</h1><p>This page no longer exists. <a href="https://www.pantaleone.net/">Return to the homepage</a>.</p></body></html>`;
 
 /**
@@ -71,13 +106,17 @@ const GONE_HTML = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><m
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
 
-  // Dead content with no equivalent: 410 regardless of host.
+  // Dead content with no equivalent: 410 regardless of host. no-store so
+  // neither CDN layer pins the Gone body (observed: 404/410 HTML inheriting
+  // the 24h HTML block, 2026-10).
   if (isGonePath(pathname)) {
     return new NextResponse(GONE_HTML, {
       status: 410,
       headers: {
         "Content-Type": "text/html; charset=utf-8",
         "X-Robots-Tag": "noindex, nofollow",
+        "Cache-Control": "no-store",
+        "Vercel-CDN-Cache-Control": "no-store",
       },
     });
   }
@@ -101,7 +140,15 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url, 301);
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+  // Flight responses must never be cacheable at origin (CF bypass is
+  // primary; this is the Vercel-layer backstop). Plain HTML passes through
+  // untouched so the 24h/1yr next.config split keeps working.
+  if (isFlightRequest(request)) {
+    applyNoStore(response);
+    response.headers.set("Vary", "RSC");
+  }
+  return response;
 }
 
 // Matcher excludes fingerprinted/static assets so the edge function never
@@ -109,7 +156,8 @@ export function middleware(request: NextRequest) {
 // /api/*, /checkout, legacy redirects (/grid, /blog/post/*, /feed) and
 // 410 prefixes (/p, /tag, ...) still run — apex->www single-hop 301,
 // legacy 301s, and 410 Gone are preserved. RSC/prefetch bypass lives in
-// Cloudflare cache rules (never cache flight data).
+// Cloudflare cache rules (never cache flight data); middleware stamps
+// no-store on flight responses as the origin/Vercel-layer backstop.
 export const config = {
   matcher: [
     "/((?!_next/static|_next/image|favicon.ico|robots.txt|sitemap.*|rss.xml|opengraph-image|fonts|images|favicons|files).*)",

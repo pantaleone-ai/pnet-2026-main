@@ -20,9 +20,17 @@
 set -euo pipefail
 
 ZONE_ID="${CLOUDFLARE_ZONE_ID:-eea4609e8997339843da337d1f1b5314}"
-TOKEN="${CLOUDFLARE_API_TOKEN:?CLOUDFLARE_API_TOKEN is required}"
+# DRY_RUN=1 validates the payload offline without secrets or network (used in
+# CI / local checks). Live applies still require the token (phase read +
+# foreign-rule guard + atomic PUT).
+if [ "${DRY_RUN:-0}" != "1" ]; then
+  TOKEN="${CLOUDFLARE_API_TOKEN:?CLOUDFLARE_API_TOKEN is required}"
+else
+  TOKEN="${CLOUDFLARE_API_TOKEN:-dry-run-no-token}"
+fi
 API="https://api.cloudflare.com/client/v4/zones/${ZONE_ID}"
 
+if [ "${DRY_RUN:-0}" != "1" ]; then
 PHASE_RS="$(curl -s --max-time 30 -H "Authorization: Bearer ${TOKEN}" \
   "${API}/rulesets/phases/http_request_cache_settings/entrypoint")"
 echo "${PHASE_RS}" | python3 -c "import json,sys; d=json.load(sys.stdin); assert d.get('success'), d; print('phase ruleset:', d['result']['id'])" \
@@ -45,6 +53,7 @@ for r in rules:
     sys.exit(1)
 print(f'guard ok: {len(rules)} existing rule(s) are ours')
 "
+fi # end live-only phase read + foreign-rule guard (dry-run skips network)
 
 # NOTE: http.cookie is NOT a valid field in the cache-settings phase, and
 # contains is an INFIX operator (not a function) — both probe-verified
@@ -120,6 +129,17 @@ print(json.dumps({'rules': [
 if [ "${DRY_RUN:-0}" = "1" ]; then
   echo "--- DRY RUN: payload that would be PUT ---"
   echo "${PAYLOAD}" | python3 -m json.tool | head -60
+  echo "${PAYLOAD}" | python3 -c "
+import json, sys
+p = json.load(sys.stdin)
+rules = p['rules']
+assert all(r['description'].startswith('[pnet-2026]') for r in rules), 'all rules must carry the owned prefix'
+assert len(rules) == 4, f'zone parity: runbook documents 4 owned rules, payload has {len(rules)} (a rule was dropped or added without review)'
+assert rules[-1]['description'].startswith('[pnet-2026] bypass'), 'bypass rule must be LAST (last-match-wins)'
+assert rules[-1]['action_parameters'] == {'cache': False}, 'bypass must set cache:false'
+print(f'dry-run ok: {len(rules)} owned rule(s), bypass last, no network touched')
+"
+  exit 0
 fi
 
 RESP="$(curl -s --max-time 30 -X PUT -H "Authorization: Bearer ${TOKEN}" \
