@@ -1,0 +1,99 @@
+{
+  "https://www.pantaleone.net/ig/syn-ig-carousel-02-134/1.jpg": [
+    {
+      "issue": 134,
+      "contentId": "syn-ig-carousel-02",
+      "channel": "instagram",
+      "date": "2026-10-09T00:52:37Z"
+    }
+  ],
+  "https://www.pantaleone.net/ig/syn-ig-carousel-02-134/2.jpg": [
+    {
+      "issue": 134,
+      "contentId": "syn-ig-carousel-02",
+      "channel": "instagram",
+      "date": "2026-10-09T00:52:37Z"
+    }
+  ],
+  "https://www.pantaleone.net/ig/syn-ig-carousel-02-134/3.jpg": [
+    {
+      "issue": 134,
+      "contentId": "syn-ig-carousel-02",
+      "channel": "instagram",
+      "date": "2026-10-09T00:52:37Z"
+    }
+  ],
+  "https://www.pantaleone.net/ig/syn-ig-fresh-01-145/1.jpg": [
+    {
+      "issue": 145,
+      "contentId": "syn-ig-fresh-01",
+      "channel": "instagram",
+      "date": "2026-10-09T17:19:09Z"
+    }
+  ],
+  "https://www.pantaleone.net/ig/syn-ig-fresh-01-145/2.jpg": [
+    {
+      "issue": 145,
+      "contentId": "syn-ig-fresh-01",
+      "channel": "instagram",
+      "date": "2026-10-09T17:19:09Z"
+    }
+  ],
+  "https://www.pantaleone.net/ig/syn-ig-fresh-01-145/3.jpg": [
+    {
+      "issue": 145,
+      "contentId": "syn-ig-fresh-01",
+      "channel": "instagram",
+      "date": "2026-10-09T17:19:09Z"
+    }
+  ],
+  "https://www.pantaleone.net/ig/syn-ig-curves-01-147/1.jpg": [
+    {
+      "issue": 147,
+      "contentId": "syn-ig-curves-01",
+      "channel": "instagram",
+      "date": "2026-10-09T17:19:55Z"
+    }
+  ],
+  "https://www.pantaleone.net/ig/syn-ig-curves-01-147/2.jpg": [
+    {
+      "issue": 147,
+      "contentId": "syn-ig-curves-01",
+      "channel": "instagram",
+      "date": "2026-10-09T17:19:55Z"
+    }
+  ],
+  "https://www.pantaleone.net/ig/syn-ig-curves-01-147/3.jpg": [
+    {
+      "issue": 147,
+      "contentId": "syn-ig-curves-01",
+      "channel": "instagram",
+      "date": "2026-10-09T17:19:55Z"
+    }
+  ],
+  "https://api.synthetic.pics/image/2026-10-09-zip-line-fragment-light-and-shadow-study-single-4788628.avif": [
+    {
+      "issue": 146,
+      "contentId": "syn-fb-new-01",
+      "channel": "facebook",
+      "date": "2026-10-09T17:18:59Z",
+      "duplicate": true
+    },
+    {
+      "issue": 148,
+      "contentId": "syn-fb-pick-01",
+      "channel": "facebook",
+      "date": "2026-10-09T17:20:03Z",
+      "duplicate": true
+    }
+  ],
+  "https://api.synthetic.pics/image/2026-10-09-shards-biomorphic-abstraction-sharp-angular-59473744.avif": [
+    {
+      "issue": 106,
+      "contentId": "syn-fb-drop-02",
+      "channel": "facebook",
+      "date": "2026-10-09T00:32:00Z",
+      "duplicate": true
+    }
+  ]
+}

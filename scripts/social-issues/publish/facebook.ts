@@ -28,6 +28,17 @@ export interface FbSchedule {
   publishAtUnix?: number;
 }
 
+/**
+ * Pick the per-post FB visual: first public JPEG/PNG. AVIF is rejected
+ * (Meta fetch fails) and bare link-scrape posts are refused upstream —
+ * every FB post carries its own artwork image.
+ */
+export function selectFbImage(images: string[]): string | undefined {
+  return images.find(
+    (u) => /^https:\/\//.test(u) && /\.(jpe?g|png)(\?|$)/i.test(u),
+  );
+}
+
 function scheduleParams(
   schedule?: FbSchedule,
 ): Record<string, string | number | boolean> {

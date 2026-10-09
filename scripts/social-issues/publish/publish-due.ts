@@ -19,9 +19,14 @@ import {
   missingEnvs,
   type ChannelSpec,
 } from "./channels";
-import { deletePost, publishLinkPost } from "./facebook";
+import { deletePost, publishPhotoPost, selectFbImage } from "./facebook";
 import { publishCarousel } from "./instagram";
 import { pendingPlan } from "./pending-channels";
+import {
+  claimImage,
+  conflictingUses,
+  readMediaLedger,
+} from "@/lib/social-growth/media-registry";
 
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(name);
@@ -230,6 +235,20 @@ async function main(): Promise<void> {
       );
       process.exit(1);
     }
+    const igContentId =
+      issue.title.match(/^\[Social\]\s*([a-z0-9-]+)/i)?.[1]?.toLowerCase() ??
+      `issue-${issue.number}`;
+    const igLedger = readMediaLedger();
+    for (const url of images) {
+      const conflicts = conflictingUses(igLedger, url, igContentId);
+      if (conflicts.length > 0) {
+        const owners = conflicts
+          .map((c) => `#${c.issue}/${c.contentId}`)
+          .join(", ");
+        console.error(`image already used by ${owners}: ${url}`);
+        process.exit(1);
+      }
+    }
     if (dryRun) {
       console.log(
         `would-publish-instagram - #${issue.number} to @${accounts.igUsername} (${images.length} images)\n---caption---\n${caption}`,
@@ -242,6 +261,18 @@ async function main(): Promise<void> {
       images,
       caption,
     );
+    for (const url of images) {
+      try {
+        claimImage(url, {
+          issue: issue.number,
+          contentId: igContentId,
+          channel: channel.id,
+          date: new Date().toISOString(),
+        });
+      } catch (e) {
+        console.error(e instanceof Error ? e.message : String(e));
+      }
+    }
     const proof = [
       `## Platform publish proof — ${channel.id}`,
       ``,
@@ -297,13 +328,53 @@ async function main(): Promise<void> {
       );
       process.exit(1);
     }
+    // No bare link posts: Meta would scrape the shared homepage OG image,
+    // repeating one artwork under unrelated titles. Every FB post carries
+    // its own JPEG/PNG visual via a photo post.
+    const contentId =
+      issue.title.match(/^\[Social\]\s*([a-z0-9-]+)/i)?.[1]?.toLowerCase() ??
+      `issue-${issue.number}`;
+    const fbImage = selectFbImage(images);
+    if (!fbImage) {
+      const comment = [
+        `## Publish blocked — ${channel.id} (needs-asset)`,
+        ``,
+        `- No per-post JPEG/PNG found. Add **Images:** \`https://…/1.jpg\` to the issue body`,
+        `  (build a 1200x630 card from the packet source artwork, merge, verify 200).`,
+        ``,
+        `Stays at \`status:packet-ready\`. Link-scrape posts are refused by design.`,
+      ].join("\n");
+      if (dryRun) {
+        console.log(`would-flag-needs-asset - #${issue.number}\n${comment}`);
+        return;
+      }
+      gh(["issue", "comment", String(issue.number), "--body", comment]);
+      gh(["issue", "edit", String(issue.number), "--add-label", "needs-asset"]);
+      console.log(`flagged needs-asset - #${issue.number} (${channel.id})`);
+      return;
+    }
+    const conflicts = conflictingUses(readMediaLedger(), fbImage, contentId);
+    if (conflicts.length > 0) {
+      const owners = conflicts
+        .map((c) => `#${c.issue}/${c.contentId}`)
+        .join(", ");
+      console.error(`image already used by ${owners}: ${fbImage}`);
+      process.exit(1);
+    }
     if (dryRun) {
       console.log(
-        `would-publish-facebook - #${issue.number} to ${accounts.pageName} (${accounts.pageId})\n---caption---\n${caption}\n---link---\n${destination}`,
+        `would-publish-facebook-photo - #${issue.number} to ${accounts.pageName} (${accounts.pageId})\n---caption---\n${caption}\n---image---\n${fbImage}\n---link---\n${destination}`,
       );
       return;
     }
-    const res = publishLinkPost(token, accounts.pageId, caption, destination);
+    const photoCaption = `${caption}\n\n${destination}`;
+    const res = publishPhotoPost(token, accounts.pageId, fbImage, photoCaption);
+    claimImage(fbImage, {
+      issue: issue.number,
+      contentId,
+      channel: channel.id,
+      date: new Date().toISOString(),
+    });
     if (verifyDelete) {
       deletePost(token, res.postId);
       console.log(
@@ -316,6 +387,7 @@ async function main(): Promise<void> {
       ``,
       `- Post: ${res.permalink}`,
       `- Post ID: \`${res.postId}\``,
+      `- Image: ${fbImage} (per-post visual, photo post — no link-scrape)`,
       screenshotUrl
         ? `- Screenshot:\n\n![${channel.id} post proof](${screenshotUrl})`
         : `- Screenshot: pending (re-run with --screenshot-url to close)`,
