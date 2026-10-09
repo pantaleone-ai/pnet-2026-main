@@ -52,13 +52,16 @@ function getLegacyDestination(pathname: string): string | null {
 }
 
 /**
- * App Router flight requests must never produce a cacheable response.
- * Cloudflare bypasses them via the `[pnet-2026] bypass dynamic + RSC`
- * cache rule (primary), but the origin header is still the 24h HTML block
- * from `next.config.mjs` — and the Vercel layer was observed caching flight
- * payloads (`x-vercel-cache: HIT` on `text/x-component`, 2026-10). Marking
- * the response `no-store` here keeps both layers from ever caching flight
- * data, even if the CF rule is bypassed or removed.
+ * App Router flight backstop (origin layer). The AUTHORITATIVE origin signal
+ * is the `next.config.mjs` flight `has:` blocks (verified: `RSC:1` renders
+ * `no-store`/`no-store`, `text/x-component`). This middleware branch is a
+ * second backstop for routes no config block matches.
+ *
+ * NOTE (verified 2026-10, Next 16): edge middleware receives `RSC` /
+ * `Next-Router-*` request headers as NULL, so only the `?_rsc=` query
+ * branch below ever fires. The header branches are kept for documentation
+ * and forward-compat. Cloudflare bypass (`[pnet-2026] bypass dynamic + RSC`
+ * rule) remains primary at the outer layer. See scripts/check-cache-headers.sh.
  */
 function isFlightRequest(request: NextRequest): boolean {
   if (request.headers.get("rsc") === "1") return true;
