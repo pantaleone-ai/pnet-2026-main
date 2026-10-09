@@ -33,11 +33,23 @@ All owned rules are prefixed `[pnet-2026]` and applied idempotently by `scripts/
    `/_next/data/*`, `/checkout`, `?_rsc=`, `RSC: 1` / `Next-Router-Prefetch: 1`
    headers, Vercel preview cookies. App Router flight data must never cache:
    Cloudflare ignores `Vary: rsc, next-router-state-tree, ...`, so without this
-   rule cached HTML is served to flight requests (and vice versa).
+   rule cached HTML is served to flight requests (and vice versa). Origin
+   backstop: `middleware.ts` stamps `Cache-Control: no-store` (+ `Vary: RSC`)
+   on flight responses — the Vercel layer was observed caching
+   `text/x-component` with the 24h HTML TTL (2026-10), so the CF rule alone
+   is not sufficient.
 2. `[pnet-2026] immutable static assets, 1 month edge` — `/_next/static/*`,
    `/_next/image`, `/images|fonts|favicons|files/*`, override 2592000s.
 3. `[pnet-2026] HTML + feeds respect origin` — everything else on the host
    follows origin `Cache-Control` (24h HTML, 1yr static feeds/assets).
+4. `[pnet-2026] OG image pin, 1 month edge` — `/opengraph-image*`, override
+   2592000s. Placed AFTER the HTML rule and BEFORE the bypass (last match
+   wins). REQUIRED, not optional: the `opengraph-image.tsx` file-route
+   convention ignores the `next.config.mjs` 1yr header block (live origin
+   still emits `public, max-age=0, must-revalidate` — probe-verified 2026-10),
+   so without this rule every OG fetch revalidates at origin. Deploy purges
+   it by exact file (`/opengraph-image` in AGG_PATHS); the route also carries
+   the `pnet-feeds` Cache-Tag so tag purges clear it too.
 
 Foreign rules you must NOT touch: `R2 public assets CORP` (response-header
 transform, `imgsquash.pantaleone.net`), `API abuse guard` (ratelimit, 20
@@ -52,7 +64,6 @@ names cannot be removed — the rules inside are correctly tagged and enabled;
 do not let the name confuse you.
 
 ## Cost notes (2026-10 pass)
-
 - HTML `s-maxage` 1200 → 86400 (`next.config.mjs`): `cf-purge-on-deploy.yml`
   purges by tag/file on every merge, so 20min only re-drove origin MISS
   traffic. 24h keeps HITs between deploys; Vercel-CDN stays 1yr.
@@ -64,8 +75,32 @@ do not let the name confuse you.
   and only title/slug tokens; `getContextAroundMatch` exact-only.
   `app/api/search` adds `maxDuration=5`. Revert: restore fuzzy loops.
 - `app/opengraph-image.tsx`: file-URL font fetch from `public/fonts` instead
-  of HTTP self-fetch — zero origin transfer per OG render (still edge, 1yr CDN).
+  of HTTP self-fetch — zero origin transfer per OG render. Edge TTL is the CF
+  `[pnet-2026] OG image pin` (1 month override; the next.config 1yr block is
+  ignored by the file-route convention).
+- 404/410 + flight origin hardening (2026-10): `middleware.ts` emits `no-store`
+  (+ `Vercel-CDN-Cache-Control: no-store`) on 410 Gone bodies and on all
+  flight (`RSC: 1` / prefetch / `?_rsc=`) responses. Before: 404 HTML inherited
+  the 24h block and stuck at both layers (`x-vercel-cache: HIT`, age growing);
+  flight payloads stuck at the Vercel layer while CF correctly bypassed.
 - Rollback: revert `s-maxage` to 1200 + re-purge (files + `pnet-html` tag).
+
+## Purge policy (decided 2026-10 — eager indexes, tagged feeds)
+
+- **Blog-index policy: purge eagerly.** A post edit purges the post URLs
+  (`/blog/<slug>`, `/blog.mdx/<slug>`) PLUS `/blog`, `/`, `/sitemap.xml`,
+  `/rss.xml` by file (see `scripts/cf-map-diff.py`). The 24h-staleness
+  alternative was rejected: indexes are deploy-time static at Vercel (fresh
+  immediately) while Cloudflare would hold pre-deploy copies for 24h.
+- **Feed APIs (`/api/feeds/*`, `/api/products/*`) purge by TAG, not files.**
+  Cloudflare single-file purges reject wildcards, so the aggregate path list
+  intentionally contains only exact URLs. Freshness comes from the `pnet-feeds`
+  tag purge, which `cf-map-diff.py` now emits on every shared-code change
+  (those rebuild all force-static feeds at deploy). Feed route-file edits map
+  to their exact page URLs via the `app/` branch as before.
+- `DRY_RUN=1 ./scripts/cf-cache-rules.sh` validates the payload shape, but the
+  script still requires `CLOUDFLARE_API_TOKEN` (phase read + guard run first) —
+  run it with a read-only token for validation, or inspect the JSON block.
 
 ## Gotchas (probe-verified 2026-09-29)
 
@@ -78,6 +113,21 @@ do not let the name confuse you.
 - Purge BEFORE validating after any rule/header change, or you measure stale state.
 
 ## Accepted gaps (documented, not forgotten)
+
+- **True-404 (`not-found.tsx`) HTML at the Vercel layer**: `middleware.ts`
+  runs pre-routing so it cannot see the 404 status, and `headers()` in
+  `next.config.mjs` cannot condition on status either — unknown-slug 404s
+  still inherit the 24h HTML block at origin. The 410 Gone prefixes (known
+  dead content) are `no-store` at origin. Full fix needs a response-phase rule
+  (bypass cache on status >= 400) managed separately from
+  `scripts/cf-cache-rules.sh` (request phase only) — owner: edge-cache, next
+  pass. Mitigation: 404s are low-traffic; CF `HIT` on a 404 still saves
+  origin FOT (it just risks pinning a 404 for 24h if a page is added at that
+  slug — purge the slug on publish).
+- **Apex `308` uncached (`cf-cache-status: EXPIRED`)**: the apex→www redirect
+  re-hits origin per request. Cheap (headers-only, no HTML) and low-traffic;
+  caching redirects at CF needs a dedicated rule — accepted, revisit if apex
+  traffic rises.
 
 - **Sitemap `lastModified`**: blog entries are content-derived; shop/hub pages carry a
   deploy stamp (`LAST_MODIFIED` in `app/sitemap.ts`, `app/products/sitemap.ts`).

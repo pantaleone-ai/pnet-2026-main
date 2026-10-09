@@ -115,6 +115,17 @@ def main() -> int:
                 data_hit = True
                 add(f"/blog/{slug}")
                 add(f"/blog.mdx/{slug}")
+                # Blog-index policy (decided 2026-10): indexes are purged
+                # EAGERLY, not left to 24h staleness. /blog, /, /sitemap.xml
+                # and /rss.xml are deploy-time static at Vercel (fresh on
+                # every merge) but Cloudflare holds the pre-deploy HTML for
+                # up to 24h — a new post would be invisible on those
+                # surfaces until TTL expiry. Four extra file purges per post
+                # edit is the cheapest correct invalidation.
+                add("/blog")
+                add("/")
+                add("/sitemap.xml")
+                add("/rss.xml")
                 continue
         if top in CONTENT_TOPS:
             data_hit = True
@@ -131,6 +142,16 @@ def main() -> int:
     tags = []
     if code_hit:
         tags.append(f"{pfx}-html")
+        # Shared-code changes rebuild every force-static feed (rss.xml,
+        # sitemap.xml, llms-*.txt, /api/feeds/*, /api/products/*) at deploy
+        # time, so Vercel serves fresh bytes while Cloudflare still holds the
+        # pre-deploy 1yr-TTL copies. Feeds carry only the `{pfx}-feeds` tag
+        # (not `{pfx}-html`), so without this they stay stale up to a year.
+        # File purges cannot use wildcards (`/api/feeds/*` is not a valid
+        # single-file purge target), hence the tag purge — one extra call per
+        # code-change deploy. Revert: drop the line below and accept feed
+        # staleness after shared-code merges.
+        tags.append(f"{pfx}-feeds")
     if data_hit and data_tag:
         tags.append(data_tag)
 

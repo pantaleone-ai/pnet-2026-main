@@ -5,12 +5,20 @@ name: cf-purge-on-deploy
 #
 # Two signals from the merge diff (see compute job):
 # - files: public/* -> exact asset URLs; route files -> their page URLs
-#   (dynamic [slug] collapses to section index); content/data + shared code ->
-#   small aggregate set (/ /sitemap.xml /rss.xml). Cap 1000 URLs.
-# - tags: shared-code changes -> `pnet-html` (all HTML, assets stay warm);
-#   catalog-data changes -> `(none configured)`. Tags are emitted by proxy.ts
-#   (`Cache-Tag` header; Cloudflare strips it on delivery).
-# API/admin paths are skipped (not edge-cached page content).
+#   (dynamic [slug] collapses to section index); blog post MDX ->
+#   post URLs PLUS index surfaces (/blog, /, /sitemap.xml, /rss.xml —
+#   eager, see scripts/cf-map-diff.py); content/data + shared code ->
+#   small aggregate set (/ /blog /sitemap.xml /rss.xml /llms.txt /llms-full.txt
+#   /opengraph-image). Cap 1000 URLs. NOTE: no wildcards — Cloudflare
+#   single-file purges reject them, so `/api/feeds/*` freshness is covered
+#   by the `pnet-feeds` TAG purge below, not by files.
+# - tags: shared-code changes -> `pnet-html` (all HTML) + `pnet-feeds` (all
+#   force-static feeds incl. /api/feeds/* + /api/products/*, which carry only
+#   the feeds tag — without this they stay stale up to 1yr after code merges).
+#   Tags are emitted by next.config.mjs (`Cache-Tag` header; Cloudflare strips
+#   it on delivery).
+# API/admin paths are skipped (not edge-cached page content), except the
+# edge-cached feed APIs above which map via their route files + tags.
 # Manual runs accept extra_paths (space/comma list); manual TAG purges go
 # through the controller with invalidation_type: tags.
 
