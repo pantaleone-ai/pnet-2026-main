@@ -6,7 +6,8 @@ name: cf-purge-on-deploy
 # Two signals from the merge diff (see compute job):
 # - files: public/* -> exact asset URLs; route files -> their page URLs
 #   (dynamic [slug] collapses to section index); content/data + shared code ->
-#   small aggregate set (/ /sitemap.xml /rss.xml). Cap 1000 URLs.
+#   small aggregate set (/ /blog /sitemap.xml /rss.xml /llms.txt /llms-full.txt
+#   /opengraph-image). Cap 1000 URLs.
 # - tags: shared-code changes -> `pnet-html` (all HTML, assets stay warm);
 #   catalog-data changes -> `(none configured)`. Tags are emitted by proxy.ts
 #   (`Cache-Tag` header; Cloudflare strips it on delivery).
@@ -58,7 +59,7 @@ jobs:
           APP_PREFIX: ""
           ROUTE_ROOT: "app"
           HOSTS: "www.pantaleone.net pantaleone.net"
-          AGG_PATHS: "/ /blog /sitemap.xml /rss.xml /llms.txt"
+          AGG_PATHS: "/ /blog /sitemap.xml /rss.xml /llms.txt /llms-full.txt /opengraph-image"
           PFX: "pnet"
           DATA_TAG: ""
           BEFORE: ${{ github.event.before }}
