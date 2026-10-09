@@ -12,6 +12,8 @@ import { POST_FRAMEWORKS } from "@/config/social-growth/templates";
 import { channelForLabelNames } from "./publish/channels";
 import { pendingPlan } from "./publish/pending-channels";
 import { buildCaption } from "@/lib/social-growth/caption";
+import { titleMatchesArtwork } from "@/lib/social-growth/media-registry";
+import { SYN_CATALOG } from "@/config/social-growth/syn-catalog";
 import { writeFileSync, existsSync } from "node:fs";
 
 function arg(name: string): string | undefined {
@@ -145,6 +147,39 @@ async function main(): Promise<void> {
     issue.title.match(/^\[Social\]\s*([a-z0-9-]+)/i)?.[1] ??
     `content-${issue.number}`
   ).toLowerCase();
+
+  // Facebook: a named source artwork is not enough — a built, public visual
+  // must exist, or the post would fall back to the shared link-scrape image.
+  if (channel?.id === "facebook") {
+    const hasImagesField = /\*\*Images:\*\*/i.test(issue.body);
+    const cardPath = `public/fb/${contentId}-${issue.number}/1.jpg`;
+    if (!hasImagesField && !existsSync(cardPath)) {
+      errors.push(
+        `facebook needs a per-post visual: build 1200x630 ${cardPath} from the source artwork (or stamp **Images:**), then re-run`,
+      );
+    }
+  }
+
+  // Title/artwork relevance: the hook must share vocabulary with at least
+  // one named source artwork descriptor (catalog lookup by artwork id).
+  {
+    const ids = [
+      ...(parsed.sourceAsset ?? "").matchAll(
+        /20\d\d-\d\d-\d\d-[a-z0-9-]+?(?=\.[a-z]+(?:,|\s|$)|(?:,|\s|$))/g,
+      ),
+    ].map((m) => m[0].trim());
+    if (ids.length > 0) {
+      const descriptors = ids.map((id) => {
+        const hit = SYN_CATALOG.find((c) => c.id === id);
+        return hit ? hit.descriptor : id.replace(/-/g, " ");
+      });
+      if (parsed.hook && !titleMatchesArtwork(parsed.hook, descriptors)) {
+        errors.push(
+          `hook does not match source artwork (${descriptors.join(" | ").slice(0, 160)}) — retitle to the actual piece`,
+        );
+      }
+    }
+  }
 
   if (errors.length > 0 && !dryRun && !write) {
     console.error(

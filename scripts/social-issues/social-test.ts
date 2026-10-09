@@ -13,6 +13,14 @@ import {
   usesInQuarter,
 } from "@/lib/social-growth/exposure";
 import { nextSlot, parseWindow } from "./schedule-queue";
+import {
+  claimImage,
+  conflictingUses,
+  imageIsFresh,
+  readMediaLedger,
+  titleMatchesArtwork,
+} from "@/lib/social-growth/media-registry";
+import { selectFbImage } from "./publish/facebook";
 import { validateCampaignName, validateCreativeName } from "@/lib/growth/utm";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -125,6 +133,77 @@ check(
   validateCampaignName("SYN_IG_DISCOVERY_ARTBUYERS_US_202610").valid,
 );
 check("creative valid", validateCreativeName("SYN_FRESH_CAR_V1").valid);
+
+// Media registry: one image, one contentId.
+const tmpMedia = join(tmpdir(), `media-test-${Date.now()}.json`);
+check(
+  "fresh ledger empty",
+  Object.keys(readMediaLedger(tmpMedia)).length === 0,
+);
+claimImage(
+  "https://cdn/x/1.jpg",
+  {
+    issue: 1,
+    contentId: "a-01",
+    channel: "facebook",
+    date: "2026-10-09T00:00:00Z",
+  },
+  tmpMedia,
+);
+check(
+  "same contentId re-claim ok",
+  imageIsFresh(readMediaLedger(tmpMedia), "https://cdn/x/1.jpg", "a-01"),
+);
+check(
+  "other contentId blocked",
+  conflictingUses(readMediaLedger(tmpMedia), "https://cdn/x/1.jpg", "b-02")
+    .length === 1,
+);
+let threw = false;
+try {
+  claimImage(
+    "https://cdn/x/1.jpg",
+    {
+      issue: 2,
+      contentId: "b-02",
+      channel: "facebook",
+      date: "2026-10-09T00:00:00Z",
+    },
+    tmpMedia,
+  );
+} catch {
+  threw = true;
+}
+check("claim throws on duplicate", threw);
+
+// FB image selection: JPEG/PNG only, never AVIF, never empty.
+check(
+  "fb picks jpeg",
+  selectFbImage(["https://cdn/x/1.jpg"]) === "https://cdn/x/1.jpg",
+);
+check(
+  "fb picks png",
+  selectFbImage(["https://cdn/x/1.png?x=1"]) === "https://cdn/x/1.png?x=1",
+);
+check(
+  "fb rejects avif",
+  selectFbImage(["https://api.synthetic.pics/image/a.avif"]) === undefined,
+);
+check("fb rejects empty", selectFbImage([]) === undefined);
+
+// Title/artwork relevance.
+check(
+  "matching title passes",
+  titleMatchesArtwork("Mono month: three black-and-white studies", [
+    "expectation monochromatic study calligraphic beams",
+  ]),
+);
+check(
+  "unrelated title fails",
+  !titleMatchesArtwork("Weekend drop: 3 warm minimal pieces", [
+    "filaments brutalist abstraction branching",
+  ]),
+);
 
 if (failures > 0) {
   console.error(`\nsocial-test: ${failures} failure(s)`);

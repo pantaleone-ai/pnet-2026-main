@@ -54,7 +54,7 @@ parks at `needs-screenshot`; attach the shot to close.
 | Channel | Queue volume | Status | Envs needed |
 |---|---|---|---|
 | Instagram | 5 open | **LIVE** (proven #91, #101) | `META_CAPI_ACCESS_TOKEN` ✅ stored |
-| Facebook | 3 open | **LIVE** (same token, `pages_manage_posts`) | `META_CAPI_ACCESS_TOKEN` ✅ stored |
+| Facebook | 3 open | **LIVE** (same token, `pages_manage_posts`) — photo posts with per-post visuals; bare link posts refused (link-scrape duplicates) | `META_CAPI_ACCESS_TOKEN` ✅ stored |
 | Pinterest | 8 open (largest) | Blocked — owner OAuth | `PINTEREST_ACCESS_TOKEN` |
 | X | 8 open | Blocked — owner app + OAuth | `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_TOKEN_SECRET` |
 | LinkedIn | 2 open | Blocked — owner OAuth (aiceo/profitsignals only) | `LINKEDIN_ACCESS_TOKEN`, `LINKEDIN_PERSON_URN` |
