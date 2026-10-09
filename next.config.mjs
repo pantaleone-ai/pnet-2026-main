@@ -73,6 +73,41 @@ const config = {
         ],
       },
       {
+        // Flight-data backstop (probe-verified 2026-10: the Vercel layer was
+        // caching `text/x-component` with the 24h HTML TTL above while
+        // Cloudflare correctly bypassed). These blocks match the SAME paths
+        // as the HTML block but only for flight/prefetch requests, and MUST
+        // stay AFTER it (later matching sources override earlier keys).
+        // Middleware stamps no-store too, but the headers() layer wins for
+        // matched routes — this is the authoritative origin signal. CF
+        // bypass rule remains primary at the outer layer.
+        source:
+          "/((?!api|_next|_vercel|checkout|robots\\.txt|sitemap|favicon\\.ico|opengraph-image|llms\\.txt|llms-full\\.txt|shop\\.md|projects\\.md|index\\.md|services\\.md|b2b\\.md|contact\\.md|blog\\.mdx|rss\\.xml).*)",
+        has: [{ type: "header", key: "rsc", value: "1" }],
+        headers: [
+          { key: "Cache-Control", value: "no-store" },
+          { key: "Vercel-CDN-Cache-Control", value: "no-store" },
+        ],
+      },
+      {
+        source:
+          "/((?!api|_next|_vercel|checkout|robots\\.txt|sitemap|favicon\\.ico|opengraph-image|llms\\.txt|llms-full\\.txt|shop\\.md|projects\\.md|index\\.md|services\\.md|b2b\\.md|contact\\.md|blog\\.mdx|rss\\.xml).*)",
+        has: [{ type: "header", key: "next-router-prefetch", value: "1" }],
+        headers: [
+          { key: "Cache-Control", value: "no-store" },
+          { key: "Vercel-CDN-Cache-Control", value: "no-store" },
+        ],
+      },
+      {
+        source:
+          "/((?!api|_next|_vercel|checkout|robots\\.txt|sitemap|favicon\\.ico|opengraph-image|llms\\.txt|llms-full\\.txt|shop\\.md|projects\\.md|index\\.md|services\\.md|b2b\\.md|contact\\.md|blog\\.mdx|rss\\.xml).*)",
+        has: [{ type: "query", key: "_rsc" }],
+        headers: [
+          { key: "Cache-Control", value: "no-store" },
+          { key: "Vercel-CDN-Cache-Control", value: "no-store" },
+        ],
+      },
+      {
         // Fingerprinted-immutable public assets. Served directly from the
         // edge/CDN; long TTLs keep MISS-driven origin transfer near zero.
         // NOTE: no `immutable` on HTML — only on hashed/static assets below.
@@ -186,8 +221,15 @@ const config = {
         ],
       },
       {
-        // OG image is force-static (built once per deploy). Pin the render
-        // to the CDN so social crawlers never re-execute origin.
+        // OG image is edge-rendered once per deploy. NOTE (probe-verified
+        // 2026-10): the `opengraph-image.tsx` file-route convention ignores
+        // this header block — live origin still emits
+        // `public, max-age=0, must-revalidate`. The block is kept as intent
+        // documentation only; the AUTHORITATIVE pin is the Cloudflare
+        // `[pnet-2026] OG image pin, 1 month edge` rule in
+        // scripts/cf-cache-rules.sh (override_origin 2592000, live HIT with
+        // growing age), plus the files-purge entry on every deploy. Do not
+        // delete this block thinking the route sets its own TTL — it does not.
         source: "/opengraph-image",
         headers: [
           {
@@ -323,6 +365,10 @@ const config = {
       { source: "/services/:path*", headers: [{ key: "Cache-Tag", value: "pnet-html,pnet-services" }] },
       { source: "/shop/:path*", headers: [{ key: "Cache-Tag", value: "pnet-html,pnet-shop" }] },
       { source: "/sitemap.xml", headers: [{ key: "Cache-Tag", value: "pnet-feeds" }] },
+      // OG image has no tag purge today — it is purged by exact file
+      // (`/opengraph-image` in AGG_PATHS). Tag added so a future
+      // `pnet-feeds` tag purge also clears it; harmless if unused.
+      { source: "/opengraph-image", headers: [{ key: "Cache-Tag", value: "pnet-feeds" }] },
       { source: "/robots.txt", headers: [{ key: "Cache-Tag", value: "pnet-feeds" }] },
       { source: "/llms.txt", headers: [{ key: "Cache-Tag", value: "pnet-feeds" }] },
       { source: "/llms-full.txt", headers: [{ key: "Cache-Tag", value: "pnet-feeds" }] },
