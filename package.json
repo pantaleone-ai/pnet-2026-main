@@ -50,7 +50,11 @@
     "content:labels": "tsx scripts/content-issues/labels.ts",
     "content:seed": "tsx scripts/content-issues/seed-backlog.ts",
     "content:next": "tsx scripts/content-issues/pick-next.ts",
-    "content:close": "tsx scripts/content-issues/close-with-evidence.ts"
+    "content:close": "tsx scripts/content-issues/close-with-evidence.ts",
+    "social:test": "tsx scripts/social-issues/social-test.ts",
+    "social:packet": "tsx scripts/social-issues/build-packet.ts",
+    "social:report": "tsx scripts/social-issues/report-weekly.ts",
+    "social:schedule": "tsx scripts/social-issues/schedule-queue.ts"
   },
   "dependencies": {
     "@bprogress/next": "^3.2.12",
