@@ -17,15 +17,36 @@ import { isNonProdRuntime, isProdRequestHost } from "@/lib/meta-pixel";
 export const META_DATASET_ID =
   process.env.NEXT_PUBLIC_META_PIXEL_ID || "1764032770941978";
 
+/**
+ * Per-app dataset resolution. Precedence: META_DATASET_ID_<APP> (server-only
+ * override) -> NEXT_PUBLIC_META_PIXEL_ID_<APP> (pixel id == dataset id) ->
+ * shared default. <APP> is the registry id uppercased (synthetic-pics ->
+ * SYNTHETIC_PICS), mirroring the token pattern in getMetaConfig.
+ */
+export function getDatasetId(appId?: string): string {
+  if (appId) {
+    const suffix = appId.toUpperCase().replace(/[^A-Z0-9]/g, "_");
+    const override =
+      process.env[`META_DATASET_ID_${suffix}`] ??
+      process.env[`NEXT_PUBLIC_META_PIXEL_ID_${suffix}`];
+    if (override) return override;
+  }
+  return META_DATASET_ID;
+}
+
 const CAPI_VERSION = "v21.0";
 const CAPI_URL = `https://graph.facebook.com/${CAPI_VERSION}/${META_DATASET_ID}/events`;
+
+/** Events endpoint for an optional per-app dataset. */
+export function capiUrl(appId?: string): string {
+  if (!appId) return CAPI_URL;
+  return `https://graph.facebook.com/${CAPI_VERSION}/${getDatasetId(appId)}/events`;
+}
 
 /** Server-only token. Legacy META_ACCESS_TOKEN kept as fallback. */
 export function getCapiToken(): string | null {
   return (
-    process.env.META_CAPI_ACCESS_TOKEN ||
-    process.env.META_ACCESS_TOKEN ||
-    null
+    process.env.META_CAPI_ACCESS_TOKEN || process.env.META_ACCESS_TOKEN || null
   );
 }
 
@@ -96,7 +117,7 @@ export interface CapiSendResult {
  */
 export async function sendCapiEvents(
   events: CapiEvent[],
-  opts?: { eventSourceUrl?: string },
+  opts?: { eventSourceUrl?: string; appId?: string },
 ): Promise<CapiSendResult> {
   if (events.length === 0) return { sent: false, skipped: "empty" };
   if (isNonProdRuntime()) return { sent: false, skipped: "non-prod-runtime" };
@@ -137,16 +158,14 @@ export async function sendCapiEvents(
   if (testCode) payload.test_event_code = testCode;
 
   try {
-    const res = await fetch(CAPI_URL, {
+    const res = await fetch(capiUrl(opts?.appId), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
     if (!res.ok) {
       const text = await res.text().catch(() => "");
-      console.error(
-        `Meta CAPI error ${res.status}: ${text.slice(0, 300)}`,
-      );
+      console.error(`Meta CAPI error ${res.status}: ${text.slice(0, 300)}`);
       return { sent: false, skipped: `graph-${res.status}` };
     }
     return { sent: true, dedupId: events[0]?.event_id };
@@ -166,8 +185,7 @@ export function userDataFromRequest(
   const cfIp = request.headers.get("cf-connecting-ip");
   const clientIp =
     cfIp || realIp || forwarded?.split(",")[0]?.trim() || undefined;
-  const clientUserAgent =
-    request.headers.get("user-agent") || undefined;
+  const clientUserAgent = request.headers.get("user-agent") || undefined;
 
   let fbc: string | undefined;
   let fbp: string | undefined;
