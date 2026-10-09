@@ -34,10 +34,12 @@ All owned rules are prefixed `[pnet-2026]` and applied idempotently by `scripts/
    headers, Vercel preview cookies. App Router flight data must never cache:
    Cloudflare ignores `Vary: rsc, next-router-state-tree, ...`, so without this
    rule cached HTML is served to flight requests (and vice versa). Origin
-   backstop: `middleware.ts` stamps `Cache-Control: no-store` (+ `Vary: RSC`)
-   on flight responses — the Vercel layer was observed caching
-   `text/x-component` with the 24h HTML TTL (2026-10), so the CF rule alone
-   is not sufficient.
+   backstop: `next.config.mjs` flight `has:` blocks stamp `no-store` on
+   flight responses (edge middleware cannot see `RSC`/`Next-Router-*`
+   headers — verified null — so it keeps only a `?_rsc=` backstop). The
+   Vercel layer was observed caching `text/x-component` with the 24h HTML
+   TTL (2026-10), so the CF rule alone is not sufficient. Regression net:
+   `scripts/check-cache-headers.sh`.
 2. `[pnet-2026] immutable static assets, 1 month edge` — `/_next/static/*`,
    `/_next/image`, `/images|fonts|favicons|files/*`, override 2592000s.
 3. `[pnet-2026] HTML + feeds respect origin` — everything else on the host
@@ -78,11 +80,17 @@ do not let the name confuse you.
   of HTTP self-fetch — zero origin transfer per OG render. Edge TTL is the CF
   `[pnet-2026] OG image pin` (1 month override; the next.config 1yr block is
   ignored by the file-route convention).
-- 404/410 + flight origin hardening (2026-10): `middleware.ts` emits `no-store`
-  (+ `Vercel-CDN-Cache-Control: no-store`) on 410 Gone bodies and on all
-  flight (`RSC: 1` / prefetch / `?_rsc=`) responses. Before: 404 HTML inherited
+- 404/410 + flight origin hardening (2026-10): `next.config.mjs` flight
+  `has:` blocks emit `no-store` (+ `Vercel-CDN-Cache-Control: no-store`) on
+  `RSC:1` / prefetch / `?_rsc=` responses (authoritative — edge middleware
+  receives those request headers as null, verified, so it cannot do this
+  job; middleware keeps only a `?_rsc=` backstop). `middleware.ts` emits
+  `no-store` on 410 Gone bodies. Before: 404 HTML inherited
   the 24h block and stuck at both layers (`x-vercel-cache: HIT`, age growing);
   flight payloads stuck at the Vercel layer while CF correctly bypassed.
+  Regression net: `scripts/check-cache-headers.sh` (origin assertions; run
+  local post-build AND against prod post-deploy — prod fails until the fix
+  deploys, which is the expected delta).
 - Rollback: revert `s-maxage` to 1200 + re-purge (files + `pnet-html` tag).
 
 ## Purge policy (decided 2026-10 — eager indexes, tagged feeds)
@@ -98,6 +106,17 @@ do not let the name confuse you.
   tag purge, which `cf-map-diff.py` now emits on every shared-code change
   (those rebuild all force-static feeds at deploy). Feed route-file edits map
   to their exact page URLs via the `app/` branch as before.
+- **Over-purge guard (2026-10):** the `pnet-feeds` tag on code merges refills
+  only what the files list does not already cover — `/api/feeds/*`,
+  `/api/products/*`, `/feeds/*`, `/blog.mdx/*` at ~3–18 KB each (measured
+  2026-10: etsy 3 KB, products 18 KB, products/feed 6 KB), i.e. well under
+  1 MB extra origin per code-merge against the 10 GB FOT quota. The big
+  1yr-TTL bodies (`llms-full.txt` ~81 KB, `rss.xml` ~52 KB, `/blog` ~906 KB)
+  are already in the files purge, so the tag adds no second refill for them.
+  Watch: if Vercel Top Paths shows feed FOT spiking per merge, narrow the
+  `tags.append(f"{pfx}-feeds")` condition in `cf-map-diff.py` to merges
+  touching feed-rendering paths only (`app/**/feed*`, `app/rss.xml/*`,
+  `app/(llms)/*`, `app/api/feeds/*`, `app/api/products/*`, `features/*`).
 - `DRY_RUN=1 ./scripts/cf-cache-rules.sh` validates the payload shape, but the
   script still requires `CLOUDFLARE_API_TOKEN` (phase read + guard run first) —
   run it with a read-only token for validation, or inspect the JSON block.
@@ -124,6 +143,17 @@ do not let the name confuse you.
   pass. Mitigation: 404s are low-traffic; CF `HIT` on a 404 still saves
   origin FOT (it just risks pinning a 404 for 24h if a page is added at that
   slug — purge the slug on publish).
+  Draft (dry-run only, never auto-applies): `scripts/cf-response-rules.sh`
+  prints the exact `http_response_cache_settings` payload
+  (`[pnet-2026] error responses are never cached`: `http.response.code in
+  {400 401 403 404 405 410 429 500 502 503}` → `set_cache_control no-store`)
+  plus dashboard/API apply steps. Syntax grounded in Cloudflare docs 2026-10
+  (Cache Response Rules: Free, 10 rules, response rules win on conflict).
+  Residual even after applying: Vercel inner layer still pins 404s 24h.
+  Publish-path wiring (verified, no change needed): content publishes are git
+  merges, and `cf-map-diff.py` maps added AND deleted `.mdx` paths (diff
+  `--name-only` includes deletions) to their post URLs — renames purge both
+  old and new slugs automatically on the merge that performs them.
 - **Apex `308` uncached (`cf-cache-status: EXPIRED`)**: the apex→www redirect
   re-hits origin per request. Cheap (headers-only, no HTML) and low-traffic;
   caching redirects at CF needs a dedicated rule — accepted, revisit if apex

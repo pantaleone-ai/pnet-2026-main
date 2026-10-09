@@ -69,11 +69,18 @@ fi # end live-only phase read + foreign-rule guard (dry-run skips network)
 BYPASS_EXPR='(http.host contains "pantaleone.net" and (http.request.headers["rsc"][0] == "1" or http.request.headers["next-router-prefetch"][0] == "1" or http.request.uri.query contains "_rsc=" or starts_with(http.request.uri.path, "/api/") or starts_with(http.request.uri.path, "/_next/data/") or starts_with(http.request.uri.path, "/checkout") or http.request.headers["cookie"][0] contains "__prerender_bypass" or http.request.headers["cookie"][0] contains "__next_preview_data") and not (starts_with(http.request.uri.path, "/api/search") and http.request.method == "GET"))'
 HTML_EXPR='(http.host contains "pantaleone.net")'
 STATIC_EXPR='(http.host contains "pantaleone.net" and (starts_with(http.request.uri.path, "/_next/static/") or starts_with(http.request.uri.path, "/_next/image") or starts_with(http.request.uri.path, "/images/") or starts_with(http.request.uri.path, "/fonts/") or starts_with(http.request.uri.path, "/favicons/") or starts_with(http.request.uri.path, "/files/")))'
+# OG pin 2026-10 (FOT): /opengraph-image is edge-rendered and the route emits
+# `max-age=0, must-revalidate`, so respect_origin revalidates on every hit
+# (live: sticky EXPIRED). Override to 1 month edge; deploys purge it via the
+# files list (see AGG_PATHS). Narrow path, zero overlap with HTML semantics.
+# Revert: delete OG_EXPR + its rule block below.
+OG_EXPR='(http.host contains "pantaleone.net" and starts_with(http.request.uri.path, "/opengraph-image"))'
 
 # RULE ORDER IS LOAD-BEARING (probe-verified 2026-09-29): in this phase the
 # LAST matching set_cache_settings rule wins — a host-wide eligible rule
 # placed after the bypass silently re-enables caching. Eligible rules go
-# first, the bypass goes LAST.
+# first (static, HTML, then narrow OG override so it beats HTML), the bypass
+# goes LAST.
 PAYLOAD="$(python3 -c "
 import json
 print(json.dumps({'rules': [
@@ -100,6 +107,17 @@ print(json.dumps({'rules': [
     'enabled': True,
   },
   {
+    'description': '[pnet-2026] OG image pin, 1 month edge (overrides max-age=0 origin)',
+    'expression': '''${OG_EXPR}''',
+    'action': 'set_cache_settings',
+    'action_parameters': {
+      'cache': True,
+      'edge_ttl': {'mode': 'override_origin', 'default': 2592000},
+      'browser_ttl': {'mode': 'respect_origin'},
+    },
+    'enabled': True,
+  },
+  {
     'description': '[pnet-2026] bypass dynamic + RSC/prefetch (App Router flight data must never cache)',
     'expression': '''${BYPASS_EXPR}''',
     'action': 'set_cache_settings',
@@ -116,6 +134,7 @@ import json, sys
 p = json.load(sys.stdin)
 rules = p['rules']
 assert all(r['description'].startswith('[pnet-2026]') for r in rules), 'all rules must carry the owned prefix'
+assert len(rules) == 4, f'zone parity: runbook documents 4 owned rules, payload has {len(rules)} (a rule was dropped or added without review)'
 assert rules[-1]['description'].startswith('[pnet-2026] bypass'), 'bypass rule must be LAST (last-match-wins)'
 assert rules[-1]['action_parameters'] == {'cache': False}, 'bypass must set cache:false'
 print(f'dry-run ok: {len(rules)} owned rule(s), bypass last, no network touched')
