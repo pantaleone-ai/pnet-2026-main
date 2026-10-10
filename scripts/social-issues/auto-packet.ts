@@ -184,13 +184,20 @@ async function main(): Promise<void> {
     } catch {
       sh("git", ["checkout", branch]);
     }
-    sh("git", [
-      "add",
+    const { existsSync: exists } = await import("node:fs");
+    const candidates = [
       `public/ig/${contentId}-${issueArg}`,
       `public/fb/${contentId}-${issueArg}`,
       `docs/social-presence/publish/${contentId}-${issueArg}.md`,
       `docs/social-presence/publish/${contentId}-caption.txt`,
-    ]);
+    ].filter((p) => exists(p));
+    if (candidates.length === 0) {
+      fail(
+        issueArg,
+        "Auto-packet stopped: packet build produced no files on disk. Inspect the packet logs and re-add `publish:approved`.",
+      );
+    }
+    sh("git", ["add", ...candidates]);
     const staged = sh("git", ["diff", "--cached", "--name-only"]);
     if (!staged) {
       fail(
