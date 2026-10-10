@@ -1,7 +1,7 @@
 import Heading from "@/components/HeadingTitle";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
-import { getBaseUrl } from "@/lib/helpers";
+import { getPageMetadata } from "@/lib/seo/page-metadata";
 import type { HeadType } from "@/types";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -12,19 +12,9 @@ export const dynamic = "force-static";
 const PAGE = "Services";
 const page = HEAD.find((p: HeadType) => p.page === PAGE) as HeadType;
 
-export const metadata: Metadata = {
-  title: page?.title ?? "Services and pricing | Pantaleone Digital",
-  description:
-    page?.description ??
-    "Fixed-price workflow audit, monthly build engagement, and retainer. N8N, LangChain, and Next.js.",
-  metadataBase: new URL(getBaseUrl(page?.slug ?? "/services")),
-  alternates: {
-    canonical: getBaseUrl(page?.slug ?? "/services"),
-    types: {
-      "text/markdown": getBaseUrl("/services.md"),
-    },
-  },
-};
+// HEAD is the single source of truth; title renders absolute so the root
+// template never double-appends the brand.
+export const metadata: Metadata = getPageMetadata(page, "/services.md");
 
 interface PricingTier {
   name: string;

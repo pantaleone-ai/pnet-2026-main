@@ -61,7 +61,7 @@ export const ECOSYSTEM_GROUPS: EcosystemGroup[] = [
     ],
   },
   {
-    heading: "Apps & Experiments",
+    heading: "Lifestyle Apps",
     links: [linkFor("mixphd"), linkFor("proswing")],
   },
 ];

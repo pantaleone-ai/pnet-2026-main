@@ -23,7 +23,7 @@ const PANTALEONE_GROUP: DirectoryGroup = {
     { label: "AI Apps", href: "/shop/ai-apps" },
     { label: "AI Workflows", href: "/shop/ai-workflows" },
     { label: "Blog", href: "/blog" },
-    { label: "About", href: "/about" },
+    { label: "AI Readiness Guide", href: "/resources/ai-readiness-guide" },
     { label: "Contact", href: "/contact" },
   ],
 };
