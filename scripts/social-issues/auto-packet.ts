@@ -240,41 +240,121 @@ async function main(): Promise<void> {
     sh("git", ["add", ...candidates]);
     const staged = sh("git", ["diff", "--cached", "--name-only"]);
     if (!staged) {
-      fail(
-        issueArg,
-        "Auto-packet stopped: packet build produced no files (nothing staged). Inspect the packet logs and re-add `publish:approved`.",
-      );
+      // Resume path: a previous run already committed this content.
+      let remoteHas = false;
+      try {
+        sh("git", ["ls-remote", "--exit-code", "--heads", "origin", branch]);
+        remoteHas = true;
+      } catch {
+        remoteHas = false;
+      }
+      if (!remoteHas) {
+        fail(
+          issueArg,
+          "Auto-packet stopped: packet build produced no files (nothing staged). Inspect the packet logs and re-add `publish:approved`.",
+        );
+      }
+      console.log(`resume - ${branch} already on origin, continuing to PR`);
+    } else {
+      sh("git", [
+        "-c",
+        "user.name=pantaleone-ai",
+        "-c",
+        "user.email=mdptrading@gmail.com",
+        "commit",
+        "-m",
+        `feat(social): auto-packet ${contentId} for #${issueArg} (gallery-only)`,
+      ]);
+      gitPushWithFallback();
     }
-    sh("git", [
-      "-c",
-      "user.name=pantaleone-ai",
-      "-c",
-      "user.email=mdptrading@gmail.com",
-      "commit",
-      "-m",
-      `feat(social): auto-packet ${contentId} for #${issueArg} (gallery-only)`,
-    ]);
-    gitPushWithFallback();
   } catch (e) {
     fail(
       issueArg,
       `Auto-packet stopped at git/PR preparation: ${e instanceof Error ? e.message.split("\n").slice(0, 3).join(" ") : String(e)}. Re-add \`publish:approved\` to retry.`,
     );
   }
-  const prUrl = ghWrite([
-    "pr",
-    "create",
-    "--title",
-    `Auto-packet ${contentId} for #${issueArg} (gallery-only)`,
-    "--body-file",
-    `/tmp/packet-${issueArg}-pr-body.md`,
-    "--head",
-    branch,
-    "--base",
-    "main",
-  ]);
-  console.log(`pr - ${prUrl}`);
-  ghWrite(["pr", "merge", prUrl, "--squash", "--auto"]);
+  // Idempotent re-runs: reuse the open PR for this branch if one exists.
+  let prUrl: string;
+  try {
+    const existing = sh("gh", [
+      "pr",
+      "list",
+      "--head",
+      branch,
+      "--state",
+      "open",
+      "--json",
+      "url",
+      "--jq",
+      ".[0].url // empty",
+    ]);
+    if (existing) {
+      prUrl = existing;
+      console.log(`reusing open pr - ${prUrl}`);
+    } else {
+      prUrl = ghWrite([
+        "pr",
+        "create",
+        "--title",
+        `Auto-packet ${contentId} for #${issueArg} (gallery-only)`,
+        "--body-file",
+        `/tmp/packet-${issueArg}-pr-body.md`,
+        "--head",
+        branch,
+        "--base",
+        "main",
+      ]);
+      console.log(`pr - ${prUrl}`);
+    }
+  } catch (e) {
+    fail(
+      issueArg,
+      `Auto-packet stopped: could not open or find packet PR (${e instanceof Error ? e.message.split("\n")[0] : String(e)}). Re-add \`publish:approved\` to retry.`,
+    );
+  }
+  // Wait for checks to stabilize before merging: --auto fails while checks
+  // are still pending (UNSTABLE). Poll mergeStateStatus, then merge directly.
+  {
+    const waitDeadline = Date.now() + 12 * 60 * 1000;
+    for (;;) {
+      let status = "";
+      try {
+        status = sh("gh", [
+          "pr",
+          "view",
+          prUrl,
+          "--json",
+          "mergeStateStatus,mergeable",
+          "--jq",
+          '[.mergeStateStatus,.mergeable] | join(" ")',
+        ]);
+      } catch (e) {
+        fail(
+          issueArg,
+          `Auto-packet stopped: cannot read PR status (${prUrl}). Merge it manually; the packet will flip on merge.`,
+        );
+      }
+      if (status.startsWith("CLEAN")) break;
+      if (
+        status.includes("DIRTY") ||
+        status.includes("CONFLICTING") ||
+        status.includes("BLOCKED")
+      ) {
+        fail(
+          issueArg,
+          `Auto-packet stopped: PR ${prUrl} is ${status} — resolve manually, then re-add \`publish:approved\`.`,
+        );
+      }
+      if (Date.now() > waitDeadline) {
+        fail(
+          issueArg,
+          `Auto-packet stopped: PR ${prUrl} checks never stabilized (${status}). Merge it manually; the packet will flip on merge.`,
+        );
+      }
+      await new Promise((r) => setTimeout(r, 45000));
+    }
+  }
+  ghWrite(["pr", "merge", prUrl, "--squash"]);
   const deadline = Date.now() + 12 * 60 * 1000;
   let mergedAt = "";
   for (;;) {
