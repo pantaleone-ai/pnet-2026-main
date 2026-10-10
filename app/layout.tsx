@@ -127,10 +127,14 @@ export const viewport: Viewport = {
 };
 
 // 3. Metadata Configuration (Connected to siteConfig)
+// Title strategy: short brand suffix only. Route pages set
+// `title: { absolute: ... }` from config/seo/head.ts so the template
+// never double-appends the brand. The full identity string
+// (siteConfig.name) is reserved for authorship/JSON-LD, not titles.
 export const metadata: Metadata = {
   title: {
-    default: siteConfig.name,
-    template: `%s | ${siteConfig.name}`,
+    default: "AI Automation & Custom Software | Pantaleone",
+    template: `%s | ${siteConfig.shortName}`,
   },
   description: siteConfig.description,
   applicationName: siteConfig.name,

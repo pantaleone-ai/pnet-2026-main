@@ -58,7 +58,15 @@ export default function Hero() {
             </Button>
           </div>
           <p className="px-4 pb-5 text-left text-sm text-muted-foreground">
-            Bring one process. We scope it or rule it out in 30 minutes.
+            Bring one process. We scope it or rule it out in 30 minutes.{" "}
+            Looking for a product?{" "}
+            <Link
+              href="/apps"
+              className="underline underline-offset-4"
+            >
+              Explore our software
+            </Link>
+            .
           </p>
 
           <ul

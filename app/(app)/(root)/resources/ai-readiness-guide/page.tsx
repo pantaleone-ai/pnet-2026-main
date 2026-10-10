@@ -1,7 +1,7 @@
 import Heading from "@/components/HeadingTitle";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
-import { getBaseUrl } from "@/lib/helpers";
+import { getPageMetadata } from "@/lib/seo/page-metadata";
 import type { HeadType } from "@/types";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -9,22 +9,14 @@ import LeadMagnetForm from "@/components/lead-magnet/LeadMagnetForm";
 
 export const dynamic = "force-static";
 
+// Canonical HEAD key is "AI Readiness Guide" (with spaces) — the previous
+// "AIReadinessGuide" key never matched this lookup and the page silently
+// rendered fallback metadata. HEAD is now the single source of truth and the
+// title renders absolute so the root template never double-appends the brand.
 const PAGE = "AI Readiness Guide";
 const page = HEAD.find((p: HeadType) => p.page === PAGE) as HeadType;
 
-export const metadata: Metadata = {
-  title:
-    page?.title ?? "AI readiness guide | Pantaleone Digital",
-  description:
-    page?.description ??
-    "An 8-point checklist for one workflow: inputs, time cost, and whether automation pays. PDF by email.",
-  metadataBase: new URL(
-    getBaseUrl(page?.slug ?? "/resources/ai-readiness-guide"),
-  ),
-  alternates: {
-    canonical: getBaseUrl(page?.slug ?? "/resources/ai-readiness-guide"),
-  },
-};
+export const metadata: Metadata = getPageMetadata(page);
 
 export default function AIReadinessGuidePage() {
   return (

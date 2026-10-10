@@ -3,93 +3,94 @@ import type { HeadType } from "@/types";
 
 /**
  * Page-level metadata registry — one entry per important public route.
- * Titles describe the actual intent of the page; descriptions are written
- * for humans and search snippets, not keyword lists.
+ * Titles are FULL absolute titles (already include the brand suffix) and
+ * routes render them via `title: { absolute: page.title }` so the root
+ * template (`%s | Pantaleone`) never double-appends the brand.
+ * Descriptions are written for humans and search snippets, not keywords.
+ *
+ * Key rule: `page` is the canonical lookup key used by route files.
+ * The AI Readiness Guide key is "AI Readiness Guide" (with spaces) —
+ * do not rename it to "AIReadinessGuide": the route looks it up by the
+ * spaced name and a mismatch silently renders fallback metadata.
  */
 const HEAD: HeadType[] = [
   {
     page: "Home",
-    title: truncateTitle(
-      "Pantaleone | AI Agents, Automation & Custom AI Software",
-    ),
+    title: truncateTitle("AI Automation & Custom Software | Pantaleone"),
     description: truncateDescription(
-      "We build AI systems that eliminate expensive manual work: AI agents, workflow automation, AI integration, and custom AI software.",
+      "We build AI agents, automate high-value workflows, and develop custom software that reduces manual work for businesses.",
     ),
     slug: "/",
   },
   {
     page: "Services",
-    title: truncateTitle(
-      "Services & Pricing | AI Workflow Audit and Builds",
-    ),
+    title: truncateTitle("AI Automation Services & Consulting | Pantaleone"),
     description: truncateDescription(
-      "Fixed-price workflow audit, monthly build engagement, and retainer. N8N, LangChain, and Next.js with repo and runbook handoff.",
+      "Get help identifying, building, and deploying AI workflows, agent systems, and custom software, with clear scope and handoff.",
     ),
     slug: "/services",
   },
   {
     page: "B2B",
-    title: truncateTitle("AI Work for Teams | Pantaleone"),
+    title: truncateTitle("AI Solutions for Business Teams | Pantaleone"),
     description: truncateDescription(
-      "N8N workflows, LangChain pipelines, and LLM integrations for teams. Audit, build, and handoff with measured outcomes.",
+      "Build practical AI workflows, agent systems, and LLM integrations for your team, with implementation, testing, and handoff.",
     ),
     slug: "/b2b",
   },
   {
     page: "About",
-    title: truncateTitle(
-      "About Matt Pantaleone | AI Engineering & Automation",
-    ),
+    title: truncateTitle("About Matt Pantaleone | Pantaleone"),
     description: truncateDescription(
-      "Matt Pantaleone builds autonomous agents, LLM integrations, and production automation systems for startups and enterprises.",
+      "Learn about Matt Pantaleone's work in AI engineering, autonomous agents, LLM integration, and production automation systems.",
     ),
     slug: "/about",
   },
   {
     page: "Experience",
-    title: truncateTitle("Experience | AI Engineering & Automation Work"),
+    title: truncateTitle("Professional Experience | Matt Pantaleone"),
     description: truncateDescription(
-      "Professional history in AI systems, automation engineering, LLM integration, and full-stack development.",
+      "Explore Matt Pantaleone's professional background in technology, AI systems, software development, and automation.",
     ),
     slug: "/experience",
   },
   {
     page: "Education",
-    title: truncateTitle("Education | Computer Science & AI Engineering"),
+    title: truncateTitle("Education & AI Engineering Background | Pantaleone"),
     description: truncateDescription(
-      "Computer science background with hands-on specialization in AI systems, LLM deployment, and production automation.",
+      "Explore the computer science education and technical foundations behind Matt Pantaleone's AI engineering work.",
     ),
     slug: "/education",
   },
   {
     page: "Blog",
-    title: truncateTitle("Blog | AI Workflows & Automation Notes"),
+    title: truncateTitle("AI Engineering & Automation Blog | Pantaleone"),
     description: truncateDescription(
-      "Writing on LLM implementation, agentic workflows, and building production AI systems.",
+      "Practical notes on AI engineering, LLM implementation, agentic workflows, and building reliable production systems.",
     ),
     slug: "/blog",
   },
   {
     page: "Projects",
-    title: truncateTitle("Projects | AI Platforms & Automation Tools"),
+    title: truncateTitle("AI Automation & Business Solutions | Pantaleone"),
     description: truncateDescription(
-      "AI tools and platforms built for production: autonomous agents, LLM pipelines, and full-stack applications.",
+      "Explore practical AI automation, agent, marketing workflow, and custom software solutions Pantaleone can build for your business.",
     ),
     slug: "/projects",
   },
   {
     page: "Apps",
-    title: truncateTitle("Apps | Pantaleone Portfolio Products"),
+    title: truncateTitle("AI Apps & Software Products | Pantaleone"),
     description: truncateDescription(
-      "Live Pantaleone products: generative art, drink recipes, swing analysis, image tools, 3D prints, and AI platforms.",
+      "Explore software built by Pantaleone, including generative art, cocktail discovery, baseball swing analysis, image tools, and AI applications.",
     ),
     slug: "/apps",
   },
   {
     page: "Shop",
-    title: truncateTitle("Shop | AI Workflows, Apps & Services"),
+    title: truncateTitle("AI Workflows & Digital Products | Pantaleone"),
     description: truncateDescription(
-      "N8N workflows, AI applications, and consulting services for teams building automation systems.",
+      "Explore available AI workflows, digital products, and services from Pantaleone.",
     ),
     slug: "/shop",
   },
@@ -110,28 +111,26 @@ const HEAD: HeadType[] = [
     slug: "/shop/ai-workflows",
   },
   {
-    page: "AIReadinessGuide",
-    title: truncateTitle(
-      "AI Readiness Guide | Prepare Your Team for AI Agents",
-    ),
+    page: "AI Readiness Guide",
+    title: truncateTitle("AI Readiness Guide for Business | Pantaleone"),
     description: truncateDescription(
-      "A practical checklist for preparing your processes, data, and team before automating with AI agents.",
+      "Use an eight-point checklist to assess one workflow's inputs, time cost, and automation potential. Get the guide by email.",
     ),
     slug: "/resources/ai-readiness-guide",
   },
   {
     page: "Contact",
-    title: truncateTitle("Contact | AI Engineering & Automation Consulting"),
+    title: truncateTitle("Contact for AI Engineering | Pantaleone"),
     description: truncateDescription(
-      "Hire Matt Pantaleone for AI engineering, automation strategy, and LLM integration projects.",
+      "Discuss AI automation, agent development, integrations, or custom software for your business.",
     ),
     slug: "/contact",
   },
   {
     page: "Privacy",
-    title: truncateTitle("Privacy Policy | Pantaleone Digital Services"),
+    title: truncateTitle("Privacy Policy | Pantaleone"),
     description: truncateDescription(
-      "Privacy practices and data protection policies for pantaleone.net and its products.",
+      "Review the privacy practices and data handling policies applicable to Pantaleone.net and its covered services.",
     ),
     slug: "/privacy",
   },
@@ -145,9 +144,9 @@ const HEAD: HeadType[] = [
   // },
   {
     page: "Changelog",
-    title: truncateTitle("Changelog | Platform Updates & Development"),
+    title: truncateTitle("Product & Platform Changelog | Pantaleone"),
     description: truncateDescription(
-      "Development history and technical updates for the Pantaleone Digital ecosystem.",
+      "Read product releases, platform updates, and development changes across the Pantaleone ecosystem.",
     ),
     slug: "/changelog",
   },

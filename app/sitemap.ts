@@ -30,6 +30,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
+      url: getBaseUrl("/apps"),
+      lastModified: LAST_MODIFIED,
+      changeFrequency: "weekly" as const,
+      priority: 0.9,
+    },
+    {
       url: getBaseUrl("/blog"),
       lastModified: LAST_MODIFIED,
       changeFrequency: "daily" as const,

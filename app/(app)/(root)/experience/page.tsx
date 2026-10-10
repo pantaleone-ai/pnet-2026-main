@@ -2,7 +2,7 @@ import HeadingTitle from "@/components/HeadingTitle";
 import LastModified from "@/components/LastModified";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
-import { getBaseUrl } from "@/lib/helpers";
+import { getPageMetadata } from "@/lib/seo/page-metadata";
 import type { HeadType } from "@/types";
 import type { Metadata } from "next";
 
@@ -20,20 +20,11 @@ const PAGE = "Experience";
 // Get SEO configuration for the current page from the HEAD array
 const page = HEAD.find((page: HeadType) => page.page === PAGE) as HeadType;
 
-// Configure comprehensive metadata for SEO and social sharing
-// This includes all necessary meta tags for search engines and social media platforms
-export const metadata: Metadata = {
-  // Basic metadata
-  title: page.title,
-  applicationName: page.title,
-  description: page.description,
-
-  // URL configurations for canonical links and RSS feed
-  metadataBase: new URL(getBaseUrl(page.slug)),
-  alternates: {
-    canonical: getBaseUrl(page.slug),
-  },
-};
+// HEAD is the single source of truth; title renders absolute so the root
+// template never double-appends the brand. The `| Matt Pantaleone` suffix
+// here is intentional: it preserves personal authorship on this page while
+// every other route uses the short `| Pantaleone` suffix.
+export const metadata: Metadata = getPageMetadata(page);
 
 export default async function ExperiencePage() {
   return (
@@ -59,7 +50,7 @@ export default async function ExperiencePage() {
               agents, LLM integrations, and production automation.
             </p>
             <p className="mb-4">
-              I've worked with clients ranging from startups to large
+              I&apos;ve worked with clients ranging from startups to large
               enterprises, building things like document processing pipelines,
               conversational agents, and internal tooling that runs without
               human intervention.

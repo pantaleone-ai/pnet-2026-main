@@ -73,7 +73,7 @@ ${services}
 
 ## Proof and Projects
 
-- [Projects hub](${abs("/projects")}): Selected builds showing skills and delivery approach.
+- [Projects hub](${abs("/projects")}): Example business solutions Pantaleone can build (solution concepts, not client engagements). Live software lives under ${abs("/apps")}.
 ${proof}
 
 ## Products and Apps

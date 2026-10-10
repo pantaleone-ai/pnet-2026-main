@@ -4,7 +4,7 @@ import HeadingTitle from "@/components/HeadingTitle";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
 import { privacySource } from "@/features/privacy/data/privacySource";
-import { getBaseUrl } from "@/lib/helpers";
+import { getPageMetadata } from "@/lib/seo/page-metadata";
 import { getMDXComponents } from "@/mdx-components";
 import type { HeadType } from "@/types";
 import type { TableOfContents } from "fumadocs-core/toc";
@@ -28,20 +28,9 @@ const PAGE = "Changelog";
 // Get SEO configuration for the current page from the HEAD array
 const page = HEAD.find((page: HeadType) => page.page === PAGE) as HeadType;
 
-// Configure comprehensive metadata for SEO and social sharing
-// This includes all necessary meta tags for search engines and social media platforms
-export const metadata: Metadata = {
-  // Basic metadata
-  title: page.title,
-  applicationName: page.title,
-  description: page.description,
-
-  // URL configurations for canonical links and RSS feed
-  metadataBase: new URL(getBaseUrl(page.slug)),
-  alternates: {
-    canonical: getBaseUrl(page.slug),
-  },
-};
+// HEAD is the single source of truth; title renders absolute so the root
+// template never double-appends the brand.
+export const metadata: Metadata = getPageMetadata(page);
 
 type MDXPageData = {
   body: ComponentType<{ code: unknown; components?: unknown }>;
