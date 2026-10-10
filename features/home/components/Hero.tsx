@@ -5,15 +5,20 @@ import Link from "next/link";
 const PILLARS = [
   {
     title: "Automate work",
-    description: "Replace repetitive manual processes with systems.",
+    description: "Replace repetitive manual processes with reliable workflows.",
+    href: "/services",
   },
   {
     title: "Build agents",
-    description: "Agents that research, reason, and do multi-step work.",
+    description:
+      "Use agents for research, reasoning, and multi-step work where they fit.",
+    href: "/services",
   },
   {
     title: "Ship software",
-    description: "Apps and integrations that make AI useful in-house.",
+    description:
+      "Build focused applications and integrations that put AI to work.",
+    href: "/projects",
   },
 ];
 
@@ -68,10 +73,16 @@ export default function Hero() {
             {PILLARS.map((item) => (
               <li key={item.title} className="relative px-4 py-3">
                 <p className="text-left">
-                  <span className="font-semibold text-foreground">
-                    {item.title}:{" "}
+                  <Link
+                    href={item.href}
+                    className="font-semibold text-foreground underline-offset-4 hover:underline"
+                  >
+                    {item.title}
+                  </Link>
+                  <span className="text-foreground/80">
+                    {" — "}
+                    {item.description}
                   </span>
-                  <span className="text-foreground/80">{item.description}</span>
                 </p>
               </li>
             ))}

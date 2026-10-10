@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const USE_CASES = [
   "Lead qualification",
   "Research and analysis",
@@ -23,14 +25,21 @@ export default function UseCasesSection() {
           What should we automate?
         </h2>
         <p className="mt-4 text-lg/8 text-foreground/80">
-          Start with the work your people shouldn&apos;t have to do.
+          Start with the work your people shouldn&apos;t have to do.{" "}
+          <Link href="/services" className="underline underline-offset-4">
+            How engagements work
+          </Link>
+          .
         </p>
       </div>
-      <ul className="mx-auto mt-8 grid max-w-5xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <ul
+        aria-label="Example workflows"
+        className="mx-auto mt-8 flex max-w-5xl flex-wrap gap-2"
+      >
         {USE_CASES.map((useCase) => (
           <li
             key={useCase}
-            className="rounded-lg border border-border px-4 py-3 text-left text-base text-foreground"
+            className="rounded-full border border-border px-4 py-1.5 text-sm text-foreground/80"
           >
             {useCase}
           </li>

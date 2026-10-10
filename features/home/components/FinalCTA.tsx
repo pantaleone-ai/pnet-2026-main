@@ -8,36 +8,21 @@ export default function FinalCTA() {
       className="relative mx-auto max-w-5xl px-6 py-16 md:py-24"
     >
       <div className="mx-auto max-w-2xl rounded-xl border border-border bg-card p-8 text-center shadow-xs md:p-12">
-        <p className="text-xs font-semibold tracking-[0.14em] text-muted-foreground uppercase">
-          Next step
-        </p>
         <h2
           id="final-cta-heading"
-          className="mt-2 text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
+          className="text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-4xl"
         >
           Bring us one workflow.
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-lg/8 text-pretty text-foreground/80">
-          If a process in your business is expensive, repetitive, or hard to
-          scale, let&apos;s determine whether AI can take it over.
+          Let&apos;s determine whether it&apos;s worth automating, what to
+          build, and what it would take.
         </p>
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row sm:items-center">
           <Button asChild size="lg" className="min-h-11 w-full sm:w-auto">
             <Link href="/contact?book=true">Book a working session</Link>
           </Button>
-          <Button
-            asChild
-            size="lg"
-            variant="outline"
-            className="min-h-11 w-full sm:w-auto"
-          >
-            <Link href="/projects">See what we build</Link>
-          </Button>
         </div>
-        <p className="mx-auto mt-6 max-w-xl text-sm text-muted-foreground">
-          Bring one process. We help determine whether it is worth automating,
-          what the system could look like, and what it would take to build.
-        </p>
       </div>
     </section>
   );

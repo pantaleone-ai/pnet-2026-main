@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 const STEPS = [
@@ -35,11 +34,14 @@ export default function ProcessSection() {
           id="process-heading"
           className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl"
         >
-          From opportunity to working system.
+          How we work
         </h2>
         <p className="mt-4 text-lg/8 text-foreground/80">
-          You always know what happens next. One workflow at a time, with a
-          handoff you can run without us.
+          One workflow at a time, with a handoff you can run without us.{" "}
+          <Link href="/services" className="underline underline-offset-4">
+            How engagements work
+          </Link>
+          .
         </p>
       </div>
       <ol className="mx-auto mt-8 grid max-w-5xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -60,11 +62,6 @@ export default function ProcessSection() {
           </li>
         ))}
       </ol>
-      <div className="mx-auto mt-8 max-w-2xl text-left">
-        <Button asChild variant="outline">
-          <Link href="/services">How engagements work</Link>
-        </Button>
-      </div>
     </section>
   );
 }
