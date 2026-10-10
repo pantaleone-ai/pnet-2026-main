@@ -23,12 +23,26 @@ interface IssueView {
   comments: Array<{ body: string }>;
 }
 
-function sh(cmd: string, input?: string): string {
-  return execFileSync("bash", ["-lc", cmd], {
-    encoding: "utf8",
-    input,
-    maxBuffer: 32 * 1024 * 1024,
-  }).trim();
+/** Run a command in the repo root with captured output (no login shell). */
+function sh(file: string, args: string[], input?: string): string {
+  try {
+    return execFileSync(file, args, {
+      encoding: "utf8",
+      input,
+      cwd: process.cwd(),
+      maxBuffer: 32 * 1024 * 1024,
+    }).trim();
+  } catch (e) {
+    const err = e as { stdout?: unknown; stderr?: unknown; message?: string };
+    const out = [err.stdout, err.stderr]
+      .filter(Boolean)
+      .join("\n")
+      .toString()
+      .slice(0, 600);
+    throw new Error(
+      `command failed: ${file} ${args.join(" ")}\n${out || err.message || ""}`,
+    );
+  }
 }
 
 function fail(issue: string, reason: string): never {
@@ -117,6 +131,9 @@ async function main(): Promise<void> {
   if (!names.includes("status:in-progress")) {
     gh(["issue", "edit", issueArg, "--add-label", "status:in-progress"]);
   }
+  if (names.includes("status:queued")) {
+    gh(["issue", "edit", issueArg, "--remove-label", "status:queued"]);
+  }
 
   try {
     execFileSync(
@@ -161,27 +178,68 @@ async function main(): Promise<void> {
     );
   }
 
-  sh(`git checkout -b ${branch} 2>/dev/null || git checkout ${branch}`);
-  sh(
-    `git add public/ig/${contentId}-${issueArg} public/fb/${contentId}-${issueArg} docs/social-presence/publish/${contentId}-${issueArg}.md docs/social-presence/publish/${contentId}-caption.txt 2>/dev/null || true`,
-  );
-  sh(
-    `git -c user.name="pantaleone-ai" -c user.email="mdptrading@gmail.com" commit -m "feat(social): auto-packet ${contentId} for #${issueArg} (gallery-only)"`,
-  );
-  sh(`git push -u origin ${branch}`);
-  const prUrl = sh(
-    `gh pr create --title "Auto-packet ${contentId} for #${issueArg} (gallery-only)" --body-file /tmp/packet-${issueArg}-pr-body.md --head ${branch} --base main`,
-  );
-  const prNum = sh(`gh pr view ${branch} --json number --jq .number`);
+  try {
+    try {
+      sh("git", ["checkout", "-b", branch]);
+    } catch {
+      sh("git", ["checkout", branch]);
+    }
+    sh("git", [
+      "add",
+      `public/ig/${contentId}-${issueArg}`,
+      `public/fb/${contentId}-${issueArg}`,
+      `docs/social-presence/publish/${contentId}-${issueArg}.md`,
+      `docs/social-presence/publish/${contentId}-caption.txt`,
+    ]);
+    const staged = sh("git", ["diff", "--cached", "--name-only"]);
+    if (!staged) {
+      fail(
+        issueArg,
+        "Auto-packet stopped: packet build produced no files (nothing staged). Inspect the packet logs and re-add `publish:approved`.",
+      );
+    }
+    sh("git", [
+      "-c",
+      "user.name=pantaleone-ai",
+      "-c",
+      "user.email=mdptrading@gmail.com",
+      "commit",
+      "-m",
+      `feat(social): auto-packet ${contentId} for #${issueArg} (gallery-only)`,
+    ]);
+    sh("git", ["push", "-u", "origin", branch]);
+  } catch (e) {
+    fail(
+      issueArg,
+      `Auto-packet stopped at git/PR preparation: ${e instanceof Error ? e.message.split("\n").slice(0, 3).join(" ") : String(e)}. Re-add \`publish:approved\` to retry.`,
+    );
+  }
+  const prUrl = sh("gh", [
+    "pr",
+    "create",
+    "--title",
+    `Auto-packet ${contentId} for #${issueArg} (gallery-only)`,
+    "--body-file",
+    `/tmp/packet-${issueArg}-pr-body.md`,
+    "--head",
+    branch,
+    "--base",
+    "main",
+  ]);
   console.log(`pr - ${prUrl}`);
-  void prNum;
-  sh(`gh pr merge ${prUrl} --squash --auto`);
+  sh("gh", ["pr", "merge", prUrl, "--squash", "--auto"]);
   const deadline = Date.now() + 12 * 60 * 1000;
   let mergedAt = "";
   for (;;) {
-    const state = sh(
-      `gh pr view ${prUrl} --json state,mergedAt --jq '[.state,.mergedAt] | join(" ")'`,
-    );
+    const state = sh("gh", [
+      "pr",
+      "view",
+      prUrl,
+      "--json",
+      "state,mergedAt",
+      "--jq",
+      '[.state,.mergedAt] | join(" ")',
+    ]);
     if (state.startsWith("MERGED")) {
       mergedAt = state.split(" ")[1] ?? "";
       break;
@@ -195,9 +253,15 @@ async function main(): Promise<void> {
     await new Promise((r) => setTimeout(r, 30000));
   }
   console.log(`merged - ${prUrl} at ${mergedAt}`);
-  const mergeSha = sh(
-    `gh pr view ${prUrl} --json mergeCommit --jq .mergeCommit.oid`,
-  );
+  const mergeSha = sh("gh", [
+    "pr",
+    "view",
+    prUrl,
+    "--json",
+    "mergeCommit",
+    "--jq",
+    ".mergeCommit.oid",
+  ]);
   try {
     execFileSync(
       "npx",
@@ -249,16 +313,23 @@ async function main(): Promise<void> {
     }
   }
 
-  gh(["issue", "edit", issueArg, "--remove-label", "publish:approved"]);
-  // Re-adding fires social-publish-on-approval, which now finds packet-ready.
-  gh(["issue", "edit", issueArg, "--add-label", "publish:approved"]);
-  gh([
-    "issue",
-    "comment",
-    issueArg,
-    "--body",
-    "Auto-packet complete: packet merged, visuals live. Re-approved for publish.",
-  ]);
+  try {
+    gh(["issue", "edit", issueArg, "--remove-label", "publish:approved"]);
+    // Re-adding fires social-publish-on-approval, which now finds packet-ready.
+    gh(["issue", "edit", issueArg, "--add-label", "publish:approved"]);
+    gh([
+      "issue",
+      "comment",
+      issueArg,
+      "--body",
+      "Auto-packet complete: packet merged, visuals live. Re-approved for publish.",
+    ]);
+  } catch (e) {
+    fail(
+      issueArg,
+      `Auto-packet stopped at re-approval: ${e instanceof Error ? e.message.split("\n")[0] : String(e)}. The packet is merged — re-add \`publish:approved\` manually to publish.`,
+    );
+  }
   console.log(`re-approved - #${issueArg}`);
 }
 
