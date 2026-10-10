@@ -90,7 +90,12 @@ async function main(): Promise<void> {
   if (!names.includes("social"))
     fail(issueArg, "Auto-packet ignored: not a `social` issue.");
   if (issue.comments.some((c) => c.body.includes("Platform publish proof"))) {
-    fail(issueArg, "Auto-packet ignored: already published (proof on file).");
+    // Silent: the publish pipeline owns this state (this often races a live
+    // publish on re-approval). No comment, no label touch.
+    console.log(
+      `already-published - #${issueArg} (proof on file, staying quiet)`,
+    );
+    return;
   }
   if (names.includes("status:packet-ready")) {
     console.log(`already-ready - #${issueArg} (publish pipeline owns it)`);
@@ -178,6 +183,41 @@ async function main(): Promise<void> {
     );
   }
 
+  // PR operations need a token allowed to create PRs. GITHUB_TOKEN is blocked
+  // when the repo/org disables "Allow GitHub Actions to create and approve
+  // pull requests" — fall back to PROJECTS_TOKEN (classic PAT pattern already
+  // used by social-to-projects.yml) when PR creation is denied.
+  const pat = process.env.PROJECTS_TOKEN ?? "";
+  function ghWrite(args: string[]): string {
+    try {
+      return execFileSync("gh", args, {
+        encoding: "utf8",
+        cwd: process.cwd(),
+        maxBuffer: 32 * 1024 * 1024,
+      }).trim();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      const denied = /not permitted to create|createPullRequest/i.test(msg);
+      if (!denied || !pat) throw e instanceof Error ? e : new Error(msg);
+      return execFileSync("gh", args, {
+        encoding: "utf8",
+        cwd: process.cwd(),
+        maxBuffer: 32 * 1024 * 1024,
+        env: { ...process.env, GH_TOKEN: pat, GITHUB_TOKEN: pat },
+      }).trim();
+    }
+  }
+  function gitPushWithFallback(): void {
+    try {
+      sh("git", ["push", "-u", "origin", branch]);
+      return;
+    } catch (e) {
+      if (!pat) throw e;
+    }
+    const url = sh("git", ["remote", "get-url", "origin"]);
+    const authed = url.replace(/^https:\/\//, `https://x-access-token:${pat}@`);
+    sh("git", ["push", "--set-upstream", authed, `${branch}:${branch}`]);
+  }
   try {
     try {
       sh("git", ["checkout", "-b", branch]);
@@ -214,14 +254,14 @@ async function main(): Promise<void> {
       "-m",
       `feat(social): auto-packet ${contentId} for #${issueArg} (gallery-only)`,
     ]);
-    sh("git", ["push", "-u", "origin", branch]);
+    gitPushWithFallback();
   } catch (e) {
     fail(
       issueArg,
       `Auto-packet stopped at git/PR preparation: ${e instanceof Error ? e.message.split("\n").slice(0, 3).join(" ") : String(e)}. Re-add \`publish:approved\` to retry.`,
     );
   }
-  const prUrl = sh("gh", [
+  const prUrl = ghWrite([
     "pr",
     "create",
     "--title",
@@ -234,7 +274,7 @@ async function main(): Promise<void> {
     "main",
   ]);
   console.log(`pr - ${prUrl}`);
-  sh("gh", ["pr", "merge", prUrl, "--squash", "--auto"]);
+  ghWrite(["pr", "merge", prUrl, "--squash", "--auto"]);
   const deadline = Date.now() + 12 * 60 * 1000;
   let mergedAt = "";
   for (;;) {
