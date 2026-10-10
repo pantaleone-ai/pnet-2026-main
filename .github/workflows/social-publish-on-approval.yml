@@ -1,12 +1,13 @@
 name: social-publish-on-approval
 
 # Issue-driven publishing: adding the `publish:approved` label to an issue
-# publishes it live. Guards (all required — anything else is skipped with a
-# comment and the trigger label removed):
+# publishes it live. Guards (all required):
 #   - issue is open, labeled `social`, and `status:packet-ready`
 #   - no existing "Platform publish proof" comment (idempotent, no double-posts)
 #   - channel credentials present (else stays packet-ready with the env list)
 #   - images resolvable from --images input or the issue `**Images:**` field
+# Not-packet-ready approvals hand to social-auto-packet.yml (silent label
+# removal here; that workflow owns messaging). Other skips get a comment.
 # Proof without screenshot parks at needs-screenshot; a second run with the
 # screenshot URL (dispatch) closes. Concurrency: one approval at a time.
 
@@ -45,8 +46,14 @@ jobs:
           echo "$DATA" | jq -e '[.labels[].name] | contains(["social", "status:packet-ready"])' >/dev/null || { echo "skip=not-packet-ready" >> "$GITHUB_OUTPUT"; exit 0; }
           echo "$DATA" | jq -e '[.comments[].body] | any(contains("Platform publish proof"))' >/dev/null && { echo "skip=already-published" >> "$GITHUB_OUTPUT"; exit 0; }
           echo "skip=" >> "$GITHUB_OUTPUT"
-      - name: Comment on guard skip
-        if: steps.guard.outputs.skip != ''
+      - name: Guard skip (not-packet-ready hands to auto-packet)
+        if: steps.guard.outputs.skip == 'not-packet-ready'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue edit "${{ github.event.issue.number }}" --remove-label "publish:approved"
+      - name: Comment on other guard skips
+        if: steps.guard.outputs.skip != '' && steps.guard.outputs.skip != 'not-packet-ready'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

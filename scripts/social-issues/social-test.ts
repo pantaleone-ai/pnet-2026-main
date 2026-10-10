@@ -21,6 +21,7 @@ import {
   titleMatchesArtwork,
 } from "@/lib/social-growth/media-registry";
 import { selectFbImage } from "./publish/facebook";
+import { parseArtworkIds, visualSpec } from "./build-visuals";
 import { validateCampaignName, validateCreativeName } from "@/lib/growth/utm";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -203,6 +204,30 @@ check(
   !titleMatchesArtwork("Weekend drop: 3 warm minimal pieces", [
     "filaments brutalist abstraction branching",
   ]),
+);
+
+// Visual builder parsing + specs.
+check(
+  "artwork ids parsed",
+  JSON.stringify(
+    parseArtworkIds(
+      "Gallery artworks: 2026-10-09-foo-bar-12345.avif, 2026-10-08-baz-67890",
+    ),
+  ) === JSON.stringify(["2026-10-09-foo-bar-12345", "2026-10-08-baz-67890"]),
+);
+const igSpec = visualSpec("instagram", "syn-x-01", 99);
+check(
+  "ig spec trio",
+  igSpec.count === 3 &&
+    igSpec.size === "1080x1350" &&
+    igSpec.dir === "public/ig/syn-x-01-99",
+);
+const fbSpec = visualSpec("facebook", "syn-fb-01", 100);
+check(
+  "fb spec single",
+  fbSpec.count === 1 &&
+    fbSpec.size === "1200x630" &&
+    fbSpec.dir === "public/fb/syn-fb-01-100",
 );
 
 if (failures > 0) {
