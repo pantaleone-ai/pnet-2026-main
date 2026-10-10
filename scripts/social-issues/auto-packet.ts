@@ -208,23 +208,43 @@ async function main(): Promise<void> {
     }
   }
   function gitPushWithFallback(): void {
-    // The checkout is shallow and main moves fast — rebase onto the remote
-    // branch first so the push stays fast-forward.
+    // Bot-owned single-writer branches (workflow concurrency is global and
+    // serial) — lease-guarded force push rides over shallow-clone and
+    // moved-main divergence without ever clobbering unknown work.
+    const diag: string[] = [];
     try {
       sh("git", ["fetch", "origin", branch]);
-      sh("git", ["rebase", `origin/${branch}`]);
-    } catch {
-      // No remote branch yet, or nothing to replay — push will tell.
+      diag.push("fetch ok");
+    } catch (e) {
+      diag.push(
+        `fetch failed: ${e instanceof Error ? e.message.split("\n")[0] : String(e)}`,
+      );
     }
+    const pushArgs = ["push", "--force-with-lease", "-u", "origin", branch];
     try {
-      sh("git", ["push", "-u", "origin", branch]);
+      sh("git", pushArgs);
       return;
     } catch (e) {
-      if (!pat) throw e;
+      diag.push(
+        `push failed: ${e instanceof Error ? e.message.split("\n").slice(0, 2).join(" ") : String(e)}`,
+      );
+      if (!pat) throw new Error(diag.join(" | "));
     }
     const url = sh("git", ["remote", "get-url", "origin"]);
     const authed = url.replace(/^https:\/\//, `https://x-access-token:${pat}@`);
-    sh("git", ["push", "--set-upstream", authed, `${branch}:${branch}`]);
+    try {
+      sh("git", [
+        "push",
+        "--force-with-lease",
+        "--set-upstream",
+        authed,
+        `${branch}:${branch}`,
+      ]);
+    } catch (e) {
+      throw new Error(
+        `${diag.join(" | ")} || pat-push failed: ${e instanceof Error ? e.message.split("\n").slice(0, 2).join(" ") : String(e)}`,
+      );
+    }
   }
   try {
     try {
