@@ -33,6 +33,8 @@ jobs:
           node-version: 20
           cache: "npm"
       - run: npm ci
+      - name: Image toolchain (PIL + AVIF decode for card rendering)
+        run: pip install --quiet pillow pillow-avif-plugin
       - name: Ensure labels
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
