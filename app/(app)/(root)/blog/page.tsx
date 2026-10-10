@@ -1,7 +1,7 @@
 import HeadingTitle from "@/components/HeadingTitle";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
-import { getBaseUrl } from "@/lib/helpers";
+import { getPageMetadata } from "@/lib/seo/page-metadata";
 import type { HeadType } from "@/types";
 import type { Metadata } from "next";
 import { getBlogPosts } from "@/features/blog/data/blogSource";
@@ -24,48 +24,9 @@ const PAGE = "Blog";
 // Get SEO configuration for the current page from the HEAD array
 const page = HEAD.find((page: HeadType) => page.page === PAGE) as HeadType;
 
-// Configure comprehensive metadata for SEO and social sharing
-// This includes all necessary meta tags for search engines and social media platforms
-export const metadata: Metadata = {
-  // Basic metadata
-  title: page?.title,
-  applicationName: page?.title,
-  description: page?.description,
-
-  // URL configurations for canonical links and RSS feed
-  metadataBase: new URL(getBaseUrl(page?.slug)),
-  alternates: {
-    canonical: getBaseUrl(page?.slug),
-  },
-
-  // OpenGraph - preserved original behavior
-  openGraph: {
-    type: "website",
-    title: page?.title,
-    description: page?.description,
-    images: [
-      {
-        url: "https://www.pantaleone.net/opengraph-image",
-        width: 1200,
-        height: 630,
-        alt: page?.title,
-      },
-    ],
-  },
-
-  // Twitter - preserved original behavior
-  twitter: {
-    card: "summary_large_image",
-    title: page?.title,
-    description: page?.description,
-    images: ["https://www.pantaleone.net/opengraph-image"],
-  },
-
-  // Additional meta tags
-  other: {
-    "og:logo": "summary_large_image.png",
-  },
-};
+// HEAD is the single source of truth; title renders absolute so the root
+// template never double-appends the brand.
+export const metadata: Metadata = getPageMetadata(page);
 
 export default async function BlogPage() {
   // Fetch data on server side

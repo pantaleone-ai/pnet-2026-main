@@ -1,87 +1,157 @@
 import HeadingTitle from "@/components/HeadingTitle";
-import LinkWrapper from "@/components/LinkWrapper";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
+import TrackedCta from "@/components/TrackedCta";
 import HEAD from "@/config/seo/head";
+import { siteConfig } from "@/config/site";
 import { PORTFOLIO_APPS } from "@/config/portfolio";
-import { getBaseUrl } from "@/lib/helpers";
+import { getPageMetadata } from "@/lib/seo/page-metadata";
 import type { HeadType } from "@/types";
 import type { Metadata } from "next";
 
-if (!HEAD || HEAD.length === 0) {
-  console.error("⚠️ HEAD configuration is missing or empty");
-}
-
-// Content is static registry data — force static prerender, no ISR reads.
 export const dynamic = "force-static";
 
-// Define the current page for SEO configuration
 const PAGE = "Apps";
-
-// Get SEO configuration for the current page from the HEAD array
 const page = HEAD.find((page: HeadType) => page.page === PAGE) as HeadType;
 
-// Configure comprehensive metadata for SEO and social sharing
-export const metadata: Metadata = {
-  title: page.title,
-  applicationName: page.title,
-  description: page.description,
-  metadataBase: new URL(getBaseUrl(page.slug)),
-  alternates: {
-    canonical: getBaseUrl(page.slug),
-    types: {
-      "text/markdown": getBaseUrl("/agents.md"),
-    },
-  },
-};
+// HEAD is the single source of truth; title renders absolute so the root
+// template never double-appends the brand.
+export const metadata: Metadata = getPageMetadata(page, "/agents.md");
+
+function getBreadcrumbJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: siteConfig.url,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Software products",
+        item: `${siteConfig.url}/apps`,
+      },
+    ],
+  };
+}
+
+// SoftwareApplication entries use only verified registry properties —
+// name, URL, category, and description. No ratings, offers, or prices:
+// none are evidenced in the portfolio registry.
+function getSoftwareListJsonLd() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Software built by Pantaleone",
+    itemListElement: PORTFOLIO_APPS.map((app, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      item: {
+        "@type": "SoftwareApplication",
+        name: app.name,
+        url: app.domain,
+        applicationCategory: app.category,
+        operatingSystem: "Web",
+        description: app.description,
+      },
+    })),
+  };
+}
 
 export default async function AppsPage() {
   return (
     <>
       <SeparatorHorizontal borderTop={false} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(getBreadcrumbJsonLd()),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(getSoftwareListJsonLd()),
+        }}
+      />
       <link rel="alternate" type="text/markdown" href="/agents.md" />
       <link rel="describedby" href="/llms.txt" />
-      <HeadingTitle title="Apps" as="h1" />
-      <p className="mx-auto w-full max-w-5xl px-4 text-muted-foreground">
-        Live products in the Pantaleone portfolio. Each runs on its own
-        domain with independent data — part of the Pantaleone portfolio.
-        Build stories live under{" "}
-        <LinkWrapper href="/projects" prefetch={false}>
-          Projects
-        </LinkWrapper>
-        .
-      </p>
-      <SeparatorHorizontal short={true} />
-      <ul className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-4 px-4 sm:grid-cols-2">
-        {PORTFOLIO_APPS.map((app) => (
-          <li
-            key={app.id}
-            className="rounded-lg border border-edge p-5 transition-colors hover:border-muted-foreground"
-          >
-            <div className="flex items-baseline justify-between gap-3">
-              <h2 className="text-lg font-semibold text-foreground">
-                {app.name}
-              </h2>
-              <span className="shrink-0 text-xs uppercase tracking-wide text-muted-foreground">
-                {app.category}
-              </span>
-            </div>
-            <p className="mt-2 text-sm text-foreground/80">{app.description}</p>
-            <div className="mt-4 flex items-center justify-between gap-3">
-              <span className="text-xs text-muted-foreground">
-                {app.status === "live" ? "Live" : app.status} ·{" "}
-                {new URL(app.domain).hostname}
-              </span>
-              <LinkWrapper
-                href={app.primaryCTA.href}
-                prefetch={false}
-                className="text-sm font-medium underline-offset-4 hover:underline"
-              >
-                {app.primaryCTA.label} →
-              </LinkWrapper>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <main className="mx-auto flex max-w-5xl flex-col px-4">
+        <HeadingTitle
+          title="Software we've built."
+          textStyleClassName="text-3xl font-semibold md:text-4xl"
+          gridId="grid-apps"
+          as="h1"
+        />
+        <p className="mx-auto max-w-2xl px-6 pt-6 text-center text-lg/8 text-foreground/80">
+          Explore software products built by Pantaleone, each designed for
+          a specific use case.
+        </p>
+        <SeparatorHorizontal short={true} />
+        <ul
+          aria-label="Pantaleone software products"
+          className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-4 px-4 sm:grid-cols-2"
+        >
+          {PORTFOLIO_APPS.map((app) => (
+            <li
+              key={app.id}
+              className="flex flex-col rounded-lg border border-edge p-5 text-left transition-colors hover:border-muted-foreground"
+            >
+              <div className="flex items-baseline justify-between gap-3">
+                <h2 className="text-lg font-semibold text-foreground">
+                  {app.name}
+                </h2>
+                <span className="shrink-0 text-xs tracking-wide text-muted-foreground uppercase">
+                  {app.category}
+                </span>
+              </div>
+              <p className="mt-2 text-sm text-foreground/80">
+                {app.description}
+              </p>
+              <div className="mt-4 flex flex-1 items-end justify-between gap-3">
+                <span className="text-xs text-muted-foreground">
+                  {app.status === "live" ? "Live" : app.status} ·{" "}
+                  {new URL(app.domain).hostname}
+                </span>
+                <TrackedCta
+                  href={app.primaryCTA.href}
+                  ctaType="outbound-product"
+                  ctaLabel={app.name}
+                  className="text-sm font-medium underline-offset-4 hover:underline"
+                >
+                  {app.primaryCTA.label} →
+                </TrackedCta>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <SeparatorHorizontal short={true} />
+        <section
+          aria-labelledby="apps-cta-heading"
+          className="mx-auto max-w-2xl px-6 py-12 text-center"
+        >
+          <h2 id="apps-cta-heading" className="text-2xl font-semibold">
+            Need a solution built for your business?
+          </h2>
+          <p className="mt-3 text-base text-muted-foreground">
+            We build AI workflows, agents, and custom software around real
+            operating needs.
+          </p>
+          <div className="mt-6 flex justify-center">
+            <TrackedCta
+              href="/projects"
+              ctaType="projects"
+              ctaLabel="Explore business solutions"
+              className="inline-flex min-h-11 items-center justify-center rounded-md bg-primary px-8 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              Explore business solutions
+            </TrackedCta>
+          </div>
+        </section>
+      </main>
       <SeparatorHorizontal short={true} />
       <SeparatorHorizontal borderBottom={false} />
     </>

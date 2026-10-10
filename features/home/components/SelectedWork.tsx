@@ -1,22 +1,24 @@
-import Link from "next/link";
+import LinkWrapper from "@/components/LinkWrapper";
 
+// Verified live portfolio products only (see config/portfolio.ts).
+// AgentDNA, MigrateCMS, QR Code Generator, SkillSnap, and the SaaS starter
+// are intentionally absent here: they are prototypes, starters, or lack a
+// verified live commercial URL, and must not be presented as live products.
 const WORK = [
   {
-    title: "AgentDNA",
+    title: "Synthetic Pics",
     description:
-      "Agent registry, signed identity, and a policy gateway for running AI agents.",
-    href: "https://agentdna.ai",
+      "Human-guided generative art gallery with purchasable downloads.",
+    href: "https://www.synthetic.pics",
   },
   {
-    title: "ProfitSignals",
-    description:
-      "Chat agent for crypto charts, market news, and sector heatmaps.",
-    href: "https://www.profitsignals.xyz/",
+    title: "MixPHD",
+    description: "Drink recipes, My Bar matching, and curated barware.",
+    href: "https://www.mixphd.com",
   },
   {
     title: "ImgSquash",
-    description:
-      "Compress JPEG and PNG images in the browser. Bulk upload, no signup.",
+    description: "Image compression tool.",
     href: "https://imgsquash.com/",
   },
 ];
@@ -38,7 +40,7 @@ export default function SelectedWork() {
       <ul className="mx-auto mt-8 grid max-w-5xl grid-cols-1 gap-4 md:grid-cols-3">
         {WORK.map((item) => (
           <li key={item.href}>
-            <Link
+            <LinkWrapper
               href={item.href}
               className="group block h-full rounded-lg border border-border p-6 text-left transition-colors hover:border-foreground/30"
             >
@@ -48,14 +50,14 @@ export default function SelectedWork() {
               <p className="mt-2 text-base text-foreground/80">
                 {item.description}
               </p>
-            </Link>
+            </LinkWrapper>
           </li>
         ))}
       </ul>
       <p className="mx-auto mt-8 max-w-2xl text-left">
-        <Link href="/projects" className="underline underline-offset-4">
-          See what we build
-        </Link>
+        <LinkWrapper href="/apps" className="underline underline-offset-4">
+          Explore all software
+        </LinkWrapper>
       </p>
     </section>
   );

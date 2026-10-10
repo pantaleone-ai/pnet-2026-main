@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { track } from "@/lib/analytics";
 import { useState } from "react";
 
 interface LeadMagnetFormProps {
@@ -47,6 +48,9 @@ export default function LeadMagnetForm({
       if (!response.ok) {
         throw new Error(result.error || "Delivery failed. Try again.");
       }
+      // Guide delivery conversion on the existing lead schema (single call —
+      // no duplicate events, no new tracking implementation).
+      track.lead("ai-readiness-guide");
       setIsSubmitted(true);
     } catch (err) {
       setError(

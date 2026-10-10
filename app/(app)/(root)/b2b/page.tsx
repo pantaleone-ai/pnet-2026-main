@@ -1,7 +1,7 @@
 import Heading from "@/components/HeadingTitle";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
-import { getBaseUrl } from "@/lib/helpers";
+import { getPageMetadata } from "@/lib/seo/page-metadata";
 import type { HeadType } from "@/types";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -12,20 +12,11 @@ export const dynamic = "force-static";
 const PAGE = "B2B";
 const page = HEAD.find((p: HeadType) => p.page === PAGE) as HeadType;
 
-export const metadata: Metadata = {
-  title:
-    page?.title ?? "AI work for teams | Pantaleone Digital",
-  description:
-    page?.description ??
-    "N8N workflows, LangChain pipelines, and LLM integrations for teams. Audit, build, and handoff.",
-  metadataBase: new URL(getBaseUrl(page?.slug ?? "/b2b")),
-  alternates: {
-    canonical: getBaseUrl(page?.slug ?? "/b2b"),
-    types: {
-      "text/markdown": getBaseUrl("/b2b.md"),
-    },
-  },
-};
+// HEAD is the single source of truth; title renders absolute so the root
+// template never double-appends the brand. /b2b stays a standalone landing
+// page for team-oriented search intent, distinct from /services (pricing
+// and engagement mechanics) and /projects (example solution concepts).
+export const metadata: Metadata = getPageMetadata(page, "/b2b.md");
 
 interface Benefit {
   title: string;

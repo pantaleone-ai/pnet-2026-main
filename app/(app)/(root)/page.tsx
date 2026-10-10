@@ -13,7 +13,9 @@ import { Suspense } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
 
-import { siteConfig } from "@/config/site";
+import HEAD from "@/config/seo/head";
+import { getPageMetadata } from "@/lib/seo/page-metadata";
+import type { HeadType } from "@/types";
 
 function SectionFallback() {
   return (
@@ -39,11 +41,13 @@ function SectionFallback() {
 // Content is static MDX from the repo - force static, no ISR reads.
 export const dynamic = "force-static";
 
-export const metadata: Metadata = {
-  alternates: {
-    canonical: siteConfig.url,
-  },
-};
+// Homepage is the overall business proposition (not a narrow service term —
+// that intent belongs to /projects). HEAD "Home" is the single source of
+// truth; the title renders absolute so the root template never re-appends
+// the brand.
+const homePage = HEAD.find((p: HeadType) => p.page === "Home") as HeadType;
+
+export const metadata: Metadata = getPageMetadata(homePage, "/index.md");
 
 export default function Home() {
   return (
