@@ -7,6 +7,7 @@ import { PORTFOLIO_APPS } from "@/config/portfolio";
 import { getPageMetadata } from "@/lib/seo/page-metadata";
 import type { HeadType } from "@/types";
 import type { Metadata } from "next";
+import Image from "next/image";
 
 export const dynamic = "force-static";
 
@@ -53,6 +54,7 @@ function getSoftwareListJsonLd() {
         "@type": "SoftwareApplication",
         name: app.name,
         url: app.domain,
+        image: app.image.src,
         applicationCategory: app.category,
         operatingSystem: "Web",
         description: app.description,
@@ -87,43 +89,55 @@ export default async function AppsPage() {
           as="h1"
         />
         <p className="mx-auto max-w-2xl px-6 pt-6 text-center text-lg/8 text-foreground/80">
-          Explore software products built by Pantaleone, each designed for
-          a specific use case.
+          Explore software products built by Pantaleone, each designed for a
+          specific use case.
         </p>
         <SeparatorHorizontal short={true} />
         <ul
           aria-label="Pantaleone software products"
           className="mx-auto grid w-full max-w-5xl grid-cols-1 gap-4 px-4 sm:grid-cols-2"
         >
-          {PORTFOLIO_APPS.map((app) => (
+          {PORTFOLIO_APPS.map((app, index) => (
             <li
               key={app.id}
-              className="flex flex-col rounded-lg border border-edge p-5 text-left transition-colors hover:border-muted-foreground"
+              className="flex flex-col overflow-hidden rounded-lg border border-edge text-left transition-colors hover:border-muted-foreground"
             >
-              <div className="flex items-baseline justify-between gap-3">
-                <h2 className="text-lg font-semibold text-foreground">
-                  {app.name}
-                </h2>
-                <span className="shrink-0 text-xs tracking-wide text-muted-foreground uppercase">
-                  {app.category}
-                </span>
+              <div className="relative aspect-[16/9] w-full overflow-hidden bg-muted/20">
+                <Image
+                  src={app.image.src}
+                  alt={app.image.alt}
+                  fill
+                  className="object-cover object-top"
+                  sizes="(max-width: 640px) 100vw, 50vw"
+                  priority={index === 0}
+                />
               </div>
-              <p className="mt-2 text-sm text-foreground/80">
-                {app.description}
-              </p>
-              <div className="mt-4 flex flex-1 items-end justify-between gap-3">
-                <span className="text-xs text-muted-foreground">
-                  {app.status === "live" ? "Live" : app.status} ·{" "}
-                  {new URL(app.domain).hostname}
-                </span>
-                <TrackedCta
-                  href={app.primaryCTA.href}
-                  ctaType="outbound-product"
-                  ctaLabel={app.name}
-                  className="text-sm font-medium underline-offset-4 hover:underline"
-                >
-                  {app.primaryCTA.label} →
-                </TrackedCta>
+              <div className="flex flex-1 flex-col p-5">
+                <div className="flex items-baseline justify-between gap-3">
+                  <h2 className="text-lg font-semibold text-foreground">
+                    {app.name}
+                  </h2>
+                  <span className="shrink-0 text-xs tracking-wide text-muted-foreground uppercase">
+                    {app.category}
+                  </span>
+                </div>
+                <p className="mt-2 text-sm text-foreground/80">
+                  {app.description}
+                </p>
+                <div className="mt-4 flex flex-1 items-end justify-between gap-3">
+                  <span className="text-xs text-muted-foreground">
+                    {app.status === "live" ? "Live" : app.status} ·{" "}
+                    {new URL(app.domain).hostname}
+                  </span>
+                  <TrackedCta
+                    href={app.primaryCTA.href}
+                    ctaType="outbound-product"
+                    ctaLabel={app.name}
+                    className="text-sm font-medium underline-offset-4 hover:underline"
+                  >
+                    {app.primaryCTA.label} →
+                  </TrackedCta>
+                </div>
               </div>
             </li>
           ))}
