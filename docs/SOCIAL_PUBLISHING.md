@@ -40,26 +40,35 @@ defaults to true). Mirror every env below as an Actions secret for CI runs.
 
 ## Issue-driven automation
 
-Add the `publish:approved` label to a `status:packet-ready` social issue and
-`social-publish-on-approval.yml` publishes it live. Guards: issue must be
-open + `social` + `status:packet-ready` with no existing proof; credentials
-must be present; images resolve from the issue `**Images:**` field
-(backticked URLs) and Pinterest boards from `**Board:** `id``. Anything else
-gets an explanatory comment and the trigger label is removed (re-add after
-fixing — the run is idempotent, never double-posts). Proof without screenshot
-parks at `needs-screenshot`; attach the shot to close.
+Add the `publish:approved` label to ANY open `social` issue and the pipeline
+drives it to live, no manual steps:
+
+- Already `status:packet-ready` → `social-publish-on-approval.yml` publishes live.
+- Anything earlier (queued/in-progress) → `social-auto-packet.yml` builds the
+  packet (`build-packet.ts`), renders per-post visuals (`build-visuals.ts`),
+  opens + merges the packet PR, flips to `status:packet-ready`, verifies image
+  URLs, then re-adds `publish:approved` so publishing fires. Nothing publishes
+  inside auto-packet; every stop path removes the trigger label (no loops).
+- Unprocessable approvals (closed, already published, non-IG/FB channels,
+  unnamed/missing art) get an explanatory comment and the label removed.
+
+Guards for the live step: open + `social` + `status:packet-ready` with no
+existing proof; credentials present; images resolve from the issue
+`**Images:**` field (backticked URLs) and Pinterest boards from `**Board:**
+`id``. Proof without screenshot parks at `needs-screenshot`; attach the shot
+to close. All runs are idempotent and never double-post.
 
 ## Channels and credentials
 
-| Channel | Queue volume | Status | Envs needed |
-|---|---|---|---|
-| Instagram | 5 open | **LIVE** (proven #91, #101) | `META_CAPI_ACCESS_TOKEN` ✅ stored |
-| Facebook | 3 open | **LIVE** (same token, `pages_manage_posts`) — photo posts with per-post visuals; bare link posts refused (link-scrape duplicates) | `META_CAPI_ACCESS_TOKEN` ✅ stored |
-| Pinterest | 8 open (largest) | Blocked — owner OAuth | `PINTEREST_ACCESS_TOKEN` |
-| X | 8 open | Blocked — owner app + OAuth | `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_TOKEN_SECRET` |
-| LinkedIn | 2 open | Blocked — owner OAuth (aiceo/profitsignals only) | `LINKEDIN_ACCESS_TOKEN`, `LINKEDIN_PERSON_URN` |
-| Reddit | 2 open | Manual-only by policy | `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, `REDDIT_USERNAME`, `REDDIT_PASSWORD` |
-| YouTube Shorts | 1 open | Blocked — owner OAuth + video creative | `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, `YOUTUBE_REFRESH_TOKEN` |
+| Channel        | Queue volume     | Status                                                                                                                            | Envs needed                                                                      |
+| -------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Instagram      | 5 open           | **LIVE** (proven #91, #101)                                                                                                       | `META_CAPI_ACCESS_TOKEN` ✅ stored                                               |
+| Facebook       | 3 open           | **LIVE** (same token, `pages_manage_posts`) — photo posts with per-post visuals; bare link posts refused (link-scrape duplicates) | `META_CAPI_ACCESS_TOKEN` ✅ stored                                               |
+| Pinterest      | 8 open (largest) | Blocked — owner OAuth                                                                                                             | `PINTEREST_ACCESS_TOKEN`                                                         |
+| X              | 8 open           | Blocked — owner app + OAuth                                                                                                       | `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_TOKEN_SECRET`           |
+| LinkedIn       | 2 open           | Blocked — owner OAuth (aiceo/profitsignals only)                                                                                  | `LINKEDIN_ACCESS_TOKEN`, `LINKEDIN_PERSON_URN`                                   |
+| Reddit         | 2 open           | Manual-only by policy                                                                                                             | `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, `REDDIT_USERNAME`, `REDDIT_PASSWORD` |
+| YouTube Shorts | 1 open           | Blocked — owner OAuth + video creative                                                                                            | `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, `YOUTUBE_REFRESH_TOKEN`            |
 
 Also add `META_CAPI_ACCESS_TOKEN` as a GitHub Actions secret (same value as
 `.env.local`) so `social-publish.yml` can post from CI.

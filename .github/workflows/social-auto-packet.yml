@@ -1,0 +1,44 @@
+name: social-auto-packet
+
+# Approval-driven packet builder: adding `publish:approved` to a social issue
+# that is NOT packet-ready yet builds the packet automatically — claim, packet,
+# per-post visuals, PR, merge, packet-ready — then re-adds `publish:approved`
+# so social-publish-on-approval publishes live. Nothing publishes here.
+# Unprocessable issues (non-social, closed, already published, unsupported
+# channel, missing art) get an explanatory comment and the label removed.
+# No retry loops: every stop path removes the trigger label.
+
+on:
+  issues:
+    types: [labeled]
+
+concurrency:
+  group: social-auto-packet
+  cancel-in-progress: false
+
+permissions:
+  issues: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  build:
+    if: github.event.label.name == 'publish:approved'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - run: npm ci
+      - name: Ensure labels
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx tsx scripts/content-issues/labels.ts
+      - name: Auto-packet
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx tsx scripts/social-issues/auto-packet.ts --issue "${{ github.event.issue.number }}"
