@@ -208,6 +208,14 @@ async function main(): Promise<void> {
     }
   }
   function gitPushWithFallback(): void {
+    // The checkout is shallow and main moves fast — rebase onto the remote
+    // branch first so the push stays fast-forward.
+    try {
+      sh("git", ["fetch", "origin", branch]);
+      sh("git", ["rebase", `origin/${branch}`]);
+    } catch {
+      // No remote branch yet, or nothing to replay — push will tell.
+    }
     try {
       sh("git", ["push", "-u", "origin", branch]);
       return;
