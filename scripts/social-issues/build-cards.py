@@ -14,6 +14,10 @@ try:
 except ImportError:
     print("build-cards: PIL (pillow) required", file=sys.stderr)
     sys.exit(1)
+try:
+    import pillow_avif  # noqa: F401  (AVIF decode support on runners)
+except ImportError:
+    pass
 
 
 def parse_args(argv):

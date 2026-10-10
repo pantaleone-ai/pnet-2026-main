@@ -157,7 +157,7 @@ async function main(): Promise<void> {
   } catch {
     fail(
       issueArg,
-      "Auto-packet stopped at visual build (see logs — likely unnamed or missing catalog art). Fix Source asset and re-add `publish:approved`.",
+      "Auto-packet stopped at visual build (see run logs for the exact error — often the runner imaging toolchain or unnamed/missing catalog art). Fix and re-add `publish:approved`.",
     );
   }
 
