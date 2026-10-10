@@ -454,7 +454,8 @@ async function main(): Promise<void> {
       /https:\/\/www\.pantaleone\.net\/[a-z]+\/[a-z0-9-]+\/\d+\.jpg/gi,
     ),
   ].map((m) => m[0]);
-  const imgDeadline = Date.now() + 10 * 60 * 1000;
+  // Friday-evening Vercel queues have exceeded 10 min — allow 20.
+  const imgDeadline = Date.now() + 20 * 60 * 1000;
   for (const url of [...new Set(imgUrls)]) {
     for (;;) {
       if (await urlLive(url)) break;
