@@ -191,7 +191,7 @@ export const PORTFOLIO_APPS: PortfolioApp[] = [
     description: "Unique 3D-printed objects, printed to order and shipped.",
     category: "E-commerce",
     image: {
-      src: "/images/projects/print3dmodels/print3dmodels-og.jpg",
+      src: "/images/projects/print3dmodels/print3dmodels-hero.avif",
       alt: "Print3DModels 3D print storefront preview",
     },
     status: "live",
