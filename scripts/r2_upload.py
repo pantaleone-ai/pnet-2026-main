@@ -30,6 +30,9 @@ try:
     from dotenv import load_dotenv
 
     load_dotenv(PROJECT_ROOT / ".env")
+    # Next.js convention: .env.local holds local secrets and is gitignored.
+    # Loaded second so it wins where both files define a value.
+    load_dotenv(PROJECT_ROOT / ".env.local", override=True)
 except ImportError:
     pass
 
