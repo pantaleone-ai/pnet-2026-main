@@ -73,13 +73,16 @@ function toCard(input: {
  * title fallback for the one record without a websiteUrl (Pantaleone.net).
  */
 const FEATURED_HOSTNAMES = [
-  "aiceo.io",
   "aicapturelab.com",
   "proswing.net",
   "mixphd.com",
 ] as const;
 
-const LEAD_HOSTNAME = "aiceo.io";
+const LEAD_HOSTNAME = "aicapturelab.com";
+
+// Delisted from /projects (hidden from featured, groups, and JSON-LD).
+// The MDX record stays live for /projects.md and llms.txt consumers.
+const EXCLUDED_HOSTNAMES = ["aiceo.io"] as const;
 
 const GROUP_DEFINITIONS: Array<{
   id: string;
@@ -156,7 +159,11 @@ function buildCatalog(): ProjectsPageCard[] {
     }),
   );
 
-  return [...fromSource, ...extras];
+  return [...fromSource, ...extras].filter(
+    (c) =>
+      !c.hostname ||
+      !(EXCLUDED_HOSTNAMES as readonly string[]).includes(c.hostname),
+  );
 }
 
 function matches(card: ProjectsPageCard, hostnames: string[], titles: string[]) {
