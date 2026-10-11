@@ -156,12 +156,12 @@ export default async function AppsPage() {
           </p>
           <div className="mt-6 flex justify-center">
             <TrackedCta
-              href="/projects"
+              href="/services"
               ctaType="projects"
-              ctaLabel="Explore business solutions"
+              ctaLabel="Discuss a build"
               className="inline-flex min-h-11 items-center justify-center rounded-md bg-primary px-8 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
             >
-              Explore business solutions
+              Discuss a build
             </TrackedCta>
           </div>
         </section>

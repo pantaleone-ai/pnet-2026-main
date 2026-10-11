@@ -72,9 +72,9 @@ const HEAD: HeadType[] = [
   },
   {
     page: "Projects",
-    title: truncateTitle("AI Automation & Business Solutions | Pantaleone"),
+    title: truncateTitle("Projects | Pantaleone"),
     description: truncateDescription(
-      "Explore practical AI automation, agent, marketing workflow, and custom software solutions Pantaleone can build for your business.",
+      "Explore software products, AI applications, developer tools, and experiments built by Pantaleone.",
     ),
     slug: "/projects",
   },
