@@ -379,6 +379,10 @@ async function main(): Promise<void> {
     }
     sh("git", ["checkout", "-B", "auto-packet-land", "origin/main"]);
     sh("git", [
+      "-c",
+      "user.name=pantaleone-ai",
+      "-c",
+      "user.email=mdptrading@gmail.com",
       "merge",
       "--no-ff",
       "-m",
