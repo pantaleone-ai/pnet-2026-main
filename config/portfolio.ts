@@ -66,7 +66,7 @@ export const PORTFOLIO_APPS: PortfolioApp[] = [
       "Human-guided generative art gallery with purchasable downloads.",
     category: "Generative Art",
     image: {
-      src: "https://www.synthetic.pics/opengraph-image",
+      src: "/images/projects/synthetic-pics/synthetic-pics-hero.avif",
       alt: "Synthetic Pics generative art preview",
     },
     status: "live",
@@ -162,7 +162,7 @@ export const PORTFOLIO_APPS: PortfolioApp[] = [
     description: "Image compression tool.",
     category: "Developer Tools",
     image: {
-      src: "/images/projects/imgsquash/imgsquash-home.webp",
+      src: "/images/projects/imgsquash/imgsquash-hero.avif",
       alt: "ImgSquash image compression tool",
     },
     status: "live",
@@ -282,7 +282,7 @@ export const PORTFOLIO_APPS: PortfolioApp[] = [
     description: "AI market intelligence signals.",
     category: "Finance",
     image: {
-      src: "/images/projects/profitsignals/4.png",
+      src: "/images/projects/profitsignals/profitsignals-hero.avif",
       alt: "ProfitSignals market intelligence preview",
     },
     status: "live",
