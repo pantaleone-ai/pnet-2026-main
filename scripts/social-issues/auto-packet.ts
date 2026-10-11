@@ -344,16 +344,10 @@ async function main(): Promise<void> {
       console.log(`pr - ${prUrl}`);
     }
   } catch (e) {
-    const msg = e instanceof Error ? e.message : String(e);
-    const denied = /not permitted to create|createPullRequest/i.test(msg);
-    if (!denied) {
-      fail(
-        issueArg,
-        `Auto-packet stopped: could not open or find packet PR (${msg.split("\n")[0]}). Re-add \`publish:approved\` to retry.`,
-      );
-    }
+    // Any PR-path failure (denied Actions, dead PAT, missing head) falls
+    // through to the guarded direct push below — the allowlist keeps it safe.
     console.log(
-      "pr creation denied for all tokens - attempting guarded direct push",
+      `pr path unavailable (${e instanceof Error ? (e.message.split("\n")[0] ?? "").slice(0, 140) : String(e).slice(0, 140)}) - attempting guarded direct push`,
     );
     sh("git", ["fetch", "origin", "main", branch]);
     const diffFiles = sh("git", [
