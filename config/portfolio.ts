@@ -66,7 +66,7 @@ export const PORTFOLIO_APPS: PortfolioApp[] = [
       "Human-guided generative art gallery with purchasable downloads.",
     category: "Generative Art",
     image: {
-      src: "/images/projects/synthetic-pics/synthetic-pics-hero.avif",
+      src: "/images/projects/synthetic-pics/synthetic-pics-og.png",
       alt: "Synthetic Pics generative art preview",
     },
     status: "live",
@@ -191,7 +191,7 @@ export const PORTFOLIO_APPS: PortfolioApp[] = [
     description: "Unique 3D-printed objects, printed to order and shipped.",
     category: "E-commerce",
     image: {
-      src: "https://www.print3dmodels.com/og-image.jpg",
+      src: "/images/projects/print3dmodels/print3dmodels-og.jpg",
       alt: "Print3DModels 3D print storefront preview",
     },
     status: "live",
