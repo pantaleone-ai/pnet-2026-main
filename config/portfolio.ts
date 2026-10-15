@@ -66,8 +66,8 @@ export const PORTFOLIO_APPS: PortfolioApp[] = [
       "Human-guided generative art gallery with purchasable downloads.",
     category: "Generative Art",
     image: {
-      src: "/images/projects/synthetic-pics/synthetic-pics-og.png",
-      alt: "Synthetic Pics generative art preview",
+      src: "/images/projects/synthetic-pics/synthetic-pics-hero.avif",
+      alt: "Synthetic Pics generative art gallery on mobile",
     },
     status: "live",
     githubRepo: "pantaleone-ai/synthetic.pics",
