@@ -1,0 +1,32 @@
+name: runner-watchdog
+
+# Guards the monitor-lives-on-monitored-box SPOF: if the OCI self-hosted
+# runner goes offline (VPS down, daemon dead), this hosted workflow fails
+# and GitHub notifies, instead of crons silently never firing.
+# Stays on ubuntu-latest BY DESIGN. Cost: ~96 x 30s/day.
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check self-hosted runners online
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          DATA="$(gh api "repos/${{ github.repository }}/actions/runners")"
+          TOTAL="$(echo "$DATA" | jq -r '.total_count')"
+          OFFLINE="$(echo "$DATA" | jq -r '[.runners[] | select(.status != "online")] | length')"
+          echo "runners total=$TOTAL offline=$OFFLINE"
+          echo "$DATA" | jq -r '.runners[] | "\(.name) status=\(.status) busy=\(.busy)"'
+          if [ "$TOTAL" = "0" ]; then echo "::error::no self-hosted runners registered"; exit 1; fi
+          if [ "$OFFLINE" != "0" ]; then echo "::error::self-hosted runner offline"; exit 1; fi
