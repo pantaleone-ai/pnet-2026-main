@@ -15,8 +15,8 @@ permissions:
   actions: read
 
 env:
-  WORKFLOW_FILE: campaign-tick.yml
-  STALE_MINUTES: 180
+  WORKFLOW_FILE: content-orchestrator.yml
+  STALE_MINUTES: 800
 
 jobs:
   check:
