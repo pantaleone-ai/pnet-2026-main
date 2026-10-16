@@ -11,7 +11,9 @@ on:
   workflow_dispatch:
 
 permissions:
-  actions: read
+  # Listing self-hosted runners requires administration scope;
+  # actions:read alone returns 403 on this endpoint.
+  administration: read
 
 jobs:
   check:
