@@ -5,7 +5,9 @@ import { getPageMetadata } from "@/lib/seo/page-metadata";
 import type { HeadType } from "@/types";
 import type { Metadata } from "next";
 import { ContactForm } from "@/features/contact/ContactForm";
+import ContactContext from "@/features/contact/ContactContext";
 import ContactMe from "@/components/ContactMe";
+import { Suspense } from "react";
 
 export const dynamic = "force-static";
 
@@ -43,6 +45,9 @@ export default async function ContactPage() {
           Have a project? Tell me what you&apos;re building. I reply within
           two business days.
         </p>
+        <Suspense fallback={null}>
+          <ContactContext />
+        </Suspense>
         <div className="border-border relative min-h-52 max-w-full">
           <ContactForm />
         </div>

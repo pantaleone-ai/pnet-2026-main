@@ -23,7 +23,7 @@ export default function FinalCTA() {
         </p>
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row sm:items-center">
           <Button asChild size="lg" className="min-h-11 w-full sm:w-auto">
-            <Link href="/contact?book=true">Book a working session</Link>
+            <Link href="/contact?book=true">Discuss a workflow</Link>
           </Button>
           <Button
             asChild
@@ -31,7 +31,7 @@ export default function FinalCTA() {
             variant="outline"
             className="min-h-11 w-full sm:w-auto"
           >
-            <Link href="/projects">See what we build</Link>
+            <Link href="/services">Explore services</Link>
           </Button>
         </div>
         <p className="mx-auto mt-6 max-w-xl text-sm text-muted-foreground">

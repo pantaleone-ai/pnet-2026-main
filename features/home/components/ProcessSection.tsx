@@ -19,8 +19,8 @@ const STEPS = [
   },
   {
     index: "04",
-    title: "Improve",
-    description: "Measure time, cost, quality, and business impact.",
+    title: "Handoff and improve",
+    description: "Document operation, monitor results, and pick the next win.",
   },
 ];
 

@@ -32,7 +32,7 @@ const MobileHeader: FC<Props> = ({ currentPath, isOpen, onOpenChange }) => {
           <span className="mx-2 flex h-4 w-px bg-border" />
           <ThemeToggle />
           <Button asChild size="sm" variant="default">
-            <Link href="/contact?book=true">Book a call</Link>
+            <Link href="/contact?book=true">Discuss a workflow</Link>
           </Button>
         </div>
       </div>

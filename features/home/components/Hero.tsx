@@ -46,7 +46,7 @@ export default function Hero() {
 
           <div className="flex flex-col gap-3 px-4 py-5 sm:flex-row sm:items-center">
             <Button asChild size="lg" className="min-h-11 w-full sm:w-auto">
-              <Link href="/contact?book=true">Book a working session</Link>
+              <Link href="/contact?book=true">Discuss a workflow</Link>
             </Button>
             <Button
               asChild
@@ -54,7 +54,7 @@ export default function Hero() {
               variant="outline"
               className="min-h-11 w-full sm:w-auto"
             >
-              <Link href="/projects">See what we build</Link>
+              <Link href="/projects">Explore projects</Link>
             </Button>
           </div>
           <p className="px-4 pb-5 text-left text-sm text-muted-foreground">

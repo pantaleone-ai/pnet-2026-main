@@ -115,7 +115,7 @@ export default function B2BPage() {
                 href="/contact?b2b=true"
                 className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground px-8 py-3 text-sm font-medium hover:bg-primary/90 transition-colors"
               >
-                Book a call
+                Discuss a workflow
               </Link>
               <Link
                 href="/resources/ai-readiness-guide"
@@ -254,13 +254,17 @@ export default function B2BPage() {
             </h2>
             <p className="text-muted-foreground mb-8">
               Bring the process that eats your week. We scope it in 30
-              minutes. No pitch deck.
+              minutes. No pitch deck. For scope and pricing, see{" "}
+              <Link href="/services" className="underline underline-offset-4">
+                services
+              </Link>
+              .
             </p>
             <Link
               href="/contact?b2b=true"
               className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground px-8 py-3 text-sm font-medium hover:bg-primary/90 transition-colors"
             >
-              Book a call
+              Discuss a workflow
             </Link>
           </div>
         </div>
