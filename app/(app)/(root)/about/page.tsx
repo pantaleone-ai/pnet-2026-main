@@ -164,6 +164,43 @@ export default async function AboutMePage() {
               Bay Area, working on-site and remote. Email works best;
               I reply within two business days.
             </p>
+
+            <h2 className="text-2xl font-semibold mb-4 mt-8">
+              Operating principles
+            </h2>
+            <ul className="list-disc pl-6 mb-6 space-y-2">
+              <li>Automate only the steps with clear inputs and outputs</li>
+              <li>Deterministic work stays deterministic; AI where judgment matters</li>
+              <li>Every run observable — logs, retries, and a kill switch</li>
+              <li>You own the repo, workflow JSON, and runbook at handoff</li>
+            </ul>
+
+            <h2 className="text-2xl font-semibold mb-4 mt-8">
+              Engagement boundaries
+            </h2>
+            <p className="mb-4">
+              One workflow per engagement. No multi-month platform rewrites,
+              no black-box retainers. If the work needs a different specialist,
+              I say so during the working session.
+            </p>
+            <p className="mb-2">
+              See the work:{" "}
+              <a href="/projects" className="underline underline-offset-4">
+                selected projects
+              </a>{" "}
+              ·{" "}
+              <a href="/services" className="underline underline-offset-4">
+                services and pricing
+              </a>{" "}
+              ·{" "}
+              <a
+                href="/contact?book=true"
+                className="underline underline-offset-4"
+              >
+                discuss a workflow
+              </a>
+              .
+            </p>
           </div>
         </div>
       </main>

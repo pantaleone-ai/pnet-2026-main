@@ -160,6 +160,23 @@ export default function ServicesPage() {
             the repo and runbook. If the audit says don’t build, you keep
             the ranked list.
           </p>
+          <h2 className="text-2xl font-semibold mb-4">
+            Is your workflow a good candidate?
+          </h2>
+          <ul className="list-disc pl-6 space-y-2 mb-8">
+            <li>Repeats weekly with clear inputs and outputs</li>
+            <li>Costs hours of copy-paste, triage, or reporting time</li>
+            <li>Runs inside tools with APIs (CRM, helpdesk, warehouse)</li>
+            <li>Has a human who can confirm the correct outcome</li>
+          </ul>
+          <p className="mb-8">
+            Not sure? Bring it to a working session — we scope it or rule it
+            out in 30 minutes. Team context:{" "}
+            <Link href="/b2b" className="underline underline-offset-4">
+              AI work for teams
+            </Link>
+            .
+          </p>
         </div>
 
         <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto px-6 pb-16">
@@ -222,6 +239,96 @@ export default function ServicesPage() {
         <SeparatorHorizontal short={true} />
 
         <div className="prose dark:prose-invert mx-auto max-w-3xl px-6 py-8">
+          <h2 className="text-2xl font-semibold mb-4">
+            What you receive (every build)
+          </h2>
+          <ul className="list-disc pl-6 space-y-2 mb-8">
+            <li>Scoped workflow: documented path, success measures, exclusions</li>
+            <li>
+              Working automation against your APIs — N8N or LangChain, tested
+              on real data
+            </li>
+            <li>Retries, logging, escalation, and a kill switch</li>
+            <li>Repo, workflow JSON, credentials map, and runbook</li>
+            <li>Two working sessions where your team runs the system</li>
+            <li>30-day fix window after handoff</li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold mb-4">How engagements run</h2>
+          <ol className="list-decimal pl-6 space-y-2 mb-8">
+            <li>
+              <strong>Find</strong> — map the process, attach time cost per step
+            </li>
+            <li>
+              <strong>Design</strong> — architecture, integrations, acceptance
+              criteria
+            </li>
+            <li>
+              <strong>Build</strong> — implement, test, wire to your stack
+            </li>
+            <li>
+              <strong>Handoff and improve</strong> — runbook, monitoring, next
+              opportunity
+            </li>
+          </ol>
+          <p className="mb-8">
+            See the approach in practice:{" "}
+            <Link href="/projects" className="underline underline-offset-4">
+              selected work
+            </Link>{" "}
+            ·{" "}
+            <Link
+              href="/resources/ai-readiness-guide"
+              className="underline underline-offset-4"
+            >
+              AI readiness guide
+            </Link>
+            .
+          </p>
+
+          <h2 className="text-2xl font-semibold mb-4">
+            Frequently asked questions
+          </h2>
+          <div className="space-y-4 mb-8 not-prose">
+            <details className="border border-border rounded-lg p-4">
+              <summary className="font-medium cursor-pointer">
+                What if the audit says don&apos;t build?
+              </summary>
+              <p className="mt-2 text-sm text-muted-foreground">
+                You keep the ranked list with time costs. No build is proposed
+                and no further fee is due beyond the audit.
+              </p>
+            </details>
+            <details className="border border-border rounded-lg p-4">
+              <summary className="font-medium cursor-pointer">
+                Do you replace our existing tools?
+              </summary>
+              <p className="mt-2 text-sm text-muted-foreground">
+                No. Builds wire into your CRM, helpdesk, and warehouse via API.
+                Credentials stay in your vault.
+              </p>
+            </details>
+            <details className="border border-border rounded-lg p-4">
+              <summary className="font-medium cursor-pointer">
+                Who owns the system after handoff?
+              </summary>
+              <p className="mt-2 text-sm text-muted-foreground">
+                You do — repo, workflow JSON, and runbook. Every run is logged
+                so your team can operate it without us.
+              </p>
+            </details>
+            <details className="border border-border rounded-lg p-4">
+              <summary className="font-medium cursor-pointer">
+                When is AI not the answer?
+              </summary>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Deterministic steps stay deterministic. LLMs and retrieval are
+                used only where judgment or language understanding changes the
+                outcome — decided during the audit.
+              </p>
+            </details>
+          </div>
+
           <h2 className="text-2xl font-semibold mb-4">How I work</h2>
           <ul className="list-disc pl-6 space-y-2">
             <li>
@@ -254,7 +361,7 @@ export default function ServicesPage() {
                 href="/contact?book=true"
                 className="inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground px-6 py-3 text-sm font-medium hover:bg-primary/90 transition-colors"
               >
-                Book a call
+                Discuss a workflow
               </Link>
             </div>
           </div>

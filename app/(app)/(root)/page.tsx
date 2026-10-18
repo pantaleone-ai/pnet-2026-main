@@ -1,44 +1,16 @@
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import Hero from "@/features/home/components/Hero";
-import HeadingTitle from "@/components/HeadingTitle";
 import FinalCTA from "@/features/home/components/FinalCTA";
-import ProblemSection from "@/features/home/components/ProblemSection";
+import ProblemsSection from "@/features/home/components/ProblemsSection";
+import SelectedWork from "@/features/home/components/SelectedWork";
 import ProcessSection from "@/features/home/components/ProcessSection";
-import ServicesSection from "@/features/home/components/ServicesSection";
-import UseCasesSection from "@/features/home/components/UseCasesSection";
-import ValueSection from "@/features/home/components/ValueSection";
-import WhoForSection from "@/features/home/components/WhoForSection";
-import FeaturedProducts from "@/features/home/components/FeaturedProducts";
-import LatestBlogPosts from "@/features/home/components/LatestBlogPosts";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Suspense } from "react";
+import PrinciplesSection from "@/features/home/components/PrinciplesSection";
 import Link from "next/link";
 import type { Metadata } from "next";
 
 import HEAD from "@/config/seo/head";
 import { getPageMetadata } from "@/lib/seo/page-metadata";
 import type { HeadType } from "@/types";
-
-function SectionFallback() {
-  return (
-    <div
-      role="status"
-      aria-busy="true"
-      aria-label="Loading section"
-      className="relative mx-auto max-w-5xl px-6 py-8 md:py-10"
-    >
-      <span className="sr-only">Loading…</span>
-      <div
-        aria-hidden="true"
-        className="mx-auto grid max-w-5xl grid-cols-1 gap-6 lg:grid-cols-3"
-      >
-        {Array.from({ length: 3 }).map((_, index) => (
-          <Skeleton key={index} className="h-64 w-full rounded-lg" />
-        ))}
-      </div>
-    </div>
-  );
-}
 
 // Content is static MDX from the repo - force static, no ISR reads.
 export const dynamic = "force-static";
@@ -51,51 +23,38 @@ const homePage = HEAD.find((p: HeadType) => p.page === "Home") as HeadType;
 
 export const metadata: Metadata = getPageMetadata(homePage, "/index.md");
 
+// Six-section conversion funnel: Hero → Problems → Selected work →
+// How delivered → Principles → Final conversion. Depth lives on
+// /services, /projects, /about, /blog, and /shop; the homepage routes.
 export default function Home() {
   return (
     <>
       <SeparatorHorizontal borderTop={false} />
       <Hero />
       <SeparatorHorizontal short={true} />
-      <ProblemSection />
+      <ProblemsSection />
       <SeparatorHorizontal short={true} />
-      <UseCasesSection />
-      <SeparatorHorizontal short={true} />
-      <ValueSection />
-      <SeparatorHorizontal short={true} />
-      <ServicesSection />
+      <SelectedWork />
       <SeparatorHorizontal short={true} />
       <ProcessSection />
       <SeparatorHorizontal short={true} />
-      <WhoForSection />
+      <PrinciplesSection />
       <SeparatorHorizontal short={true} />
-      <HeadingTitle title="Tools we've built" />
-      <p className="mx-auto max-w-2xl px-6 text-center text-lg/8 text-foreground/80">
-        Ready-made AI tools, workflows, and systems for teams that want to move
-        faster.{" "}
+      <p className="mx-auto max-w-2xl px-6 text-center text-sm text-muted-foreground">
+        Looking for a tool or a deeper read?{" "}
         <Link href="/shop" className="underline underline-offset-4">
           Visit the shop
-        </Link>
-        .
-      </p>
-      <SeparatorHorizontal short={true} />
-      <Suspense fallback={<SectionFallback />}>
-        <FeaturedProducts />
-      </Suspense>
-      <SeparatorHorizontal short={true} />
-      <HeadingTitle title="Practical thinking about AI" />
-      <p className="mx-auto max-w-2xl px-6 text-center text-lg/8 text-foreground/80">
-        Ideas on AI systems, automation, agents, and building AI into real
-        businesses.{" "}
+        </Link>{" "}
+        ·{" "}
         <Link href="/blog" className="underline underline-offset-4">
           Read the blog
+        </Link>{" "}
+        ·{" "}
+        <Link href="/about" className="underline underline-offset-4">
+          About Matt
         </Link>
         .
       </p>
-      <SeparatorHorizontal short={true} />
-      <Suspense fallback={<SectionFallback />}>
-        <LatestBlogPosts />
-      </Suspense>
       <SeparatorHorizontal short={true} />
       <FinalCTA />
       <SeparatorHorizontal borderBottom={false} />

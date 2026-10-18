@@ -68,8 +68,8 @@ const NAVIGATION_LINKS: NavigationLinkType[] = [
       },
       {
         href: "/contact?book=true",
-        label: "Book Consultation",
-        description: truncateDescription("Book a call", 30),
+        label: "Discuss a workflow",
+        description: truncateDescription("Discuss a workflow", 30),
         icon: CalendarIcon,
       },
     ],
@@ -103,6 +103,11 @@ const NAVIGATION_LINKS: NavigationLinkType[] = [
     icon: ProjectsIcon,
     href: "/projects",
     label: "Projects",
+  },
+  {
+    icon: BriefcaseIcon,
+    href: "/about",
+    label: "About",
   },
   {
     icon: AppsIcon,
