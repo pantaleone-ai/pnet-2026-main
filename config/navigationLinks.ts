@@ -105,11 +105,6 @@ const NAVIGATION_LINKS: NavigationLinkType[] = [
     label: "Projects",
   },
   {
-    icon: BriefcaseIcon,
-    href: "/about",
-    label: "About",
-  },
-  {
     icon: AppsIcon,
     href: "/apps",
     label: "Apps",
