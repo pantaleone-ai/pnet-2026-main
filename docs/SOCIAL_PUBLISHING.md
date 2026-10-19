@@ -105,3 +105,29 @@ GET /{ig-user-id}?fields=username                 -> handle
 ```
 
 Until a site is listed, `publish-due` refuses to post for it.
+
+## Reshares (portfolio -> pantaleone.net)
+
+Any app's published FB/IG post may nominate a `pantaleone` reshare.
+Caps live in `PANTA_RESHARE_CAPS` (`config/social-growth/cadence.ts`):
+max 2/week combined, 1/platform/week, 48h after source, 48h between reshares.
+`p1` auto-nominates, `p2` needs `reshare:approved`, `p3` manual-only.
+
+```bash
+# Score candidates (closed published FB/IG, 48h+ old)
+npx tsx scripts/social-issues/publish/reshare.ts --auto --limit 10
+
+# Draft a reshare (dry-run first, always)
+npx tsx scripts/social-issues/publish/reshare.ts --from 147 --dry-run
+npx tsx scripts/social-issues/publish/reshare.ts --from 147 --create-issue
+
+# Publish the reshare issue like any other packet
+npx tsx scripts/social-issues/publish/publish-due.ts --issue <new-n> --dry-run
+```
+
+Reshares reuse source visuals with a `portfolio-bridge` rewrite, `PNT_*`
+campaign + `*_RS_V1` creative, and `**Reshare-Of:** `#NNN/content-id`` linkage.
+The media ledger allows same-URL reuse across sites only when `reshareOf`
+matches the owning contentId (same-site duplicates still blocked).
+Daily scoring runs in `.github/workflows/social-reshare.yml` (read-only;
+draft creation is manual dispatch only).

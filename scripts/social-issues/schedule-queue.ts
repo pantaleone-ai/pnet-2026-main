@@ -103,11 +103,8 @@ function main(): void {
   }
   const eligible = issues.filter((i) => {
     const names = i.labels.map((l) => l.name);
-    if (
-      !names.includes("site:synthetic-pics") ||
-      !names.includes("status:packet-ready")
-    )
-      return false;
+    const siteOk = names.includes("site:synthetic-pics") || names.includes("site:pantaleone");
+    if (!siteOk || !names.includes("status:packet-ready")) return false;
     if (hasProof(i)) return false;
     if (names.includes("platform:pinterest")) return false;
     const pub = i.body.match(/\*\*Publish at:\*\*\s*`([^`]+)`/)?.[1];

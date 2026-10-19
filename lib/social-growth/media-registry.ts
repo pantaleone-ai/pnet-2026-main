@@ -25,6 +25,10 @@ export interface MediaUse {
   date: string;
   /** Historical violations kept for audit (pre-registry posts). */
   duplicate?: boolean;
+  /** Owning site (site: label). Absent = synthetic-pics legacy rows. */
+  site?: string;
+  /** Source contentId when this use is a pantaleone reshare of another post. */
+  reshareOf?: string;
 }
 
 export type MediaLedger = Record<string, MediaUse[]>;
@@ -47,6 +51,28 @@ export function conflictingUses(
   return (ledger[url] ?? []).filter((u) => u.contentId !== contentId);
 }
 
+/**
+ * Reshare-aware conflict check for pantaleone reposts.
+ * Same image may be reused on a different site when the new use declares
+ * `reshareOf` pointing at the original contentId that already owns the URL.
+ * Same-site reuse is still a violation (prevents duplicate messages).
+ */
+export function conflictingUsesForReshare(
+  ledger: MediaLedger,
+  url: string,
+  contentId: string,
+  site: string | undefined,
+  reshareOf: string | undefined,
+): MediaUse[] {
+  return (ledger[url] ?? []).filter((u) => {
+    if (u.contentId === contentId) return false;
+    if (site && u.site && u.site !== site && reshareOf && (u.contentId === reshareOf || u.reshareOf === reshareOf)) return false;
+    // Legacy rows without site: allow cross-site reshare when reshareOf matches owner.
+    if (site && !u.site && reshareOf && u.contentId === reshareOf) return false;
+    return true;
+  });
+}
+
 /** True when no other contentId has claimed the URL. */
 export function imageIsFresh(
   ledger: MediaLedger,
@@ -63,7 +89,7 @@ export function claimImage(
   path: string = LEDGER_PATH,
 ): MediaLedger {
   const ledger = readMediaLedger(path);
-  const conflicts = conflictingUses(ledger, url, use.contentId);
+  const conflicts = conflictingUsesForReshare(ledger, url, use.contentId, use.site, use.reshareOf);
   if (conflicts.length > 0) {
     const owners = conflicts
       .map((c) => `#${c.issue}/${c.contentId}`)

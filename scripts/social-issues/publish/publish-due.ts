@@ -24,7 +24,7 @@ import { publishCarousel } from "./instagram";
 import { pendingPlan } from "./pending-channels";
 import {
   claimImage,
-  conflictingUses,
+  conflictingUsesForReshare,
   readMediaLedger,
 } from "@/lib/social-growth/media-registry";
 
@@ -90,6 +90,12 @@ function proofPosted(
 /** Board ID from a `**Board:** `id`` field (label-triggered runs have no CLI args). */
 function boardFromBody(body: string): string {
   return body.match(/\*\*Board:\*\*\s*`([^`]+)`/i)?.[1]?.trim() ?? "";
+}
+/** Source reference for pantaleone reshares: `**Reshare-Of:** `#123/content-id``. */
+function reshareOfFromBody(body: string): { issue: number; contentId: string } | undefined {
+  const m = body.match(/\*\*Reshare-Of:\*\*\s*`#(\d+)\/([a-z0-9-]+)`/i);
+  if (!m || !m[1] || !m[2]) return undefined;
+  return { issue: Number(m[1]), contentId: m[2].toLowerCase() };
 }
 export function imagesFromBody(body: string): string[] {
   const fields = [...body.matchAll(/\*\*Images:\*\*\s*`([^`]+)`/gi)].map(
@@ -239,8 +245,10 @@ async function main(): Promise<void> {
       issue.title.match(/^\[Social\]\s*([a-z0-9-]+)/i)?.[1]?.toLowerCase() ??
       `issue-${issue.number}`;
     const igLedger = readMediaLedger();
+    const igSite = siteLabel.replace(/^site:/, "") || undefined;
+    const igReshare = reshareOfFromBody(issue.body);
     for (const url of images) {
-      const conflicts = conflictingUses(igLedger, url, igContentId);
+      const conflicts = conflictingUsesForReshare(igLedger, url, igContentId, igSite, igReshare?.contentId);
       if (conflicts.length > 0) {
         const owners = conflicts
           .map((c) => `#${c.issue}/${c.contentId}`)
@@ -268,6 +276,8 @@ async function main(): Promise<void> {
           contentId: igContentId,
           channel: channel.id,
           date: new Date().toISOString(),
+          site: igSite,
+          reshareOf: igReshare?.contentId,
         });
       } catch (e) {
         console.error(e instanceof Error ? e.message : String(e));
@@ -353,7 +363,9 @@ async function main(): Promise<void> {
       console.log(`flagged needs-asset - #${issue.number} (${channel.id})`);
       return;
     }
-    const conflicts = conflictingUses(readMediaLedger(), fbImage, contentId);
+    const fbSite = siteLabel.replace(/^site:/, "") || undefined;
+    const fbReshare = reshareOfFromBody(issue.body);
+    const conflicts = conflictingUsesForReshare(readMediaLedger(), fbImage, contentId, fbSite, fbReshare?.contentId);
     if (conflicts.length > 0) {
       const owners = conflicts
         .map((c) => `#${c.issue}/${c.contentId}`)
@@ -374,6 +386,8 @@ async function main(): Promise<void> {
       contentId,
       channel: channel.id,
       date: new Date().toISOString(),
+      site: fbSite,
+      reshareOf: fbReshare?.contentId,
     });
     if (verifyDelete) {
       deletePost(token, res.postId);
@@ -523,7 +537,10 @@ async function main(): Promise<void> {
   process.exit(1);
 }
 
-main().catch((error) => {
-  console.error(error instanceof Error ? error.message : String(error));
-  process.exit(1);
-});
+const isPublishDueMain = (process.argv[1] ?? "").endsWith("publish-due.ts");
+if (isPublishDueMain) {
+  main().catch((error) => {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  });
+}
