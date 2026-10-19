@@ -31,7 +31,7 @@ export const ENTITY = {
     id: `${CANONICAL_ORIGIN}/#organization`,
     description:
       "We build AI systems that eliminate expensive manual work: AI agents, workflow automation, AI integration, and custom AI software.",
-    logo: `${CANONICAL_ORIGIN}/logo.png`,
+    logo: `${CANONICAL_ORIGIN}/apple-touch-icon.png`,
     ogImage: `${CANONICAL_ORIGIN}/opengraph-image`,
     areaServed: ["United States", "Canada", "Europe"],
     sameAs: [
