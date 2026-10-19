@@ -12,9 +12,21 @@ const COPY: Record<string, string> = {
 
 export default function ContactContext() {
   const params = useSearchParams();
+  const product = params.get("product");
   const key = ["book", "assessment", "implementation", "enterprise", "b2b"].find(
     (k) => params.get(k) !== null,
   );
+  if (product) {
+    return (
+      <p
+        role="status"
+        className="mx-auto max-w-2xl px-4 pt-4 text-sm text-muted-foreground"
+      >
+        Product inquiry: {product}. Tell me which plan fits and what you want
+        to build — I reply within two business days.
+      </p>
+    );
+  }
   if (!key) return null;
   return (
     <p
