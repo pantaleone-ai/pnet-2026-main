@@ -1,0 +1,46 @@
+name: social-reshare
+
+# Portfolio -> pantaleone.net reshare scoring (read-only by default).
+# Daily: scores closed published FB/IG posts as pantaleone reshare candidates.
+# Never publishes. Draft creation only runs on manual dispatch with create=true.
+
+on:
+  schedule:
+    - cron: "23 13 * * *"
+  workflow_dispatch:
+    inputs:
+      create:
+        description: "Create reshare draft issue for top p1 candidate"
+        required: false
+        default: "false"
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  score:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - run: npm ci
+      - name: Score reshare candidates
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx tsx scripts/social-issues/publish/reshare.ts --auto --limit 10
+      - name: Create top p1 draft (manual only)
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.create == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TOP=$(npx tsx scripts/social-issues/publish/reshare.ts --auto --limit 1 | grep -oE '^#[0-9]+' | head -n1 | tr -d '#')
+          if [ -n "$TOP" ]; then
+            npx tsx scripts/social-issues/publish/reshare.ts --from "$TOP" --create-issue
+          else
+            echo "no eligible candidate"
+          fi

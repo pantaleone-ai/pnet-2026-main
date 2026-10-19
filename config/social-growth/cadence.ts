@@ -49,3 +49,18 @@ export const PERFORMANCE_HIERARCHY = [
   "reach",
   "engagement",
 ] as const;
+
+/**
+ * Pantaleone.net reshare caps (portfolio umbrella).
+ * Any app's published FB/IG post may nominate, but only top-scored posts
+ * publish here. Keeps pantaleone at ~2/week combined, never same-day as source.
+ */
+export const PANTA_RESHARE_CAPS = {
+  maxPerWeekCombined: 2,
+  maxPerPlatformPerWeek: 1,
+  minDelayHoursAfterSource: 48,
+  minGapHoursBetweenReshares: 48,
+  autoPublishPriorities: ["p1"] as string[],
+  gatedPriorities: ["p2"] as string[],
+  manualOnlyPriorities: ["p3"] as string[],
+};

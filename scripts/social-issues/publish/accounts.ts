@@ -17,6 +17,13 @@ export const SITE_ACCOUNTS: SiteAccounts[] = [
     igUserId: "17841457168450219",
     igUsername: "synthetic.pics",
   },
+  {
+    site: "pantaleone",
+    pageId: "101092449202509",
+    pageName: "Pantaleone.net",
+    igUserId: "17841452273392769",
+    igUsername: "pantaleonenet",
+  },
 ];
 
 export function accountsForSite(site: string): SiteAccounts | undefined {
