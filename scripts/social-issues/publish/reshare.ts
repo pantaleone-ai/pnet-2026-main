@@ -217,7 +217,11 @@ async function main(): Promise<void> {
   console.log(`--- body ---\n${draft.body}`);
   if (dryRun && !createIssue) return;
   if (createIssue) {
-    const out = gh(["issue", "create", "--title", draft.title, "--body", draft.body, "--label", "social", "--label", "site:pantaleone", "--label", `platform:${targetPlatform}`, "--label", "status:queued", "--label", "spri:p2", "--label", "spillar:portfolio"]);
+    // Reshares reuse already-live source visuals + proven copy, so they are
+    // born packet-ready (auto-packet would try to rebuild from catalog art
+    // and fail on `Source asset: Reshare ...`). Publish guard needs
+    // status:packet-ready with no proof yet — exactly this state.
+    const out = gh(["issue", "create", "--title", draft.title, "--body", draft.body, "--label", "social", "--label", "site:pantaleone", "--label", `platform:${targetPlatform}`, "--label", "status:packet-ready", "--label", "spri:p2", "--label", "spillar:portfolio", "--label", "needs-manual-post"]);
     console.log(out);
   }
 }
