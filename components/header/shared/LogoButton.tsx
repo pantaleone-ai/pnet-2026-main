@@ -13,11 +13,20 @@ const LogoButton = memo(({ className }: { className?: string }) => {
       href="/"
       aria-label="Go to homepage"
     >
-      <div className="relative size-6 shrink-0 overflow-hidden rounded-full">
+      <div className="relative size-6 shrink-0">
         <Image
-          src="/images/logo.png"
+          src="/images/p-icon-light.svg"
           alt="Pantaleone logo"
-          className="size-full object-cover"
+          className="size-full object-contain dark:hidden"
+          width={48}
+          height={48}
+          priority
+        />
+        <Image
+          src="/images/p-icon-dark.svg"
+          alt=""
+          aria-hidden
+          className="hidden size-full object-contain dark:block"
           width={48}
           height={48}
           priority
