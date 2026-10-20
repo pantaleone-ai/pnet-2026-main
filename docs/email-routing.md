@@ -3,11 +3,14 @@
 All 9 zones: Email Routing **enabled**, catch-all → **forward to
 `mattpantaleone@gmail.com`**, apex MX → `route*.mx.cloudflare.net`.
 Applied 2026-10-14 via `wrangler email routing` (see git history).
-Second destination `david.pantaleone@gmail.com` created 2026-10-20
+Second destination `davidpantaleone@gmail.com` created 2026-10-20
 (**pending verification** — do NOT add to any rule until `verified` is set;
 an unverified destination stalls the rule). After David clicks the
 verification link, extend the mixphd catch-all (or explicit rules) to
-`["mattpantaleone@gmail.com", "david.pantaleone@gmail.com"]`.
+`["mattpantaleone@gmail.com", "davidpantaleone@gmail.com"]`.
+(Note: a misspelled `david.pantaleone@gmail.com` entry also exists,
+unverified and unreferenced — delete once Cloudflare's new-address
+grace period lapses.)
 Custom prio-0 rules (`matt@aicapturelab.com`, `aiceo@aiceo.io`,
 `matt@synthetic.pics`) take precedence over their catch-alls and were left intact.
 `send.proswing.net` (SES) untouched.
