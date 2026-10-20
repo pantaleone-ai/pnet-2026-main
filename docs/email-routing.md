@@ -2,10 +2,24 @@
 
 All 9 zones: Email Routing **enabled**, catch-all → **forward to
 `mattpantaleone@gmail.com`**, apex MX → `route*.mx.cloudflare.net`.
-Applied 2026-10-14 via `wrangler email routing` (see git history on this branch).
+Applied 2026-10-14 via `wrangler email routing` (see git history).
+Second destination `david.pantaleone@gmail.com` created 2026-10-20
+(**pending verification** — do NOT add to any rule until `verified` is set;
+an unverified destination stalls the rule). After David clicks the
+verification link, extend the mixphd catch-all (or explicit rules) to
+`["mattpantaleone@gmail.com", "david.pantaleone@gmail.com"]`.
 Custom prio-0 rules (`matt@aicapturelab.com`, `aiceo@aiceo.io`,
 `matt@synthetic.pics`) take precedence over their catch-alls and were left intact.
 `send.proswing.net` (SES) untouched.
+
+## Delivery evidence (2026-10-20)
+
+Resend probe `probe@pantaleone.net → probe-<ts>@mixphd.com`
+(Resend id `01a15a52-527a-7297-8a77-951b173273a2`) accepted for delivery
+through the catch-all. Confirm receipt in the Gmail inbox (unique subject
+`mixphd catch-all probe <ts>`). Earlier missing test mails were almost
+certainly same-account sends (Gmail swallowing mail forwarded back into
+the sending mailbox) — always retest from a different sender.
 
 ## Per-domain Gmail labels (manual, 5 min, one-time)
 
