@@ -42,7 +42,10 @@ All owned rules are prefixed `[pnet-2026]` and applied idempotently by `scripts/
    `scripts/check-cache-headers.sh`.
 2. `[pnet-2026] immutable static assets, 1 month edge` — `/_next/static/*`,
    `/_next/image`, `/images|fonts|favicons|files/*`, override 2592000s.
-3. `[pnet-2026] HTML + feeds respect origin` — everything else on the host
+   Host guard is exact apex+www (`http.host in {"www.pantaleone.net"
+   "pantaleone.net"}`, narrowed 2026-10-13 from `contains` so R2 subdomains
+   `img/imgsquash.pantaleone.net` keep their own semantics).
+3. `[pnet-2026] HTML + feeds respect origin` — everything else on apex/www
    follows origin `Cache-Control` (24h HTML, 1yr static feeds/assets).
 4. `[pnet-2026] OG image pin, 1 month edge` — `/opengraph-image*`, override
    2592000s. Placed AFTER the HTML rule and BEFORE the bypass (last match
@@ -55,12 +58,12 @@ All owned rules are prefixed `[pnet-2026]` and applied idempotently by `scripts/
 
 Foreign rules you must NOT touch: `R2 public assets CORP` (response-header
 transform, `imgsquash.pantaleone.net`), `API abuse guard` (ratelimit, 20
-req/10s/IP on `/api/*`). Owned but separate: `[pnet-2026] Block vulnerability
-scanner probes` (WAF custom, applied by `scripts/cf-waf-rules.sh` — blocks
-`.env`, `.git`, `/wp-` (+ `/wp-admin`, `/wp-content`), `*.php` via
-`ends_with`/`*.php/*`, `phpmyadmin`, `cgi-bin`, `actuator`, excluding
-`/images|/fonts|/files/`; all probe-only on this PHP-less/WordPress-less
-site). The applier scripts only write their own phase. NOTE: phase ruleset
+req/10s/IP on `/api/*`). Owned but separate: `Block vulnerability scanner
+probes v3` (WAF custom, applied by `scripts/cf-waf-rules.sh` — fleet-standard
+secrets/config/archives + wp/exploit-path coverage with a `/_next/`
+non-static carve-out; reconciled 2026-10-13 after live had drifted to v3
+while the script still wrote the narrower 2026-10 rule). The applier scripts
+only write their own phase. NOTE: phase ruleset
 NAMEs are API-immutable, so the legacy `(TEST-disabled)` suffix on ruleset
 names cannot be removed — the rules inside are correctly tagged and enabled;
 do not let the name confuse you.

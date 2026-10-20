@@ -5,6 +5,7 @@ import { gh, ghJson } from "./gh";
 
 const LABELS: Array<{ name: string; color: string; description: string }> = [
   { name: "content", color: "0075ca", description: "Content-engine topic in the issues queue." },
+  { name: "source:inbound-email", color: "5319e7", description: "Born from inbound email triage. Queued; needs human approval." },
   { name: "P0", color: "b60205", description: "Critical authority page. Claim first." },
   { name: "P1", color: "d93f0b", description: "High-priority supporting topic." },
   { name: "P2", color: "fbca04", description: "Medium-priority topic." },

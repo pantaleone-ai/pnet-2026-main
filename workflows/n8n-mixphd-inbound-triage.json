@@ -1,0 +1,182 @@
+{
+  "name": "mixphd-inbound-triage",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyHour"
+            }
+          ]
+        },
+        "filters": {},
+        "options": {}
+      },
+      "id": "gmail-trigger",
+      "name": "Gmail inbox trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 400],
+      "notes": "Connect Gmail OAuth2. After Gmail labels (docs/email-routing.md) exist, set filters.labelIds to the MixPHD label to poll only triage mail. Until then it polls INBOX and the Filter node below does the routing."
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "message_id",
+              "type": "string",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "id": "a2",
+              "name": "thread_id",
+              "type": "string",
+              "value": "={{ $json.threadId }}"
+            },
+            {
+              "id": "a3",
+              "name": "subject",
+              "type": "string",
+              "value": "={{ $json.subject }}"
+            },
+            {
+              "id": "a4",
+              "name": "from",
+              "type": "string",
+              "value": "={{ $json.from?.value?.[0]?.address }}"
+            },
+            {
+              "id": "a5",
+              "name": "to",
+              "type": "string",
+              "value": "={{ $json.to?.value?.map(e => e.address).join(', ') }}"
+            },
+            {
+              "id": "a6",
+              "name": "date",
+              "type": "string",
+              "value": "={{ $json.date }}"
+            },
+            {
+              "id": "a7",
+              "name": "snippet",
+              "type": "string",
+              "value": "={{ $json.snippet }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "extract-fields",
+      "name": "Extract fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [460, 400]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "c-to-support",
+              "leftValue": "={{ $json.to }}",
+              "rightValue": "support@mixphd.com",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "c-not-self",
+              "leftValue": "={{ $json.from }}",
+              "rightValue": "mattpantaleone@gmail.com",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "route-guard",
+      "name": "Support mail, not self-sent?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 400],
+      "notes": "Loop guard: never issue our own forwards/notifications. Extend with keyword/allowlists here before widening beyond the pilot."
+    },
+    {
+      "parameters": {
+        "resource": "issue",
+        "operation": "create",
+        "owner": "pantaleone-ai",
+        "repository": "pnet-2026-main",
+        "title": "=[inbound] {{ $json.subject }}",
+        "body": "Support mail received via support@mixphd.com.\n\n- From: {{ $json.from }}\n- Date: {{ $json.date }}\n- Gmail thread: {{ $json.thread_id }} / message `{{ $json.message_id }}`\n- Dedupe key: Message-ID `{{ $json.message_id }}` (one issue per key; duplicates must be closed, not re-created)\n\n> {{ $json.snippet }}\n\nNext: human triage, then route via pick-next like any queued issue.",
+        "labels": ["source:inbound-email", "site:mixphd", "status:queued", "P2"]
+      },
+      "id": "create-issue",
+      "name": "Create triage issue",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [900, 300],
+      "notes": "Connect a GitHub credential (issues:write on pantaleone-ai/pnet-2026-main). Issues land queued for human review — no auto-execution.",
+      "credentials": {
+        "githubApi": {
+          "id": "",
+          "name": "REPLACE_WITH_GITHUB_CRED_NAME"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Gmail inbox trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract fields": {
+      "main": [
+        [
+          {
+            "node": "Support mail, not self-sent?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Support mail, not self-sent?": {
+      "main": [
+        [
+          {
+            "node": "Create triage issue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "saveExecutionProgress": true
+  },
+  "pinData": {}
+}

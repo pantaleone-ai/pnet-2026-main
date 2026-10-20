@@ -66,15 +66,18 @@ fi # end live-only phase read + foreign-rule guard (dry-run skips network)
 # respected via respect_origin. POST/PUT/etc. still bypass (405 no-store).
 # HTML rule below is respect_origin, so carved GETs inherit the origin 60s
 # TTL with zero new rules. Revert: delete the trailing `and not (...)`.
-BYPASS_EXPR='(http.host contains "pantaleone.net" and (http.request.headers["rsc"][0] == "1" or http.request.headers["next-router-prefetch"][0] == "1" or http.request.uri.query contains "_rsc=" or starts_with(http.request.uri.path, "/api/") or starts_with(http.request.uri.path, "/_next/data/") or starts_with(http.request.uri.path, "/checkout") or http.request.headers["cookie"][0] contains "__prerender_bypass" or http.request.headers["cookie"][0] contains "__next_preview_data") and not (starts_with(http.request.uri.path, "/api/search") and http.request.method == "GET"))'
-HTML_EXPR='(http.host contains "pantaleone.net")'
-STATIC_EXPR='(http.host contains "pantaleone.net" and (starts_with(http.request.uri.path, "/_next/static/") or starts_with(http.request.uri.path, "/_next/image") or starts_with(http.request.uri.path, "/images/") or starts_with(http.request.uri.path, "/fonts/") or starts_with(http.request.uri.path, "/favicons/") or starts_with(http.request.uri.path, "/files/")))'
+# NARROWED 2026-10-13: exact apex+www match (was `contains`, which also
+# matched img/imgsquash.pantaleone.net + lookalikes and risked fighting the
+# R2 CORP transform). Matches fleet standard (mixphd-isr, synthetic.pics).
+BYPASS_EXPR='(http.host in {"www.pantaleone.net" "pantaleone.net"} and (http.request.headers["rsc"][0] == "1" or http.request.headers["next-router-prefetch"][0] == "1" or http.request.uri.query contains "_rsc=" or starts_with(http.request.uri.path, "/api/") or starts_with(http.request.uri.path, "/_next/data/") or starts_with(http.request.uri.path, "/checkout") or http.request.headers["cookie"][0] contains "__prerender_bypass" or http.request.headers["cookie"][0] contains "__next_preview_data") and not (starts_with(http.request.uri.path, "/api/search") and http.request.method == "GET"))'
+HTML_EXPR='(http.host in {"www.pantaleone.net" "pantaleone.net"})'
+STATIC_EXPR='(http.host in {"www.pantaleone.net" "pantaleone.net"} and (starts_with(http.request.uri.path, "/_next/static/") or starts_with(http.request.uri.path, "/_next/image") or starts_with(http.request.uri.path, "/images/") or starts_with(http.request.uri.path, "/fonts/") or starts_with(http.request.uri.path, "/favicons/") or starts_with(http.request.uri.path, "/files/")))'
 # OG pin 2026-10 (FOT): /opengraph-image is edge-rendered and the route emits
 # `max-age=0, must-revalidate`, so respect_origin revalidates on every hit
 # (live: sticky EXPIRED). Override to 1 month edge; deploys purge it via the
 # files list (see AGG_PATHS). Narrow path, zero overlap with HTML semantics.
 # Revert: delete OG_EXPR + its rule block below.
-OG_EXPR='(http.host contains "pantaleone.net" and starts_with(http.request.uri.path, "/opengraph-image"))'
+OG_EXPR='(http.host in {"www.pantaleone.net" "pantaleone.net"} and starts_with(http.request.uri.path, "/opengraph-image"))'
 
 # RULE ORDER IS LOAD-BEARING (probe-verified 2026-09-29): in this phase the
 # LAST matching set_cache_settings rule wins — a host-wide eligible rule
