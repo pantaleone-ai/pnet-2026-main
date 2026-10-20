@@ -8,9 +8,8 @@ Second destination `davidpantaleone@gmail.com` created 2026-10-20
 an unverified destination stalls the rule). After David clicks the
 verification link, extend the mixphd catch-all (or explicit rules) to
 `["mattpantaleone@gmail.com", "davidpantaleone@gmail.com"]`.
-(Note: a misspelled `david.pantaleone@gmail.com` entry also exists,
-unverified and unreferenced — delete once Cloudflare's new-address
-grace period lapses.)
+(A misspelled `david.pantaleone@gmail.com` entry was created and deleted
+2026-10-20; never referenced by any rule.)
 Custom prio-0 rules (`matt@aicapturelab.com`, `aiceo@aiceo.io`,
 `matt@synthetic.pics`) take precedence over their catch-alls and were left intact.
 `send.proswing.net` (SES) untouched.
