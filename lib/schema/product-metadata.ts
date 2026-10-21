@@ -51,7 +51,7 @@ export function generateProductMetadata(
       card: "summary_large_image" as const,
       title: `${product.title} - ${siteConfig.name}`,
       description: product.description || "Shop AI products",
-      images: [product.imageUrl || "/summary_large_image.png"],
+      images: [images[0]?.url || `${siteConfig.url}/summary_large_image.png`],
     },
     other: {
       "product:price:amount": String(product.price),

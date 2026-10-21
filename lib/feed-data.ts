@@ -1,5 +1,6 @@
 import { getProducts } from "@/features/shop/data/shopSource";
 import type { ShopProduct } from "@/features/shop/types/ShopProduct";
+import { toAbsoluteImageUrl } from "@/lib/helpers";
 
 export interface FeedProduct {
   id: string;
@@ -47,10 +48,19 @@ export async function getFeedProducts(): Promise<FeedProduct[]> {
       title: p.title,
       description: p.description.substring(0, 5000), // Limit description length
       link: `${baseUrl}/shop/${categorySlug}/${p.slug}`.trim(),
-      image_link: (p.imageUrl || "").trim(),
+      // Google/Meta require absolute https image URLs. Stored values may
+      // be relative (e.g. "/images/...") — resolve against the site root so
+      // image_link never fails validation. Falls back to a site-hosted
+      // placeholder when empty so no product ships with a blank image.
+      image_link: toAbsoluteImageUrl(p.imageUrl, baseUrl),
       additional_image_link: (p.additionalImages ?? [])
-        .map((img) => img.url)
-        .filter((url) => url && url !== p.imageUrl)
+        .map((img) => toAbsoluteImageUrl(img.url, baseUrl))
+        .filter(
+          (url, idx, arr) =>
+            url &&
+            url !== toAbsoluteImageUrl(p.imageUrl, baseUrl) &&
+            arr.indexOf(url) === idx,
+        )
         .slice(0, 10),
       product_type: p.productType || undefined,
       // Meta/Google require major units ("100.00 USD"). ShopProduct.price is

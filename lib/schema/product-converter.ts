@@ -1,18 +1,30 @@
 import type { MerchantProduct } from "./merchant-types";
 import type { ShopProduct } from "@/features/shop/types/ShopProduct";
+import { toAbsoluteImageUrl } from "@/lib/helpers";
 
 export function convertShopProductToMerchantProduct(
   product: ShopProduct,
   canonicalUrl: string,
 ): MerchantProduct {
-  const images: string[] = [];
-  if (product.imageUrl) images.push(product.imageUrl);
+  // Derive site root from the canonical product URL so JSON-LD `image`
+  // is always absolute https (Google Merchant Listings + Meta OG both
+  // reject relative paths). Falls back to production domain.
+  let siteRoot = "https://www.pantaleone.net";
+  try {
+    siteRoot = new URL(canonicalUrl).origin;
+  } catch {
+    // keep production fallback
+  }
+  const primaryImage = toAbsoluteImageUrl(product.imageUrl, siteRoot);
+  const images: string[] = [primaryImage];
   product.additionalImages?.forEach((img) => {
-    if (!images.includes(img.url)) {
-      images.push(img.url);
+    const absolute = toAbsoluteImageUrl(img.url, siteRoot);
+    if (!images.includes(absolute)) {
+      images.push(absolute);
     }
   });
-  if (images.length === 0) images.push("/summary_large_image.png");
+  if (images.length === 0)
+    images.push(toAbsoluteImageUrl("/summary_large_image.png", siteRoot));
 
   const isDigital = product.isDigital !== false;
 
@@ -109,9 +121,15 @@ export function buildBreadcrumbItems(
 }
 
 export function getOpenGraphImages(product: ShopProduct) {
+  const siteRoot =
+    process.env.NEXT_PUBLIC_BASE_URL?.trim().replace(/\/+$/, "") ||
+    "https://www.pantaleone.net";
   const images = [
     {
-      url: product.imageUrl || "/summary_large_image.png",
+      url: toAbsoluteImageUrl(
+        product.imageUrl || "/summary_large_image.png",
+        siteRoot,
+      ),
       width: 1200,
       height: 630,
       alt: product.title,
@@ -120,7 +138,7 @@ export function getOpenGraphImages(product: ShopProduct) {
 
   product.additionalImages?.forEach((img) => {
     images.push({
-      url: img.url,
+      url: toAbsoluteImageUrl(img.url, siteRoot),
       width: 1200,
       height: 630,
       alt: img.alt || product.title,

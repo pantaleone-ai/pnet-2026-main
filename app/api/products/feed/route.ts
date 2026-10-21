@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getProducts } from "@/features/shop/data/shopSource";
+import { toAbsoluteImageUrl } from "@/lib/helpers";
 
 // Content changes require a redeploy, so the feed is only built at
 // deploy time. No time-based revalidation means no ISR reads.
@@ -54,26 +55,36 @@ export async function GET() {
       categoryMapping[product.category] ||
       product.category.toLowerCase().replace(/\s+/g, "-");
     const link = `${baseUrl}/shop/${categorySlug}/${product.slug}`.trim();
+    // Google/Meta require absolute https image URLs. Stored values may be
+    // relative (e.g. "/images/...") — resolve against the site root so
+    // image_link never fails validation.
+    const primaryImage = toAbsoluteImageUrl(product.imageUrl, baseUrl);
     const additionalImages = (product.additionalImages ?? [])
-      ?.map((img) => img.url)
-      .filter(Boolean)
-      .join("|");
+      ?.map((img) => toAbsoluteImageUrl(img.url, baseUrl))
+      .filter((url) => url && url !== primaryImage)
+      .filter((url, idx, arr) => arr.indexOf(url) === idx)
+      .join(",");
     // Google's valid attribute is checkout_link_template (checkout_link is
     // rejected). Omit when there is no payment link: the URL must land on
     // a purchasable checkout/cart page.
     const checkoutLinkTemplate = product.stripePaymentLink
       ? `${baseUrl}/checkout?product_id=${product.sku || `product-${product.id}`}`.trim()
       : "";
+    // Meta/Google require major units with 2 decimals ("49.99 USD").
+    const priceValue =
+      typeof product.price === "number"
+        ? product.price.toFixed(2)
+        : String(product.price ?? "").trim();
 
     return [
       cell(product.sku || `product-${product.id}`),
       cell(product.title),
       cell(product.description),
       cell(link),
-      cell(product.imageUrl),
+      cell(primaryImage),
       cell(additionalImages || ""),
       cell(product.availability || "in_stock"),
-      cell(`${product.price} ${product.currency}`),
+      cell(`${priceValue} ${product.currency || "USD"}`.trim()),
       cell(product.brand || "Pantaleone Digital Services"),
       cell(product.condition || "new"),
       cell(product.googleProductCategory || "319"),

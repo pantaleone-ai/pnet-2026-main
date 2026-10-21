@@ -42,10 +42,14 @@ export async function GET() {
       // Materials for digital products
       const materials = "digital";
 
-      // Use the first image, and potentially additional images if available
-      // Note: We don't have access to additional images in FeedProduct interface
-      // This could be enhanced later to include additional images
-      const image1 = product.image_link;
+      // image_link is already absolute https (see lib/feed-data.ts).
+      // Fill IMAGE1-5 from primary + additional images.
+      const allImages = [
+        product.image_link,
+        ...(product.additional_image_link ?? []),
+      ].slice(0, 5);
+      const [image1 = "", image2 = "", image3 = "", image4 = "", image5 = ""] =
+        allImages;
 
       return [
         escapeCsvValue(product.title),
@@ -55,10 +59,10 @@ export async function GET() {
         escapeCsvValue(tags),
         escapeCsvValue(materials),
         image1,
-        "", // IMAGE2
-        "", // IMAGE3
-        "", // IMAGE4
-        ""  // IMAGE5
+        image2,
+        image3,
+        image4,
+        image5
       ].join(',');
     });
 

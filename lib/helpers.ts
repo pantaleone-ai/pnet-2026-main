@@ -105,3 +105,41 @@ export function getProductCategorySlug(category: string): string {
 
   return categoryMapping[category] || category.toLowerCase().replace(/\s+/g, '-');
 }
+
+/**
+ * Resolve a product image URL to an absolute https URL for shopping feeds.
+ *
+ * Google Shopping (`image_link` / `additional_image_link`) and Meta catalog
+ * both reject relative paths, protocol-relative URLs, and URLs with
+ * whitespace/control chars. This normalizes every stored value:
+ * - trims whitespace/control chars
+ * - `https://...` kept as-is (upgrades `http://` to `https://`)
+ * - `//host/path` -> `https://host/path`
+ * - `/path` -> `${baseUrl}/path`
+ * - `path` -> `${baseUrl}/path`
+ * - empty -> `${baseUrl}/summary_large_image.png` fallback so the feed
+ *   never emits an empty image_link (which fails validation for all
+ *   destinations).
+ */
+export function toAbsoluteImageUrl(
+  url: string | undefined | null,
+  baseUrl: string,
+): string {
+  const fallback = `${baseUrl.replace(/\/+$/, "")}/summary_large_image.png`;
+  const raw = (url ?? "").trim();
+  if (!raw) return fallback;
+
+  // Strip tabs/newlines that break TSV/XML feeds.
+  const clean = raw.replace(/[\t\n\r]+/g, " ").trim();
+  if (!clean) return fallback;
+
+  if (/^https?:\/\//i.test(clean)) {
+    // Prefer https for crawlability; img.pantaleone.net + site both serve https.
+    return clean.replace(/^http:\/\//i, "https://");
+  }
+  if (clean.startsWith("//")) return `https:${clean}`;
+
+  const normalizedBase = baseUrl.trim().replace(/\/+$/, "");
+  if (clean.startsWith("/")) return `${normalizedBase}${clean}`;
+  return `${normalizedBase}/${clean}`;
+}
