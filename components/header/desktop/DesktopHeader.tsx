@@ -115,7 +115,7 @@ const DesktopHeader: FC<Props> = memo(({ activePath }) => {
           <ThemeToggle />
           <span className="mx-2 flex h-4 w-px bg-border" />
           <Button asChild size="sm" variant="default">
-            <Link href="/contact?book=true">Book a working session</Link>
+            <Link href="/contact?book=true">contact</Link>
           </Button>
         </div>
       </div>

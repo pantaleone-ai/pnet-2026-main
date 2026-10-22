@@ -25,7 +25,6 @@ import { withOutboundUtm } from "@/lib/external-link";
 import { MarkdownIcon } from "@/features/blog/icons/MarkDownIcon";
 import { OpenAIIcon } from "@/features/blog/icons/OpenAI-Icon";
 import { ClaudeIcon } from "@/features/blog/icons/ClaudeIcon";
-import { SciraIcon } from "@/features/blog/icons/SciraIcon";
 
 const cache = new Map<string, string>();
 
@@ -120,13 +119,6 @@ function ViewOptions({ markdownUrl }: { markdownUrl: string }) {
           q,
         })}`,
         icon: ClaudeIcon,
-      },
-      {
-        title: "Open in Scira AI",
-        href: `https://scira.ai/?${new URLSearchParams({
-          q,
-        })}`,
-        icon: SciraIcon,
       },
     ];
   }, [markdownUrl]);
