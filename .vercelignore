@@ -1,6 +1,11 @@
 # .vercelignore — exclude non-production assets from the deployment payload.
 .git
 .github
-*.md
 docs/
 skills/
+# Root-level markdown docs only (README, plans, notes). Do NOT use a bare
+# `*.md` here: App Router route folders like app/(llms)/contact.md/ also
+# match `*.md`, and excluding them 404s every *.md route in production
+# (observed Oct 2026: /contact.md, /services.md, /b2b.md, /shop.md,
+# /index.md, /projects.md, /agents.md all 404 while *.txt routes worked).
+/*.md
