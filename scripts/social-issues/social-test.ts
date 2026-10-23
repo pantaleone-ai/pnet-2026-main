@@ -5,7 +5,11 @@ import {
   buildCaption,
   lintCaption,
   suggestHashtags,
+  COPY_BUDGETS,
+  countWords,
 } from "@/lib/social-growth/caption";
+import { auditSocialCopy } from "@/lib/social-growth/social-audit";
+import { buildReshareBody } from "./publish/reshare";
 import {
   eligible,
   readLedger,
@@ -48,7 +52,7 @@ const ig = buildCaption({
 });
 check(
   "ig caption has hashtags",
-  ig.hashtags.length >= 1 && ig.hashtags.length <= 5,
+  ig.hashtags.length >= 1 && ig.hashtags.length <= 3,
   ig.hashtags.join(","),
 );
 check("ig caption lint clean", ig.lint.ok, ig.lint.violations.join(";"));
@@ -78,7 +82,7 @@ check(
   !bait.ok && bait.violations.length >= 2,
   bait.violations.join(";"),
 );
-check("hashtag pool bounded", suggestHashtags("comparison").length <= 5);
+check("hashtag pool bounded", suggestHashtags("comparison").length <= 3);
 
 // Exposure ledger (isolated tmp path).
 const tmpLedger = join(tmpdir(), `exposure-test-${Date.now()}.json`);
@@ -230,8 +234,182 @@ check(
     fbSpec.dir === "public/fb/syn-fb-01-100",
 );
 
-if (failures > 0) {
-  console.error(`\nsocial-test: ${failures} failure(s)`);
-  process.exit(1);
+// Copy budgets (short, specific, human).
+check("hook max 100 chars", COPY_BUDGETS.hookMaxChars === 100);
+check("ig max 3 tags", COPY_BUDGETS.instagramMaxTags === 3);
+check("cta max 4 words", COPY_BUDGETS.ctaMaxWords === 4);
+check("word count", countWords("  Branching filaments in ochre  ") === 4);
+
+// Reshare bridge: short, factual, no boilerplate.
+const rs = buildReshareBody({
+  sourceIssue: 154,
+  sourceContentId: "syn-fb-warm-03",
+  sourceApp: "synthetic-pics",
+  sourcePlatform: "facebook",
+  sourcePermalink: "https://www.facebook.com/101092449202509_x",
+  hook: "Ochre field: warmth for calm shelves.",
+  body: "Branching filaments in ochre over warm ground.",
+  cta: "Explore the gallery",
+  destinationBase: "https://www.synthetic.pics",
+  images: ["https://www.pantaleone.net/fb/syn-fb-warm-03-154/1.jpg"],
+  targetPlatform: "facebook",
+});
+check(
+  "reshare hook is source hook verbatim",
+  rs.body.includes("`Ochre field: warmth for calm shelves.`"),
+  rs.title,
+);
+check(
+  "reshare no boilerplate opener",
+  !rs.body.includes("From what I'm building"),
+);
+check(
+  "reshare no boilerplate closer",
+  !rs.body.includes("kept for the gallery wall"),
+);
+check(
+  "reshare short factual bridge",
+  rs.body.includes("Via @syntheticpics."),
+  rs.body.slice(-160),
+);
+check(
+  "reshare keeps Reshare-Of",
+  rs.body.includes("**Reshare-Of:** `#154/syn-fb-warm-03`"),
+);
+check("reshare keeps Original-Post", rs.body.includes("**Original-Post:**"));
+check(
+  "reshare keeps UTM naming",
+  rs.campaign.startsWith("PNT_FB_") && rs.creative.endsWith("_RS_V1"),
+);
+
+// Copy audit: pass / warn / fail (never rewrites).
+async function auditTests(): Promise<void> {
+  const auditPass = await auditSocialCopy({
+    hook: "Ochre field: branching filaments study",
+    body: "Small architectural study in warm tones today.",
+    cta: "Explore the gallery",
+    platform: "facebook",
+    sourceAsset:
+      "Gallery artwork: 2026-09-11-ochre-field-architectural-abstraction-branching-filaments-42985404",
+  });
+  check(
+    "audit pass clean copy",
+    auditPass.verdict === "pass",
+    auditPass.reasons.join(" | "),
+  );
+  check("audit engine on", auditPass.engineUsed === true);
+  check(
+    "audit word counts",
+    auditPass.words.hook === 5 &&
+      auditPass.words.body === 7 &&
+      auditPass.words.total === 15,
+    JSON.stringify(auditPass.words),
+  );
+  const auditLongHook = await auditSocialCopy({
+    hook: `${"word ".repeat(30).trim()} hook that runs far past the hundred character hard maximum for hooks`,
+    body: "Short body here today.",
+    cta: "Explore the gallery",
+    platform: "facebook",
+  });
+  check(
+    "audit fail hook over 100 chars",
+    auditLongHook.verdict === "fail",
+    auditLongHook.reasons.join(" | "),
+  );
+  const auditCta = await auditSocialCopy({
+    hook: "Ochre field for calm shelves",
+    body: "Branching filaments in ochre over warm ground.",
+    cta: "Shop the product today now please",
+    platform: "facebook",
+  });
+  check(
+    "audit fail CTA over 4 words",
+    auditCta.verdict === "fail",
+    auditCta.reasons.join(" | "),
+  );
+  const auditSlop = await auditSocialCopy({
+    hook: "Unlock the future of wall art",
+    body: "Branching filaments in ochre over warm ground.",
+    cta: "Explore the gallery",
+    platform: "facebook",
+  });
+  check(
+    "audit fail banned phrases",
+    auditSlop.verdict === "fail",
+    auditSlop.reasons.join(" | "),
+  );
+  const auditTags = await auditSocialCopy({
+    hook: "Ochre field for calm shelves",
+    body: "Branching filaments in ochre over warm ground.",
+    cta: "Explore the gallery",
+    platform: "facebook",
+    hashtags: ["wallart"],
+  });
+  check(
+    "audit fail FB hashtags",
+    auditTags.verdict === "fail",
+    auditTags.reasons.join(" | "),
+  );
+  const auditMismatch = await auditSocialCopy({
+    hook: "Weekend drop",
+    body: "Short notes on warm minimal pieces.",
+    cta: "Explore the gallery",
+    platform: "facebook",
+    sourceAsset: "Gallery artworks: 2026-10-09-foo-bar-12345.avif",
+  });
+  check(
+    "audit fail asset mismatch",
+    auditMismatch.verdict === "fail",
+    auditMismatch.reasons.join(" | "),
+  );
+  const auditWarnBody = await auditSocialCopy({
+    hook: "Ochre field for calm shelves",
+    body: "Branching filaments in ochre over warm ground with quiet depth and balance for calm rooms tonight",
+    cta: "Explore the gallery",
+    platform: "facebook",
+  });
+  check(
+    "audit warn long body still proceeds",
+    auditWarnBody.verdict === "warn",
+    auditWarnBody.reasons.join(" | "),
+  );
+  const auditQuestion = await auditSocialCopy({
+    hook: "Which palette owns your room?",
+    body: "Three warm studies side by side.",
+    cta: "Explore the gallery",
+    platform: "facebook",
+  });
+  check(
+    "audit warn forced question",
+    auditQuestion.verdict === "warn",
+    auditQuestion.reasons.join(" | "),
+  );
+  const auditRepeat = await auditSocialCopy({
+    hook: "Ochre field for calm shelves",
+    body: "Branching filaments in ochre over warm ground.",
+    cta: "Explore the gallery",
+    platform: "facebook",
+    recentTexts: [
+      "Warm minimal pieces for quiet rooms Branching filaments in ochre over warm ground.",
+    ],
+  });
+  check(
+    "audit warn repeated phrase",
+    auditRepeat.verdict === "warn",
+    auditRepeat.reasons.join(" | "),
+  );
 }
-console.log("\nsocial-test: all passing");
+
+auditTests().then(
+  () => {
+    if (failures > 0) {
+      console.error(`\nsocial-test: ${failures} failure(s)`);
+      process.exit(1);
+    }
+    console.log("\nsocial-test: all passing");
+  },
+  (e) => {
+    console.error(`\nsocial-test: audit tests threw: ${(e as Error).message}`);
+    process.exit(1);
+  },
+);

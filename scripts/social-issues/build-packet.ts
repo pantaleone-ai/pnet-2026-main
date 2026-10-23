@@ -199,6 +199,29 @@ async function main(): Promise<void> {
   const caption = composed.text;
   if (!composed.lint.ok)
     errors.push(`caption lint: ${composed.lint.violations.join("; ")}`);
+
+  // Copy audit advisory (non-blocking): recorded in the packet, enforced at
+  // publish/auto-approve time. Never rewrites.
+  let auditNote = "not evaluated";
+  try {
+    const { auditSocialCopy } =
+      await import("@/lib/social-growth/social-audit");
+    const { suggestHashtags } = await import("@/lib/social-growth/caption");
+    const audit = await auditSocialCopy({
+      hook: parsed.hook ?? "",
+      body: parsed.body ?? "",
+      cta: parsed.cta ?? "",
+      platform: platform === "instagram" ? "instagram" : "facebook",
+      pillar,
+      hashtags:
+        platform === "instagram" ? suggestHashtags(pillar, undefined) : [],
+      sourceAsset: parsed.sourceAsset ?? undefined,
+      destinationUrl: parsed.destinationUrl ?? undefined,
+    });
+    auditNote = `${audit.verdict} (engine ${audit.engineUsed ? "on" : "off"}): ${audit.reasons.join("; ") || "clean"}`;
+  } catch {
+    auditNote = "unavailable (audit module error)";
+  }
   const packetPath = `docs/social-presence/publish/${contentId}-${issue.number}.md`;
   const captionPath = `docs/social-presence/publish/${contentId}-caption.txt`;
 
@@ -206,6 +229,9 @@ async function main(): Promise<void> {
     `# Publish packet — ${contentId} (Issue #${issue.number})`,
     ``,
     `App: \`${parsed.appId}\` / Platform: \`${platform}\` / Type: \`${parsed.contentType}\` / Pillar: \`${pillar}\``,
+    ``,
+    `## Copy audit (advisory, non-blocking; enforced at publish/auto-approve)`,
+    auditNote,
     ``,
     `## Copy (paste to ${platform})`,
     `Hook: ${parsed.hook}`,

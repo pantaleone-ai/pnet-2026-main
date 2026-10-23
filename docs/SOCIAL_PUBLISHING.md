@@ -126,6 +126,27 @@ Dry-run first: `auto-approve.ts --rule all --dry-run`.
 Cap accounting reads durable GitHub state (proof-carrying pantaleone issues
 in the last 7d), not the local ledger (runner-ephemeral, audit-only).
 
+## Copy budgets + social audit
+
+Every caption follows the same budgets (`COPY_BUDGETS` in
+`lib/social-growth/caption.ts`): hook 4–10 words / max 100 chars, body one
+short sentence (6–14 words), CTA 1–4 words, total copy target ≤ 28 words
+(excl. URL/hashtags), Instagram max 3 relevant hashtags, Facebook none.
+
+`lib/social-growth/social-audit.ts` audits issue body, reshare copy,
+generated captions, and packets using the existing anti-slop engine
+(`scanText` + quality gate, scan-only — it never rewrites) plus budget,
+voice (`lintCaption`), source-fidelity (`titleMatchesArtwork` vs
+`SYN_CATALOG`), and cross-post repetition checks. Result: `pass` (proceed),
+`warn` (recorded, proceeds), `fail` (label `needs_review`, blocks
+auto-approval via `social-auto-approve.ts` and publication via
+`publish-due.ts` until fixed). Calibrated 2026-10: 19 published posts →
+13 pass, 5 warn, 1 fail (pre-existing vibe hook, published copy untouched).
+Advisory: `social-audit.ts --issue <n> [--repeat]` · `social-audit.ts
+--history <n>` (read-only calibration).
+Enforcement: `publish-due.ts` IG/FB paths, `auto-approve.ts` Rules 1+2.
+Kill switch: `social.audit.enabled=false` in `config/automation/policy.ts`.
+
 ```bash
 # Score candidates (closed published FB/IG, 48h+ old)
 npx tsx scripts/social-issues/publish/reshare.ts --auto --limit 10

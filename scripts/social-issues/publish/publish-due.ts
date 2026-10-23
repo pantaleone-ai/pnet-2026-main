@@ -10,6 +10,7 @@
 // Channels without stored credentials report blocked and stay packet-ready.
 import { gh, ghJson } from "../../content-issues/gh";
 import { config as loadEnv } from "dotenv";
+import { AUTOMATION_POLICY } from "@/config/automation/policy";
 
 loadEnv({ path: ".env.local" });
 import { accountsForSite } from "./accounts";
@@ -92,10 +93,84 @@ function boardFromBody(body: string): string {
   return body.match(/\*\*Board:\*\*\s*`([^`]+)`/i)?.[1]?.trim() ?? "";
 }
 /** Source reference for pantaleone reshares: `**Reshare-Of:** `#123/content-id``. */
-function reshareOfFromBody(body: string): { issue: number; contentId: string } | undefined {
+function reshareOfFromBody(
+  body: string,
+): { issue: number; contentId: string } | undefined {
   const m = body.match(/\*\*Reshare-Of:\*\*\s*`#(\d+)\/([a-z0-9-]+)`/i);
   if (!m || !m[1] || !m[2]) return undefined;
   return { issue: Number(m[1]), contentId: m[2].toLowerCase() };
+}
+
+/**
+ * Copy audit gate (budgets + voice + fidelity + anti-slop scan, never rewrites).
+ * fail -> dry-run prints would-block and exits 1; live run comments, labels
+ * needs_review, removes publish:approved so neither auto-approval nor a
+ * retry can publish until fixed, then exits 1. warn -> logged, proceeds.
+ */
+async function gateCopyAudit(
+  issue: IssueView,
+  channelId: "instagram" | "facebook",
+  dryRun: boolean,
+): Promise<void> {
+  if (!AUTOMATION_POLICY.social.audit.enabled) {
+    console.log("copy audit skipped (policy flag off)");
+    return;
+  }
+  const pillar = field(issue.body, "Social pillar");
+  const tags = field(issue.body, "Hashtags");
+  const { auditSocialCopy } = await import("@/lib/social-growth/social-audit");
+  const { suggestHashtags } = await import("@/lib/social-growth/caption");
+  const result = await auditSocialCopy({
+    hook: field(issue.body, "Hook"),
+    body: field(issue.body, "Body"),
+    cta: field(issue.body, "CTA"),
+    platform: channelId,
+    pillar: pillar || undefined,
+    hashtags:
+      channelId === "instagram"
+        ? suggestHashtags(
+            pillar || undefined,
+            tags
+              ? tags.split(/[\s,]+/).map((t) => t.replace(/^#/, ""))
+              : undefined,
+          )
+        : [],
+    sourceAsset: field(issue.body, "Source asset") || undefined,
+    destinationUrl: field(issue.body, "Destination") || undefined,
+  });
+  for (const r of result.reasons) console.log(`audit ${result.verdict}: ${r}`);
+  if (result.verdict === "warn") {
+    console.log(
+      `copy audit warn - #${issue.number} (proceeding, recorded above)`,
+    );
+    return;
+  }
+  if (result.verdict !== "fail") return;
+  const comment = [
+    `## Copy audit failed — publication blocked`,
+    ``,
+    `Policy: social copy budgets + voice + source fidelity + anti-slop (scan only, no rewrites).`,
+    ...result.reasons.map((r) => `- ${r}`),
+    ``,
+    `Fix the hook/body/CTA and re-run the audit. Labeled \`needs_review\`.`,
+  ].join("\n");
+  if (dryRun) {
+    console.log(`would-block-audit - #${issue.number}\n${comment}`);
+    process.exit(1);
+  }
+  gh(["issue", "comment", String(issue.number), "--body", comment]);
+  gh(["issue", "edit", String(issue.number), "--add-label", "needs_review"]);
+  if (issue.labels.some((l) => l.name === "publish:approved")) {
+    gh([
+      "issue",
+      "edit",
+      String(issue.number),
+      "--remove-label",
+      "publish:approved",
+    ]);
+  }
+  console.error(`audit-fail-blocked - #${issue.number} (needs_review)`);
+  process.exit(1);
 }
 export function imagesFromBody(body: string): string[] {
   const fields = [...body.matchAll(/\*\*Images:\*\*\s*`([^`]+)`/gi)].map(
@@ -241,6 +316,7 @@ async function main(): Promise<void> {
       );
       process.exit(1);
     }
+    await gateCopyAudit(issue, "instagram", dryRun);
     const igContentId =
       issue.title.match(/^\[Social\]\s*([a-z0-9-]+)/i)?.[1]?.toLowerCase() ??
       `issue-${issue.number}`;
@@ -248,7 +324,13 @@ async function main(): Promise<void> {
     const igSite = siteLabel.replace(/^site:/, "") || undefined;
     const igReshare = reshareOfFromBody(issue.body);
     for (const url of images) {
-      const conflicts = conflictingUsesForReshare(igLedger, url, igContentId, igSite, igReshare?.contentId);
+      const conflicts = conflictingUsesForReshare(
+        igLedger,
+        url,
+        igContentId,
+        igSite,
+        igReshare?.contentId,
+      );
       if (conflicts.length > 0) {
         const owners = conflicts
           .map((c) => `#${c.issue}/${c.contentId}`)
@@ -365,7 +447,13 @@ async function main(): Promise<void> {
     }
     const fbSite = siteLabel.replace(/^site:/, "") || undefined;
     const fbReshare = reshareOfFromBody(issue.body);
-    const conflicts = conflictingUsesForReshare(readMediaLedger(), fbImage, contentId, fbSite, fbReshare?.contentId);
+    const conflicts = conflictingUsesForReshare(
+      readMediaLedger(),
+      fbImage,
+      contentId,
+      fbSite,
+      fbReshare?.contentId,
+    );
     if (conflicts.length > 0) {
       const owners = conflicts
         .map((c) => `#${c.issue}/${c.contentId}`)
@@ -373,6 +461,7 @@ async function main(): Promise<void> {
       console.error(`image already used by ${owners}: ${fbImage}`);
       process.exit(1);
     }
+    await gateCopyAudit(issue, "facebook", dryRun);
     if (dryRun) {
       console.log(
         `would-publish-facebook-photo - #${issue.number} to ${accounts.pageName} (${accounts.pageId})\n---caption---\n${caption}\n---image---\n${fbImage}\n---link---\n${destination}`,

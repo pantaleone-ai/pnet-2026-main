@@ -241,8 +241,41 @@ async function rule1(apply: boolean, limit: number): Promise<void> {
     );
     shown += 1;
     if (decision.decision !== "allow") continue;
+    // Copy audit: fail can never auto-approve (Rule 2 safeguard applies here too).
+    const { auditSocialCopy } =
+      await import("@/lib/social-growth/social-audit");
+    const { suggestHashtags } = await import("@/lib/social-growth/caption");
+    const tags = field(i.body, "Hashtags");
+    const audit = await auditSocialCopy({
+      hook: field(i.body, "Hook"),
+      body: field(i.body, "Body"),
+      cta: field(i.body, "CTA"),
+      platform: platform as "instagram" | "facebook",
+      pillar: field(i.body, "Social pillar") || undefined,
+      hashtags:
+        platform === "instagram"
+          ? suggestHashtags(
+              field(i.body, "Social pillar") || undefined,
+              tags
+                ? tags.split(/[\s,]+/).map((t) => t.replace(/^#/, ""))
+                : undefined,
+            )
+          : [],
+      sourceAsset: field(i.body, "Source asset") || undefined,
+      destinationUrl: field(i.body, "Destination") || undefined,
+    });
+    if (audit.verdict === "fail") {
+      console.log(
+        `  audit-fail-skip - #${i.number}: ${audit.reasons.join(" | ")}`,
+      );
+      continue;
+    }
+    const auditNote =
+      audit.verdict === "warn"
+        ? ` Copy audit: warn (${audit.reasons.join("; ")}).`
+        : "";
     if (!apply) {
-      console.log(`  would-approve - #${i.number} (dry-run)`);
+      console.log(`  would-approve - #${i.number} (dry-run)${auditNote}`);
       continue;
     }
     gh([
@@ -250,7 +283,7 @@ async function rule1(apply: boolean, limit: number): Promise<void> {
       "comment",
       String(i.number),
       "--body",
-      `Rule gallery-live auto-approval (policy ${decision.policy}): gallery artwork verified live, packet-ready with visuals, credentials present, no prior proof. Adding \`publish:approved\`. Reasons: ${decision.reasonCodes.join(", ") || "all checks pass"}.`,
+      `Rule gallery-live auto-approval (policy ${decision.policy}): gallery artwork verified live, packet-ready with visuals, credentials present, no prior proof.${auditNote} Adding \`publish:approved\`. Reasons: ${decision.reasonCodes.join(", ") || "all checks pass"}.`,
     ]);
     gh(["issue", "edit", String(i.number), "--add-label", "publish:approved"]);
     console.log(`  approved - #${i.number}`);
@@ -387,6 +420,37 @@ async function rule2(apply: boolean, limit: number): Promise<void> {
     if (decision.decision !== "allow") continue;
     const dest =
       field(c.issue.body, "Destination") || "https://www.synthetic.pics";
+    // Copy audit on the draft bridge copy: fail can never auto-approve.
+    // Draft source fields mirror the future issue body 1:1 (see reshare.ts).
+    const draftHook = field(c.issue.body, "Hook") || c.issue.title;
+    const draftBodyText = field(c.issue.body, "Body") || "";
+    const { auditSocialCopy: auditDraft } =
+      await import("@/lib/social-growth/social-audit");
+    const { suggestHashtags: suggestTags } =
+      await import("@/lib/social-growth/caption");
+    const draftAudit = await auditDraft({
+      hook:
+        draftHook.length > 100
+          ? `${draftHook.slice(0, 99).trimEnd()}…`
+          : draftHook,
+      body: `${draftBodyText} Via @syntheticpics.`,
+      cta: field(c.issue.body, "CTA") || "Explore the gallery",
+      platform: c.target,
+      pillar: "portfolio",
+      hashtags: c.target === "instagram" ? suggestTags("portfolio", []) : [],
+      sourceAsset: field(c.issue.body, "Source asset") || undefined,
+      destinationUrl: dest,
+    });
+    if (draftAudit.verdict === "fail") {
+      console.log(
+        `  audit-fail-skip - #${c.issue.number}: ${draftAudit.reasons.join(" | ")}`,
+      );
+      continue;
+    }
+    const draftAuditNote =
+      draftAudit.verdict === "warn"
+        ? ` Copy audit: warn (${draftAudit.reasons.join("; ")}).`
+        : "";
     const draft = buildReshareBody({
       sourceIssue: c.issue.number,
       sourceContentId: c.contentId,
@@ -401,7 +465,9 @@ async function rule2(apply: boolean, limit: number): Promise<void> {
       targetPlatform: c.target,
     });
     if (!apply) {
-      console.log(`  would-create+approve - ${draft.title} (dry-run)`);
+      console.log(
+        `  would-create+approve - ${draft.title} (dry-run)${draftAuditNote}`,
+      );
       continue;
     }
     const out = gh([
@@ -410,7 +476,7 @@ async function rule2(apply: boolean, limit: number): Promise<void> {
       "--title",
       draft.title,
       "--body",
-      `${draft.body}\n\nAuto-approved by synthetic-proof (policy ${decision.policy}): source #${c.issue.number} proven live, best-fit target pantaleone/${c.target}, cap ${cap.weekCount + 1}/${AUTOMATION_POLICY.social.caps.maxPerWeekCombined}.`,
+      `${draft.body}\n\nAuto-approved by synthetic-proof (policy ${decision.policy}): source #${c.issue.number} proven live, best-fit target pantaleone/${c.target}, cap ${cap.weekCount + 1}/${AUTOMATION_POLICY.social.caps.maxPerWeekCombined}.${draftAuditNote}`,
       "--label",
       "social",
       "--label",
