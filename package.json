@@ -51,9 +51,17 @@
     "content:seed": "tsx scripts/content-issues/seed-backlog.ts",
     "content:next": "tsx scripts/content-issues/pick-next.ts",
     "content:close": "tsx scripts/content-issues/close-with-evidence.ts",
+    "content:discover": "tsx scripts/content-issues/discover.ts",
+    "campaign:autopilot": "tsx scripts/campaign-autopilot.ts",
+    "integration:readiness": "tsx scripts/integration-readiness.ts",
+    "watchdog": "tsx scripts/watchdog.ts",
     "social:test": "tsx scripts/social-issues/social-test.ts",
+    "social:auto-approve": "tsx scripts/social-issues/publish/auto-approve.ts",
+    "automation:test": "tsx scripts/automation-policy-test.ts",
     "social:packet": "tsx scripts/social-issues/build-packet.ts",
     "social:report": "tsx scripts/social-issues/report-weekly.ts",
+    "social:verify": "tsx scripts/social-issues/verify-proofs.ts",
+    "social:auto-approve": "tsx scripts/social-issues/publish/auto-approve.ts",
     "social:schedule": "tsx scripts/social-issues/schedule-queue.ts"
   },
   "dependencies": {

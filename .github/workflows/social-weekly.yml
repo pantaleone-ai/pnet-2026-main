@@ -1,0 +1,37 @@
+name: social-weekly
+
+# Scheduled weekly performance summary (Phase 8B): dry-run report over
+# published social issues. Never fabricates — unavailable metrics are null
+# with a missingSource marker. No writes, no commits; read the workflow
+# summary for the numbers and links.
+
+on:
+  schedule:
+    # Mondays 08:05 UTC.
+    - cron: "5 8 * * 1"
+  workflow_dispatch:
+
+permissions:
+  issues: read
+  contents: read
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - run: npm ci
+      - name: Weekly social performance summary
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          META_CAPI_ACCESS_TOKEN: ${{ secrets.META_CAPI_ACCESS_TOKEN }}
+        run: npx tsx scripts/social-issues/report-weekly.ts --dry-run
+      - name: Watchdog exceptions
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx tsx scripts/watchdog.ts --dry-run

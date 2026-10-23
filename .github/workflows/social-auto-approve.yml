@@ -1,0 +1,48 @@
+name: social-auto-approve
+
+# Rule 1 (gallery-live) + Rule 2 (synthetic-proof) closed-loop approval.
+# Scheduled scoring adds the existing `publish:approved` label when the shared
+# policy (lib/automation/policy.ts) returns allow — no parallel trigger,
+# downstream workflows unchanged. Caps enforced in-code; every skip is logged
+# with reason codes. Nothing publishes inside this workflow; publishing still
+# happens only in social-publish-on-approval via publish-due.
+
+on:
+  schedule:
+    # Twice daily, offset from orchestrators (:17/:47) and reshare scorer (:23).
+    - cron: "7 8,20 * * *"
+  workflow_dispatch:
+    inputs:
+      rule:
+        description: "Rule to evaluate (gallery-live, synthetic-proof, all)"
+        required: false
+        default: "all"
+      mode:
+        description: "dry-run (default) or apply"
+        required: false
+        default: "dry-run"
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  approve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - run: npm ci
+      - name: Evaluate auto-approval rules
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ARGS=(--rule "${{ github.event.inputs.rule || 'all' }}" --limit 10)
+          if [ "${{ github.event.inputs.mode || 'apply' }}" = "dry-run" ] && [ "${{ github.event_name }}" = "workflow_dispatch" ]; then ARGS+=(--dry-run); fi
+          if [ "${{ github.event_name }}" = "schedule" ]; then ARGS+=(--apply); fi
+          npx tsx scripts/social-issues/publish/auto-approve.ts "${ARGS[@]}"

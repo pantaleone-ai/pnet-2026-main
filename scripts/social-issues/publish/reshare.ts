@@ -37,31 +37,52 @@ function field(body: string, name: string): string {
 
 function proofPermalink(comments: Array<{ body: string }>): string | undefined {
   const hit = comments.find((c) => c.body.includes("Platform publish proof"));
-  return hit?.body.match(/https:\/\/(www\.)?(instagram\.com|facebook\.com)\/\S+/)?.[0];
+  return hit?.body.match(
+    /https:\/\/(www\.)?(instagram\.com|facebook\.com)\/\S+/,
+  )?.[0];
 }
 
 function priorityOf(labels: Array<{ name: string }>): string {
-  return labels.find((l) => /^spri:p[123]$/.test(l.name))?.name.replace("spri:", "") ?? "p2";
+  return (
+    labels
+      .find((l) => /^spri:p[123]$/.test(l.name))
+      ?.name.replace("spri:", "") ?? "p2"
+  );
 }
 
 function appIdOf(labels: Array<{ name: string }>, body: string): string {
-  const site = labels.find((l) => l.name.startsWith("site:"))?.name.replace("site:", "") ?? "";
+  const site =
+    labels.find((l) => l.name.startsWith("site:"))?.name.replace("site:", "") ??
+    "";
   if (site) return site;
   return field(body, "App") || "synthetic-pics";
 }
 
 function platformOf(labels: Array<{ name: string }>, body: string): string {
-  const p = labels.find((l) => l.name.startsWith("platform:"))?.name.replace("platform:", "") ?? "";
+  const p =
+    labels
+      .find((l) => l.name.startsWith("platform:"))
+      ?.name.replace("platform:", "") ?? "";
   if (p) return p;
   return (field(body, "Platform") || "instagram").toLowerCase();
 }
 
-export function reshareScore(appId: string, sourcePlatform: string, priority: string, ageDays: number): number {
+export function reshareScore(
+  appId: string,
+  sourcePlatform: string,
+  priority: string,
+  ageDays: number,
+): number {
   const tier = tierFor(appId);
   const tierW = tier === "tier1" ? 1.2 : tier === "tier2" ? 1.0 : 0.8;
-  const fit: Record<string, number> = { primary: 1.2, secondary: 1.0, experimental: 0.8 };
+  const fit: Record<string, number> = {
+    primary: 1.2,
+    secondary: 1.0,
+    experimental: 0.8,
+  };
   // FB/IG-native sources score highest; X/LinkedIn need reformat.
-  const nativeW = sourcePlatform === "instagram" || sourcePlatform === "facebook" ? 1.2 : 0.7;
+  const nativeW =
+    sourcePlatform === "instagram" || sourcePlatform === "facebook" ? 1.2 : 0.7;
   void fit;
   const pW = priority === "p1" ? 1.0 : priority === "p2" ? 0.7 : 0.4;
   const freshW = ageDays <= 14 ? 1.0 : ageDays <= 30 ? 0.6 : 0.2;
@@ -80,17 +101,29 @@ export function buildReshareBody(opts: {
   destinationBase: string;
   images: string[];
   targetPlatform: string;
-}): { title: string; body: string; campaign: string; creative: string; url: string } {
+}): {
+  title: string;
+  body: string;
+  campaign: string;
+  creative: string;
+  url: string;
+} {
   const short = opts.sourceContentId.replace(/^syn-/, "").slice(0, 40);
-  const contentId = `pnt-${opts.targetPlatform === "instagram" ? "ig" : "fb"}-rs-${short}`.toLowerCase().replace(/[^a-z0-9-]+/g, "-");
+  const contentId =
+    `pnt-${opts.targetPlatform === "instagram" ? "ig" : "fb"}-rs-${short}`
+      .toLowerCase()
+      .replace(/[^a-z0-9-]+/g, "-");
   const yyyymm = new Date().toISOString().slice(0, 7).replace("-", "");
   const campaign = `PNT_${opts.targetPlatform === "instagram" ? "IG" : "FB"}_DISCOVERY_PORTFOLIO_US_${yyyymm}`;
   const creative = `${opts.sourceContentId.toUpperCase().replace(/-/g, "_").slice(0, 24)}_RS_V1`;
-  const url = buildSocialUrl(opts.destinationBase.split("?")[0] ?? opts.destinationBase, {
-    platform: opts.targetPlatform,
-    campaign,
-    creative,
-  });
+  const url = buildSocialUrl(
+    opts.destinationBase.split("?")[0] ?? opts.destinationBase,
+    {
+      platform: opts.targetPlatform,
+      campaign,
+      creative,
+    },
+  );
   const bridgeHook = `From what I'm building: ${opts.hook.charAt(0).toLowerCase() + opts.hook.slice(1)}`;
   const bridgeBody = `${opts.body} Originally on @${opts.sourceApp.replace(/-/g, "")} — kept for the gallery wall.`;
   const title = `[Social] ${contentId} — Reshare ${opts.sourceContentId} to pantaleone`;
@@ -121,7 +154,13 @@ export function buildReshareBody(opts: {
 }
 
 async function loadIssue(n: string): Promise<IssueView> {
-  return ghJson<IssueView>(["issue", "view", n, "--json", "number,title,state,labels,body,comments"]);
+  return ghJson<IssueView>([
+    "issue",
+    "view",
+    n,
+    "--json",
+    "number,title,state,labels,body,comments",
+  ]);
 }
 
 async function main(): Promise<void> {
@@ -136,29 +175,60 @@ async function main(): Promise<void> {
 
   if (auto) {
     const limit = Number(arg("--limit") ?? "20");
-    const issues = ghJson<IssueView[]>(["issue", "list", "--label", "social", "--state", "closed", "--limit", "100", "--json", "number,title,state,labels,body,comments"]);
+    const issues = ghJson<IssueView[]>([
+      "issue",
+      "list",
+      "--label",
+      "social",
+      "--state",
+      "closed",
+      "--limit",
+      "100",
+      "--json",
+      "number,title,state,labels,body,comments",
+    ]);
     const now = Date.now();
     const scored = issues
       .map((i) => {
         const labels = i.labels.map((l) => l.name);
         const srcPlatform = platformOf(i.labels, i.body);
-        if (srcPlatform !== "instagram" && srcPlatform !== "facebook") return undefined;
+        if (srcPlatform !== "instagram" && srcPlatform !== "facebook")
+          return undefined;
         if (labels.includes("site:pantaleone")) return undefined;
         const proof = proofPermalink(i.comments);
         if (!proof) return undefined;
         const appId = appIdOf(i.labels, i.body);
         const pri = priorityOf(i.labels);
         const closedAt = (i as unknown as { closedAt?: string }).closedAt;
-        const ageDays = closedAt ? (now - new Date(closedAt).getTime()) / 86400000 : 7;
-        if (ageDays * 24 < PANTA_RESHARE_CAPS.minDelayHoursAfterSource) return undefined;
-        return { issue: i, appId, pri, proof, score: reshareScore(appId, srcPlatform, pri, ageDays), ageDays };
+        const ageDays = closedAt
+          ? (now - new Date(closedAt).getTime()) / 86400000
+          : 7;
+        if (ageDays * 24 < PANTA_RESHARE_CAPS.minDelayHoursAfterSource)
+          return undefined;
+        return {
+          issue: i,
+          appId,
+          pri,
+          proof,
+          score: reshareScore(appId, srcPlatform, pri, ageDays),
+          ageDays,
+        };
       })
-      .filter(Boolean) as Array<{ issue: IssueView; appId: string; pri: string; proof: string; score: number; ageDays: number }>;
+      .filter(Boolean) as Array<{
+      issue: IssueView;
+      appId: string;
+      pri: string;
+      proof: string;
+      score: number;
+      ageDays: number;
+    }>;
     scored.sort((a, b) => b.score - a.score);
     const top = scored.slice(0, limit);
     for (const c of top) {
       const strat = strategyFor(c.appId);
-      console.log(`#${c.issue.number} ${c.appId} ${c.pri} score=${c.score} age=${c.ageDays.toFixed(1)}d dest=${strat?.domain ?? "?"} proof=${c.proof}`);
+      console.log(
+        `#${c.issue.number} ${c.appId} ${c.pri} score=${c.score} age=${c.ageDays.toFixed(1)}d dest=${strat?.domain ?? "?"} proof=${c.proof}`,
+      );
     }
     if (top.length === 0) console.log("(no eligible reshare candidates)");
     void dryRun;
@@ -167,7 +237,9 @@ async function main(): Promise<void> {
 
   const from = arg("--from");
   if (!from) {
-    console.error("Usage: reshare.ts --from <issue> [--to-site pantaleone] [--dry-run] [--create-issue] | --auto");
+    console.error(
+      "Usage: reshare.ts --from <issue> [--to-site pantaleone] [--dry-run] [--create-issue] | --auto",
+    );
     process.exit(1);
   }
   const src = await loadIssue(from);
@@ -175,31 +247,53 @@ async function main(): Promise<void> {
   const srcApp = appIdOf(src.labels, src.body);
   const proof = proofPermalink(src.comments);
   if (!proof) {
-    console.error(`source #${from} has no Platform publish proof — publish it first`);
+    console.error(
+      `source #${from} has no Platform publish proof — publish it first`,
+    );
     process.exit(1);
   }
   const images = imagesFromBody(src.body);
   if (images.length === 0) {
     // Fallback: recover visuals from the media ledger (older FB issues stored
     // visuals only via --images CLI, not in the body).
-    const srcContentId = (src.title.match(/^\[Social\]\s*([a-z0-9-]+)/i)?.[1] ?? "").toLowerCase();
+    const srcContentId = (
+      src.title.match(/^\[Social\]\s*([a-z0-9-]+)/i)?.[1] ?? ""
+    ).toLowerCase();
     const ledger = readMediaLedger();
     for (const [url, uses] of Object.entries(ledger)) {
-      if (uses.some((u) => u.contentId === srcContentId) && /^https:\/\//.test(url) && /\.(jpe?g|png)(\?|$)/i.test(url)) {
+      if (
+        uses.some((u) => u.contentId === srcContentId) &&
+        /^https:\/\//.test(url) &&
+        /\.(jpe?g|png)(\?|$)/i.test(url)
+      ) {
         images.push(url);
       }
     }
   }
   if (images.length === 0) {
-    console.error(`source #${from} has no **Images:** and no ledger visuals — cannot reshare without visuals`);
+    console.error(
+      `source #${from} has no **Images:** and no ledger visuals — cannot reshare without visuals`,
+    );
     process.exit(1);
   }
-  const targetPlatform = srcPlatform === "instagram" || srcPlatform === "facebook" ? srcPlatform : "facebook";
-  const targetImages = targetPlatform === "instagram" && images.length < 2 ? [...images, ...images].slice(0, 2) : images;
-  const dest = field(src.body, "Destination") || strategyFor(srcApp)?.domain || "https://www.synthetic.pics";
+  const targetPlatform =
+    srcPlatform === "instagram" || srcPlatform === "facebook"
+      ? srcPlatform
+      : "facebook";
+  const targetImages =
+    targetPlatform === "instagram" && images.length < 2
+      ? [...images, ...images].slice(0, 2)
+      : images;
+  const dest =
+    field(src.body, "Destination") ||
+    strategyFor(srcApp)?.domain ||
+    "https://www.synthetic.pics";
   const draft = buildReshareBody({
     sourceIssue: src.number,
-    sourceContentId: (src.title.match(/^\[Social\]\s*([a-z0-9-]+)/i)?.[1] ?? `issue-${src.number}`).toLowerCase(),
+    sourceContentId: (
+      src.title.match(/^\[Social\]\s*([a-z0-9-]+)/i)?.[1] ??
+      `issue-${src.number}`
+    ).toLowerCase(),
     sourceApp: srcApp,
     sourcePlatform: srcPlatform,
     sourcePermalink: proof,
@@ -210,7 +304,9 @@ async function main(): Promise<void> {
     images: targetImages,
     targetPlatform,
   });
-  console.log(`--- reshare draft (${srcPlatform} -> pantaleone/${targetPlatform}) ---`);
+  console.log(
+    `--- reshare draft (${srcPlatform} -> pantaleone/${targetPlatform}) ---`,
+  );
   console.log(`title: ${draft.title}`);
   console.log(`campaign: ${draft.campaign} creative: ${draft.creative}`);
   console.log(`url: ${draft.url}`);
@@ -221,12 +317,36 @@ async function main(): Promise<void> {
     // born packet-ready (auto-packet would try to rebuild from catalog art
     // and fail on `Source asset: Reshare ...`). Publish guard needs
     // status:packet-ready with no proof yet — exactly this state.
-    const out = gh(["issue", "create", "--title", draft.title, "--body", draft.body, "--label", "social", "--label", "site:pantaleone", "--label", `platform:${targetPlatform}`, "--label", "status:packet-ready", "--label", "spri:p2", "--label", "spillar:portfolio", "--label", "needs-manual-post"]);
+    const out = gh([
+      "issue",
+      "create",
+      "--title",
+      draft.title,
+      "--body",
+      draft.body,
+      "--label",
+      "social",
+      "--label",
+      "site:pantaleone",
+      "--label",
+      `platform:${targetPlatform}`,
+      "--label",
+      "status:packet-ready",
+      "--label",
+      "spri:p2",
+      "--label",
+      "spillar:portfolio",
+      "--label",
+      "needs-manual-post",
+    ]);
     console.log(out);
   }
 }
 
-main().catch((e) => {
-  console.error(e instanceof Error ? e.message : String(e));
-  process.exit(1);
-});
+const isReshareMain = (process.argv[1] ?? "").endsWith("reshare.ts");
+if (isReshareMain) {
+  main().catch((e) => {
+    console.error(e instanceof Error ? e.message : String(e));
+    process.exit(1);
+  });
+}
