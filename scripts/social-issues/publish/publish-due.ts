@@ -468,7 +468,9 @@ async function main(): Promise<void> {
       );
       return;
     }
-    const photoCaption = `${caption}\n\n${destination}`;
+    // Caption already ends with "CTA: <destination URL>" (buildCaption), and
+    // Facebook linkifies that URL in place — do not append it a second time.
+    const photoCaption = caption;
     const res = publishPhotoPost(token, accounts.pageId, fbImage, photoCaption);
     claimImage(fbImage, {
       issue: issue.number,
