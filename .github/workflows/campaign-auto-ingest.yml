@@ -1,0 +1,30 @@
+name: campaign-auto-ingest
+
+# Event-driven Campaign OS ingestion (Phase 4A): when blog content merges to
+# main, reconcile with the hourly tick by ingesting new posts as source
+# content. Dedupe is server-side (ingest dedupes by URL). Fail-soft: never
+# blocks the push pipeline.
+# Required secrets: APP_BASE_URL, N8N_WEBHOOK_SECRET.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "features/blog/content/*.mdx"
+  workflow_dispatch:
+
+jobs:
+  ingest:
+    runs-on: [self-hosted, linux, ARM64, oci-fast]
+    timeout-minutes: 5
+    steps:
+      - name: Ingest new posts as campaign source content
+        run: |
+          curl --fail --show-error --max-time 120 \
+            -X POST "$APP_BASE_URL/api/campaigns/ingest" \
+            -H "Authorization: Bearer $N8N_WEBHOOK_SECRET" \
+            -H "Content-Type: application/json" \
+            -d '{"limit": 50}' || echo "ingest skipped (app unreachable, hourly tick will reconcile)"
+        env:
+          APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
+          N8N_WEBHOOK_SECRET: ${{ secrets.N8N_WEBHOOK_SECRET }}

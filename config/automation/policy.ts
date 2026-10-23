@@ -1,0 +1,46 @@
+/**
+ * Shared automation policy configuration.
+ * One place for thresholds, caps, and rule flags so every loop
+ * (content, campaign, social) evaluates the same contract.
+ * New auto-approval classes ship disabled-by-default.
+ */
+export const AUTOMATION_POLICY = {
+  version: "2026-10-19.1",
+  qa: {
+    /** Score >= pass: eligible for normal approval evaluation. */
+    pass: 80,
+    /** Score >= reviseMin: revision required (needs_review), below = blocked. */
+    reviseMin: 55,
+  },
+  social: {
+    rules: {
+      /** Rule 1: gallery-live catalog item may auto-approve. */
+      galleryLive: true,
+      /** Rule 2: synthetic-proof reshare may auto-approve (best-fit target). */
+      syntheticProof: true,
+    },
+    caps: {
+      maxPerWeekCombined: 4,
+      maxPerPlatformPerWeek: 2,
+      minDelayHoursAfterSource: 48,
+      minGapHoursBetweenReshares: 48,
+    },
+  },
+  campaign: {
+    /** Deterministic low-risk auto-promotion only; L1/L2 approval gates stay. */
+    autoPromoteDeterministic: true,
+    tickLimit: 25,
+    maxAttempts: 3,
+  },
+  content: {
+    /** Discovery guardrail: one run never floods the backlog. */
+    maxNewTopicsPerRun: 5,
+    staleClaimDays: 7,
+  },
+  watchdog: {
+    needsScreenshotSlaHours: 72,
+    backlogGrowthWarn: 40,
+  },
+} as const;
+
+export type AutomationPolicy = typeof AUTOMATION_POLICY;

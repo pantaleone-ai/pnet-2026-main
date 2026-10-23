@@ -7,7 +7,8 @@
 
 export const CADENCE = {
   portfolioWeeklyTarget: 13,
-  portfolioDailyAverage: "1 to 2 posts per day across the portfolio, never more than 3",
+  portfolioDailyAverage:
+    "1 to 2 posts per day across the portfolio, never more than 3",
   perProductWeekly: {
     "synthetic-pics": 3,
     print3dmodels: 3,
@@ -53,11 +54,12 @@ export const PERFORMANCE_HIERARCHY = [
 /**
  * Pantaleone.net reshare caps (portfolio umbrella).
  * Any app's published FB/IG post may nominate, but only top-scored posts
- * publish here. Keeps pantaleone at ~2/week combined, never same-day as source.
+ * publish here. Raised 2026-10-19 (Rule 2 canary): 4/week combined,
+ * 2/platform/week, still 48h after source and 48h between reshares.
  */
 export const PANTA_RESHARE_CAPS = {
-  maxPerWeekCombined: 2,
-  maxPerPlatformPerWeek: 1,
+  maxPerWeekCombined: 4,
+  maxPerPlatformPerWeek: 2,
   minDelayHoursAfterSource: 48,
   minGapHoursBetweenReshares: 48,
   autoPublishPriorities: ["p1"] as string[],

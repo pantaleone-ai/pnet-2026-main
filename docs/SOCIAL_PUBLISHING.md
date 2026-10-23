@@ -110,8 +110,21 @@ Until a site is listed, `publish-due` refuses to post for it.
 
 Any app's published FB/IG post may nominate a `pantaleone` reshare.
 Caps live in `PANTA_RESHARE_CAPS` (`config/social-growth/cadence.ts`):
-max 2/week combined, 1/platform/week, 48h after source, 48h between reshares.
+max 4/week combined, 2/platform/week, 48h after source, 48h between reshares.
+Best-fit target wins (same-platform usually preserves format).
 `p1` auto-nominates, `p2` needs `reshare:approved`, `p3` manual-only.
+
+Rule 1 (gallery-live) + Rule 2 (synthetic-proof) auto-approval runs in
+`.github/workflows/social-auto-approve.yml` (twice daily) via
+`scripts/social-issues/publish/auto-approve.ts` using the shared policy
+(`lib/automation/policy.ts`, config `config/automation/policy.ts`).
+It only adds the existing `publish:approved` label when every hard gate
+passes (open, packet-ready, no proof, credentials, images, catalog-live or
+proven source, cap open, no media conflict) — downstream publishing,
+idempotency, and screenshot-close behavior are unchanged.
+Dry-run first: `auto-approve.ts --rule all --dry-run`.
+Cap accounting reads durable GitHub state (proof-carrying pantaleone issues
+in the last 7d), not the local ledger (runner-ephemeral, audit-only).
 
 ```bash
 # Score candidates (closed published FB/IG, 48h+ old)
@@ -126,8 +139,7 @@ npx tsx scripts/social-issues/publish/publish-due.ts --issue <new-n> --dry-run
 ```
 
 Reshares reuse source visuals with a `portfolio-bridge` rewrite, `PNT_*`
-campaign + `*_RS_V1` creative, and `**Reshare-Of:** `#NNN/content-id`` linkage.
-The media ledger allows same-URL reuse across sites only when `reshareOf`
-matches the owning contentId (same-site duplicates still blocked).
-Daily scoring runs in `.github/workflows/social-reshare.yml` (read-only;
+campaign + `*_RS_V1` creative, and `**Reshare-Of:** `#NNN/content-id``linkage.
+The media ledger allows same-URL reuse across sites only when`reshareOf`matches the owning contentId (same-site duplicates still blocked).
+Daily scoring runs in`.github/workflows/social-reshare.yml` (read-only;
 draft creation is manual dispatch only).
