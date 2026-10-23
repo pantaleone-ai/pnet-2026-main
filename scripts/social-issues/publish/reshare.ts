@@ -124,8 +124,13 @@ export function buildReshareBody(opts: {
       creative,
     },
   );
-  const bridgeHook = `From what I'm building: ${opts.hook.charAt(0).toLowerCase() + opts.hook.slice(1)}`;
-  const bridgeBody = `${opts.body} Originally on @${opts.sourceApp.replace(/-/g, "")} — kept for the gallery wall.`;
+  const hook =
+    opts.hook.length > 100 ? `${opts.hook.slice(0, 99).trimEnd()}…` : opts.hook;
+  // Short factual bridge only: source copy first, one attribution tail.
+  // No "From what I'm building" / "kept for the gallery wall" boilerplate.
+  // Full provenance lives in Media / Reshare-Of / Original-Post below.
+  const appTag = `@${opts.sourceApp.replace(/-/g, "")}`;
+  const bridgeBody = `${opts.body} Via ${appTag}.`;
   const title = `[Social] ${contentId} — Reshare ${opts.sourceContentId} to pantaleone`;
   const bodyLines = [
     `**App:** \`pantaleone\``,
@@ -133,7 +138,7 @@ export function buildReshareBody(opts: {
     `**Social pillar:** \`portfolio\``,
     `**Content type:** \`${opts.targetPlatform === "instagram" ? "carousel" : "facebook-post"}\``,
     `**Content ID:** \`${contentId}\``,
-    `**Hook:** \`${bridgeHook}\``,
+    `**Hook:** \`${hook}\``,
     `**Body:** \`${bridgeBody}\``,
     `**CTA:** \`${opts.cta}\``,
     `**Destination:** \`${url}\``,

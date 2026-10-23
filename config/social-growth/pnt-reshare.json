@@ -1,1 +1,12 @@
-{}
+{
+  "approvals": [
+    {
+      "issue": 195,
+      "source": 152,
+      "platform": "facebook",
+      "rule": "synthetic-proof",
+      "date": "2026-10-23T02:40:47.112Z",
+      "policy": "2026-10-19.1"
+    }
+  ]
+}

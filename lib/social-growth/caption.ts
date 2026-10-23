@@ -2,14 +2,35 @@
  * Caption optimizer for synthetic.pics Meta publishing (pure, extractable).
  *
  * Conventions (from docs/social-presence/_system.md):
- * - Hashtags: 0-5, specific, never generic hype.
+ * - Hashtags: Instagram 0-3, specific, never generic hype. Facebook: none.
  * - No engagement bait, no invented claims, artwork stays the hero.
  * - One CTA per post; CTA style comes from the platform matrix.
+ * - Hook 4-10 words (max 100 chars); body one short sentence (6-14 words);
+ *   total copy target <= 28 words excluding URL and hashtags.
  */
 
 export type CaptionPlatform = "instagram" | "facebook";
 
-const MAX_HASHTAGS = 5;
+const MAX_HASHTAGS = 3;
+
+/**
+ * Copy budgets (docs/SOCIAL_PUBLISHING.md audit section).
+ * Hook/body/total are targets (warn); hook chars, CTA words, and tag counts
+ * are hard limits (fail). Enforced by lib/social-growth/social-audit.ts —
+ * lintCaption stays limited to banned-pattern + tag-count checks.
+ */
+export const COPY_BUDGETS = {
+  hookTargetWords: [4, 10] as const,
+  hookMaxChars: 100,
+  bodyTargetWords: [6, 14] as const,
+  totalTargetWords: 28,
+  ctaMaxWords: 4,
+  instagramMaxTags: 3,
+} as const;
+
+export function countWords(s: string): number {
+  return s.trim().split(/\s+/).filter(Boolean).length;
+}
 
 /** Platform CTA styles (mirrors config/social-growth/platform-matrix.ts). */
 export const PLATFORM_CTA_STYLE: Record<CaptionPlatform, string[]> = {

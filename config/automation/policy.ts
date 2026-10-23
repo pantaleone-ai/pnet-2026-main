@@ -5,7 +5,7 @@
  * New auto-approval classes ship disabled-by-default.
  */
 export const AUTOMATION_POLICY = {
-  version: "2026-10-19.1",
+  version: "2026-10-23.1",
   qa: {
     /** Score >= pass: eligible for normal approval evaluation. */
     pass: 80,
@@ -18,6 +18,14 @@ export const AUTOMATION_POLICY = {
       galleryLive: true,
       /** Rule 2: synthetic-proof reshare may auto-approve (best-fit target). */
       syntheticProof: true,
+    },
+    /**
+     * Social copy audit (budgets + voice + fidelity + anti-slop scan).
+     * pass → proceed; warn → record, proceed; fail → needs_review, block
+     * auto-approval and publication. Never rewrites. Kill switch: false.
+     */
+    audit: {
+      enabled: true,
     },
     caps: {
       maxPerWeekCombined: 4,
