@@ -71,14 +71,6 @@ const HEAD: HeadType[] = [
     slug: "/blog",
   },
   {
-    page: "Projects",
-    title: truncateTitle("Projects | Pantaleone"),
-    description: truncateDescription(
-      "Explore software products, AI applications, developer tools, and experiments built by Pantaleone.",
-    ),
-    slug: "/projects",
-  },
-  {
     page: "Apps",
     title: truncateTitle("AI Apps & Software Products | Pantaleone"),
     description: truncateDescription(

@@ -47,7 +47,7 @@ One workflow at a time. Audit first, then build, then handoff of repo and runboo
 
 - B2B: ${CANONICAL_ORIGIN}/b2b
 - AI Readiness Guide: ${CANONICAL_ORIGIN}/resources/ai-readiness-guide
-- Projects: ${CANONICAL_ORIGIN}/projects
+- Apps: ${CANONICAL_ORIGIN}/apps
 - Contact: ${CANONICAL_ORIGIN}/contact
 `;
 

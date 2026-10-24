@@ -15,7 +15,7 @@ const page = HEAD.find((p: HeadType) => p.page === PAGE) as HeadType;
 // HEAD is the single source of truth; title renders absolute so the root
 // template never double-appends the brand. /b2b stays a standalone landing
 // page for team-oriented search intent, distinct from /services (pricing
-// and engagement mechanics) and /projects (example solution concepts).
+// and engagement mechanics) and /apps (example solution concepts).
 export const metadata: Metadata = getPageMetadata(page, "/b2b.md");
 
 interface Benefit {

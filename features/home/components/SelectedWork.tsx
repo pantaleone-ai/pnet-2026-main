@@ -6,14 +6,14 @@ const SELECTED = [
     type: "Live product",
     problem: "Teams need answers from operating docs, not another chatbot.",
     distinctive: "RAG over runbooks with cited sources, deployed behind auth.",
-    href: "/projects",
+    href: "/apps",
   },
   {
     name: "AI Capture Lab",
     type: "Live product",
     problem: "Document intake that requires consistent, reviewable output.",
     distinctive: "Pipeline with logged runs, retries, and human review points.",
-    href: "/projects",
+    href: "/apps",
   },
   {
     name: "ProSwing",
@@ -64,11 +64,7 @@ export default function SelectedWork() {
         ))}
       </ul>
       <p className="mx-auto mt-6 max-w-2xl text-left text-sm text-muted-foreground">
-        Full catalog with architecture notes and live links:{" "}
-        <Link href="/projects" className="underline underline-offset-4">
-          Explore projects
-        </Link>{" "}
-        ·{" "}
+        Full catalog with live links:{" "}
         <Link href="/apps" className="underline underline-offset-4">
           See all software
         </Link>
