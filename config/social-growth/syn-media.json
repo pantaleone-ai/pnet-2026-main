@@ -95,5 +95,29 @@
       "date": "2026-10-09T00:32:00Z",
       "duplicate": true
     }
+  ],
+  "https://www.pantaleone.net/fb/syn-fb-drop-03-142/1.jpg": [
+    {
+      "issue": 142,
+      "contentId": "syn-fb-drop-03",
+      "channel": "facebook",
+      "date": "2026-10-18T20:43:18.674Z"
+    }
+  ],
+  "https://www.pantaleone.net/fb/syn-fb-detail-01-143/1.jpg": [
+    {
+      "issue": 143,
+      "contentId": "syn-fb-detail-01",
+      "channel": "facebook",
+      "date": "2026-10-18T20:43:26.950Z"
+    }
+  ],
+  "https://www.pantaleone.net/fb/syn-fb-room-01-144/1.jpg": [
+    {
+      "issue": 144,
+      "contentId": "syn-fb-room-01",
+      "channel": "facebook",
+      "date": "2026-10-18T20:43:35.989Z"
+    }
   ]
 }
