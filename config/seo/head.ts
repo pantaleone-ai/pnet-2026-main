@@ -71,6 +71,14 @@ const HEAD: HeadType[] = [
     slug: "/blog",
   },
   {
+    page: "AI Blueprints",
+    title: truncateTitle("AI Blueprints: Agents & Workflows | Pantaleone"),
+    description: truncateDescription(
+      "Real AI agents and automation workflows, documented from architecture to implementation, with code when available.",
+    ),
+    slug: "/ai-blueprints",
+  },
+  {
     page: "Apps",
     title: truncateTitle("AI Apps & Software Products | Pantaleone"),
     description: truncateDescription(

@@ -41,6 +41,8 @@ const DesktopHeader: FC<Props> = memo(({ activePath }) => {
     (path: string) => {
       if (path === "/") return activePath === "/";
       if (path === "/blog") return activePath.startsWith("/blog");
+      if (path === "/ai-blueprints")
+        return activePath.startsWith("/ai-blueprints");
 
       return activePath === path;
     },

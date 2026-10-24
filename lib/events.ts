@@ -24,6 +24,8 @@ const eventSchema = z.object({
     "error_retry_clicked",
     "featured_story_read_more_clicked",
     "select_item",
+    "blueprint_read_more_clicked",
+    "blueprint_view",
   ]),
   properties: z
     .record(

@@ -86,6 +86,7 @@ ${products}
 ## Resources
 
 - [AI Readiness Guide](${abs("/resources/ai-readiness-guide")}): Checklist for preparing a process and site for AI agents.
+- [AI Blueprints](${abs("/ai-blueprints")}): Documented AI agents and automation workflows with architecture and code.
 - [Blog](${abs("/blog")}): Practical writing on AI systems, agents, and automation.
 
 ## Technical

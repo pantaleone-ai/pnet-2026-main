@@ -1,0 +1,98 @@
+---
+title: Content Pipeline
+description: The queue, validator, and review process that ships this site's content without publishing slop.
+created: "2026-10-24"
+lastUpdated: "2026-10-24"
+image: /images/logo.png
+imageAlt: Content Pipeline blueprint
+author: Matt Pantaleone
+blueprintType: agentic-workflow
+category: Content and marketing operations
+tags:
+  - content-ops
+  - github-actions
+  - editorial
+  - anti-slop
+techStacks:
+  - GitHub Issues
+  - GitHub Actions
+  - TypeScript
+  - Python
+integrations:
+  - GitHub Issues
+  - GitHub Actions
+hasCodePackage: false
+difficulty: Advanced
+seo:
+  - content pipeline coding agents
+  - github issues content queue
+  - editorial validation automation
+status: published
+---
+
+## A queue that turns topics into published pages
+
+This is the system that produces this site's content. Each topic is a GitHub Issue. An orchestrator claims the next queued issue, an agent drafts against an inventory and voice rules, validators reject slop before review, and a human merges. No page publishes without passing the gate.
+
+<BlueprintDiagram
+  caption="Topic to published page"
+  steps={[
+    { label: "Queue", detail: "One GitHub Issue per topic, prioritized" },
+    { label: "Claim", detail: "Orchestrator assigns oldest P0 first" },
+    { label: "Draft", detail: "Agent writes against inventory and voice rules" },
+    { label: "Validate", detail: "Editorial and anti-slop gates must pass" },
+    { label: "Review", detail: "Human reads, merges, deploys" },
+    { label: "Measure", detail: "Search Console evidence closes the issue" },
+  ]}
+/>
+
+## Problem and design decisions
+
+Content operations fail in two ways: nothing ships, or anything ships. A queue fixes the first. Validators fix the second. The design keeps both mechanisms dumb and explicit so the agent's judgment is bounded by checks a machine can run.
+
+GitHub Issues is the queue because each topic needs durable state: priority, status, claim locks, and an evidence bundle. The statuses are `queued`, `in-progress`, `in-review`, and `done`. Stale claims revert after seven days without a linked PR, which prevents the queue from silting up when work stalls.
+
+Deterministic checks run before any human reads the draft. The editorial auditor rejects hype phrases, stuffed titles, and banned openers. The anti-slop engine scans for machine-generated filler and runs a bounded rewrite pass. The agent drafts; the validators decide whether the draft is worth reading. That order is the whole design.
+
+## Architecture and technology
+
+| Layer | Implementation |
+|---|---|
+| Queue | GitHub Issues with a `content` label, one issue per topic |
+| Prioritization | `npm run content:next`, oldest P0 first |
+| Orchestration | Scheduled workflow claiming and closing issues with evidence |
+| Drafting rules | Content inventory, pillar taxonomy, voice budgets |
+| Validators | Editorial audit script, anti-slop engine, type checks |
+| Publishing | Branch, PR, merge, deploy from GitHub |
+| Measurement | Search Console per-URL evidence before close |
+
+The backlog file is frozen as read-only seed reference. New topics enter through the issue template, never by editing the backlog. That rule keeps the queue as the single source of truth for what gets written next.
+
+## Detailed operation
+
+**1. Queue.** Each topic gets an issue labeled `content` with a priority. The inventory records which pillar and cluster it belongs to, so drafting starts from existing relationships instead of a blank brief.
+
+**2. Claim.** The orchestrator picks the oldest highest-priority queued issue, moves it to `in-progress`, and posts a claim comment naming the working branch. The lock is time-boxed.
+
+**3. Draft.** The agent reads the inventory entry, the voice rules, and related posts, then writes the page on a `content/<issue>-<slug>` branch. It links related content from the content graph: up to four related posts, one continue-reading link, one hub link.
+
+**4. Validate.** Three gates run before review: the editorial audit, the anti-slop audit over content directories, and type checks for code changes. Missing evidence keeps the issue open even if the prose reads well.
+
+**5. Review and publish.** A human reviews the PR, merges, and the site deploys from GitHub. The orchestrator posts the evidence bundle and closes the issue. Measurement data from Search Console feeds back into future prioritization.
+
+## Code and workflow package
+
+This blueprint is an architectural reference, not a download. The pieces live across this repository: the strategy in `docs/CONTENT_ENGINE.md`, the voice rules in `docs/EDITORIAL.md`, the queue scripts under `scripts/content-issues/`, the validation engine in `modules/anti-slop/`, and the scheduled orchestration in `.github/workflows/content-orchestrator.yml`. Adopt the pattern by copying the structure, not by importing a package.
+
+## Reliability, security, and limits
+
+The failure mode this system guards against is publishing confident filler. The gates catch the common cases: unsupported claims, hype language, duplicated content, broken internal links. What they cannot check is expertise itself. A draft can pass every validator and still say nothing useful. That judgment stays human, which is why the review step is not optional.
+
+The system assumes a GitHub-centered workflow and a static site that deploys from the main branch. Teams without that setup can keep the queue-and-gate shape and swap the tooling.
+
+## Further reading
+
+- [Content Engine Setup for Coding Agents](/blog/content-engine-setup-coding-agents) documents the voice and validation setup this pipeline runs.
+- [AI Readiness Assessment Checklist](/blog/ai-readiness-assessment-checklist) for deciding whether a process like this is worth automating.
+- [Measuring AI Agent ROI](/blog/measuring-ai-agent-roi) on the measurement step that closes each issue.
+- To adapt this pipeline to your team, start with [Services](/services).
