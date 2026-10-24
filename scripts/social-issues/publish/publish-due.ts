@@ -9,6 +9,7 @@
 // needs-screenshot (never closed on URL alone).
 // Channels without stored credentials report blocked and stay packet-ready.
 import { gh, ghJson } from "../../content-issues/gh";
+import { execFileSync } from "node:child_process";
 import { config as loadEnv } from "dotenv";
 import { AUTOMATION_POLICY } from "@/config/automation/policy";
 
@@ -21,7 +22,7 @@ import {
   type ChannelSpec,
 } from "./channels";
 import { deletePost, publishPhotoPost, selectFbImage } from "./facebook";
-import { publishCarousel } from "./instagram";
+import { publishCarousel, publishPhoto } from "./instagram";
 import { pendingPlan } from "./pending-channels";
 import {
   claimImage,
@@ -172,6 +173,108 @@ async function gateCopyAudit(
   console.error(`audit-fail-blocked - #${issue.number} (needs_review)`);
   process.exit(1);
 }
+
+function limitArg(): number {
+  const i = process.argv.indexOf("--limit");
+  if (i === -1) return 2;
+  const v = Number(process.argv[i + 1]);
+  return Number.isFinite(v) && v > 0 ? Math.min(Math.floor(v), 10) : 2;
+}
+
+/**
+ * Slot publisher for IG crons (IG has no native scheduling API).
+ * Publishes open packet-ready issues whose **Publish at:** is due (<= now),
+ * oldest slot first, up to --limit. Each child run enforces the full guard,
+ * audit, ledger, and proof path; failures are commented and skipped.
+ */
+async function publishDueSlots(
+  channelId: string,
+  dryRun: boolean,
+): Promise<void> {
+  const limit = limitArg();
+  const issues = ghJson<IssueView[]>([
+    "issue",
+    "list",
+    "--label",
+    "social",
+    "--label",
+    "site:synthetic-pics",
+    "--label",
+    `platform:${channelId}`,
+    "--state",
+    "open",
+    "--limit",
+    "100",
+    "--json",
+    "number,title,labels,body,comments",
+  ]);
+  const now = Date.now();
+  const due = issues
+    .filter((i) => {
+      const names = i.labels.map((l) => l.name);
+      if (!names.includes("status:packet-ready")) return false;
+      if (i.comments.some((c) => c.body.includes("Platform publish proof")))
+        return false;
+      const slot = i.body.match(/\*\*Publish at:\*\*\s*`([^`]+)`/)?.[1];
+      if (!slot || Number.isNaN(new Date(slot).getTime())) return false;
+      return new Date(slot).getTime() <= now;
+    })
+    .sort((a, b) => {
+      const ta = new Date(
+        a.body.match(/\*\*Publish at:\*\*\s*`([^`]+)`/)?.[1] ?? 0,
+      ).getTime();
+      const tb = new Date(
+        b.body.match(/\*\*Publish at:\*\*\s*`([^`]+)`/)?.[1] ?? 0,
+      ).getTime();
+      return ta - tb || a.number - b.number;
+    })
+    .slice(0, limit);
+  console.log(
+    `due slots (${channelId}): ${due.length} of ${issues.length} open (limit ${limit})`,
+  );
+  if (dryRun) {
+    for (const d of due)
+      console.log(`would-publish-due - #${d.number} ${d.title.slice(0, 70)}`);
+    return;
+  }
+  let published = 0;
+  for (const d of due) {
+    try {
+      execFileSync(
+        "npx",
+        [
+          "tsx",
+          "scripts/social-issues/publish/publish-due.ts",
+          "--issue",
+          String(d.number),
+        ],
+        {
+          encoding: "utf8",
+          stdio: ["ignore", "pipe", "inherit"],
+        },
+      );
+      published += 1;
+    } catch (e) {
+      console.error(
+        `due-slot failed - #${d.number}: ${e instanceof Error ? e.message.split("\n")[0] : String(e)}`,
+      );
+      try {
+        gh([
+          "issue",
+          "comment",
+          String(d.number),
+          "--body",
+          `Slot publish failed at ${new Date().toISOString()} (see run logs). Left packet-ready for the next slot run.`,
+        ]);
+      } catch {
+        /* best effort */
+      }
+    }
+  }
+  console.log(
+    `due slots done: published=${published} failed=${due.length - published}`,
+  );
+}
 export function imagesFromBody(body: string): string[] {
   const fields = [...body.matchAll(/\*\*Images:\*\*\s*`([^`]+)`/gi)].map(
     (m) => m[1] ?? "",
@@ -188,7 +291,13 @@ async function main(): Promise<void> {
   const verifyDelete = process.argv.includes("--verify-delete");
   const screenshotUrl = arg("--screenshot-url");
   if (!issueArg) {
-    console.error("Usage: publish-due.ts --issue <n> [options]");
+    if (process.argv.includes("--due")) {
+      await publishDueSlots(arg("--channel") ?? "instagram", dryRun);
+      return;
+    }
+    console.error(
+      "Usage: publish-due.ts --issue <n> [options] | --due --channel <id> [--limit N] [--dry-run]",
+    );
     process.exit(1);
   }
   const issue = ghJson<IssueView>([
@@ -310,9 +419,15 @@ async function main(): Promise<void> {
   if (images.length === 0) images.push(...imagesFromBody(issue.body));
 
   if (channel.id === "instagram") {
-    if (!accounts.igUserId || images.length < 2) {
+    if (arg("--schedule-at")) {
       console.error(
-        "instagram needs verified igUserId + --images u1,u2[,...] (2-10 public JPEG/PNG)",
+        "instagram has no native scheduling API — use **Publish at:** slots + --due instead",
+      );
+      process.exit(1);
+    }
+    if (!accounts.igUserId || images.length < 1 || images.length > 10) {
+      console.error(
+        "instagram needs verified igUserId + 1-10 public JPEG/PNG images (1 = single photo, 2-10 = carousel)",
       );
       process.exit(1);
     }
@@ -341,16 +456,19 @@ async function main(): Promise<void> {
     }
     if (dryRun) {
       console.log(
-        `would-publish-instagram - #${issue.number} to @${accounts.igUsername} (${images.length} images)\n---caption---\n${caption}`,
+        `would-publish-instagram-${images.length === 1 ? "photo" : "carousel"} - #${issue.number} to @${accounts.igUsername} (${images.length} images)\n---caption---\n${caption}`,
       );
       return;
     }
-    const res = await publishCarousel(
-      token,
-      accounts.igUserId,
-      images,
-      caption,
-    );
+    const res =
+      images.length === 1
+        ? await publishPhoto(
+            token,
+            accounts.igUserId,
+            images[0] as string,
+            caption,
+          )
+        : await publishCarousel(token, accounts.igUserId, images, caption);
     for (const url of images) {
       try {
         claimImage(url, {
@@ -462,16 +580,42 @@ async function main(): Promise<void> {
       process.exit(1);
     }
     await gateCopyAudit(issue, "facebook", dryRun);
+    // Native FB scheduling: --schedule-at <ISO> posts via scheduled_publish_time
+    // (10 min to 75 days out). Used by the nightly job; IG has no equivalent.
+    const scheduleAtRaw = arg("--schedule-at");
+    let schedule: { publishAtUnix: number } | undefined;
+    let scheduledFor = "";
+    if (scheduleAtRaw) {
+      const when = new Date(scheduleAtRaw).getTime();
+      if (
+        Number.isNaN(when) ||
+        when <= Date.now() + 10 * 60 * 1000 ||
+        when > Date.now() + 75 * 86400000
+      ) {
+        console.error(
+          `bad --schedule-at ${scheduleAtRaw}: want ISO 10min to 75d in the future`,
+        );
+        process.exit(1);
+      }
+      schedule = { publishAtUnix: Math.floor(when / 1000) };
+      scheduledFor = new Date(when).toISOString();
+    }
     if (dryRun) {
       console.log(
-        `would-publish-facebook-photo - #${issue.number} to ${accounts.pageName} (${accounts.pageId})\n---caption---\n${caption}\n---image---\n${fbImage}\n---link---\n${destination}`,
+        `would-publish-facebook-photo - #${issue.number} to ${accounts.pageName} (${accounts.pageId})${scheduledFor ? ` scheduled for ${scheduledFor}` : ""}\n---caption---\n${caption}\n---image---\n${fbImage}\n---link---\n${destination}`,
       );
       return;
     }
     // Caption already ends with "CTA: <destination URL>" (buildCaption), and
     // Facebook linkifies that URL in place — do not append it a second time.
     const photoCaption = caption;
-    const res = publishPhotoPost(token, accounts.pageId, fbImage, photoCaption);
+    const res = publishPhotoPost(
+      token,
+      accounts.pageId,
+      fbImage,
+      photoCaption,
+      schedule,
+    );
     claimImage(fbImage, {
       issue: issue.number,
       contentId,
@@ -493,6 +637,11 @@ async function main(): Promise<void> {
       `- Post: ${res.permalink}`,
       `- Post ID: \`${res.postId}\``,
       `- Image: ${fbImage} (per-post visual, photo post — no link-scrape)`,
+      ...(scheduledFor
+        ? [
+            `- Scheduled for: \`${scheduledFor}\` (native FB scheduling; verify after due)`,
+          ]
+        : []),
       screenshotUrl
         ? `- Screenshot:\n\n![${channel.id} post proof](${screenshotUrl})`
         : `- Screenshot: pending (re-run with --screenshot-url to close)`,

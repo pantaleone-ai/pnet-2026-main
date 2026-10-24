@@ -1,0 +1,93 @@
+name: social-nightly
+
+# Nightly synthetic.pics auto-posting pipeline (runs ~02:05 ET).
+# gallery poll -> issues -> packets+visuals+merge (no re-approval) ->
+# slot stamping (SYN_TIMING_WINDOWS) -> FB native scheduling ->
+# Graph-verified audit-close of due proofs.
+# IG posts go out via social-ig-slots.yml (IG has no scheduling API).
+# Cron is UTC: 06:05 UTC = 02:05 EDT. Revisit on EST (UTC-5) change.
+
+on:
+  schedule:
+    - cron: "5 6 * * *"
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Max new artworks to intake (FIFO oldest-first)"
+        required: false
+        default: "3"
+      dry-run:
+        description: "Print the plan without creating anything (true/false)"
+        required: false
+        default: "true"
+
+permissions:
+  issues: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  nightly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - run: npm ci
+      - name: Image toolchain (PIL + AVIF decode for card rendering)
+        run: pip install --quiet pillow pillow-avif-plugin
+      - name: Anti-slop engine build (copy audit layer)
+        run: npm run anti-slop:build
+      - name: Ensure labels
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx tsx scripts/content-issues/labels.ts
+      - name: Intake — poll gallery, create FB+IG issues
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          LIMIT="${{ github.event.inputs.limit || '3' }}"
+          if [ "${{ github.event.inputs.dry-run || 'false' }}" = "true" ] && [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            npx tsx scripts/social-issues/gallery-sync.ts --dry-run --limit "$LIMIT"
+          else
+            npx tsx scripts/social-issues/gallery-sync.ts --apply --limit "$LIMIT"
+          fi
+      - name: Packet — build, visuals, merge (no re-approval)
+        if: github.event_name == 'schedule' || github.event.inputs.dry-run != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROJECTS_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
+        run: |
+          for N in $(gh issue list --label social --label site:synthetic-pics --label status:queued --state open --limit 20 --json number --jq '.[].number'); do
+            PLAT=$(gh issue view "$N" --json labels --jq '[.labels[].name] | map(select(startswith("platform:"))) | .[0] // empty')
+            if [ "$PLAT" != "platform:instagram" ] && [ "$PLAT" != "platform:facebook" ]; then echo "skip #$N ($PLAT)"; continue; fi
+            npx tsx scripts/social-issues/auto-packet.ts --issue "$N" --no-reapprove || echo "packet failed #$N (comment on issue, continuing)"
+          done
+      - name: Schedule — stamp Publish at slots
+        if: github.event_name == 'schedule' || github.event.inputs.dry-run != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx tsx scripts/social-issues/schedule-queue.ts --write
+      - name: Facebook — native schedule for slotted posts
+        if: github.event_name == 'schedule' || github.event.inputs.dry-run != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          META_CAPI_ACCESS_TOKEN: ${{ secrets.META_CAPI_ACCESS_TOKEN }}
+        run: |
+          for N in $(gh issue list --label social --label site:synthetic-pics --label platform:facebook --label status:packet-ready --state open --limit 20 --json number --jq '.[].number'); do
+            if gh issue view "$N" --json comments --jq '[.comments[].body] | any(contains("Platform publish proof"))'; then echo "skip #$N (proof on file)"; continue; fi
+            SLOT=$(gh issue view "$N" --json body --jq '.body' | grep -oE '\*\*Publish at:\*\* `[^`]+`' | grep -oE '`[^`]+`' | tr -d '`' | head -n 1)
+            if [ -z "$SLOT" ]; then echo "skip #$N (no slot)"; continue; fi
+            npx tsx scripts/social-issues/publish/publish-due.ts --issue "$N" --schedule-at "$SLOT" || echo "schedule failed #$N (kept packet-ready for re-slot)"
+          done
+      - name: Audit-close — verify due proofs via Graph/API
+        if: github.event_name == 'schedule' || github.event.inputs.dry-run != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          META_CAPI_ACCESS_TOKEN: ${{ secrets.META_CAPI_ACCESS_TOKEN }}
+        run: npx tsx scripts/social-issues/verify-proofs.ts --limit 20 --apply
