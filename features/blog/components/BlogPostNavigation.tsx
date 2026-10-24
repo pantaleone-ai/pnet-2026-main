@@ -10,31 +10,45 @@ import {
 } from "@/components/ui/tooltip";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { LLMCopyButtonWithViewOptions } from "@/features/blog/components/buttons/ActionButton";
-import type { BlogPostType } from "@/features/blog/types/BlogPostType";
 import { ShareButton } from "@/features/blog/components/buttons/ShareButton";
 import BackButton from "@/features/blog/components/buttons/BackButton";
 
-type BlogPostNavigationItem = Omit<BlogPostType, "body">;
+/**
+ * Minimal item shape for prev/next navigation. Blog posts and AI blueprints
+ * both satisfy this, so one navigation component serves both sections.
+ */
+type PostNavigationItem = {
+  slug: string;
+  title: string;
+};
 
 interface BlogPostNavigationProps {
-  post: BlogPostNavigationItem;
-  previous?: BlogPostNavigationItem;
-  next?: BlogPostNavigationItem;
+  post: PostNavigationItem;
+  previous?: PostNavigationItem;
+  next?: PostNavigationItem;
+  /**
+   * Route prefix for links, e.g. "/blog" (default) or "/ai-blueprints".
+   * The markdown alternate resolves to `${basePath}.mdx/${slug}`.
+   */
+  basePath?: string;
 }
 
 export default function BlogPostNavigation({
   post,
   previous,
   next,
+  basePath = "/blog",
 }: BlogPostNavigationProps) {
   return (
     <div className="flex items-center justify-between p-2 pl-4">
       <BackButton />
 
       <div className="flex items-center gap-2">
-        <LLMCopyButtonWithViewOptions markdownUrl={`/blog.mdx/${post.slug}`} />
+        <LLMCopyButtonWithViewOptions
+          markdownUrl={`${basePath}.mdx/${post.slug}`}
+        />
 
-        <ShareButton url={`/blog/${post.slug}`} />
+        <ShareButton url={`${basePath}/${post.slug}`} />
 
         {previous && (
           <Tooltip>
@@ -45,7 +59,7 @@ export default function BlogPostNavigation({
                 className="h-7 w-7 border border-border-edge rounded-md"
                 asChild
               >
-                <LinkWrapper href={`/blog/${previous.slug}`}>
+                <LinkWrapper href={`${basePath}/${previous.slug}`}>
                   <ArrowLeftIcon className="h-4 w-4" />
                   <span className="sr-only">Previous: {previous.title}</span>
                 </LinkWrapper>
@@ -74,7 +88,7 @@ export default function BlogPostNavigation({
                 className="h-7 w-7 border border-border-edge rounded-md"
                 asChild
               >
-                <LinkWrapper href={`/blog/${next.slug}`}>
+                <LinkWrapper href={`${basePath}/${next.slug}`}>
                   <span className="sr-only">Next: {next.title}</span>
                   <ArrowRightIcon className="h-4 w-4" />
                 </LinkWrapper>

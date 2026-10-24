@@ -3,6 +3,7 @@ import LogoButton from "@/components/header/shared/LogoButton";
 import SearchButton from "@/components/header/shared/SearchButton";
 import ThemeToggle from "@/components/header/shared/ThemeToggle";
 import { Button } from "@/components/ui/button";
+import { MailPen } from "lucide-react";
 import Link from "next/link";
 import type { FC } from "react";
 
@@ -31,8 +32,10 @@ const MobileHeader: FC<Props> = ({ currentPath, isOpen, onOpenChange }) => {
           <SearchButton />
           <span className="mx-2 flex h-4 w-px bg-border" />
           <ThemeToggle />
-          <Button asChild size="sm" variant="default">
-            <Link href="/contact?book=true">contact</Link>
+          <Button asChild size="icon-sm" variant="default" aria-label="Contact">
+            <Link href="/contact?book=true" aria-label="Contact">
+              <MailPen className="size-4" />
+            </Link>
           </Button>
         </div>
       </div>

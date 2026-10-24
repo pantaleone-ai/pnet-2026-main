@@ -40,7 +40,11 @@ var blogPostSchema = frontmatterSchema.extend({
   authorAvatarAlt: z.string().optional(),
   category: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  seo: z.array(z.string()).optional()
+  seo: z.array(z.string()).optional(),
+  pillar: z.string().optional(),
+  cluster: z.string().optional(),
+  intent: z.string().optional(),
+  status: z.string().optional()
 });
 var privacySchema = frontmatterSchema.extend({
   title: z.string(),
@@ -52,6 +56,30 @@ var changelogSchema = frontmatterSchema.extend({
   description: z.string(),
   created: z.string()
 });
+var blueprintSchema = frontmatterSchema.extend({
+  title: z.string(),
+  description: z.string(),
+  created: z.string(),
+  lastUpdated: z.string().optional(),
+  image: z.string(),
+  imageAlt: z.string().optional(),
+  author: z.string().optional(),
+  blueprintType: z.enum([
+    "ai-agent",
+    "automation-workflow",
+    "agentic-workflow"
+  ]),
+  category: z.string(),
+  tags: z.array(z.string()).optional(),
+  techStacks: z.array(z.string()).optional(),
+  integrations: z.array(z.string()).optional(),
+  hasCodePackage: z.boolean().default(false),
+  codeUrl: z.string().optional(),
+  workflowFile: z.string().optional(),
+  difficulty: z.string().optional(),
+  seo: z.array(z.string()).optional(),
+  status: z.string().optional()
+});
 var shopProductSchema = frontmatterSchema.extend({
   title: z.string(),
   description: z.string(),
@@ -60,10 +88,14 @@ var shopProductSchema = frontmatterSchema.extend({
   currency: z.string().default("USD"),
   sku: z.string().optional(),
   mpn: z.string().optional(),
-  // Manufacturer Part Number
   gtin: z.string().optional(),
-  // UPC/EAN/GTIN for product feeds
-  inventory: z.number().optional(),
+  inventory: z.number().default(9999),
+  availability: z.string().default("in_stock"),
+  condition: z.string().default("new"),
+  brand: z.string().default("Pantaleone Digital Services"),
+  googleProductCategory: z.string().optional(),
+  productType: z.string().optional(),
+  identifierExists: z.boolean().default(false),
   purchaseUrl: z.string().optional(),
   imageUrl: z.string().optional(),
   imageAlt: z.string().optional(),
@@ -85,7 +117,6 @@ var shopProductSchema = frontmatterSchema.extend({
   weight: z.number().optional(),
   itemCondition: z.enum(["NewCondition", "UsedCondition", "RefurbishedCondition"]).optional(),
   priceValidUntil: z.string().optional(),
-  // ISO date string for sale expiration
   brandLogo: z.string().optional(),
   timeToValue: z.number().optional(),
   targetKeywords: z.array(z.string()).optional(),
@@ -188,6 +219,14 @@ var blog = defineDocs({
     schema: blogPostSchema
   })
 });
+var blueprints = defineDocs({
+  dir: "features/blueprints/content",
+  docs: defineCollections({
+    type: "doc",
+    dir: "features/blueprints/content",
+    schema: blueprintSchema
+  })
+});
 var privacy = defineDocs({
   dir: "features/privacy/content",
   docs: defineCollections({
@@ -256,6 +295,7 @@ var source_config_default = defineConfig({
 export {
   about,
   blog,
+  blueprints,
   changelog,
   source_config_default as default,
   education,

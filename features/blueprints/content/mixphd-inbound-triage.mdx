@@ -1,0 +1,98 @@
+---
+title: Inbound Email Triage
+description: n8n workflow that files support mail as queued GitHub issues with dedupe keys and routing labels.
+created: "2026-10-24"
+lastUpdated: "2026-10-24"
+image: /images/logo.png
+imageAlt: Inbound Email Triage blueprint
+author: Matt Pantaleone
+blueprintType: automation-workflow
+category: Business operations
+tags:
+  - n8n
+  - gmail
+  - github
+  - triage
+techStacks:
+  - n8n
+  - Gmail API
+  - GitHub API
+integrations:
+  - Gmail
+  - GitHub
+hasCodePackage: true
+codeUrl: https://github.com/pantaleone-ai/pnet-2026-main/blob/main/workflows/n8n-mixphd-inbound-triage.json
+workflowFile: workflows/n8n-mixphd-inbound-triage.json
+difficulty: Beginner
+seo:
+  - gmail to github automation
+  - support email triage n8n
+  - inbound email github issue workflow
+status: published
+---
+
+## Support mail becomes queued work without a human in the middle
+
+Every support message sent to MixPHD becomes a GitHub issue with the sender, date, thread reference, and a dedupe key already filled in. A person still triages and answers. The workflow removes the step where someone copies mail into the tracker by hand.
+
+<BlueprintDiagram
+  caption="Support mail to queued GitHub issue"
+  steps={[
+    { label: "Gmail trigger", detail: "Poll inbox every hour" },
+    { label: "Extract fields", detail: "Message ID, thread, subject, sender, snippet" },
+    { label: "Filter", detail: "Support mail only, skip self-sent" },
+    { label: "Create issue", detail: "Queued issue with labels and dedupe key" },
+  ]}
+/>
+
+## Problem and design decisions
+
+Support mail and the issue tracker drift apart when filing is manual. Messages get answered twice or not at all, and there is no queue to measure. Four nodes fix that: poll, extract, filter, file.
+
+There is no AI step and none is needed. Routing is two string conditions: the recipient contains the support address and the sender is not the site owner. Deterministic rules beat a model here because the decision never changes and a wrong guess would file junk in the tracker.
+
+The dedupe key is the Gmail Message-ID, recorded in every issue body. One key means one issue. Duplicates get closed against the original instead of creating new work.
+
+## Architecture and technology
+
+| Layer | Implementation |
+|---|---|
+| Trigger | Gmail trigger node, hourly poll |
+| Transform | Set node mapping seven fields from the message |
+| Routing | IF node: recipient match AND sender exclusion |
+| Output | GitHub `issue/create` on `pantaleone-ai/pnet-2026-main` |
+| Labels | `source:inbound-email`, `site:mixphd`, `status:queued`, `P2` |
+
+The issue body template records sender, date, thread and message IDs, the dedupe key, and the message snippet, then hands off to human triage with a pointer at the normal queue process. Priority ships as `P2`; adjust the label if your queue uses different severities.
+
+## Detailed operation
+
+**1. Poll.** The Gmail trigger checks the inbox once an hour. Hourly is deliberate: support mail for a small product does not need instant filing, and polling keeps credential scope narrow compared to push subscriptions.
+
+**2. Extract.** The Set node maps `message_id`, `thread_id`, `subject`, `from`, `to`, `date`, and `snippet` from the Gmail payload into a flat shape. Everything downstream reads these fields, so the GitHub template never touches Gmail's nested structure.
+
+**3. Filter.** The IF node passes only messages where the recipient contains `support@mixphd.com` and the sender is not the site owner. Self-sent replies and unrelated inbox mail stop here.
+
+**4. File.** The GitHub node creates an issue titled `[inbound] <subject>` with the labels above. The body carries the full context a triager needs: who wrote, when, which thread, and the dedupe key.
+
+## Code and workflow package
+
+The export lives in this repository at `workflows/n8n-mixphd-inbound-triage.json`. Import it through the n8n UI, then configure:
+
+- Gmail OAuth credentials with inbox read scope.
+- GitHub credentials with issue-write scope on the target repository.
+- The support address and owner address in the IF node to match your own inbox.
+- The repository owner, name, and labels in the GitHub node to match your tracker.
+
+Known limits: hourly polling means up to an hour of delay. Snippet-only bodies keep issues short; full message text requires an extra Gmail fetch node. There is no auto-reply and no spam filtering beyond the two conditions.
+
+## Reliability, security, and limits
+
+Failure modes are small and visible. If Gmail credentials expire, polling stops and mail waits in the inbox; nothing is lost. If GitHub credentials expire, runs fail in n8n's execution log while mail still waits. Credential scopes stay minimal: read mail, write issues. No message content leaves n8n except into the issue tracker you already control.
+
+## Further reading
+
+- [Building AI Agent Workflows with n8n and LangChain](/blog/building-ai-agent-workflows-n8n-langchain) for the n8n patterns this workflow follows.
+- [AI Agent Workflows](/blog/ai-agent-workflows) on where deterministic steps like this fit next to agent steps.
+- The [n8n Starter Pack](/shop/ai-workflows/free-n8n-workflow-starter-pack) for more import-ready templates.
+- To wire this to your own inbox and tracker, start with [Services](/services).

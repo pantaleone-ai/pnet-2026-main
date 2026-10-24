@@ -64,6 +64,37 @@ export const changelogSchema = frontmatterSchema.extend({
 });
 
 /**
+ * Schema for AI blueprint entries (features/blueprints/content).
+ * Mirrors blogPostSchema and adds the blueprint taxonomy: one primary
+ * type per blueprint, the concrete stack, and explicit code-package
+ * availability so listings never imply a download that does not exist.
+ */
+export const blueprintSchema = frontmatterSchema.extend({
+  title: z.string(),
+  description: z.string(),
+  created: z.string(),
+  lastUpdated: z.string().optional(),
+  image: z.string(),
+  imageAlt: z.string().optional(),
+  author: z.string().optional(),
+  blueprintType: z.enum([
+    "ai-agent",
+    "automation-workflow",
+    "agentic-workflow",
+  ]),
+  category: z.string(),
+  tags: z.array(z.string()).optional(),
+  techStacks: z.array(z.string()).optional(),
+  integrations: z.array(z.string()).optional(),
+  hasCodePackage: z.boolean().default(false),
+  codeUrl: z.string().optional(),
+  workflowFile: z.string().optional(),
+  difficulty: z.string().optional(),
+  seo: z.array(z.string()).optional(),
+  status: z.string().optional(),
+});
+
+/**
  * Schema for shop products
  */
 export const shopProductSchema = frontmatterSchema.extend({

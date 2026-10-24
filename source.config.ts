@@ -9,6 +9,7 @@ import lastModified from "fumadocs-mdx/plugins/last-modified";
 import {
   baseProjectSchema,
   blogPostSchema,
+  blueprintSchema,
   privacySchema,
   changelogSchema,
 } from "@/config/schemas/base-schemas";
@@ -124,6 +125,15 @@ export const blog = defineDocs({
     type: "doc",
     dir: "features/blog/content",
     schema: blogPostSchema,
+  }),
+});
+
+export const blueprints = defineDocs({
+  dir: "features/blueprints/content",
+  docs: defineCollections({
+    type: "doc",
+    dir: "features/blueprints/content",
+    schema: blueprintSchema,
   }),
 });
 

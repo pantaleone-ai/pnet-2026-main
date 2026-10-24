@@ -74,6 +74,11 @@ const NAVIGATION_LINKS: NavigationLinkType[] = [
     ],
   },
   {
+    icon: WorkflowIcon,
+    href: "/ai-blueprints",
+    label: "AI Blueprints",
+  },
+  {
     icon: ShopIcon,
     href: "/shop",
     label: "Shop",

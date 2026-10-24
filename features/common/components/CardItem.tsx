@@ -1,6 +1,7 @@
 "use client";
 
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
+import type { BlueprintType } from "@/features/blueprints/types/BlueprintType";
 import type { BlogPostType } from "@/features/blog/types/BlogPostType";
 import type { ProjectType } from "@/features/projects/types/ProjectType";
 import type { ShopProduct } from "@/features/shop/types/ShopProduct";
@@ -34,6 +35,13 @@ type CardItemProps =
     }
   | {
       index: number;
+      type: "blueprint";
+      item: Omit<BlueprintType, "body">;
+      sizes?: string;
+      listName?: string;
+    }
+  | {
+      index: number;
       type: "product";
       item: ShopProduct;
       sizes?: string;
@@ -41,9 +49,12 @@ type CardItemProps =
     };
 
 export default function CardItem({ index, item, type, sizes, listName }: CardItemProps) {
-  const isBlog = type === "blog";
-  const isProduct = type === "product";
-  const href = isBlog ? `/blog/${item.slug}` : undefined;
+  const href =
+    type === "blog"
+      ? `/blog/${item.slug}`
+      : type === "blueprint"
+        ? `/ai-blueprints/${item.slug}`
+        : undefined;
 
   return (
     <Card
@@ -59,7 +70,7 @@ export default function CardItem({ index, item, type, sizes, listName }: CardIte
         index={index}
         type={type}
         imageUrl={
-          isBlog ? item.image : isProduct ? item.imageUrl : item.imageUrl
+          type === "product" || type === "project" ? item.imageUrl : item.image
         }
         imageAlt={item.imageAlt || item.title}
         href={href}
@@ -68,10 +79,12 @@ export default function CardItem({ index, item, type, sizes, listName }: CardIte
 
       <div className="flex w-full items-stretch justify-between">
         <div className="flex flex-1 flex-col">
-          {isBlog ? (
+          {type === "blog" ? (
             <BlogContent item={item} index={index} />
-          ) : isProduct ? (
+          ) : type === "product" ? (
             <ProductContent item={item} index={index} listName={listName} />
+          ) : type === "blueprint" ? (
+            <BlueprintContent item={item} index={index} />
           ) : (
             <ProjectContent item={item} index={index} />
           )}
@@ -92,7 +105,7 @@ const CoverImage = ({
   sizes,
 }: {
   index: number;
-  type: "project" | "blog" | "product";
+  type: "project" | "blog" | "product" | "blueprint";
   imageUrl: string;
   imageAlt: string;
   href?: string;
@@ -204,6 +217,105 @@ const BlogContent = ({
         >
           <LinkWrapper href={href} className="group/btn flex items-center gap-1">
             Read more
+            <span className="sr-only"> about {item.title}</span>
+            <ArrowRightIcon className="size-3 transition-transform duration-300 group-hover/btn:translate-x-1" />
+          </LinkWrapper>
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+const BLUEPRINT_TYPE_LABELS: Record<
+  Omit<BlueprintType, "body">["blueprintType"],
+  string
+> = {
+  "ai-agent": "AI Agent",
+  "automation-workflow": "Automation Workflow",
+  "agentic-workflow": "Agentic Workflow",
+};
+
+const BlueprintContent = ({
+  item,
+  index,
+}: {
+  item: Omit<BlueprintType, "body">;
+  index: number;
+}) => {
+  const href = `/ai-blueprints/${item.slug}`;
+  return (
+    <div className="p-4 space-y-3">
+      <div className="flex items-center gap-3 text-sm text-muted-foreground">
+        <span className="inline-flex items-center rounded-md border border-primary/30 bg-primary/10 px-2 py-0.5 text-xs font-medium text-foreground">
+          {BLUEPRINT_TYPE_LABELS[item.blueprintType]}
+        </span>
+        <span className="inline-flex items-center rounded-md border border-border px-2 py-0.5 text-xs text-muted-foreground">
+          {item.hasCodePackage ? "Code included" : "Guide"}
+        </span>
+      </div>
+
+      <LinkWrapper href={href} className="group/title block">
+        <CardTitle
+          id={`card-title-${index}`}
+          className="line-clamp-2 text-lg font-bold leading-tight text-foreground group-hover/title:text-primary transition-colors"
+        >
+          {item.title}
+        </CardTitle>
+      </LinkWrapper>
+
+      <CardDescription className="line-clamp-3 text-sm text-muted-foreground">
+        {item.description}
+      </CardDescription>
+
+      {(item.techStacks?.length ?? 0) > 0 && (
+        <p className="text-xs text-muted-foreground font-mono line-clamp-1">
+          {item.techStacks?.join(" · ")}
+        </p>
+      )}
+
+      <div className="flex items-center gap-3 text-sm text-muted-foreground">
+        <div className="flex items-center gap-1">
+          <DateIcon size={16} className="text-muted-foreground" />
+          <span className="font-mono">
+            {item.created ? formatDate(item.created as string) : "No date"}
+          </span>
+        </div>
+        {item.readingTimeMinutes !== undefined && (
+          <>
+            <Separator orientation="vertical" className="h-4" />
+            <div className="flex items-center gap-1">
+              <ReadingTimeIcon size={16} className="text-muted-foreground" />
+              <span className="font-mono">{item.readingTimeMinutes} min</span>
+            </div>
+          </>
+        )}
+      </div>
+
+      <div className="flex items-center justify-between pt-2">
+        <div className="flex items-center space-x-2">
+          {item.category && (
+            <span className="text-sm text-muted-foreground">
+              {item.category}
+            </span>
+          )}
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          asChild
+          className="h-8 px-2 text-sm hover:bg-transparent hover:text-primary transition-colors"
+          onClick={() => {
+            trackEvent({
+              name: "blueprint_read_more_clicked",
+              properties: {
+                blueprint_title: item.title,
+                blueprint_slug: item.slug,
+              },
+            });
+          }}
+        >
+          <LinkWrapper href={href} className="group/btn flex items-center gap-1">
+            Read blueprint
             <span className="sr-only"> about {item.title}</span>
             <ArrowRightIcon className="size-3 transition-transform duration-300 group-hover/btn:translate-x-1" />
           </LinkWrapper>

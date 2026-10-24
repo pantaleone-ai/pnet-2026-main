@@ -103,6 +103,11 @@ export const CORE_PAGES: CorePage[] = [
     label: "AI Readiness Guide",
     why: "Authoritative resource on preparing sites and processes for AI agents.",
   },
+  {
+    path: "/ai-blueprints",
+    label: "AI Blueprints",
+    why: "Documented AI agents and automation workflows with architecture, implementation, and code when available.",
+  },
 ];
 
 export const SERVICES: CorePage[] = [
