@@ -37,6 +37,8 @@ jobs:
           node-version: 20
           cache: "npm"
       - run: npm ci
+      - name: Anti-slop engine build (audit layer)
+        run: npm run anti-slop:build
       - name: Evaluate auto-approval rules
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

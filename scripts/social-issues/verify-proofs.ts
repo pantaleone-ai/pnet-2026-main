@@ -1,13 +1,15 @@
 // Proof verification (Phase 5C): confirm platform permalinks behind open
-// `needs-screenshot` / proof-carrying issues are still live. Report only —
-// never closes issues (screenshot close stays human via publish-due).
+// `needs-screenshot` / proof-carrying issues are still live. Report only by
+// default. With --apply, Graph/API-verified synthetic.pics posts close as
+// published+done WITHOUT a screenshot (audit-close for the nightly class);
+// anything merely unverified stays parked — never guessed closed.
 // FB: Graph API with META_CAPI_ACCESS_TOKEN (fail-soft without token).
 // IG: public HEAD request (login-gated posts report unverified, not dead).
-// Run: npx tsx scripts/social-issues/verify-proofs.ts [--limit 20]
+// Run: npx tsx scripts/social-issues/verify-proofs.ts [--limit 20] [--apply]
 import { config as loadEnv } from "dotenv";
 
 loadEnv({ path: ".env.local" });
-import { ghJson } from "../content-issues/gh";
+import { gh, ghJson } from "../content-issues/gh";
 
 function flag(name: string): string | undefined {
   const i = process.argv.indexOf(name);
@@ -72,6 +74,7 @@ async function igLive(url: string): Promise<"live" | "unverified" | "dead"> {
 
 async function main(): Promise<void> {
   const limit = Number(flag("--limit") || "20");
+  const apply = process.argv.includes("--apply");
   const token = process.env.META_CAPI_ACCESS_TOKEN ?? "";
   const issues = ghJson<IssueView[]>([
     "issue",
@@ -113,9 +116,53 @@ async function main(): Promise<void> {
     console.log(
       `#${i.number} ${url} -> ${status}${token ? "" : " (no token)"}`,
     );
+    // Audit-close (synthetic nightly class only): verified-live closes as
+    // published+done without a screenshot. Unverified/dead never auto-close.
+    const names = i.labels.map((l) => l.name);
+    const autoCloseable =
+      apply &&
+      status === "live" &&
+      names.includes("site:synthetic-pics") &&
+      names.includes("needs-screenshot");
+    if (autoCloseable) {
+      gh([
+        "issue",
+        "comment",
+        String(i.number),
+        "--body",
+        [
+          `## Verified live — audit close (no screenshot required)`,
+          ``,
+          `- Post: ${url}`,
+          `- Verified: Graph/API readable at ${new Date().toISOString()}`,
+          `- Policy: synthetic.pics nightly auto-close; screenshots remain the rule for manual posts.`,
+        ].join("\n"),
+      ]);
+      gh([
+        "issue",
+        "edit",
+        String(i.number),
+        "--remove-label",
+        "status:packet-ready",
+        "--remove-label",
+        "needs-manual-post",
+        "--remove-label",
+        "needs-screenshot",
+        "--remove-label",
+        "status:in-progress",
+        "--remove-label",
+        "status:in-review",
+        "--add-label",
+        "status:published",
+        "--add-label",
+        "status:done",
+      ]);
+      gh(["issue", "close", String(i.number), "--reason", "completed"]);
+      console.log(`audit-closed - #${i.number} (verified live, no screenshot)`);
+    }
   }
   console.log(
-    `\nverify-proofs: checked=${checked} live=${live} unverified=${unverified} dead=${dead}`,
+    `\nverify-proofs: checked=${checked} live=${live} unverified=${unverified} dead=${dead} mode=${apply ? "APPLY" : "dry-run (no closes)"}`,
   );
   console.log(
     "Unverified is informational (login-gate/rate-limit), never evidence of removal.",

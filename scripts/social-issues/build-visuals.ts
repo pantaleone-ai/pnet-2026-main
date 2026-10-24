@@ -93,11 +93,13 @@ async function main(): Promise<void> {
   const missing = ids.filter(
     (id) => !SYN_CATALOG.some((c) => c.id === id || c.id.startsWith(id)),
   );
+  // IG carousels want >=2 named artworks; a single artwork renders one
+  // portrait card for the single-photo flow. FB always renders one card.
+  const want =
+    platform === "instagram" ? Math.max(1, Math.min(ids.length, 10)) : 1;
   const problems: string[] = [];
-  if (ids.length < spec.count) {
-    problems.push(
-      `needs ${spec.count} named artworks for ${platform}, found ${ids.length} in Source asset`,
-    );
+  if (ids.length < 1) {
+    problems.push(`no named artworks in Source asset (need >=1)`);
   }
   if (missing.length > 0)
     problems.push(`artwork IDs not in catalog: ${missing.join(", ")}`);
@@ -105,7 +107,7 @@ async function main(): Promise<void> {
     console.error(`needs-asset - #${issue.number}\n- ${problems.join("\n- ")}`);
     process.exit(1);
   }
-  const urls = resolved.slice(0, spec.count).map((c) => c!.imageUrl);
+  const urls = resolved.slice(0, want).map((c) => c!.imageUrl);
   const publicUrls = urls.map(
     (_, i) =>
       `https://www.pantaleone.net/${platform === "instagram" ? "ig" : "fb"}/${contentId}-${issue.number}/${i + 1}.jpg`,

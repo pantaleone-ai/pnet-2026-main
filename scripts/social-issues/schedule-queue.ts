@@ -3,7 +3,12 @@
 // Dry-run prints the slot table and writes nothing. --write stamps
 // **Publish at:** + the status:scheduled label (explicit approval gate).
 // Windows come from config/social-growth/cadence.ts — edit config, not code.
-import { TIMING_WINDOWS } from "@/config/social-growth/cadence";
+// site:synthetic-pics uses the nightly SYN_TIMING_WINDOWS grid (23/wk);
+// other sites keep the portfolio TIMING_WINDOWS.
+import {
+  TIMING_WINDOWS,
+  SYN_TIMING_WINDOWS,
+} from "@/config/social-growth/cadence";
 import { gh, ghJson } from "../content-issues/gh";
 
 const ET_ZONE = "America/New_York";
@@ -103,7 +108,9 @@ function main(): void {
   }
   const eligible = issues.filter((i) => {
     const names = i.labels.map((l) => l.name);
-    const siteOk = names.includes("site:synthetic-pics") || names.includes("site:pantaleone");
+    const siteOk =
+      names.includes("site:synthetic-pics") ||
+      names.includes("site:pantaleone");
     if (!siteOk || !names.includes("status:packet-ready")) return false;
     if (hasProof(i)) return false;
     if (names.includes("platform:pinterest")) return false;
@@ -115,12 +122,17 @@ function main(): void {
   });
   const table: Array<{ issue: number; platform: string; slot: string }> = [];
   const used = new Set<string>(taken);
-  for (const issue of eligible) {
+  // FIFO oldest-first: gh lists newest first, so sort by issue number.
+  const ordered = [...eligible].sort((a, b) => a.number - b.number);
+  for (const issue of ordered) {
     const names = issue.labels.map((l) => l.name);
     const platform = names.includes("platform:instagram")
       ? "instagram"
       : "facebook";
-    const windows = (TIMING_WINDOWS[platform] ?? []).map(parseWindow);
+    const grid = names.includes("site:synthetic-pics")
+      ? (SYN_TIMING_WINDOWS[platform] ?? [])
+      : (TIMING_WINDOWS[platform] ?? []);
+    const windows = grid.map(parseWindow);
     let slot: Date | undefined;
     for (let round = 0; round < 4 && !slot; round += 1) {
       for (const w of windows) {

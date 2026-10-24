@@ -8,6 +8,7 @@ import {
   COPY_BUDGETS,
   countWords,
 } from "@/lib/social-growth/caption";
+import { SYN_TIMING_WINDOWS } from "@/config/social-growth/cadence";
 import { auditSocialCopy } from "@/lib/social-growth/social-audit";
 import { buildReshareBody } from "./publish/reshare";
 import {
@@ -402,6 +403,42 @@ async function auditTests(): Promise<void> {
 
 auditTests().then(
   () => {
+    // Nightly synthetic grid: 23 slots/week, Tue-Thu heavy, staggered platforms.
+    const synIg = SYN_TIMING_WINDOWS.instagram ?? [];
+    const synFb = SYN_TIMING_WINDOWS.facebook ?? [];
+    check("syn IG 13 slots", synIg.length === 13);
+    check("syn FB 10 slots", synFb.length === 10);
+    const tueIg = synIg.filter((s) => s.startsWith("Tue")).length;
+    const tueFb = synFb.filter((s) => s.startsWith("Tue")).length;
+    check(
+      "syn Tue heavy",
+      tueIg === 3 && tueFb === 2,
+      `ig=${tueIg} fb=${tueFb}`,
+    );
+    const days = new Set([...synIg, ...synFb].map((s) => s.split(" ")[0]));
+    check(
+      "syn posts every day",
+      ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].every((d) =>
+        days.has(d),
+      ),
+    );
+    check(
+      "syn platforms staggered (no shared day+hour)",
+      (() => {
+        const key = (s: string) => {
+          const [d, h] = s.split(" ");
+          return `${d}@${h}`;
+        };
+        const ig = new Set(synIg.map(key));
+        return synFb.every((s) => !ig.has(key(s)));
+      })(),
+    );
+    const monSlot = parseWindow("Mon 12:00 ET");
+    check(
+      "syn Mon noon parses",
+      monSlot.day === 1 && monSlot.hour === 12 && monSlot.minute === 0,
+    );
+
     if (failures > 0) {
       console.error(`\nsocial-test: ${failures} failure(s)`);
       process.exit(1);

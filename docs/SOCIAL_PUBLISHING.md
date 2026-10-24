@@ -164,3 +164,28 @@ campaign + `*_RS_V1` creative, and `**Reshare-Of:** `#NNN/content-id``linkage.
 The media ledger allows same-URL reuse across sites only when`reshareOf`matches the owning contentId (same-site duplicates still blocked).
 Daily scoring runs in`.github/workflows/social-reshare.yml` (read-only;
 draft creation is manual dispatch only).
+
+## Nightly synthetic auto-posting (gallery -> IG + FB, 3+/day)
+
+`social-nightly.yml` (02:05 ET) runs the full loop with no human gates;
+`social-ig-slots.yml` publishes IG windows just-in-time (IG has no
+scheduling API). Kill switch: `social.nightly.enabled=false` in
+`config/automation/policy.ts` (intake refuses `--apply`), or disable the
+two workflows.
+
+1. **Intake** (`gallery-sync.ts`, `--apply --limit 3` by default): polls the
+   public gallery API, diffs vs `SYN_CATALOG`, appends new artwork, creates
+   one FB + one IG issue per artwork (FIFO oldest-first, deduped on artwork
+   ID, copy audited — `fail` skips, never publishes).
+2. **Packet** (`auto-packet.ts --no-reapprove`): builds packet + visuals,
+   merges, lands `packet-ready` — does NOT re-approve (slots own the timing).
+3. **Schedule** (`schedule-queue.ts --write`): stamps `**Publish at:**`
+   from `SYN_TIMING_WINDOWS` (IG 13/wk, FB 10/wk; Tue–Thu carry 15 of 23
+   slots; staggered across platforms; slots are ET — revisit on EST change).
+4. **Facebook**: native `scheduled_publish_time` at stamp time
+   (`publish-due --issue N --schedule-at <slot>`). No runner needed.
+5. **Instagram**: slot crons 9:05a/12:05p/6:35p ET run
+   `publish-due --due --channel instagram` (oldest due slot first, limit 2).
+6. **Close**: `verify-proofs --apply` audit-closes Graph/API-verified
+   synthetic posts as `published/done` without screenshots; unverified stays
+   parked. Manual posts still close via screenshot as before.
