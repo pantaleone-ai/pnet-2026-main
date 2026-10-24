@@ -4,7 +4,9 @@ import LastModified from "@/components/LastModified";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import { SITE_INFO } from "@/config/seo/site";
 import { USER } from "@/config/user";
-import LinkWrapper from "@/components/LinkWrapper";
+import BlogPostMetaData from "@/features/blog/components/BlogPostMetaData";
+import BlogPostNavigation from "@/features/blog/components/BlogPostNavigation";
+import BlogPostTitle from "@/features/blog/components/BlogPostTitle";
 import BlueprintAnalytics from "@/features/blueprints/components/BlueprintAnalytics";
 import {
   blueprintSource,
@@ -179,15 +181,36 @@ export async function generateMetadata({
 
 export default async function BlueprintPage({ params }: BlueprintPageProps) {
   const { slug } = await params;
-  const blueprints = getBlueprints();
-  const blueprint = blueprints.find((b) => b.slug === slug);
+  const blueprints = getBlueprints().sort(
+    (a, b) => new Date(b.created).getTime() - new Date(a.created).getTime(),
+  );
+  const blueprintIndex = blueprints.findIndex((b) => b.slug === slug);
+  const blueprint = blueprints[blueprintIndex];
   const page = blueprintSource.getPage([slug]);
 
   if (!blueprint || !page) {
     return notFound();
   }
 
+  const nextBlueprint = blueprints[blueprintIndex - 1]; // Newer
+  const prevBlueprint = blueprints[blueprintIndex + 1]; // Older
+
   const MDXContent = blueprint.body as React.FC<{ components: MDXComponents }>;
+
+  // Remove the body function from the blueprint object to avoid
+  // serialization errors in the shared navigation component.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { body: _body, ...blueprintWithoutBody } = blueprint;
+
+  const prevWithoutBody = prevBlueprint
+    ? // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      (({ body: _b, ...rest }) => rest)(prevBlueprint)
+    : undefined;
+
+  const nextWithoutBody = nextBlueprint
+    ? // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      (({ body: _b, ...rest }) => rest)(nextBlueprint)
+    : undefined;
 
   return (
     <>
@@ -216,14 +239,12 @@ export default async function BlueprintPage({ params }: BlueprintPageProps) {
       />
       <SeparatorHorizontal borderTop={false} short={true} />
       <main className="mx-auto flex flex-col">
-        <nav aria-label="Blueprint" className="px-4">
-          <LinkWrapper
-            href="/ai-blueprints"
-            className="text-sm font-medium underline underline-offset-4 decoration-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors"
-          >
-            ← All blueprints
-          </LinkWrapper>
-        </nav>
+        <BlogPostNavigation
+          post={blueprintWithoutBody}
+          previous={prevWithoutBody}
+          next={nextWithoutBody}
+          basePath="/ai-blueprints"
+        />
         <SeparatorHorizontal short={true} />
         <Image
           alt={blueprint.title}
@@ -235,27 +256,27 @@ export default async function BlueprintPage({ params }: BlueprintPageProps) {
           priority
         />
         <SeparatorHorizontal short={true} />
-        <div className="flex flex-wrap items-center gap-2 px-4">
+        <BlogPostMetaData
+          authorImage={USER.avatar}
+          authorName={blueprint.author || "Pantaleone.net"}
+          date={blueprint.created}
+          category={blueprint.category ?? "General"}
+          readTime={blueprint.readingTimeMinutes}
+        />
+        <div className="flex flex-wrap items-center gap-2 px-4 pt-2 sm:px-6">
           <span className="inline-flex items-center rounded-md border border-primary/30 bg-primary/10 px-2 py-0.5 text-xs font-medium text-foreground">
             {TYPE_LABELS[blueprint.blueprintType]}
           </span>
-          <span className="text-sm text-muted-foreground">
-            {blueprint.category}
+          <span className="inline-flex items-center rounded-md border border-border px-2 py-0.5 text-xs text-muted-foreground">
+            {blueprint.hasCodePackage ? "Code included" : "Guide"}
           </span>
-          <span className="text-sm text-muted-foreground">·</span>
-          <span className="font-mono text-sm text-muted-foreground">
-            {blueprint.readingTime}
-          </span>
-          {blueprint.hasCodePackage ? (
-            <span className="inline-flex items-center rounded-md border border-border px-2 py-0.5 text-xs text-muted-foreground">
-              Code included
-            </span>
-          ) : (
-            <span className="inline-flex items-center rounded-md border border-border px-2 py-0.5 text-xs text-muted-foreground">
-              Architectural reference
-            </span>
-          )}
         </div>
+        <SeparatorHorizontal short={true} />
+        <BlogPostTitle
+          title={blueprint.title}
+          textStyleClassName="text-2xl font-semibold md:text-3xl"
+          gridId="grid-blueprint-heading"
+        />
         <SeparatorHorizontal short={true} />
         <div className="mx-auto w-full max-w-5xl">
           <DocsLayout tree={blueprintSource.pageTree}>
