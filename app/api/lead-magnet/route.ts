@@ -4,7 +4,15 @@ import {
   getAudienceId,
   getResendClient,
   DEFAULT_FROM_EMAIL,
+  parseRecipients,
 } from "@/lib/resendClient";
+
+// Admin recipients for lead-magnet signups. Same inbox as the contact
+// form so every site form lands at contact@pantaleone.net by default.
+const LEAD_MAGNET_TO_EMAILS = parseRecipients(
+  process.env.CONTACT_EMAIL,
+  "contact@pantaleone.net",
+);
 import { escape } from "html-escaper";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -115,6 +123,23 @@ export async function POST(request: Request) {
         { error: "Delivery failed. Please try again later." },
         { status: 500, headers: NO_STORE },
       );
+    }
+
+    // Notify the admin inbox. Best-effort: the subscriber already has
+    // their guide, so a notification failure only logs.
+    {
+      const { error: adminError } = await resend.emails.send({
+        from: process.env.CONTACT_FROM_EMAIL || DEFAULT_FROM_EMAIL,
+        to: LEAD_MAGNET_TO_EMAILS,
+        subject: `New lead-magnet signup: ${guide}`,
+        replyTo: email,
+        text: `New lead-magnet signup\n\nGuide: ${guide}\nEmail: ${email}`,
+      });
+      if (adminError) {
+        logger.error("Lead-magnet admin notification failed", adminError, {
+          context: "lead-magnet-api",
+        });
+      }
     }
 
     // Meta CAPI Lead (dedups with the browser event via meta_event_id).
