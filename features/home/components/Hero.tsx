@@ -54,7 +54,7 @@ export default function Hero() {
               variant="outline"
               className="min-h-11 w-full sm:w-auto"
             >
-              <Link href="/projects">Explore projects</Link>
+              <Link href="/apps">Explore our software</Link>
             </Button>
           </div>
           <p className="px-4 pb-5 text-left text-sm text-muted-foreground">

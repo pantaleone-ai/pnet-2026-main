@@ -48,6 +48,12 @@ function getLegacyDestination(pathname: string): string | null {
   ) {
     return `/blog${normalized.slice("/blog/post".length)}`;
   }
+  // Projects consolidation (2026-10-24): /apps is the single canonical
+  // portfolio page. No /projects/[slug] detail routes ever existed — only
+  // the /projects index — so every legacy path maps to /apps.
+  if (normalized === "/projects" || normalized.startsWith("/projects/")) {
+    return "/apps";
+  }
   return null;
 }
 

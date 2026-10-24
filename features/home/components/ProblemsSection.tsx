@@ -28,7 +28,7 @@ const PROBLEMS = [
   },
   {
     title: "Processes that don't scale",
-    href: "/projects",
+    href: "/apps",
     anchor: "See systems built for real operating needs.",
   },
 ];

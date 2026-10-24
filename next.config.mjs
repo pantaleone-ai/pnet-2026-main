@@ -357,7 +357,6 @@ const config = {
       { source: "/experience/:path*", headers: [{ key: "Cache-Tag", value: "pnet-html,pnet-experience" }] },
       { source: "/privacy/:path*", headers: [{ key: "Cache-Tag", value: "pnet-html,pnet-privacy" }] },
       { source: "/products/:path*", headers: [{ key: "Cache-Tag", value: "pnet-html,pnet-products" }] },
-      { source: "/projects/:path*", headers: [{ key: "Cache-Tag", value: "pnet-html,pnet-projects" }] },
       { source: "/resources/:path*", headers: [{ key: "Cache-Tag", value: "pnet-html,pnet-resources" }] },
       { source: "/services/:path*", headers: [{ key: "Cache-Tag", value: "pnet-html,pnet-services" }] },
       { source: "/shop/:path*", headers: [{ key: "Cache-Tag", value: "pnet-html,pnet-shop" }] },

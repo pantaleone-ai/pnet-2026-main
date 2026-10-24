@@ -46,7 +46,6 @@ const REQUIRED_SLUGS = [
   "/experience",
   "/education",
   "/blog",
-  "/projects",
   "/apps",
   "/shop",
   "/shop/ai-apps",
@@ -124,7 +123,6 @@ const H1_PAGES = [
   "app/(app)/(root)/education/page.tsx",
   "app/(app)/(root)/experience/page.tsx",
   "app/(app)/(root)/privacy/page.tsx",
-  "app/(app)/(root)/projects/page.tsx",
   "app/(app)/(root)/apps/page.tsx",
   "app/(app)/(root)/resources/ai-readiness-guide/page.tsx",
   "app/(app)/(root)/services/page.tsx",
@@ -214,10 +212,16 @@ if (!existsSync(join(ROOT, "app/products/sitemap.ts"))) {
 
 // --- SITEMAP ------------------------------------------------------------------
 const sitemap = read("app/sitemap.ts");
-for (const p of ["/services", "/b2b", "/projects", "/apps", "/shop", "/resources/ai-readiness-guide"]) {
+for (const p of ["/services", "/b2b", "/apps", "/shop", "/resources/ai-readiness-guide"]) {
   if (!sitemap.includes(`"${p}"`) && !sitemap.includes(`'${p}'`)) {
     err(`sitemap.ts missing ${p}`);
   }
+}
+// /projects 301-redirects to /apps via middleware.ts — it must not be a
+// 200 page in the sitemap (same rule as the /about, /experience,
+// /education redirects below).
+if (sitemap.includes('"/projects"') || sitemap.includes(`'/projects'`)) {
+  err("sitemap.ts must not list /projects while it redirects (see middleware.ts)");
 }
 for (const p of REDIRECTED_PAGES) {
   if (sitemap.includes(`"${p}"`) || sitemap.includes(`'${p}'`)) {

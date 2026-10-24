@@ -185,8 +185,8 @@ export default async function AboutMePage() {
             </p>
             <p className="mb-2">
               See the work:{" "}
-              <a href="/projects" className="underline underline-offset-4">
-                selected projects
+              <a href="/apps" className="underline underline-offset-4">
+                selected software
               </a>{" "}
               ·{" "}
               <a href="/services" className="underline underline-offset-4">
