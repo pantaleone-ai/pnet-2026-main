@@ -73,8 +73,14 @@ async function urlLive(url: string): Promise<boolean> {
 async function main(): Promise<void> {
   const issueArg = arg("--issue");
   const dryRun = process.argv.includes("--dry-run");
+  // --no-reapprove: build packet + visuals, merge, land packet-ready, but do
+  // NOT re-add publish:approved. Used by the nightly scheduled flow, where
+  // schedule-queue assigns slots instead of publishing immediately.
+  const noReapprove = process.argv.includes("--no-reapprove");
   if (!issueArg) {
-    console.error("Usage: auto-packet.ts --issue <n> [--dry-run]");
+    console.error(
+      "Usage: auto-packet.ts --issue <n> [--dry-run] [--no-reapprove]",
+    );
     process.exit(1);
   }
   const issue = ghJson<IssueView>([
@@ -120,7 +126,7 @@ async function main(): Promise<void> {
   const branch = `social/${issue.number}-${contentId}`;
   if (dryRun) {
     console.log(
-      `would-auto-packet - #${issueArg} ${platform}/${contentId} -> ${branch} -> merge -> packet-ready -> re-approve`,
+      `would-auto-packet - #${issueArg} ${platform}/${contentId} -> ${branch} -> merge -> packet-ready${noReapprove ? " (no re-approval)" : " -> re-approve"}`,
     );
     return;
   }
@@ -571,6 +577,17 @@ async function main(): Promise<void> {
 
   try {
     gh(["issue", "edit", issueArg, "--remove-label", "publish:approved"]);
+    if (noReapprove) {
+      gh([
+        "issue",
+        "comment",
+        issueArg,
+        "--body",
+        "Auto-packet complete: packet merged, visuals live. Left packet-ready for slot scheduling (no re-approval by request).",
+      ]);
+      console.log(`packet-ready (no re-approval) - #${issueArg}`);
+      return;
+    }
     // Re-adding fires social-publish-on-approval, which now finds packet-ready.
     gh(["issue", "edit", issueArg, "--add-label", "publish:approved"]);
     gh([

@@ -61,7 +61,7 @@
     "social:packet": "tsx scripts/social-issues/build-packet.ts",
     "social:report": "tsx scripts/social-issues/report-weekly.ts",
     "social:verify": "tsx scripts/social-issues/verify-proofs.ts",
-    "social:auto-approve": "tsx scripts/social-issues/publish/auto-approve.ts",
+    "social:sync": "tsx scripts/social-issues/gallery-sync.ts",
     "social:schedule": "tsx scripts/social-issues/schedule-queue.ts"
   },
   "dependencies": {
