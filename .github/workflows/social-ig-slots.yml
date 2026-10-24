@@ -1,9 +1,11 @@
 name: social-ig-slots
 
 # IG slot publisher (IG has no native scheduling API, so slots are published
-# just-in-time). Fires at the three daily IG windows and publishes due
-# synthetic.pics issues oldest-slot-first (max 2 per run: the current slot
-# plus at most one catch-up). Idempotent: proof-present issues never re-fire.
+# just-in-time). Fires at the daily IG windows and publishes due synthetic.pics +
+# mixphd issues oldest-slot-first (max 2 per run per site: the current slot
+# plus at most one catch-up). Sites without a linked igUserId skip quietly
+# (packet-ready drafts held). Idempotent: proof-present
+# issues never re-fire.
 # Cron is UTC (= ET+4 in EDT): 13:05/16:05/22:35 UTC = 9:05am/12:05pm/6:35pm ET.
 # Revisit on EST (UTC-5) change.
 
@@ -36,14 +38,16 @@ jobs:
       - run: npm ci
       - name: Anti-slop engine build (copy audit layer)
         run: npm run anti-slop:build
-      - name: Publish due IG slots
+      - name: Publish due IG slots (both sites)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           META_CAPI_ACCESS_TOKEN: ${{ secrets.META_CAPI_ACCESS_TOKEN }}
         run: |
           if [ "${{ github.event.inputs.dry-run || 'false' }}" = "true" ] && [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            npx tsx scripts/social-issues/publish/publish-due.ts --due --channel instagram --limit 2 --dry-run
+            npx tsx scripts/social-issues/publish/publish-due.ts --due --channel instagram --site synthetic-pics --limit 2 --dry-run
+            npx tsx scripts/social-issues/publish/publish-due.ts --due --channel instagram --site mixphd --limit 2 --dry-run
           else
-            npx tsx scripts/social-issues/publish/publish-due.ts --due --channel instagram --limit 2
+            npx tsx scripts/social-issues/publish/publish-due.ts --due --channel instagram --site synthetic-pics --limit 2
+            npx tsx scripts/social-issues/publish/publish-due.ts --due --channel instagram --site mixphd --limit 2
           fi

@@ -5,7 +5,7 @@
  * New auto-approval classes ship disabled-by-default.
  */
 export const AUTOMATION_POLICY = {
-  version: "2026-10-24.1",
+  version: "2026-10-24.2",
   qa: {
     /** Score >= pass: eligible for normal approval evaluation. */
     pass: 80,
@@ -37,6 +37,10 @@ export const AUTOMATION_POLICY = {
     nightly: {
       enabled: true,
       intakeLimit: 10,
+      mixphd: {
+        enabled: true,
+        intakeLimit: 2,
+      },
     },
     caps: {
       maxPerWeekCombined: 4,

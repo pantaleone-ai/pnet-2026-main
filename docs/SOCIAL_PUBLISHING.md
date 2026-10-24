@@ -165,27 +165,39 @@ The media ledger allows same-URL reuse across sites only when`reshareOf`matches 
 Daily scoring runs in `.github/workflows/social-reshare.yml` (read-only;
 draft creation is manual dispatch only).
 
-## Nightly synthetic auto-posting (gallery -> IG + FB, 3+/day)
+## Nightly synthetic + mixphd auto-posting (3+/day synthetic, ~2.4/day mixphd canary)
 
-`social-nightly.yml` (02:05 ET) runs the full loop with no human gates;
+`social-nightly.yml` (02:05 ET) runs the full loop for both sites with no human gates;
 `social-ig-slots.yml` publishes IG windows just-in-time (IG has no
-scheduling API). Kill switch: `social.nightly.enabled=false` in
-`config/automation/policy.ts` (intake refuses `--apply`), or disable the
-two workflows.
+scheduling API). Kill switches: `social.nightly.enabled=false` in
+`config/automation/policy.ts` (both sites: intake refuses `--apply`; scheduled runs become read-only),
+`social.nightly.mixphd.enabled=false` (mixphd only), or disable the two
+workflows.
 
-1. **Intake** (`gallery-sync.ts`, `--apply --limit 3` by default): polls the
+1. **Intake synthetic** (`gallery-sync.ts`, `--apply --limit 3` by default): polls the
    public gallery API, diffs vs `SYN_CATALOG`, appends new artwork, creates
    one FB + one IG issue per artwork (FIFO oldest-first, deduped on artwork
    ID, copy audited — `fail` skips, never publishes).
-2. **Packet** (`auto-packet.ts --no-reapprove`): builds packet + visuals,
+2. **Intake mixphd canary** (`recipe-sync.ts`, `--apply --limit 2`): polls
+   `https://www.mixphd.com/sitemap.xml` for `<lastmod>` ≤36h, dedupes on slug vs
+   open/closed issues (`**Source asset:**`), fetches each recipe page for name +
+   meta-description + hero, HEAD-checks hero (stub/small → `needs-asset`, never
+   published), creates one FB + one IG `status:queued` issue per recipe (hook from
+   name+tag, body = meta-description first sentence 6–14 words, CTA `Read the recipe`,
+   UTM `MIX_*`). Zero changes to the mixphd repo.
+3. **Packet** (`auto-packet.ts --no-reapprove`, both sites): builds packet + visuals
+   (mixphd: sitemap `image:loc` AVIF → 1080×1350 IG / 1200×630 FB JPEG via PIL+AVIF),
    merges, lands `packet-ready` — does NOT re-approve (slots own the timing).
-3. **Schedule** (`schedule-queue.ts --write`): stamps `**Publish at:**`
+4. **Schedule** (`schedule-queue.ts --write`): stamps `**Publish at:**`
    from `SYN_TIMING_WINDOWS` (IG 13/wk, FB 10/wk; Tue–Thu carry 15 of 23
-   slots; staggered across platforms; slots are ET — revisit on EST change).
-4. **Facebook**: native `scheduled_publish_time` at stamp time
+   slots; staggered across platforms; slots are ET — revisit on EST change)
+   or `MIX_TIMING_WINDOWS` (IG 10/wk, FB 7/wk ≈ 2.4/day canary; Tue–Thu heavy;
+   staggered vs synthetic grid) selected by `site:` label.
+5. **Facebook**: native `scheduled_publish_time` at stamp time
    (`publish-due --issue N --schedule-at <slot>`). No runner needed.
-5. **Instagram**: slot crons 9:05a/12:05p/6:35p ET run
-   `publish-due --due --channel instagram` (oldest due slot first, limit 2).
-6. **Close**: `verify-proofs --apply` audit-closes Graph/API-verified
-   synthetic posts as `published/done` without screenshots; unverified stays
+6. **Instagram**: slot crons 9:05a/12:05p/6:35p ET run
+   `publish-due --due --channel instagram --site <site>` (oldest due slot first,
+   limit 2 per site; both synthetic.pics + mixphd IG now live).
+7. **Close**: `verify-proofs --apply` audit-closes Graph/API-verified
+   synthetic + mixphd posts as `published/done` without screenshots; unverified stays
    parked. Manual posts still close via screenshot as before.

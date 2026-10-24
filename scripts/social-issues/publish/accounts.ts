@@ -24,6 +24,17 @@ export const SITE_ACCOUNTS: SiteAccounts[] = [
     igUserId: "17841452273392769",
     igUsername: "pantaleonenet",
   },
+  {
+    // Mixphd FB page verified via GET /me/accounts (fan_count 0, published).
+    // IG linked 2026-10-24: GET /1398289563357130?fields=instagram_business_account
+    // -> 17841434747706770; GET /17841434747706770 -> username mixphd
+    // (followers 0, media 0, brand-new). Both FB + IG now live.
+    site: "mixphd",
+    pageId: "1398289563357130",
+    pageName: "Mixphd",
+    igUserId: "17841434747706770",
+    igUsername: "mixphd",
+  },
 ];
 
 export function accountsForSite(site: string): SiteAccounts | undefined {

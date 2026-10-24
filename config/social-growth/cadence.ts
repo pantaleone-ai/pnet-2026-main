@@ -76,6 +76,36 @@ export const SYN_TIMING_WINDOWS: Record<string, string[]> = {
   ],
 };
 
+/**
+ * Mixphd nightly auto-posting grid (17 slots/week ≈ 2.4/day, canary).
+ * Staggered against SYN_TIMING_WINDOWS (no shared day+hour across brands).
+ * Tue-Thu carry 9 of 17 slots. Slots are ET — revisit on EST change.
+ * Refine from reporting data once it lands.
+ */
+export const MIX_TIMING_WINDOWS: Record<string, string[]> = {
+  instagram: [
+    "Mon 10:00 ET",
+    "Tue 08:00 ET",
+    "Tue 20:00 ET",
+    "Wed 08:00 ET",
+    "Wed 20:00 ET",
+    "Thu 08:00 ET",
+    "Thu 20:00 ET",
+    "Fri 10:00 ET",
+    "Sat 12:00 ET",
+    "Sun 18:00 ET",
+  ],
+  facebook: [
+    "Mon 14:00 ET",
+    "Tue 11:00 ET",
+    "Wed 10:00 ET",
+    "Thu 11:00 ET",
+    "Fri 14:00 ET",
+    "Sat 15:00 ET",
+    "Sun 14:00 ET",
+  ],
+};
+
 export const PERFORMANCE_HIERARCHY = [
   "revenue",
   "purchases",

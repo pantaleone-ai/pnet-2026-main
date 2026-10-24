@@ -17,7 +17,10 @@ import {
   usesInQuarter,
 } from "@/lib/social-growth/exposure";
 import { nextSlot, parseWindow } from "./schedule-queue";
-import { SYN_TIMING_WINDOWS } from "@/config/social-growth/cadence";
+import {
+  MIX_TIMING_WINDOWS,
+  SYN_TIMING_WINDOWS,
+} from "@/config/social-growth/cadence";
 import {
   claimImage,
   conflictingUses,
@@ -399,6 +402,22 @@ async function auditTests(): Promise<void> {
     auditRepeat.verdict === "warn",
     auditRepeat.reasons.join(" | "),
   );
+  // Mixphd recipe copy: hook from name+tag, body = meta-description first
+  // sentence (6-14 words), CTA Read the recipe, FB stays tag-free.
+  const auditRecipe = await auditSocialCopy({
+    hook: "New recipe: Gin Basil Smash.",
+    body: "Build a crisp Gin and Tonic with a juniper-forward gin.",
+    cta: "Read the recipe",
+    platform: "facebook",
+    pillar: "how-to",
+    destinationUrl:
+      "https://www.mixphd.com/recipes/gin-basil-smash?utm_source=facebook&utm_medium=organic_social&utm_campaign=MIX_FB_TRAFFIC_HOMEBAR_US_202610&utm_content=MIX_GIN_FB_V1",
+  });
+  check(
+    "audit mix recipe copy passes",
+    auditRecipe.verdict !== "fail",
+    auditRecipe.reasons.join(" | "),
+  );
 }
 
 // Nightly synthetic grid: 23 slots/week, Tue-Thu heavy, staggered platforms.
@@ -431,6 +450,52 @@ const monSlot = parseWindow("Mon 12:00 ET");
 check(
   "syn Mon noon parses",
   monSlot.day === 1 && monSlot.hour === 12 && monSlot.minute === 0,
+);
+
+// Nightly mixphd canary grid: 17 slots/week (10 IG + 7 FB ≈ 2.4/day),
+// Tue-Thu heavy, staggered vs synthetic grid, no shared day+hour.
+const mixIg = MIX_TIMING_WINDOWS.instagram ?? [];
+const mixFb = MIX_TIMING_WINDOWS.facebook ?? [];
+check("mix IG 10 slots", mixIg.length === 10);
+check("mix FB 7 slots", mixFb.length === 7);
+const mixTueThu = [...mixIg, ...mixFb].filter(
+  (s) => s.startsWith("Tue") || s.startsWith("Wed") || s.startsWith("Thu"),
+).length;
+check("mix Tue-Thu heavy (9 slots)", mixTueThu === 9, `found=${mixTueThu}`);
+check(
+  "mix platforms staggered internally",
+  (() => {
+    const key = (s: string) => {
+      const [d, h] = s.split(" ");
+      return `${d}@${h}`;
+    };
+    const ig = new Set(mixIg.map(key));
+    return mixFb.every((s) => !ig.has(key(s)));
+  })(),
+);
+check(
+  "mix staggered vs synthetic grid (no shared day+hour)",
+  (() => {
+    const key = (s: string) => {
+      const [d, h] = s.split(" ");
+      return `${d}@${h}`;
+    };
+    const syn = new Set([...synIg, ...synFb].map(key));
+    return [...mixIg, ...mixFb].every((s) => !syn.has(key(s)));
+  })(),
+);
+
+// Mixphd UTM naming: MIX_PLATFORM_OBJECTIVE_AUDIENCE_GEO_YYYYMM (6 seg) +
+// MIX_CONCEPT_FORMAT_VARIANT (4 seg); dedupe key is the recipe slug.
+check(
+  "mix campaign valid",
+  validateCampaignName("MIX_FB_TRAFFIC_HOMEBAR_US_202610").valid,
+);
+check("mix creative valid", validateCreativeName("MIX_GIN_FB_V1").valid);
+check(
+  "mix slug dedupe key parses",
+  JSON.stringify("mix-fb-gin-basil-smash".split("-").slice(0, 2)) ===
+    JSON.stringify(["mix", "fb"]),
 );
 
 auditTests().then(

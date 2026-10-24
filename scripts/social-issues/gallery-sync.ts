@@ -220,7 +220,7 @@ async function main(): Promise<void> {
         `**App:** \`synthetic-pics\``,
         `**Platform:** \`${platform}\``,
         `**Social pillar:** \`${pillar}\``,
-        `**Content type:** \`${p === "ig" ? "carousel" : "facebook-post"}\``,
+        `**Content type:** \`${p === "ig" ? "photo" : "facebook-post"}\``,
         `**Content ID:** \`${contentId}\``,
         `**Hook:** \`${hook}\``,
         `**Body:** \`${body}\``,

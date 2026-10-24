@@ -192,13 +192,26 @@ async function publishDueSlots(
   dryRun: boolean,
 ): Promise<void> {
   const limit = limitArg();
+  const siteArg = (arg("--site") ?? "synthetic-pics").replace(/^site:/, "");
+  const site = siteArg === "mixphd" ? "mixphd" : "synthetic-pics";
+  // IG without a verified linked business account skips quietly — drafts
+  // stay packet-ready until onboarding (all current sites are linked).
+  if (channelId === "instagram") {
+    const { accountsForSite } = await import("./accounts");
+    if (!accountsForSite(site)?.igUserId) {
+      console.log(
+        `due slots skipped: site:${site} has no verified IG account yet (packet-ready drafts held)`,
+      );
+      return;
+    }
+  }
   const issues = ghJson<IssueView[]>([
     "issue",
     "list",
     "--label",
     "social",
     "--label",
-    "site:synthetic-pics",
+    `site:${site}`,
     "--label",
     `platform:${channelId}`,
     "--state",
@@ -230,7 +243,7 @@ async function publishDueSlots(
     })
     .slice(0, limit);
   console.log(
-    `due slots (${channelId}): ${due.length} of ${issues.length} open (limit ${limit})`,
+    `due slots (${channelId} site:${site}): ${due.length} of ${issues.length} open (limit ${limit})`,
   );
   if (dryRun) {
     for (const d of due)
@@ -296,7 +309,7 @@ async function main(): Promise<void> {
       return;
     }
     console.error(
-      "Usage: publish-due.ts --issue <n> [options] | --due --channel <id> [--limit N] [--dry-run]",
+      "Usage: publish-due.ts --issue <n> [options] | --due --channel <id> [--site <site>] [--limit N] [--dry-run]",
     );
     process.exit(1);
   }

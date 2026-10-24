@@ -87,6 +87,11 @@ async function main(): Promise<void> {
   const sourceAsset = field(issue.body, "Source asset");
   const ids = parseArtworkIds(sourceAsset);
   const spec = visualSpec(platform, contentId, issue.number);
+  // Mixphd recipes carry a direct hero image (sitemap image:loc) instead of
+  // catalog artwork IDs: `**Hero image:** <url>`. Same card pipeline.
+  const heroMatch = /^Recipe:\s*\S+/.test(sourceAsset)
+    ? field(issue.body, "Hero image")
+    : "";
   const resolved = ids
     .map((artId) =>
       SYN_CATALOG.find((c) => c.id === artId || c.id.startsWith(artId)),
@@ -95,12 +100,22 @@ async function main(): Promise<void> {
   const missing = ids.filter(
     (id) => !SYN_CATALOG.some((c) => c.id === id || c.id.startsWith(id)),
   );
+  if (heroMatch && !/^https:\/\//.test(heroMatch)) {
+    console.error(
+      `needs-asset - #${issue.number}\n- Hero image is not a public URL`,
+    );
+    process.exit(1);
+  }
   // IG carousels want >=2 named artworks; a single artwork renders one
   // portrait card for the single-photo flow. FB always renders one card.
-  const want =
-    platform === "instagram" ? Math.max(1, Math.min(ids.length, 10)) : 1;
+  // Mixphd recipes always render one card from the hero image.
+  const want = heroMatch
+    ? 1
+    : platform === "instagram"
+      ? Math.max(1, Math.min(ids.length, 10))
+      : 1;
   const problems: string[] = [];
-  if (ids.length < 1) {
+  if (!heroMatch && ids.length < 1) {
     problems.push(`no named artworks for ${platform} in Source asset`);
   }
   if (missing.length > 0)
@@ -109,7 +124,9 @@ async function main(): Promise<void> {
     console.error(`needs-asset - #${issue.number}\n- ${problems.join("\n- ")}`);
     process.exit(1);
   }
-  const urls = resolved.slice(0, want).map((c) => c!.imageUrl);
+  const urls = heroMatch
+    ? [heroMatch]
+    : resolved.slice(0, want).map((c) => c!.imageUrl);
   const publicUrls = urls.map(
     (_, i) =>
       `https://www.pantaleone.net/${platform === "instagram" ? "ig" : "fb"}/${contentId}-${issue.number}/${i + 1}.jpg`,
@@ -151,7 +168,7 @@ async function main(): Promise<void> {
     ? body
     : `${body}\n**Images:** \`${publicUrls.join(",")}\`\n`;
   gh(["issue", "edit", String(issue.number), "--body-file", "-"], stamped);
-  console.log(`built - #${issue.number} ${spec.count} cards -> ${spec.dir}`);
+  console.log(`built - #${issue.number} ${urls.length} cards -> ${spec.dir}`);
 }
 
 const isMain = (process.argv[1] ?? "").endsWith("build-visuals.ts");
