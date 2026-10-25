@@ -35,6 +35,8 @@ jobs:
           node-version: 20
           cache: "npm"
       - run: npm ci
+      - name: Anti-slop engine build (audit layer)
+        run: npm run anti-slop:build
       - name: Guard checks
         id: guard
         env:
