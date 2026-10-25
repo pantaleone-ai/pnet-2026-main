@@ -5,7 +5,6 @@ import {
   RssIcon as BlogIcon,
   // GraduationCapIcon as EducationIcon,
   // FileTextIcon as ExperienceIcon,
-  ArchiveIcon as ProjectsIcon,
   LayoutGridIcon as AppsIcon,
   // MailIcon as ContactIcon,
   ShoppingCartIcon as ShopIcon,
@@ -75,6 +74,11 @@ const NAVIGATION_LINKS: NavigationLinkType[] = [
     ],
   },
   {
+    icon: WorkflowIcon,
+    href: "/ai-blueprints",
+    label: "AI Blueprints",
+  },
+  {
     icon: ShopIcon,
     href: "/shop",
     label: "Shop",
@@ -98,11 +102,6 @@ const NAVIGATION_LINKS: NavigationLinkType[] = [
         icon: StoreIcon,
       },
     ],
-  },
-  {
-    icon: ProjectsIcon,
-    href: "/projects",
-    label: "Projects",
   },
   {
     icon: AppsIcon,

@@ -304,6 +304,146 @@ export const PORTFOLIO_APPS: PortfolioApp[] = [
     },
     ids: { ga4: null, meta: null },
   },
+  // --- Consolidated from /projects (2026-10-24) ---
+  // These four were previously only listed on the /projects page (MDX source
+  // in features/projects/content). They run on Vercel dev URLs (no custom
+  // domain on file) so they stay out of the footer ecosystem groups, but
+  // they are listed here so /apps remains the single canonical portfolio
+  // page with no information loss. Descriptions, categories, images, and
+  // external links are preserved verbatim from the MDX frontmatter.
+  // githubRepo is empty: no verified repo on file — do not fabricate one.
+  {
+    id: "migratecms",
+    name: "MigrateCMS",
+    domain: "https://migratecms.vercel.app/",
+    description:
+      "Convert WordPress, Shopify, Wix, Squarespace, and Webflow exports to MDX for Next.js.",
+    category: "CMS Migration Tool",
+    image: {
+      src: "https://img.pantaleone.net/migratecms1.webp",
+      alt: "MigrateCMS migration tool screenshot",
+    },
+    status: "live",
+    githubRepo: "",
+    vercelProject: "migratecms",
+    primaryCTA: {
+      label: "Open MigrateCMS",
+      href: "https://migratecms.vercel.app/",
+    },
+    primaryActivationEvent: "workflow_completed",
+    monetization: {
+      hasProducts: false,
+      hasSubscriptions: false,
+      hasAffiliateRevenue: false,
+    },
+    channelFit: {
+      meta: false,
+      google: false,
+      pinterest: false,
+      x: false,
+      reddit: false,
+    },
+    ids: { ga4: null, meta: null },
+  },
+  {
+    id: "qr-generator",
+    name: "QR Code Generator",
+    domain: "https://qr-generator-pantaleone.vercel.app/",
+    description:
+      "Custom QR codes with logos and high-resolution PNG export. Next.js 15.",
+    category: "Free Tool",
+    image: {
+      src: "https://img.pantaleone.net/qr1.webp",
+      alt: "QR code generator tool screenshot",
+    },
+    status: "live",
+    githubRepo: "",
+    vercelProject: "qr-generator-pantaleone",
+    primaryCTA: {
+      label: "Generate a QR code",
+      href: "https://qr-generator-pantaleone.vercel.app/",
+    },
+    primaryActivationEvent: "download_completed",
+    monetization: {
+      hasProducts: false,
+      hasSubscriptions: false,
+      hasAffiliateRevenue: false,
+    },
+    channelFit: {
+      meta: false,
+      google: false,
+      pinterest: false,
+      x: false,
+      reddit: false,
+    },
+    ids: { ga4: null, meta: null },
+  },
+  {
+    id: "skillsnap",
+    name: "SkillSnap",
+    domain: "https://aiskillsnap.vercel.app/",
+    description:
+      "ChatGPT shortcuts, prompting frameworks, and developer tricks. With PDF export.",
+    category: "AI Skills",
+    image: {
+      src: "https://img.pantaleone.net/skillsnap1.webp",
+      alt: "SkillSnap ChatGPT mastery guide screenshot",
+    },
+    status: "live",
+    githubRepo: "",
+    vercelProject: "aiskillsnap",
+    primaryCTA: {
+      label: "Open SkillSnap",
+      href: "https://aiskillsnap.vercel.app/",
+    },
+    primaryActivationEvent: "download_completed",
+    monetization: {
+      hasProducts: false,
+      hasSubscriptions: false,
+      hasAffiliateRevenue: false,
+    },
+    channelFit: {
+      meta: false,
+      google: false,
+      pinterest: false,
+      x: false,
+      reddit: false,
+    },
+    ids: { ga4: null, meta: null },
+  },
+  {
+    id: "saas-starter",
+    name: "Next.js SaaS Starter",
+    domain: "https://saas-ai-starter.vercel.app/",
+    description:
+      "Subscription SaaS starter: Next.js 15, Better Auth, Stripe, shadcn/ui.",
+    category: "Boilerplate SaaS",
+    image: {
+      src: "https://img.pantaleone.net/saas1.webp",
+      alt: "Nextjs15 BetterAuth Stripe Shadcn SAAS Starter screenshot",
+    },
+    status: "live",
+    githubRepo: "",
+    vercelProject: "saas-ai-starter",
+    primaryCTA: {
+      label: "Open starter",
+      href: "https://saas-ai-starter.vercel.app/",
+    },
+    primaryActivationEvent: "signup_started",
+    monetization: {
+      hasProducts: false,
+      hasSubscriptions: false,
+      hasAffiliateRevenue: false,
+    },
+    channelFit: {
+      meta: false,
+      google: false,
+      pinterest: false,
+      x: false,
+      reddit: false,
+    },
+    ids: { ga4: null, meta: null },
+  },
 ];
 
 export const PORTFOLIO_IDS = PORTFOLIO_APPS.map((app) => app.id);

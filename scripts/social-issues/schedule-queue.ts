@@ -1,13 +1,15 @@
-// Assign IG/FB publishing windows to packet-ready synthetic.pics issues.
+// Assign IG/FB publishing windows to packet-ready issues.
 // Run: npx tsx scripts/social-issues/schedule-queue.ts [--dry-run] [--write]
 // Dry-run prints the slot table and writes nothing. --write stamps
 // **Publish at:** + the status:scheduled label (explicit approval gate).
 // Windows come from config/social-growth/cadence.ts — edit config, not code.
 // site:synthetic-pics uses the nightly SYN_TIMING_WINDOWS grid (23/wk);
-// other sites keep the portfolio TIMING_WINDOWS.
+// site:mixphd uses MIX_TIMING_WINDOWS (17/wk); other sites keep the
+// portfolio TIMING_WINDOWS.
 import {
   TIMING_WINDOWS,
   SYN_TIMING_WINDOWS,
+  MIX_TIMING_WINDOWS,
 } from "@/config/social-growth/cadence";
 import { gh, ghJson } from "../content-issues/gh";
 
@@ -110,6 +112,7 @@ function main(): void {
     const names = i.labels.map((l) => l.name);
     const siteOk =
       names.includes("site:synthetic-pics") ||
+      names.includes("site:mixphd") ||
       names.includes("site:pantaleone");
     if (!siteOk || !names.includes("status:packet-ready")) return false;
     if (hasProof(i)) return false;
@@ -131,7 +134,9 @@ function main(): void {
       : "facebook";
     const grid = names.includes("site:synthetic-pics")
       ? (SYN_TIMING_WINDOWS[platform] ?? [])
-      : (TIMING_WINDOWS[platform] ?? []);
+      : names.includes("site:mixphd")
+        ? (MIX_TIMING_WINDOWS[platform] ?? [])
+        : (TIMING_WINDOWS[platform] ?? []);
     const windows = grid.map(parseWindow);
     let slot: Date | undefined;
     for (let round = 0; round < 4 && !slot; round += 1) {

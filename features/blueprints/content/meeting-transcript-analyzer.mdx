@@ -1,0 +1,107 @@
+---
+title: Meeting Transcript Analyzer
+description: n8n workflow that turns a meeting transcript into Jira stories and tasks using a local Ollama model.
+created: "2026-10-24"
+lastUpdated: "2026-10-24"
+image: /images/logo.png
+imageAlt: Meeting Transcript Analyzer blueprint
+author: Matt Pantaleone
+blueprintType: agentic-workflow
+category: Business operations
+tags:
+  - n8n
+  - ollama
+  - jira
+  - meeting-notes
+techStacks:
+  - n8n
+  - Ollama
+  - Qwen
+integrations:
+  - Google Drive
+  - Jira
+  - Ollama
+hasCodePackage: true
+codeUrl: https://github.com/pantaleone-ai/pnet-2026-main/blob/main/workflows/meeting-transcript-analyzer.json
+workflowFile: workflows/meeting-transcript-analyzer.json
+difficulty: Intermediate
+seo:
+  - meeting transcript analyzer n8n
+  - transcript to jira automation
+  - ollama meeting notes workflow
+status: published
+---
+
+## What this system does with a raw transcript
+
+Paste a transcript or point the workflow at a Google Drive file. It extracts features, action items, and insights, then files each one in Jira as the right issue type. A person still runs the meeting and still owns the backlog. The workflow removes the step where someone re-reads the transcript and hand-writes tickets.
+
+<BlueprintDiagram
+  caption="Meeting transcript to Jira tickets"
+  steps={[
+    { label: "Webhook intake", detail: "POST transcript text or a Drive file reference" },
+    { label: "Normalize input", detail: "Branch on source, download from Drive when needed" },
+    { label: "Analyze transcript", detail: "Ollama Qwen extracts features, actions, insights" },
+    { label: "Route by type", detail: "Features become stories, everything else becomes tasks" },
+    { label: "Create Jira issues", detail: "Story or Task with priority and source attached" },
+    { label: "Return summary", detail: "JSON result back to the caller" },
+  ]}
+/>
+
+## Problem and design decisions
+
+Meeting notes rot in docs because converting them into tracked work is tedious. This workflow is a reasonable automation candidate: the input is unstructured text, the output is structured records, and the mapping between them follows a stable schema.
+
+One decision matters more than the rest. The LLM never touches Jira directly. It returns JSON with `itemType`, `title`, `description`, and `priority`. Deterministic Code nodes normalize that output, an IF node routes on `itemType`, and only then do the Jira nodes run. If the model returns garbage, the failure happens before anything is written.
+
+The model runs locally through Ollama (`qwen-3-4b-2507.gguf`, temperature 0.3). No transcript leaves the machine that runs n8n. That choice trades raw capability for data control, which is the right trade when transcripts contain internal discussion.
+
+## Architecture and technology
+
+| Layer | Implementation |
+|---|---|
+| Trigger | Webhook node, `POST /meeting-transcript` |
+| Orchestration | n8n, 15 nodes |
+| Model | Ollama `qwen-3-4b-2507.gguf`, temperature 0.3 |
+| Input branch | Google Drive download or direct text |
+| Routing | Two IF nodes: Drive-vs-text, feature-vs-action |
+| Output | Two Jira nodes: Story for features, Task for actions |
+| Response | Respond-to-webhook with a JSON summary |
+
+The Jira nodes use placeholder project configuration (`JIRA_PROJECT_KEY` in the export). Target project, issue-type availability, and priority scheme must be set during import. Nothing in the export is production-ready until those values point at a real project.
+
+## Detailed operation
+
+**1. Intake.** `POST` to the `meeting-transcript` webhook path with either transcript text or `source: "google-drive"` plus a file reference. `Parse Webhook Input` normalizes both shapes into one internal format.
+
+**2. Source branch.** `IF Google Drive File` checks the source field. Drive files go through `Download from Drive` and `Extract Text Content`. Direct text goes through `Set Direct Text`. `Merge Content` reunites both paths so downstream nodes see one shape.
+
+**3. Analysis.** The `Analyze Transcript` agent node sends the text to Ollama with a fixed prompt that demands three sections: features (title, description, priority), actions (title, description, priority, assignee), and insights. `Normalize & Parse` converts the model output into individual items with an `itemType` field.
+
+**4. Routing and filing.** `IF Feature` splits the stream. Features go to `Create Feature Ticket` (Jira Story). Everything else goes to `Create Action Item` (Jira Task). Both nodes attach the source, priority, and assignee when present.
+
+**5. Summary.** `Summarize Results` builds a short report of what was filed, and `Return Results` sends it back as JSON.
+
+## Code and workflow package
+
+The export lives in this repository at `workflows/meeting-transcript-analyzer.json`. It is a standard n8n workflow export and imports through the n8n UI or API without conversion.
+
+What to configure after import:
+
+- Jira credentials and the real project key in both Jira nodes.
+- Google Drive credentials if Drive intake is needed. Direct-text intake works without them.
+- An Ollama instance with the Qwen model available, reachable from n8n.
+- Review the webhook `responseMode` against your needs before relying on the response payload.
+
+Known limits: transcript quality bounds output quality. The workflow does not deduplicate against existing Jira issues, and the export has no retry or logging beyond what n8n provides natively.
+
+## Reliability, security, and limits
+
+Transcripts stay local when Ollama runs on your own hardware. Jira and Drive credentials live in n8n credentials, never in the export. The failure mode to plan for is model output that does not parse: keep a human glance over created tickets until the prompt proves stable on your meeting style. Rate limits are a non-issue for typical meeting volume; long transcripts are bounded by the local model's context window, not by an API quota.
+
+## Further reading
+
+- [Building AI Agent Workflows with n8n and LangChain](/blog/building-ai-agent-workflows-n8n-langchain) covers the orchestration pattern behind the agent node.
+- [AI Agent Workflows](/blog/ai-agent-workflows) explains when an agent step belongs inside a deterministic workflow.
+- The [AI Workflows shop category](/shop/ai-workflows) holds related downloadable packs.
+- To adapt this to your tracker or meeting format, start with [Services](/services).

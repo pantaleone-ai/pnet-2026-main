@@ -44,7 +44,7 @@ export const TIMING_WINDOWS: Record<string, string[]> = {
  * Synthetic.pics nightly auto-posting grid (23 slots/week ≈ 3.3/day).
  * Tue-Thu carry 15 of 23 slots; something posts every day; slots never share
  * an hour across platforms (staggered). Times are ET; IG slot crons run in
- * UTC so revisit on DST change. Refine from reporting data once it lands.
+ * UTC so revisit on EST change. Refine from reporting data once it lands.
  */
 export const SYN_TIMING_WINDOWS: Record<string, string[]> = {
   instagram: [
@@ -73,6 +73,36 @@ export const SYN_TIMING_WINDOWS: Record<string, string[]> = {
     "Fri 09:00 ET",
     "Sat 10:00 ET",
     "Sun 13:00 ET",
+  ],
+};
+
+/**
+ * Mixphd nightly auto-posting grid (17 slots/week ≈ 2.4/day, canary).
+ * Staggered against SYN_TIMING_WINDOWS (no shared day+hour across brands).
+ * Tue-Thu carry 9 of 17 slots. Slots are ET — revisit on EST change.
+ * Refine from reporting data once it lands.
+ */
+export const MIX_TIMING_WINDOWS: Record<string, string[]> = {
+  instagram: [
+    "Mon 10:00 ET",
+    "Tue 08:00 ET",
+    "Tue 20:00 ET",
+    "Wed 08:00 ET",
+    "Wed 20:00 ET",
+    "Thu 08:00 ET",
+    "Thu 20:00 ET",
+    "Fri 10:00 ET",
+    "Sat 12:00 ET",
+    "Sun 18:00 ET",
+  ],
+  facebook: [
+    "Mon 14:00 ET",
+    "Tue 11:00 ET",
+    "Wed 10:00 ET",
+    "Thu 11:00 ET",
+    "Fri 14:00 ET",
+    "Sat 15:00 ET",
+    "Sun 14:00 ET",
   ],
 };
 

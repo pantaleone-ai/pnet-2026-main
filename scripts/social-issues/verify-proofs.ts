@@ -1,8 +1,8 @@
-// Proof verification (Phase 5C): confirm platform permalinks behind open
+// Proof verification: confirm platform permalinks behind open
 // `needs-screenshot` / proof-carrying issues are still live. Report only by
-// default. With --apply, Graph/API-verified synthetic.pics posts close as
-// published+done WITHOUT a screenshot (audit-close for the nightly class);
-// anything merely unverified stays parked — never guessed closed.
+// default. With --apply, Graph/API-verified synthetic.pics + mixphd posts close as
+// published+done without a screenshot (audit-close for the nightly class;
+// unverified/dead never close). Manual posts still close via screenshot.
 // FB: Graph API with META_CAPI_ACCESS_TOKEN (fail-soft without token).
 // IG: public HEAD request (login-gated posts report unverified, not dead).
 // Run: npx tsx scripts/social-issues/verify-proofs.ts [--limit 20] [--apply]
@@ -116,13 +116,14 @@ async function main(): Promise<void> {
     console.log(
       `#${i.number} ${url} -> ${status}${token ? "" : " (no token)"}`,
     );
-    // Audit-close (synthetic nightly class only): verified-live closes as
-    // published+done without a screenshot. Unverified/dead never auto-close.
+    // Audit-close (synthetic + mixphd nightly classes only): verified-live closes as
+    // published+done without a screenshot. Unverified/dead never closes.
     const names = i.labels.map((l) => l.name);
     const autoCloseable =
       apply &&
       status === "live" &&
-      names.includes("site:synthetic-pics") &&
+      (names.includes("site:synthetic-pics") ||
+        names.includes("site:mixphd")) &&
       names.includes("needs-screenshot");
     if (autoCloseable) {
       gh([
@@ -131,11 +132,11 @@ async function main(): Promise<void> {
         String(i.number),
         "--body",
         [
-          `## Verified live — audit close (no screenshot required)`,
+          `## Verified live — audit-close (no screenshot required)`,
           ``,
           `- Post: ${url}`,
           `- Verified: Graph/API readable at ${new Date().toISOString()}`,
-          `- Policy: synthetic.pics nightly auto-close; screenshots remain the rule for manual posts.`,
+          `- Policy: synthetic.pics / mixphd nightly audit-close; manual posts still need screenshots.`,
         ].join("\n"),
       ]);
       gh([

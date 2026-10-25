@@ -5,7 +5,7 @@
  * New auto-approval classes ship disabled-by-default.
  */
 export const AUTOMATION_POLICY = {
-  version: "2026-10-24.1",
+  version: "2026-10-24.2",
   qa: {
     /** Score >= pass: eligible for normal approval evaluation. */
     pass: 80,
@@ -28,14 +28,19 @@ export const AUTOMATION_POLICY = {
       enabled: true,
     },
     /**
-     * Nightly synthetic.pics auto-posting (gallery poll -> issues ->
-     * packets -> SYN_TIMING_WINDOWS slots -> FB native schedule / IG slot
-     * crons -> Graph-verified audit-close). Kill switch: enabled=false.
-     * intakeLimit caps new artworks processed per night (FIFO oldest-first).
+     * Nightly synthetic.pics auto-posting (gallery poll -> issues -> packets
+     * -> SYN_TIMING_WINDOWS slots -> FB native schedule / IG slot crons ->
+     * Graph-verified audit-close). Kill switch: enabled=false (intake refuses
+     * --apply; scheduled runs become read-only). intakeLimit caps new
+     * artworks per night (FIFO oldest-first).
      */
     nightly: {
       enabled: true,
       intakeLimit: 10,
+      mixphd: {
+        enabled: true,
+        intakeLimit: 2,
+      },
     },
     caps: {
       maxPerWeekCombined: 4,

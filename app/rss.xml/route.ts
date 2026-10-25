@@ -1,4 +1,5 @@
 import { getBlogPosts } from "@/features/blog/data/blogSource";
+import { getBlueprints } from "@/features/blueprints/data/blueprintSource";
 import { getProducts } from "@/features/shop/data/shopSource";
 import { getBaseUrl } from "@/lib/helpers";
 import { Feed } from "feed";
@@ -23,7 +24,8 @@ export async function GET() {
 
   const feed = new Feed({
     title: "Pantaleone.net AI Product and Blog RSS Feed",
-    description: "Latest products and posts from Pantaleone.net",
+    description:
+      "Latest products, posts, and AI blueprints from Pantaleone.net",
     id: getBaseUrl(),
     link: getBaseUrl(),
     language: "en",
@@ -51,6 +53,29 @@ export async function GET() {
       ],
       date: new Date(post.lastUpdated || post.created),
       published: new Date(post.created),
+    });
+  });
+
+  // Add AI blueprints to RSS feed
+  const blueprints = getBlueprints();
+  blueprints.forEach((blueprint) => {
+    feed.addItem({
+      title: blueprint.title,
+      id: getBaseUrl(`/ai-blueprints/${blueprint.slug}`),
+      link: getBaseUrl(`/ai-blueprints/${blueprint.slug}`),
+      description: blueprint.description,
+      content: blueprint.description,
+      author: [
+        {
+          name: blueprint.author ?? "Matt Pantaleone",
+        },
+      ],
+      category: [
+        ...(blueprint.category ? [{ name: blueprint.category }] : []),
+        ...(blueprint.tags ?? []).map((t) => ({ name: t })),
+      ],
+      date: new Date(blueprint.lastUpdated || blueprint.created),
+      published: new Date(blueprint.created),
     });
   });
 

@@ -34,7 +34,7 @@ function buildContent(): string {
     .slice(0, 12)
     .map(
       (p) =>
-        `- [${p.title}](${abs("/projects")}): ${(p.description ?? "Pantaleone project with build notes.").trim().slice(0, 160)}`,
+        `- [${p.title}](${abs("/apps")}): ${(p.description ?? "Pantaleone project with build notes.").trim().slice(0, 160)}`,
     )
     .join("\n");
 
@@ -73,7 +73,7 @@ ${services}
 
 ## Proof and Projects
 
-- [Projects hub](${abs("/projects")}): Selected portfolio of Pantaleone software — featured products plus AI apps, creative work, developer tools, and experiments. Live software also indexed under ${abs("/apps")}.
+- [Apps hub](${abs("/apps")}): Selected portfolio of Pantaleone software — featured products plus AI apps, creative work, developer tools, and experiments.
 ${proof}
 
 ## Products and Apps
@@ -86,6 +86,7 @@ ${products}
 ## Resources
 
 - [AI Readiness Guide](${abs("/resources/ai-readiness-guide")}): Checklist for preparing a process and site for AI agents.
+- [AI Blueprints](${abs("/ai-blueprints")}): Documented AI agents and automation workflows with architecture and code.
 - [Blog](${abs("/blog")}): Practical writing on AI systems, agents, and automation.
 
 ## Technical

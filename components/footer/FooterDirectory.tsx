@@ -17,8 +17,8 @@ const PANTALEONE_GROUP: DirectoryGroup = {
   heading: "Pantaleone",
   links: [
     { label: "Services", href: "/services" },
+    { label: "AI Blueprints", href: "/ai-blueprints" },
     { label: "B2B Solutions", href: "/b2b" },
-    { label: "Projects", href: "/projects" },
     { label: "Apps", href: "/apps" },
     { label: "AI Apps", href: "/shop/ai-apps" },
     { label: "AI Workflows", href: "/shop/ai-workflows" },

@@ -98,7 +98,9 @@ function main(): void {
   const rows: string[] = [];
   for (const issue of issues) {
     const labels = issue.labels.map((l) => l.name);
-    if (!labels.includes("site:synthetic-pics")) continue;
+    const site =
+      labels.find((l) => l.startsWith("site:")) ?? "site:synthetic-pics";
+    if (site !== "site:synthetic-pics" && site !== "site:mixphd") continue;
     for (const proof of findProofs(issue)) {
       const platform =
         labels.find((l) => l.startsWith("platform:")) ??
@@ -118,7 +120,7 @@ function main(): void {
       );
       rows.push(
         [
-          `| #${issue.number} | ${platform.replace("platform:", "")} | ${proof.url} |`,
+          `| #${issue.number} | ${site.replace("site:", "")} | ${platform.replace("platform:", "")} | ${proof.url} |`,
           ` ${insightsMissing ?? "ok"} |`,
           ` ${missing ?? "ok"} |`,
           ` ${insights ? JSON.stringify(insights).slice(0, 200) : "null"} |`,
@@ -127,17 +129,17 @@ function main(): void {
     }
   }
   const doc = [
-    `# synthetic.pics performance — ${week}`,
+    `# synthetic.pics + mixphd performance — ${week}`,
     ``,
     `Window: ${start.toISOString().slice(0, 10)} → ${end.toISOString().slice(0, 10)} (UTC).`,
     `Unavailable metrics are null with a missingSource marker — never zero, never fabricated.`,
     ``,
-    `| Issue | Platform | Post | Insights | Token | Data (truncated) |`,
-    `|---|---|---|---|---|---|`,
+    `| Issue | Site | Platform | Post | Insights | Token | Data (truncated) |`,
+    `|---|---|---|---|---|---|---|`,
     ...rows,
     rows.length === 0 ? `_No proofs found in scope this week._` : ``,
     ``,
-    `## Decisions (fill in weekly review)`,
+    `## Decisions (fill in weekly review, per site)`,
     ``,
     `- Repeat: `,
     `- Revise: `,
@@ -148,7 +150,7 @@ function main(): void {
     console.log(doc);
     return;
   }
-  const path = `docs/social-presence/synthetic-pics.performance-${week}.md`;
+  const path = `docs/social-presence/synthetic-pics.mixphd.performance-${week}.md`;
   writeFileSync(path, doc);
   console.log(`wrote - ${path} (${rows.length} proof rows)`);
 }

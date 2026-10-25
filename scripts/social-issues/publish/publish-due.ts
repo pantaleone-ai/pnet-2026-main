@@ -173,15 +173,6 @@ async function gateCopyAudit(
   console.error(`audit-fail-blocked - #${issue.number} (needs_review)`);
   process.exit(1);
 }
-export function imagesFromBody(body: string): string[] {
-  const fields = [...body.matchAll(/\*\*Images:\*\*\s*`([^`]+)`/gi)].map(
-    (m) => m[1] ?? "",
-  );
-  return fields
-    .flatMap((f) => f.split(/[\s,]+/))
-    .map((s) => s.trim())
-    .filter((s) => /^https:\/\//.test(s));
-}
 
 function limitArg(): number {
   const i = process.argv.indexOf("--limit");
@@ -191,7 +182,7 @@ function limitArg(): number {
 }
 
 /**
- * Slot publisher for IG cron triggers (IG has no native scheduling API).
+ * Slot publisher for IG crons (IG has no native scheduling API).
  * Publishes open packet-ready issues whose **Publish at:** is due (<= now),
  * oldest slot first, up to --limit. Each child run enforces the full guard,
  * audit, ledger, and proof path; failures are commented and skipped.
@@ -201,13 +192,26 @@ async function publishDueSlots(
   dryRun: boolean,
 ): Promise<void> {
   const limit = limitArg();
-  const issues = ghJson<Array<IssueView & { updatedAt?: string }>>([
+  const siteArg = (arg("--site") ?? "synthetic-pics").replace(/^site:/, "");
+  const site = siteArg === "mixphd" ? "mixphd" : "synthetic-pics";
+  // IG without a verified linked business account skips quietly — drafts
+  // stay packet-ready until onboarding (all current sites are linked).
+  if (channelId === "instagram") {
+    const { accountsForSite } = await import("./accounts");
+    if (!accountsForSite(site)?.igUserId) {
+      console.log(
+        `due slots skipped: site:${site} has no verified IG account yet (packet-ready drafts held)`,
+      );
+      return;
+    }
+  }
+  const issues = ghJson<IssueView[]>([
     "issue",
     "list",
     "--label",
     "social",
     "--label",
-    "site:synthetic-pics",
+    `site:${site}`,
     "--label",
     `platform:${channelId}`,
     "--state",
@@ -239,7 +243,7 @@ async function publishDueSlots(
     })
     .slice(0, limit);
   console.log(
-    `due slots (${channelId}): ${due.length} of ${issues.length} open (limit ${limit})`,
+    `due slots (${channelId} site:${site}): ${due.length} of ${issues.length} open (limit ${limit})`,
   );
   if (dryRun) {
     for (const d of due)
@@ -284,20 +288,28 @@ async function publishDueSlots(
     `due slots done: published=${published} failed=${due.length - published}`,
   );
 }
+export function imagesFromBody(body: string): string[] {
+  const fields = [...body.matchAll(/\*\*Images:\*\*\s*`([^`]+)`/gi)].map(
+    (m) => m[1] ?? "",
+  );
+  return fields
+    .flatMap((f) => f.split(/[\s,]+/))
+    .map((s) => s.trim())
+    .filter((s) => /^https:\/\//.test(s));
+}
 
 async function main(): Promise<void> {
   const issueArg = arg("--issue");
   const dryRun = process.argv.includes("--dry-run");
   const verifyDelete = process.argv.includes("--verify-delete");
   const screenshotUrl = arg("--screenshot-url");
-  const dueMode = process.argv.includes("--due");
-  if (dueMode) {
-    await publishDueSlots(arg("--channel") ?? "instagram", dryRun);
-    return;
-  }
   if (!issueArg) {
+    if (process.argv.includes("--due")) {
+      await publishDueSlots(arg("--channel") ?? "instagram", dryRun);
+      return;
+    }
     console.error(
-      "Usage: publish-due.ts --issue <n> [options] | --due --channel <id> [--limit N] [--dry-run]",
+      "Usage: publish-due.ts --issue <n> [options] | --due --channel <id> [--site <site>] [--limit N] [--dry-run]",
     );
     process.exit(1);
   }

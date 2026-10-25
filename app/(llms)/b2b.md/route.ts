@@ -31,7 +31,7 @@ Canonical pricing: ${CANONICAL_ORIGIN}/services (audit $2,500; build $8,500/mo; 
 
 - Services: ${CANONICAL_ORIGIN}/services
 - AI Readiness Guide: ${CANONICAL_ORIGIN}/resources/ai-readiness-guide
-- Projects: ${CANONICAL_ORIGIN}/projects
+- Apps: ${CANONICAL_ORIGIN}/apps
 - Contact: ${CANONICAL_ORIGIN}/contact?b2b=true
 `;
 

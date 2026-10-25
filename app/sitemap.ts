@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { getBlogPosts } from "@/features/blog/data/blogSource";
+import { getBlueprints } from "@/features/blueprints/data/blueprintSource";
 import { getCategories } from "@/features/shop/data/shopSource";
 import { getBaseUrl, getProductCategorySlug } from "@/lib/helpers";
 
@@ -22,12 +23,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: LAST_MODIFIED,
       changeFrequency: "daily" as const,
       priority: 1.0,
-    },
-    {
-      url: getBaseUrl("/projects"),
-      lastModified: LAST_MODIFIED,
-      changeFrequency: "weekly" as const,
-      priority: 0.9,
     },
     {
       url: getBaseUrl("/apps"),
@@ -65,6 +60,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly" as const,
       priority: 0.7,
     },
+    {
+      url: getBaseUrl("/ai-blueprints"),
+      lastModified: LAST_MODIFIED,
+      changeFrequency: "weekly" as const,
+      priority: 0.9,
+    },
     // NOTE: /about, /experience, and /education are intentionally absent.
     // middleware.ts permanently redirects them to the homepage, so they
     // are not indexable 200 pages. Removing those redirects (a public URL
@@ -91,6 +92,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.8,
   }));
 
+  const blueprintPages = getBlueprints().map((blueprint) => ({
+    url: getBaseUrl(`/ai-blueprints/${blueprint.slug}`),
+    lastModified: blueprint.lastUpdated || blueprint.created || LAST_MODIFIED,
+    changeFrequency: "weekly" as const,
+    priority: 0.8,
+  }));
+
   // Add shop main page
   const shopMainPage = {
     url: getBaseUrl("/shop"),
@@ -110,5 +118,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // Product detail URLs live in /products/sitemap.xml
   // (app/products/sitemap.ts) so each URL appears in exactly one sitemap.
-  return [...staticPages, ...blogPosts, shopMainPage, ...shopCategories];
+  return [
+    ...staticPages,
+    ...blogPosts,
+    ...blueprintPages,
+    shopMainPage,
+    ...shopCategories,
+  ];
 }

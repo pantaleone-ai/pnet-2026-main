@@ -273,7 +273,7 @@ export default function ServicesPage() {
           </ol>
           <p className="mb-8">
             See the approach in practice:{" "}
-            <Link href="/projects" className="underline underline-offset-4">
+            <Link href="/apps" className="underline underline-offset-4">
               selected work
             </Link>{" "}
             ·{" "}

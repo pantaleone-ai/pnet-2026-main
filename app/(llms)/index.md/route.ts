@@ -24,8 +24,9 @@ Pantaleone (Pantaleone Digital Services LLC, founder Matt Pantaleone) builds AI 
 
 - Services and pricing: ${CANONICAL_ORIGIN}/services
 - B2B: ${CANONICAL_ORIGIN}/b2b
-- Projects: ${CANONICAL_ORIGIN}/projects
+- Apps: ${CANONICAL_ORIGIN}/apps
 - Shop (AI apps and workflows): ${CANONICAL_ORIGIN}/shop
+- AI Blueprints: ${CANONICAL_ORIGIN}/ai-blueprints
 - Blog: ${CANONICAL_ORIGIN}/blog
 - AI Readiness Guide: ${CANONICAL_ORIGIN}/resources/ai-readiness-guide
 - Contact: ${CANONICAL_ORIGIN}/contact

@@ -16,7 +16,7 @@ import type { HeadType } from "@/types";
 export const dynamic = "force-static";
 
 // Homepage is the overall business proposition (not a narrow service term —
-// that intent belongs to /projects). HEAD "Home" is the single source of
+// that intent belongs to /apps). HEAD "Home" is the single source of
 // truth; the title renders absolute so the root template never re-appends
 // the brand.
 const homePage = HEAD.find((p: HeadType) => p.page === "Home") as HeadType;
@@ -25,7 +25,7 @@ export const metadata: Metadata = getPageMetadata(homePage, "/index.md");
 
 // Six-section conversion funnel: Hero → Problems → Selected work →
 // How delivered → Principles → Final conversion. Depth lives on
-// /services, /projects, /about, /blog, and /shop; the homepage routes.
+// /services, /apps, /about, /blog, and /shop; the homepage routes.
 export default function Home() {
   return (
     <>

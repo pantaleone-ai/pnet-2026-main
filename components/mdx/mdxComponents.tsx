@@ -13,6 +13,7 @@ import {
   CalloutDescription,
   CalloutTitle,
 } from "./callout";
+import { BlueprintDiagram } from "./BlueprintDiagram";
 import { ConsultationCTA } from "./ConsultationCTA";
 import { Heading } from "./heading";
 import { cn } from "@/lib/utils";
@@ -178,6 +179,7 @@ const defaultMdxComponents = {
   CalloutTitle,
   CalloutDescription,
   ConsultationCTA,
+  BlueprintDiagram,
 };
 
 import type { createRelativeLink as CreateRelativeLinkType } from "@/components/mdx/mdx.server";

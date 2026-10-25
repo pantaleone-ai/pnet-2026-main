@@ -37,9 +37,7 @@ interface IssueRef {
 
 const GALLERY_BASE = "https://www.synthetic.pics/api/gallery";
 
-async function fetchPage(
-  cursor?: string,
-): Promise<{
+async function fetchPage(cursor?: string): Promise<{
   items: GalleryItem[];
   nextCursor: string | null;
   hasMore: boolean;
@@ -222,7 +220,7 @@ async function main(): Promise<void> {
         `**App:** \`synthetic-pics\``,
         `**Platform:** \`${platform}\``,
         `**Social pillar:** \`${pillar}\``,
-        `**Content type:** \`${p === "ig" ? "carousel" : "facebook-post"}\``,
+        `**Content type:** \`${p === "ig" ? "photo" : "facebook-post"}\``,
         `**Content ID:** \`${contentId}\``,
         `**Hook:** \`${hook}\``,
         `**Body:** \`${body}\``,

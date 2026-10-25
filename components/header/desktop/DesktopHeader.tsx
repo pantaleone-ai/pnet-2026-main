@@ -12,6 +12,7 @@ import {
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import { MailPen } from "lucide-react";
 import NAVIGATION_LINKS from "@/config/navigationLinks";
 import { cn } from "@/lib/utils";
 import type { FC } from "react";
@@ -41,6 +42,8 @@ const DesktopHeader: FC<Props> = memo(({ activePath }) => {
     (path: string) => {
       if (path === "/") return activePath === "/";
       if (path === "/blog") return activePath.startsWith("/blog");
+      if (path === "/ai-blueprints")
+        return activePath.startsWith("/ai-blueprints");
 
       return activePath === path;
     },
@@ -114,8 +117,10 @@ const DesktopHeader: FC<Props> = memo(({ activePath }) => {
           <span className="mx-2 flex h-4 w-px bg-border" />
           <ThemeToggle />
           <span className="mx-2 flex h-4 w-px bg-border" />
-          <Button asChild size="sm" variant="default">
-            <Link href="/contact?book=true">contact</Link>
+          <Button asChild size="icon-sm" variant="default" aria-label="Contact">
+            <Link href="/contact?book=true" aria-label="Contact">
+              <MailPen className="size-4" />
+            </Link>
           </Button>
         </div>
       </div>
