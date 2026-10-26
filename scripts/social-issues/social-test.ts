@@ -31,6 +31,13 @@ import {
 import { selectFbImage } from "./publish/facebook";
 import { parseArtworkIds, visualSpec } from "./build-visuals";
 import { validateCampaignName, validateCreativeName } from "@/lib/growth/utm";
+import {
+  respinContentId,
+  respinCreativeVariant,
+  respinHookMix,
+  respinHookSyn,
+  respinVersion,
+} from "./respin-queue";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -420,14 +427,23 @@ async function auditTests(): Promise<void> {
   );
 }
 
-// Nightly synthetic grid: 23 slots/week, Tue-Thu heavy, staggered platforms.
+// Nightly synthetic grid: 31 slots/week (weekends + off-hours), Tue-Thu heavy.
 const synIg = SYN_TIMING_WINDOWS.instagram ?? [];
 const synFb = SYN_TIMING_WINDOWS.facebook ?? [];
-check("syn IG 13 slots", synIg.length === 13);
-check("syn FB 10 slots", synFb.length === 10);
+check("syn IG 18 slots", synIg.length === 18);
+check("syn FB 13 slots", synFb.length === 13);
 const tueIg = synIg.filter((s) => s.startsWith("Tue")).length;
 const tueFb = synFb.filter((s) => s.startsWith("Tue")).length;
-check("syn Tue heavy", tueIg === 3 && tueFb === 2, `ig=${tueIg} fb=${tueFb}`);
+check("syn Tue heavy", tueIg === 4 && tueFb === 2, `ig=${tueIg} fb=${tueFb}`);
+const synWknd = [...synIg, ...synFb].filter(
+  (s) => s.startsWith("Sat") || s.startsWith("Sun"),
+).length;
+check("syn weekend coverage (7 slots)", synWknd === 7, `found=${synWknd}`);
+const synOff = [...synIg, ...synFb].filter((s) => {
+  const h = Number(s.split(" ")[1]?.split(":")[0]);
+  return h < 8 || h >= 20;
+}).length;
+check("syn off-hours coverage (6 slots)", synOff === 6, `found=${synOff}`);
 const days = new Set(
   [...synIg, ...synFb].map((s): string => s.split(" ")[0] ?? ""),
 );
@@ -452,16 +468,25 @@ check(
   monSlot.day === 1 && monSlot.hour === 12 && monSlot.minute === 0,
 );
 
-// Nightly mixphd canary grid: 17 slots/week (10 IG + 7 FB ≈ 2.4/day),
-// Tue-Thu heavy, staggered vs synthetic grid, no shared day+hour.
+// Nightly mixphd grid: 24 slots/week (13 IG + 11 FB ≈ 3.4/day, weekends +
+// off-hours). Tue-Thu carry 10, staggered vs synthetic grid, no shared day+hour.
 const mixIg = MIX_TIMING_WINDOWS.instagram ?? [];
 const mixFb = MIX_TIMING_WINDOWS.facebook ?? [];
-check("mix IG 10 slots", mixIg.length === 10);
-check("mix FB 7 slots", mixFb.length === 7);
+check("mix IG 13 slots", mixIg.length === 13);
+check("mix FB 11 slots", mixFb.length === 11);
 const mixTueThu = [...mixIg, ...mixFb].filter(
   (s) => s.startsWith("Tue") || s.startsWith("Wed") || s.startsWith("Thu"),
 ).length;
-check("mix Tue-Thu heavy (9 slots)", mixTueThu === 9, `found=${mixTueThu}`);
+check("mix Tue-Thu heavy (10 slots)", mixTueThu === 10, `found=${mixTueThu}`);
+const mixWknd = [...mixIg, ...mixFb].filter(
+  (s) => s.startsWith("Sat") || s.startsWith("Sun"),
+).length;
+check("mix weekend coverage (8 slots)", mixWknd === 8, `found=${mixWknd}`);
+const mixOff = [...mixIg, ...mixFb].filter((s) => {
+  const h = Number(s.split(" ")[1]?.split(":")[0]);
+  return h < 8 || h >= 20;
+}).length;
+check("mix off-hours coverage (8 slots)", mixOff === 8, `found=${mixOff}`);
 check(
   "mix platforms staggered internally",
   (() => {
@@ -496,6 +521,49 @@ check(
   "mix slug dedupe key parses",
   JSON.stringify("mix-fb-gin-basil-smash".split("-").slice(0, 2)) ===
     JSON.stringify(["mix", "fb"]),
+);
+
+// Respin queue: versioned fresh spins on rested content.
+check(
+  "respin v1 keeps base id",
+  respinContentId("mix-ig-foo", 1) === "mix-ig-foo",
+);
+check(
+  "respin v2 suffixes -r2",
+  respinContentId("mix-ig-foo", 2) === "mix-ig-foo-r2",
+);
+check(
+  "respin v3 suffixes -r3",
+  respinContentId("syn-fb-bar", 3) === "syn-fb-bar-r3",
+);
+check(
+  "respin version from priors",
+  respinVersion(1) === 2 && respinVersion(0) === 1,
+);
+check("respin creative V2", respinCreativeVariant(2) === "_V2");
+check("respin creative V3", respinCreativeVariant(3) === "_V3");
+check(
+  "respin V2 creative valid",
+  validateCreativeName("MIX_GIN_FB_V2").valid &&
+    validateCreativeName("SYN_ART_IG_V3").valid,
+);
+check(
+  "respin syn angle rotates",
+  respinHookSyn(0, "Warm Field", "ochre") !==
+    respinHookSyn(1, "Warm Field", "ochre") &&
+    respinHookSyn(1, "Warm Field", "ochre") !==
+      respinHookSyn(2, "Warm Field", "ochre"),
+);
+check(
+  "respin mix angle rotates",
+  respinHookMix(0, "Gin Smash") !== respinHookMix(1, "Gin Smash") &&
+    respinHookMix(1, "Gin Smash") !== respinHookMix(2, "Gin Smash"),
+);
+check(
+  "respin hooks stay short",
+  respinHookSyn(0, "Warm Field", "ochre").length <= 100 &&
+    respinHookMix(2, "Gin Basil Smash with a Very Long Name Indeed Here Yes")
+      .length <= 100,
 );
 
 auditTests().then(

@@ -6,14 +6,17 @@ name: social-ig-slots
 # plus at most one catch-up). Sites without a linked igUserId skip quietly
 # (packet-ready drafts held). Idempotent: proof-present
 # issues never re-fire.
-# Cron is UTC (= ET+4 in EDT): 13:05/16:05/22:35 UTC = 9:05am/12:05pm/6:35pm ET.
-# Revisit on EST (UTC-5) change.
+# Cron is UTC (= ET+4 in EDT): 11:05/13:05/16:05/22:35/01:05 UTC =
+# 7:05am/9:05am/12:05pm/6:35pm/9:05pm ET. Early + late runs cover the
+# off-hours grid slots (07:00-08:00, 20:00-21:00 ET). Revisit on EST (UTC-5) change.
 
 on:
   schedule:
+    - cron: "5 11 * * *"
     - cron: "5 13 * * *"
     - cron: "5 16 * * *"
     - cron: "35 22 * * *"
+    - cron: "5 1 * * *"
   workflow_dispatch:
     inputs:
       dry-run:

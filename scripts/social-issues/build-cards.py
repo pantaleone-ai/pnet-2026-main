@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """Download gallery artworks and crop platform-native JPEG cards.
 
-Usage: python3 build-cards.py --out-dir DIR --size WxH [--quality N] <url> [<url> ...]
-Writes 1.jpg..n.jpg (cover-crop, center). Exits non-zero on any failure.
+Usage: python3 build-cards.py --out-dir DIR --size WxH [--quality N]
+        [--crop center|top] <url> [<url> ...]
+Writes 1.jpg..n.jpg (cover-crop). Exits non-zero on any failure.
 curl is used for download (system certs); PIL for pixels.
+--crop top anchors portrait crops to the top edge (respins: pixel-different
+framing of the same source so the fresh spin reads fresh).
 """
 import subprocess
 import sys
@@ -24,6 +27,7 @@ def parse_args(argv):
     out_dir = None
     width, height = 1080, 1350
     quality = 88
+    crop = "center"
     urls = []
     i = 1
     while i < len(argv):
@@ -37,6 +41,12 @@ def parse_args(argv):
         elif a == "--quality":
             quality = int(argv[i + 1])
             i += 2
+        elif a == "--crop":
+            crop = argv[i + 1]
+            if crop not in ("center", "top"):
+                print(f"build-cards: bad --crop {crop} (want center|top)", file=sys.stderr)
+                sys.exit(1)
+            i += 2
         elif a.startswith("--"):
             print(f"build-cards: unknown flag {a}", file=sys.stderr)
             sys.exit(1)
@@ -46,11 +56,11 @@ def parse_args(argv):
     if not out_dir or not urls:
         print("build-cards: need --out-dir and at least one URL", file=sys.stderr)
         sys.exit(1)
-    return out_dir, width, height, quality, urls
+    return out_dir, width, height, quality, crop, urls
 
 
 def main():
-    out_dir, width, height, quality, urls = parse_args(sys.argv)
+    out_dir, width, height, quality, crop, urls = parse_args(sys.argv)
     dest = Path(out_dir)
     dest.mkdir(parents=True, exist_ok=True)
     tmp = dest / ".dl"
@@ -77,7 +87,8 @@ def main():
         scale = max(width / w, height / h)
         im = im.resize((round(w * scale), round(h * scale)), Image.LANCZOS)
         x = (im.width - width) // 2
-        y = (im.height - height) // 2
+        # top anchors portrait crops to the top edge; landscape keeps center-x.
+        y = 0 if (crop == "top" and im.height >= im.width) else (im.height - height) // 2
         out = dest / f"{n}.jpg"
         im.crop((x, y, x + width, y + height)).save(str(out), "JPEG", quality=quality)
         check = Image.open(out)

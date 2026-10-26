@@ -15,7 +15,7 @@ function flag(name: string): string | undefined {
   return v && !v.startsWith("--") ? v : undefined;
 }
 
-interface SitemapRecipe {
+export interface SitemapRecipe {
   url: string;
   slug: string;
   lastmod: string;
@@ -25,7 +25,7 @@ interface SitemapRecipe {
 const SITE = "https://www.mixphd.com";
 const MIN_IMAGE_BYTES = 30 * 1024;
 
-function decodeEntities(s: string): string {
+export function decodeEntities(s: string): string {
   return s
     .replace(/&amp;/g, "&")
     .replace(/&quot;/g, '"')
@@ -36,16 +36,16 @@ function decodeEntities(s: string): string {
     .trim();
 }
 
-function countWords(s: string): number {
+export function countWords(s: string): number {
   return s.trim().split(/\s+/).filter(Boolean).length;
 }
 
-function inRange(s: string, min: number, max: number): boolean {
+export function inRange(s: string, min: number, max: number): boolean {
   const w = countWords(s);
   return w >= min && w <= max;
 }
 
-async function sitemapRecipes(): Promise<SitemapRecipe[]> {
+export async function sitemapRecipes(): Promise<SitemapRecipe[]> {
   const res = await fetch(`${SITE}/sitemap.xml`, {
     signal: AbortSignal.timeout(60000),
   });
@@ -67,7 +67,7 @@ async function sitemapRecipes(): Promise<SitemapRecipe[]> {
   return out;
 }
 
-async function pageMeta(
+export async function pageMeta(
   url: string,
 ): Promise<{ title: string; description: string }> {
   const res = await fetch(url, { signal: AbortSignal.timeout(30000) });
@@ -89,12 +89,14 @@ async function pageMeta(
   return { title, description: decodeEntities(desc) };
 }
 
-function firstSentence(s: string): string {
+export function firstSentence(s: string): string {
   const m = s.match(/^[^.!?]+[.!?]/);
   return (m?.[0] ?? s).trim();
 }
 
-async function heroOk(url: string): Promise<{ ok: boolean; reason: string }> {
+export async function heroOk(
+  url: string,
+): Promise<{ ok: boolean; reason: string }> {
   if (!url) return { ok: false, reason: "no hero image in sitemap" };
   try {
     const res = await fetch(url, {
