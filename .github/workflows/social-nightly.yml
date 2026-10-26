@@ -6,6 +6,8 @@ name: social-nightly
 # Graph-verified audit-close of due proofs.
 # mixphd (canary, 2 recipes/night): sitemap poll -> FB+IG issues -> same packet ->
 # MIX_TIMING_WINDOWS slots -> FB native schedule + IG slot crons (both live).
+# Respin: old catalog art / recipes reposted with a fresh spin (new angle +
+# top-crop card, 30d+ rest, exposure-capped) to fill weekend/off-hours slots.
 # IG posts go out via social-ig-slots.yml (IG has no scheduling API).
 # Kill switches: social.nightly.enabled=false (both) or social.nightly.mixphd.enabled=false (mixphd only).
 # Cron is UTC: 06:05 UTC = 02:05 EDT. Revisit on EST (UTC-5) change.
@@ -60,6 +62,16 @@ jobs:
           else
             npx tsx scripts/social-issues/gallery-sync.ts --apply --limit "$LIMIT"
             npx tsx scripts/social-issues/recipe-sync.ts --apply --limit 2 || echo "mixphd intake skipped (kill switch or no fresh recipes)"
+          fi
+      - name: Respin — fresh spin on rested catalog art + recipes (1/site)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ github.event.inputs.dry-run || 'false' }}" = "true" ] && [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            npx tsx scripts/social-issues/respin-queue.ts --dry-run --limit 1
+          else
+            npx tsx scripts/social-issues/respin-queue.ts --apply --limit 1 || echo "respin skipped (no eligible rested content)"
           fi
       - name: Packet — build, visuals, merge (no re-approval, both sites)
         if: github.event_name == 'schedule' || github.event.inputs.dry-run != 'true'

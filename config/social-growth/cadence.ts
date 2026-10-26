@@ -41,46 +41,57 @@ export const TIMING_WINDOWS: Record<string, string[]> = {
 };
 
 /**
- * Synthetic.pics nightly auto-posting grid (23 slots/week ≈ 3.3/day).
- * Tue-Thu carry 15 of 23 slots; something posts every day; slots never share
- * an hour across platforms (staggered). Times are ET; IG slot crons run in
- * UTC so revisit on EST change. Refine from reporting data once it lands.
+ * Synthetic.pics nightly auto-posting grid (31 slots/week ≈ 4.4/day).
+ * Weekends carry 7 slots (Sat 4, Sun 3); off-hours (<08:00 / >=20:00 ET)
+ * carry 6 (early birds + late scrollers). Tue-Thu carry 19 of 31 slots;
+ * something posts every day; slots never share an hour across platforms
+ * or brands (staggered). Times are ET; IG slot crons run in UTC so revisit
+ * on EST change. Refine from reporting data once it lands.
  */
 export const SYN_TIMING_WINDOWS: Record<string, string[]> = {
   instagram: [
+    "Mon 07:30 ET",
     "Mon 12:00 ET",
     "Tue 09:00 ET",
     "Tue 12:00 ET",
     "Tue 18:30 ET",
+    "Tue 21:00 ET",
     "Wed 09:00 ET",
     "Wed 12:00 ET",
     "Wed 18:30 ET",
+    "Wed 21:00 ET",
     "Thu 09:00 ET",
     "Thu 12:00 ET",
     "Thu 18:30 ET",
+    "Thu 21:00 ET",
     "Fri 12:00 ET",
-    "Sat 11:00 ET",
-    "Sun 12:00 ET",
+    "Sat 09:00 ET",
+    "Sat 18:00 ET",
+    "Sun 19:00 ET",
   ],
   facebook: [
     "Mon 09:00 ET",
     "Tue 10:00 ET",
     "Tue 17:00 ET",
+    "Wed 07:00 ET",
     "Wed 13:00 ET",
     "Wed 19:00 ET",
     "Thu 10:00 ET",
     "Thu 17:00 ET",
     "Fri 09:00 ET",
     "Sat 10:00 ET",
+    "Sat 16:00 ET",
     "Sun 13:00 ET",
+    "Sun 20:00 ET",
   ],
 };
 
 /**
- * Mixphd nightly auto-posting grid (17 slots/week ≈ 2.4/day, canary).
+ * Mixphd nightly auto-posting grid (24 slots/week ≈ 3.4/day, canary).
+ * Weekends carry 8 slots (Sat 4, Sun 4); off-hours (<08:00 / >=20:00 ET)
+ * carry 8 (early birds + late scrollers). Tue-Thu carry 10 of 24 slots.
  * Staggered against SYN_TIMING_WINDOWS (no shared day+hour across brands).
- * Tue-Thu carry 9 of 17 slots. Slots are ET — revisit on EST change.
- * Refine from reporting data once it lands.
+ * Slots are ET — revisit on EST change. Refine from reporting data once it lands.
  */
 export const MIX_TIMING_WINDOWS: Record<string, string[]> = {
   instagram: [
@@ -92,16 +103,23 @@ export const MIX_TIMING_WINDOWS: Record<string, string[]> = {
     "Thu 08:00 ET",
     "Thu 20:00 ET",
     "Fri 10:00 ET",
+    "Fri 21:00 ET",
+    "Sat 08:00 ET",
     "Sat 12:00 ET",
+    "Sun 08:00 ET",
     "Sun 18:00 ET",
   ],
   facebook: [
     "Mon 14:00 ET",
+    "Tue 07:00 ET",
     "Tue 11:00 ET",
     "Wed 10:00 ET",
     "Thu 11:00 ET",
     "Fri 14:00 ET",
+    "Fri 20:00 ET",
+    "Sat 07:00 ET",
     "Sat 15:00 ET",
+    "Sun 07:00 ET",
     "Sun 14:00 ET",
   ],
 };

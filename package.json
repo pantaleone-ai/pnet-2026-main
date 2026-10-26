@@ -63,6 +63,7 @@
     "social:verify": "tsx scripts/social-issues/verify-proofs.ts",
     "social:sync": "tsx scripts/social-issues/gallery-sync.ts",
     "social:sync-mix": "tsx scripts/social-issues/recipe-sync.ts",
+    "social:respin": "tsx scripts/social-issues/respin-queue.ts",
     "social:schedule": "tsx scripts/social-issues/schedule-queue.ts"
   },
   "dependencies": {

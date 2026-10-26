@@ -127,13 +127,16 @@ async function main(): Promise<void> {
   const urls = heroMatch
     ? [heroMatch]
     : resolved.slice(0, want).map((c) => c!.imageUrl);
+  // Optional `**Crop:** `top`` (set by respins): top-anchored portrait
+  // framing so the fresh spin is pixel-different from the original card.
+  const crop = field(issue.body, "Crop") === "top" ? "top" : "center";
   const publicUrls = urls.map(
     (_, i) =>
       `https://www.pantaleone.net/${platform === "instagram" ? "ig" : "fb"}/${contentId}-${issue.number}/${i + 1}.jpg`,
   );
   if (dryRun) {
     console.log(
-      `would-build - #${issue.number} ${platform} ${spec.size} x${urls.length}\n${urls.map((u, i) => `- ${u} -> ${publicUrls[i]}`).join("\n")}`,
+      `would-build - #${issue.number} ${platform} ${spec.size} x${urls.length} crop=${crop}\n${urls.map((u, i) => `- ${u} -> ${publicUrls[i]}`).join("\n")}`,
     );
     return;
   }
@@ -145,6 +148,8 @@ async function main(): Promise<void> {
       spec.dir,
       "--size",
       spec.size,
+      "--crop",
+      crop,
       ...urls,
     ],
     { encoding: "utf8", stdio: ["ignore", "pipe", "inherit"] },

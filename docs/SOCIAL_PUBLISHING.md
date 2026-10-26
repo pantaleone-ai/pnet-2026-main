@@ -165,7 +165,7 @@ The media ledger allows same-URL reuse across sites only when`reshareOf`matches 
 Daily scoring runs in `.github/workflows/social-reshare.yml` (read-only;
 draft creation is manual dispatch only).
 
-## Nightly synthetic + mixphd auto-posting (3+/day synthetic, ~2.4/day mixphd canary)
+## Nightly synthetic + mixphd auto-posting (SYN ~4.4/day, MIX ~3.4/day + respins)
 
 `social-nightly.yml` (02:05 ET) runs the full loop for both sites with no human gates;
 `social-ig-slots.yml` publishes IG windows just-in-time (IG has no
@@ -178,26 +178,36 @@ workflows.
    public gallery API, diffs vs `SYN_CATALOG`, appends new artwork, creates
    one FB + one IG issue per artwork (FIFO oldest-first, deduped on artwork
    ID, copy audited — `fail` skips, never publishes).
-2. **Intake mixphd canary** (`recipe-sync.ts`, `--apply --limit 2`): polls
+2. **Intake mixphd** (`recipe-sync.ts`, `--apply --limit 2`): polls
    `https://www.mixphd.com/sitemap.xml` for `<lastmod>` ≤36h, dedupes on slug vs
    open/closed issues (`**Source asset:**`), fetches each recipe page for name +
    meta-description + hero, HEAD-checks hero (stub/small → `needs-asset`, never
    published), creates one FB + one IG `status:queued` issue per recipe (hook from
    name+tag, body = meta-description first sentence 6–14 words, CTA `Read the recipe`,
    UTM `MIX_*`). Zero changes to the mixphd repo.
-3. **Packet** (`auto-packet.ts --no-reapprove`, both sites): builds packet + visuals
-   (mixphd: sitemap `image:loc` AVIF → 1080×1350 IG / 1200×630 FB JPEG via PIL+AVIF),
+3. **Respin** (`respin-queue.ts`, `--apply --limit 1` per site): reposts rested
+   catalog art / recipes with a fresh spin — rotated hook angle, alternate body
+   sentence, top-anchored crop (pixel-different card via `--crop top`), new
+   contentId (`-r2`/`-r3`) + creative `_V2`, `**Respin-Of:**` traceability.
+   Guards: nothing open on the slug, 30d+ since last issue (or never posted),
+   max 3 uses/quarter per artwork (shared exposure ledger), hero still live,
+   audit-gated. Fills weekend/off-hours slots without waiting on new intake.
+4. **Packet** (`auto-packet.ts --no-reapprove`, all queued incl. respins): builds
+   packet + visuals (mixphd: sitemap `image:loc` AVIF → 1080×1350 IG / 1200×630
+   FB JPEG via PIL+AVIF; respins: `**Crop:** top` for fresh framing),
    merges, lands `packet-ready` — does NOT re-approve (slots own the timing).
-4. **Schedule** (`schedule-queue.ts --write`): stamps `**Publish at:**`
-   from `SYN_TIMING_WINDOWS` (IG 13/wk, FB 10/wk; Tue–Thu carry 15 of 23
-   slots; staggered across platforms; slots are ET — revisit on EST change)
-   or `MIX_TIMING_WINDOWS` (IG 10/wk, FB 7/wk ≈ 2.4/day canary; Tue–Thu heavy;
-   staggered vs synthetic grid) selected by `site:` label.
-5. **Facebook**: native `scheduled_publish_time` at stamp time
-   (`publish-due --issue N --schedule-at <slot>`). No runner needed.
-6. **Instagram**: slot crons 9:05a/12:05p/6:35p ET run
+5. **Schedule** (`schedule-queue.ts --write`): stamps `**Publish at:**`
+   from `SYN_TIMING_WINDOWS` (IG 18/wk, FB 13/wk ≈ 4.4/day; Sat 4 + Sun 3;
+   off-hours Mon/Fri 7:30a + Tue/Wed/Thu 9p IG, Wed 7a + Sun 8p FB) or
+   `MIX_TIMING_WINDOWS` (IG 13/wk, FB 11/wk ≈ 3.4/day; Sat 4 + Sun 4;
+   off-hours 8p IG + 7a FB runs) selected by `site:` label. All staggered
+   across platforms and brands (no shared day+hour); slots are ET.
+6. **Facebook**: native `scheduled_publish_time` at stamp time
+   (`publish-due --issue N --schedule-at <slot>`). No runner needed — any hour works.
+7. **Instagram**: slot crons 7:05a/9:05a/12:05p/6:35p/9:05p ET run
    `publish-due --due --channel instagram --site <site>` (oldest due slot first,
-   limit 2 per site; both synthetic.pics + mixphd IG now live).
-7. **Close**: `verify-proofs --apply` audit-closes Graph/API-verified
+   limit 2 per site; both synthetic.pics + mixphd IG live). Early + late runs
+   cover the off-hours grid.
+8. **Close**: `verify-proofs --apply` audit-closes Graph/API-verified
    synthetic + mixphd posts as `published/done` without screenshots; unverified stays
    parked. Manual posts still close via screenshot as before.
