@@ -1,0 +1,92 @@
+{
+  "3": {
+    "inputs": {
+      "text": "a sleek modern perfume bottle on marble, commercial product photography, high-end studio lighting, 8k macro, professional shot, cinematic lighting, sharp details",
+      "clip": ["4", 1]
+    },
+    "class_type": "CLIPTextEncodeFlux",
+    "id": "3"
+  },
+  "4": {
+    "inputs": {
+      "clip_name1": "t5xxl_fp8_e4m3fn_scaled.safetensors",
+      "clip_name2": "clip_l.safetensors",
+      "type": "flux"
+    },
+    "class_type": "DualCLIPLoader",
+    "id": "4"
+  },
+  "5": {
+    "inputs": {
+      "text": "blurry, low quality, distorted, ugly, bad anatomy, bad hands, missing fingers, watermark, signature, deformed",
+      "clip": ["4", 1]
+    },
+    "class_type": "CLIPTextEncodeFlux",
+    "id": "5"
+  },
+  "6": {
+    "inputs": {
+      "width": 1024,
+      "height": 1024,
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage",
+    "id": "6"
+  },
+  "7": {
+    "inputs": {
+      "model_name": "Flux2-Klein-9B-True-v2-Q8_0.gguf",
+      "pipeline": "flux",
+      "device": "default"
+    },
+    "class_type": "UNetLoader",
+    "id": "7"
+  },
+  "8": {
+    "inputs": {
+      "conditioning": ["3", 0],
+      "guidance": 3.5
+    },
+    "class_type": "FluxGuidance",
+    "id": "8"
+  },
+  "10": {
+    "inputs": {
+      "model": ["7", 0],
+      "seed": 42,
+      "steps": 20,
+      "cfg": 1.0,
+      "sampler_name": "euler",
+      "scheduler": "normal",
+      "positive": ["8", 0],
+      "negative": ["5", 0],
+      "latent_image": ["6", 0],
+      "denoise": 1.0
+    },
+    "class_type": "KSampler",
+    "id": "10"
+  },
+  "11": {
+    "inputs": {
+      "samples": ["10", 0],
+      "vae": ["12", 0]
+    },
+    "class_type": "VAEDecode",
+    "id": "11"
+  },
+  "12": {
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "id": "12"
+  },
+  "13": {
+    "inputs": {
+      "images": ["11", 0],
+      "filename_prefix": "flux-klein"
+    },
+    "class_type": "SaveImage",
+    "id": "13"
+  }
+}
