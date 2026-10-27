@@ -68,7 +68,7 @@ The key insight here is that tool behavior isn't just defined by the model—it'
 
 The codebase structure reveals a multi-agent coordination system. The `commands/` directory manages CLI subcommands using Commander.js, while the `coordinator/` and `tasks/` directories house the orchestration logic.
 
-The `AgentTool` serves as the primary mechanism for spawning sub-agents—referred to as "swarms"—to handle parallel sub-tasks. This allows the main agent to maintain a high-level reasoning chain while specialized processes perform lower-level operations in isolated processes.
+The `AgentTool` is the primary mechanism for spawning sub-agents — referred to as "swarms" — to handle parallel sub-tasks. This allows the main agent to maintain a high-level reasoning chain while specialized processes perform lower-level operations in isolated processes.
 
 ```typescript
 // Swarm spawning pattern
@@ -221,7 +221,7 @@ Stop building agents that rely on raw vector database dumps. Implement a skeptic
 
 ## 3. Move Security to Code Level
 
-Utilize AST-based validation to ensure that even if a model is "convinced" to run a malicious command, the underlying harness blocks execution. Security must live in code, not prompts.
+Use AST-based validation to ensure that even if a model is "convinced" to run a malicious command, the underlying harness blocks execution. Security must live in code, not prompts.
 
 ## 4. Design for Context Entropy
 
