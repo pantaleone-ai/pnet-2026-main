@@ -91,9 +91,15 @@ export function scanVoiceExtras(text: string, opts: ScanOptions): Finding[] {
   for (const b of buckets) {
     if (!b.phrases || b.phrases.length === 0) continue;
     if (opts.projectProfile?.allowlist?.includes(b.pattern)) continue;
+    // Dedupe: mergeVoiceExtras() already folds the canonical file into the
+    // voice profile, and callers may also pass voiceExtras explicitly — the
+    // same phrase must not fire twice for one occurrence.
+    const seen = new Set<string>();
     for (const raw of b.phrases) {
       const phrase = raw.trim();
-      if (!phrase || isAllowedPhrase(phrase, opts)) continue;
+      const key = phrase.toLowerCase();
+      if (!phrase || seen.has(key) || isAllowedPhrase(phrase, opts)) continue;
+      seen.add(key);
       if ((b.pattern === "voice-hype" || b.pattern === "voice-hedge") && bannedSet.has(phrase.toLowerCase())) continue;
       const esc = phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const re = new RegExp(phrase.length <= 24 && !phrase.includes(" ") ? `(?<![A-Za-z])${esc}(?![A-Za-z])` : esc, "i");
