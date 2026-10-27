@@ -21,3 +21,17 @@ cp package.json tsconfig.json README.md ATTRIBUTION.md <pnet>/modules/anti-slop/
 
 Keep `config/anti-slop/` (project overrides) and this file — they are pnet-owned
 and must survive a resync.
+
+## Pnet extensions (preserve on resync — not upstream)
+
+- `src/rules/rhythm.ts`, `src/rules/editorial.ts`, `src/rules/voice-extras.ts`,
+  `src/rules/precision.ts` — Pnet voice/rhythm/editorial/precision ports.
+- `src/types.ts` (`VoiceExtras`, `TitleRules`, `RhythmLimits`, extended
+  `VoiceProfile`/`ProjectProfile`/`ScanOptions`), `src/profiles.ts`
+  (`loadVoiceExtras`, `mergeVoiceExtras`, title/rhythm defaults),
+  `src/engine/scanner.ts` (voice-extras), `src/engine/orchestrator.ts`
+  (rhythm/precision/editorial wiring, per-file CLI audit), `src/engine/quality-gate.ts`
+  (soft checklist items), `src/engine/quality-model.ts`, `src/api.ts`,
+  `src/cli.ts`, `src/mcp/server.ts`, `src/index.ts`, `config/anti-slop/rules.json`
+  (titleRules/rhythmLimits defaults), `tests/run.mjs` (§14–15).
+- Upstream resync: diff these files first; re-apply Pnet blocks after copying.

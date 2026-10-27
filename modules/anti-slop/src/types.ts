@@ -76,6 +76,53 @@ export interface VoiceProfile {
   brandTerms?: string[];
   audience?: string;
   approvedExamples?: string[];
+  /**
+   * Pnet extra voice layer (ported from config/voice/anti-patterns.json).
+   * May live inline here OR in that file — loader merges both.
+   * All soft signals: suggestions only, never hard gates by default.
+   */
+  genericOpeners?: string[];
+  fillerTransitions?: string[];
+  contrastCliches?: string[];
+  rhetoricalClosers?: string[];
+  marketingHype?: string[];
+  hedgeSuperlatives?: string[];
+  /** per-article-type voice guidance (EDITORIAL V2), informational only */
+  articleVoices?: Record<string, string>;
+  restraintRule?: string;
+  boundaries?: string[];
+}
+
+/** Pnet anti-patterns file shape (config/voice/anti-patterns.json). */
+export interface VoiceExtras {
+  note?: string;
+  marketing_hype?: string[];
+  generic_openers?: string[];
+  filler_transitions?: string[];
+  contrast_cliches?: string[];
+  rhetorical_closers?: string[];
+  hedge_superlatives?: string[];
+}
+
+export interface TitleRules {
+  stuffers?: string[];
+  openerBan?: string[];
+  genericHeadings?: string[];
+  /** title/heading word-overlap threshold (default 0.8) */
+  maxSimilarity?: number;
+}
+
+export interface RhythmLimits {
+  /** very short lines threshold (default 8) */
+  maxShortParas?: number;
+  /** punct uses per word (default 0.015) */
+  maxPunctDensity?: number;
+  /** not-X-but-Y structures (default 3) */
+  maxContrast?: number;
+  /** repeated 3-word opening (default 4) */
+  maxRepeatOpening?: number;
+  /** hype terms per word (default 0.01) */
+  maxHypeDensity?: number;
 }
 
 export interface DesignProfile {
@@ -102,6 +149,12 @@ export interface ProjectProfile {
   hardGates?: string[];
   maxAutoPasses?: number;
   autoFixThreshold?: number;
+  /** Pnet editorial title rules (soft by default) */
+  titleRules?: TitleRules;
+  /** Pnet rhythm limits (soft by default) */
+  rhythmLimits?: RhythmLimits;
+  /** length budgets, e.g. { description: [12, 25] } — soft warnings only */
+  budgets?: Record<string, [number, number]>;
 }
 
 export type ContentType = "prose" | "markdown" | "code" | "design" | "seo" | "image-prompt";
@@ -117,6 +170,12 @@ export interface ScanOptions {
   /** optional LLM critique hook (layer 5). Sync or async. */
   llmCritique?: (text: string, findings: Finding[]) => Promise<Finding[]> | Finding[];
   tasteMemoryPath?: string;
+  /**
+   * Pnet voice extras override. When omitted, loader reads
+   * <projectRoot>/config/voice/anti-patterns.json (kept canonical)
+   * and merges with voiceProfile inline arrays.
+   */
+  voiceExtras?: VoiceExtras;
 }
 
 export interface AuditReport {

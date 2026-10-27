@@ -15,6 +15,7 @@
 
 import { stdin, stdout } from "node:process";
 import { audit, scan } from "../engine/orchestrator.js";
+import { loadProjectProfile, loadProtectedTerms, loadVoiceExtras, loadVoiceProfile } from "../profiles.js";
 import { analyzeDesign } from "../rules/design.js";
 import { analyzeImagePrompt } from "../rules/image-prompt.js";
 import { analyzeSeo } from "../rules/seo.js";
@@ -92,19 +93,34 @@ function slim(r: AuditReport) {
   };
 }
 
+function defaults(): { voiceProfile: ReturnType<typeof loadVoiceProfile>; projectProfile: ReturnType<typeof loadProjectProfile>; protectedTerms: string[]; voiceExtras: ReturnType<typeof loadVoiceExtras> } {
+  try {
+    return {
+      voiceProfile: loadVoiceProfile(),
+      projectProfile: loadProjectProfile(),
+      protectedTerms: loadProtectedTerms(),
+      voiceExtras: loadVoiceExtras(),
+    };
+  } catch {
+    return { voiceProfile: { name: "default" }, projectProfile: { name: "default" }, protectedTerms: [], voiceExtras: {} };
+  }
+}
+
 async function callTool(name: string, args: Record<string, unknown>): Promise<unknown> {
   const str = (k: string) => String(args[k] ?? "");
+  const d = defaults();
   switch (name) {
     case "anti_slop_scan":
-      return slim(await scan(str("content"), { contentType: (args["contentType"] as ContentType) ?? "prose", mode: "scan" }));
+      return slim(await scan(str("content"), { contentType: (args["contentType"] as ContentType) ?? "prose", mode: "scan", ...d }));
     case "anti_slop_audit":
       return slim(await audit(str("content"), {
         contentType: (args["contentType"] as ContentType) ?? "prose",
         mode: "audit",
         strictness: (args["strictness"] as "lenient" | "standard" | "strict") ?? "standard",
+        ...d,
       }));
     case "anti_slop_rewrite": {
-      const r = await audit(str("content"), { mode: "rewrite" });
+      const r = await audit(str("content"), { mode: "rewrite", ...d });
       return { rewritten: r.rewritten ?? str("content"), changesMade: r.changesMade, suggestions: r.recommendedChanges, gate: r.qualityGate.passed };
     }
     case "anti_slop_design_audit": {
@@ -120,13 +136,13 @@ async function callTool(name: string, args: Record<string, unknown>): Promise<un
       return { findings: analyzeCode(str("source"), str("fileLabel") || "source") };
     case "anti_slop_compare": {
       const [a, b] = await Promise.all([
-        scan(str("before"), { mode: "scan" }),
-        scan(str("after"), { mode: "scan" }),
+        scan(str("before"), { mode: "scan", ...d }),
+        scan(str("after"), { mode: "scan", ...d }),
       ]);
       return { before: a.summary, after: b.summary, delta: a.findings.length - b.findings.length };
     }
     case "anti_slop_quality_gate": {
-      const r = await audit(str("content"), { mode: "scan" });
+      const r = await audit(str("content"), { mode: "scan", ...defaults() });
       return { passed: r.qualityGate.passed, checklist: r.qualityGate.checklist, hardFailures: r.qualityGate.hardFailures };
     }
     default:

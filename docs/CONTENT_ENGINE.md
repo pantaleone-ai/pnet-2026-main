@@ -136,6 +136,10 @@ Good content is left alone. Protected spans (code fences, quotes, URLs,
 frontmatter) and `config/anti-slop/protected-terms.json` (product/brand/SEO
 terms) are never flagged or rewritten. Taste overrides go in the engine's
 feedback store, never as one-off exceptions in prose.
+Pnet voice extras (`config/voice/anti-patterns.json`, rhythm limits,
+title/heading rules) are baked into the engine (`rules/voice-extras.ts`,
+`rules/rhythm.ts`, `rules/editorial.ts`) as soft signals — suggestion-only,
+never auto-fixed, never hard gates. CLI audits multi-file inputs per file.
 
 Agent (MCP) access — stdio server, zero dependencies:
 
