@@ -49,9 +49,7 @@ Prompt goes in, a finished image lands in S3. A Flux workflow renders 1024px ima
 
 ## Problem and design decisions
 
-Product and marketing imagery needs volume and consistency. Generating one image at a time through the ComfyUI UI does not scale, and hand-uploading each file invites mislabeled assets. Every step here is deterministic except the diffusion sampling itself, which is why this is an automation workflow and not an agent: no step makes decisions, calls tools, or branches on judgment.
-
-The exports are ComfyUI API-format graphs, not canvas screenshots. That choice matters because the API format is what `upscale_image.py` submits programmatically. The same file a person loads in the UI is the file the script queues, so there is no drift between manual and automated runs.
+Product and marketing imagery needs volume and consistency. Every step here is deterministic except the diffusion sampling itself, which is why this is an automation workflow and not an agent: no step makes decisions, calls tools, or branches on judgment.
 
 Model weights stay local. Nothing is sent to an external image API, which keeps per-image cost at electricity and keeps unreleased product imagery off third-party servers.
 
@@ -66,8 +64,6 @@ Model weights stay local. Nothing is sent to an external image API, which keeps 
 | Upscale | `upscale-workflow.json` via `upscale_image.py` against `127.0.0.1:8188` |
 | Publish | `upload_to_s3.py` with AWS env vars and folder map |
 | Variants | GGUF UNet build, tiled VAE decode, 25-step, smoke test |
-
-The GGUF variant swaps the full checkpoint for a UNetLoader plus a separate `ae.safetensors` VAE, which fits smaller VRAM budgets. The tiled variant decodes through VAEDecodeTiled for large outputs. The test workflow renders with a `mixphd-test` prefix as a smoke check before a batch run.
 
 ## Detailed operation
 
@@ -94,7 +90,7 @@ Known limits: the exports carry no retry, queue management, or logging beyond wh
 
 ## Reliability, security, and limits
 
-The failure modes are mundane. Missing model files fail loudly at load time. A stopped ComfyUI instance makes the upscale script fail at queue time while the source image waits on disk. Bad AWS credentials fail at upload time while the finished image waits locally. Nothing deletes or overwrites source files at any step.
+Missing model files fail loudly at load time. A stopped ComfyUI instance makes the upscale script fail at queue time while the source image waits on disk. Bad AWS credentials fail at upload time while the finished image waits locally. Nothing deletes or overwrites source files at any step.
 
 Keep unreleased imagery in mind: generation is local, but the publish step puts files on S3. Folder routing keeps services separated, yet bucket policy is what actually controls access. Review it before publishing anything sensitive.
 
