@@ -100,6 +100,11 @@ export interface SearchResultClickEvent {
 
 export const MEASUREMENT_CONSENT_KEY = "pnet-measurement-consent";
 
+// Write-through cache for the c15t consent store (the source of truth).
+// ConsentManagerClient syncs this key from c15t's onConsentSet callback
+// (which replays on store init, covering return visitors). Do not treat
+// this key as authoritative anywhere on mount — always let c15t overwrite
+// it via setMeasurementConsent.
 export function hasMeasurementConsent(): boolean {
   if (typeof window === "undefined") return false;
   try {

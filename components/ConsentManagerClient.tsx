@@ -1,39 +1,39 @@
 "use client";
 
-import { useEffect } from "react";
-
 import { ClientSideOptionsProvider } from "@c15t/nextjs/client";
 import { posthog } from "posthog-js";
 
 import { setMeasurementConsent } from "@/lib/analytics";
+
+function syncVendorsFromPreferences(
+  preferences: Record<string, boolean>,
+): void {
+  const granted = preferences.measurement === true;
+  // c15t is the source of truth. setMeasurementConsent persists a
+  // write-through cache (pnet-measurement-consent) for the layout-head
+  // Consent Mode bootstrap + hasMeasurementConsent() fast path, and pushes
+  // the gtag consent update. onConsentSet replays on store init, so
+  // return visitors are restored from the c15t store — no localStorage
+  // read here, which previously diverged from c15t and stuck return
+  // visitors at denied.
+  setMeasurementConsent(granted);
+  if (granted) {
+    posthog.opt_in_capturing();
+  } else {
+    posthog.opt_out_capturing();
+  }
+}
 
 export function ConsentManagerClient({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  useEffect(() => {
-    try {
-      const stored = window.localStorage.getItem("pnet-measurement-consent");
-      if (stored === "granted" || stored === "denied") {
-        setMeasurementConsent(stored === "granted");
-      }
-    } catch {
-      // storage unavailable — Consent Mode defaults stay denied
-    }
-  }, []);
-
   return (
     <ClientSideOptionsProvider
       callbacks={{
         onConsentSet({ preferences }) {
-          const granted = preferences.measurement === true;
-          setMeasurementConsent(granted);
-          if (granted) {
-            posthog.opt_in_capturing();
-          } else {
-            posthog.opt_out_capturing();
-          }
+          syncVendorsFromPreferences(preferences);
         },
       }}
     >
