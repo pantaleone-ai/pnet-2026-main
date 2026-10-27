@@ -45,7 +45,7 @@ The problem isn't the models. It's the lack of infrastructure. You wouldn't run 
 
 The core issue is that most AI agents have no persistent, verifiable identity. They are ephemeral processes. Without identity, you can't have security, you can't have an audit trail, and you can't have governance. You're just firing processes into the void.
 
-AgentDNA anchors its entire system on this concept—giving every agent a unique, cryptographically-signed identifier. This isn't just a UUID. It's a verifiable credential that travels with the agent, attesting to its origin, version, and permissions. If you can't answer "What is this thing and am I allowed to trust it?", nothing else matters.
+AgentDNA anchors its entire system on this concept — giving every agent a unique, cryptographically-signed identifier: a verifiable credential that travels with the agent, attesting to its origin, version, and permissions. If you can't answer "What is this thing and am I allowed to trust it?", nothing else matters.
 
 ## The Stack: A Pragmatic Breakdown
 
@@ -53,9 +53,9 @@ An identity is useless without a system to manage it. AgentDNA's stack provides 
 
 ### 1. The Agent Registry: Your Control Plane
 
-This is the component that resonates most with me as a builder. An agent registry is to AI agents what Docker Hub is to containers or Git is to source code. It's a centralized system to store, version, and manage access to your agents.
+This is the component that matters most to me as a builder. An agent registry is to AI agents what Docker Hub is to containers or Git is to source code. It's a centralized system to store, version, and manage access to your agents.
 
-Without a registry, you have no single source of truth. You have different teams running different versions of agents from their local machines, with no visibility or control. The registry fixes this. It provides versioning, policy enforcement, and a complete audit trail. It's how you move from chaos to a governed ecosystem.
+Without a registry, you have no single source of truth. You have different teams running different versions of agents from their local machines, with no visibility or control. The registry fixes this. It provides versioning, policy enforcement, and a complete audit trail. It's how you move from chaos to a governed fleet.
 
 ![Diagram of the AgentDNA Registry, highlighting features like versioning, access control, and audit trails.](https://img.pantaleone.net/agent-dna3.webp)
 
@@ -71,7 +71,7 @@ It's an API gateway, but built for agents. It's where you enforce runtime securi
 
 A Jupyter notebook is not a production system. The "build" part of the stack is about formalizing the development process. It provides the SDKs and CI/CD frameworks to integrate agent development into existing engineering workflows.
 
-This is critical. It means moving agent creation out of the data science lab and into a proper software development lifecycle. You can build, test, version, and deploy agents with the same rigor you apply to your core applications. This includes observability—the logging, monitoring, and tracing required to understand what an agent is actually doing and how it's performing over time. This is how you build reliable systems instead of brittle prototypes.
+That move is the point: agent creation leaves the data science lab and enters a proper software development lifecycle. You can build, test, version, and deploy agents with the same rigor you apply to your core applications. This includes observability—the logging, monitoring, and tracing required to understand what an agent is actually doing and how it's performing over time. This is how you build reliable systems instead of brittle prototypes.
 
 ![Flowchart showing the Agent Lifecycle Management from build and test to deploy and monitor.](https://img.pantaleone.net/agent-dna5.webp)
 
