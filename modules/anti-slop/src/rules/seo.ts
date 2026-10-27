@@ -15,7 +15,10 @@ const mk = (pattern: string, severity: Severity, confidence: number, location: s
 
 export function analyzeSeo(text: string): Finding[] {
   const out: Finding[] = [];
-  const words = text.toLowerCase().match(/\b[a-z]{3,}\b/g) ?? [];
+  // URL schemes/hoses are not vocabulary: strip links before term-frequency
+  // analysis so "https" never reads as keyword stuffing.
+  const deUrl = text.replace(/https?:\/\/\S+/g, " ");
+  const words = deUrl.toLowerCase().match(/\b[a-z]{3,}\b/g) ?? [];
   const total = Math.max(1, words.length);
   const stop = new Set("the,and,for,are,but,not,you,all,can,had,her,was,one,our,out,has,have,will,with,from,that,this,these,those,they,them,their,your,when,what,which,where,there,about,into,more,most,very,just,also,only,than,its,as,was,were,been,being,over,under,while,after,before,between,across,through,within,without,because,however,often,each,every,other,such,than,then,them,they,this,will,would,should,could,your,yours".split(","));
   const counts = new Map<string, number>();
