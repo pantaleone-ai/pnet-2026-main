@@ -196,9 +196,7 @@ console.log(`\n${pass} passed, ${fail} failed (incl. voice checks)`);
   check("extras: fragments fires", has(rhythm, "fragments"), JSON.stringify(rhythm.findings.map((f) => f.pattern)));
 
   // Editorial port: title stuffer + banned opener + H1 + duplicate heading.
-  // Body padded past the 150-word blurb exemption so heading rules apply.
-  const edBody = "Writers shape each chapter around a single task the reader can finish in one sitting. Examples carry the weight, with commands shown exactly as typed. Diagrams mark the boundaries between setup, daily use, and troubleshooting. Readers follow numbered paths through configuration, then verify each stage before moving on. Mistakes get their own callouts with recovery commands attached. Appendices collect reference tables for flags, environment variables, and exit codes. The closing chapter reviews deployment checklists for staging and production targets. Nothing here assumes prior exposure to the toolchain beyond a working shell. Each section ends with a short summary of decisions made along the way. That structure keeps the page scannable while preserving enough depth for careful study and later review. Editors review each draft for broken commands before release. A changelog records updates to flags and paths across releases. Reviewers confirm screenshots match the current interface before sign-off.";
-  const md = `---\ntitle: The Ultimate Guide to Free Modern AI\n---\n\n# The Ultimate Guide to Free Modern AI\n\n${edBody}`;
+  const md = `---\ntitle: The Ultimate Guide to Free Modern AI\n---\n\n# The Ultimate Guide to Free Modern AI\n\nBody copy here.`;
   const ed = await scan(md, { mode: "scan", contentType: "markdown", voiceExtras: extras });
   check("extras: title-stuffer fires", has(ed, "title-stuffer"), JSON.stringify(ed.findings.map((f) => f.pattern)));
   check("extras: banned-title-opener fires", has(ed, "banned-title-opener"), JSON.stringify(ed.findings.map((f) => f.pattern)));

@@ -126,10 +126,8 @@ export function analyzeEditorial(input: string, project?: ProjectProfile): Findi
     }
   }
 
-  // First-body-heading rule (articles): distinct ##, not H1/generic/duplicate.
-  // Short product/project blurbs are exempt — a heading adds noise there.
-  const bodyWords = body.split(/\s+/).filter(Boolean).length;
-  if (title && bodyWords >= 150) {
+  // First-body-heading rule (blog posts): distinct ##, not H1/generic/duplicate.
+  if (title) {
     const { level, heading } = firstBodyHeading(body);
     if (!heading || !level) {
       if (!allow.has("missing-body-heading")) {

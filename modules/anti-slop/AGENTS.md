@@ -104,36 +104,7 @@ engine working — fix the copy or protected-terms, never weaken the gate silent
 * Gate failure? Check `hardFailures` (default: only `fake-specificity`/`chatbot`) —
   everything else is advisory in standard mode.
 
-## 7. Standing acceptances (2026-10-27 slop sweep — do not re-litigate without new evidence)
-
-These finding classes were adjudicated as false-positive-class or format-inherent.
-Do not "fix" them by editing prose; fix the engine instead if truly warranted:
-
-- Ordinary-word `unsupported-superlative` hits on `only` (restrictive), `first`
-  (sequence/ordinal/API position like "first content block"), `best practices`
-  (editorial-exempt standard term — scanner gap), hyphen compounds
-  (`mobile-first`, `server-first`, `code-first`, `TypeScript-first`).
-- Topical `keyword-stuffing` highs/mediums where the top term is the post's subject
-  (`redis`, `claude`, `prompts`, `agent`, `auth`, `gallery`, `mcp`, `next`, `workflows`).
-- Quoted / example / system-prompt material: re-fence or blockquote it (protection),
-  never edit it. Single-quoted example instructions are a known protection gap.
-- `heading-repetition` where repeated heads differ by trailing scope
-  ("Expert Prompt Collection — Text/Image/Music…").
-- Deliberate anaphora and the author's signature contrast frame when each instance
-  carries specific evidence (see `approvedExamples`); keep, per restraint rule.
-- Catalogue/technique/checklist formats: `symmetric-bold-bullets`, `rule-of-three`,
-  `repetition-opening` ("Why it matters:" labels, "- [ ]" rubrics), `fragments` and
-  `colon-density` in reference/collection posts, `em-dash-density` in natural
-  parenthetical prose. Fix only the instance that is genuinely sloppy.
-- `lexical-signal:landscape` for orientation ("16:9 landscape"), `dynamic` for
-  technical terms (dynamic data/search/rendering), `harness` as noun (test harness),
-  `critical`/`gold standard` as severity/tier labels, `ecosystem` where a real
-  platform graph exists.
-- `voice-drift` on standard terms: "reader journey", "critical processes",
-  "cadence" (schedule), "fluff" when discussing fluff itself.
-- `generic-anchor-text [source]` already rewritten to descriptive anchors (Oct 2026).
-
-## 8. PR checklist for engine changes
+## 7. PR checklist for engine changes
 
 - [ ] `npm run anti-slop:build` clean, `npm run anti-slop:test` fully green
 - [ ] `npm run content:validate` run; deltas explained (failing files listed)
