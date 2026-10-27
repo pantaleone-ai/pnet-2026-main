@@ -10,13 +10,14 @@
  *   anti-slop feedback --pattern P --kind approve|reject|edit|mark-good|mark-slop
  */
 
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, existsSync, statSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 import { stdin, stdout } from "node:process";
 import { audit, scan } from "./engine/orchestrator.js";
 import { analyzeDesign } from "./rules/design.js";
 import { analyzeCode } from "./rules/code.js";
 import { runQualityGate } from "./engine/quality-gate.js";
-import { loadProjectProfile, loadProtectedTerms, loadVoiceProfile } from "./profiles.js";
+import { loadProjectProfile, loadProtectedTerms, loadVoiceExtras, loadVoiceProfile } from "./profiles.js";
 import { recordFeedback } from "./engine/taste-memory.js";
 import type { ContentType } from "./types.js";
 
@@ -66,17 +67,37 @@ function parse(argv: string[]): Args {
   return a;
 }
 
+function expandInputs(files: string[]): string[] {
+  const out: string[] = [];
+  const walk = (p: string) => {
+    let st: ReturnType<typeof statSync>;
+    try {
+      st = statSync(p);
+    } catch {
+      process.stderr.write(`anti-slop: file not found: ${p}\n`);
+      process.exit(2);
+      return;
+    }
+    if (st.isDirectory()) {
+      for (const e of readdirSync(p)) walk(join(p, e));
+    } else if (/\.(md|mdx|txt|tsx|ts)$/i.test(p)) {
+      out.push(p);
+    } else {
+      out.push(p);
+    }
+  };
+  for (const f of files) walk(f);
+  return out.sort();
+}
+
 async function readInput(files: string[]): Promise<string> {
   if (files.length > 0) {
-    return files
-      .map((f) => {
-        if (!existsSync(f)) {
-          process.stderr.write(`anti-slop: file not found: ${f}\n`);
-          process.exit(2);
-        }
-        return readFileSync(f, "utf-8");
-      })
-      .join("\n\n");
+    const expanded = expandInputs(files);
+    if (expanded.length === 0) {
+      process.stderr.write("anti-slop: no input files found\n");
+      process.exit(2);
+    }
+    return expanded.map((f) => `<!-- source: ${f} -->\n` + readFileSync(f, "utf-8")).join("\n\n");
   }
   if (stdin.isTTY) usage();
   return new Promise((resolve) => {
@@ -116,8 +137,9 @@ async function main() {
   const projectProfile = loadProjectProfile();
   const voiceProfile = loadVoiceProfile();
   const protectedTerms = loadProtectedTerms();
+  const voiceExtras = loadVoiceExtras();
   const strictness = a.strict ? "strict" : (projectProfile.strictness ?? "standard");
-  const baseOpts = { contentType: a.type, projectProfile, voiceProfile, protectedTerms, strictness } as const;
+  const baseOpts = { contentType: a.type, projectProfile, voiceProfile, protectedTerms, voiceExtras, strictness } as const;
 
   if (a.cmd === "feedback") {
     if (!a.pattern || !a.kind) usage();
@@ -151,6 +173,35 @@ async function main() {
   }
 
   if (!["scan", "audit", "rewrite"].includes(a.cmd)) usage();
+
+  // Multi-file (incl. directory expansion): audit per file so lexical
+  // frequency-vs-length stays per-document. Single stdin/file keeps old behavior.
+  const expanded = a.files.length > 0 ? expandInputs(a.files) : [];
+  if (expanded.length > 1 && a.cmd !== "rewrite") {
+    let total = 0;
+    let high = 0;
+    let failedFiles: string[] = [];
+    for (const f of expanded) {
+      const text = readFileSync(f, "utf-8");
+      if (!text.trim()) continue;
+      const r = await (a.cmd === "scan"
+        ? scan(text, { ...baseOpts, mode: "scan" })
+        : audit(text, { ...baseOpts, mode: "audit" }));
+      total += r.findings.length;
+      high += r.findings.filter((x) => x.severity === "high").length;
+      const fileFailed = !r.qualityGate.passed;
+      if (fileFailed) failedFiles.push(f);
+      const top = r.findings.slice(0, 5).map((x) => `    [${x.severity}] ${x.category}:${x.pattern}`).join("\n");
+      stdout.write(`${fileFailed ? "FAIL" : "ok"} ${f} — ${r.summary}${top ? "\n" + top + "\n" : ""}`);
+    }
+    stdout.write(`\n== ${total} findings across ${expanded.length} files (${failedFiles.length} failed). Gate ${failedFiles.length === 0 ? "PASSED" : "FAILED"}.\n`);
+    if (failedFiles.length > 0) {
+      for (const f of failedFiles.slice(0, 20)) stdout.write(`  ! ${f}\n`);
+      process.exit(1);
+    }
+    return;
+  }
+
   const input = await readInput(a.files);
   if (!input.trim()) {
     process.stderr.write("anti-slop: empty input\n");

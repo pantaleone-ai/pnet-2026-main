@@ -10,6 +10,8 @@
 
 import type { Finding, ScanOptions, Severity, VoiceProfile } from "../types.js";
 import { protect } from "./protected.js";
+import { scanVoiceExtras } from "../rules/voice-extras.js";
+import { mergeVoiceExtras } from "../profiles.js";
 import {
   CHATBOT_ARTIFACTS,
   CONTENT_RULES,
@@ -191,8 +193,11 @@ export function scanText(input: string, opts: ScanOptions = {}): TextScanResult 
 
   // Voice drift: flag habits the profile explicitly bans.
   const voice: Finding[] = [];
-  const banned = opts.voiceProfile?.bannedStylisticHabits ?? [];
-  const alternatives = opts.voiceProfile?.habitAlternatives ?? {};
+  const effectiveVoice: VoiceProfile = opts.voiceExtras
+    ? mergeVoiceExtras(opts.voiceProfile ?? { name: "default" }, opts.voiceExtras)
+    : (opts.voiceProfile ?? { name: "default" });
+  const banned = effectiveVoice.bannedStylisticHabits ?? [];
+  const alternatives = effectiveVoice.habitAlternatives ?? {};
   for (const habit of banned) {
     const m = habitPattern(habit).exec(text);
     if (m) {
@@ -213,7 +218,15 @@ export function scanText(input: string, opts: ScanOptions = {}): TextScanResult 
     }
   }
 
-  const findings = [...chatbot, ...lexical, ...rhetoricalHits, ...style, ...content, ...voice].sort(
+  // Pnet extra voice layer (anti-patterns.json categories) — soft signals.
+  let extras: Finding[] = [];
+  try {
+    extras = scanVoiceExtras(text, { ...opts, voiceProfile: effectiveVoice });
+  } catch {
+    extras = [];
+  }
+
+  const findings = [...chatbot, ...lexical, ...rhetoricalHits, ...style, ...content, ...voice, ...extras].sort(
     (a, b) => b.confidence - a.confidence,
   );
   const words = text.split(/\s+/).filter(Boolean).length;

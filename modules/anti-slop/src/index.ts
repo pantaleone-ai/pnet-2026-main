@@ -13,10 +13,16 @@ export { analyzeSeo } from "./rules/seo.js";
 export { analyzeDesign } from "./rules/design.js";
 export { analyzeImagePrompt } from "./rules/image-prompt.js";
 export { analyzeCode } from "./rules/code.js";
+export { analyzeRhythm } from "./rules/rhythm.js";
+export { analyzeEditorial } from "./rules/editorial.js";
+export { analyzePrecisionRaw, analyzePrecisionText } from "./rules/precision.js";
+export { scanVoiceExtras } from "./rules/voice-extras.js";
 export {
   loadVoiceProfile,
   loadDesignProfile,
   loadProjectProfile,
   loadProtectedTerms,
+  loadVoiceExtras,
+  mergeVoiceExtras,
 } from "./profiles.js";
 export * as api from "./api.js";

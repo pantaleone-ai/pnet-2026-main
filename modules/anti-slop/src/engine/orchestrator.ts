@@ -12,7 +12,11 @@ import { analyzeSeo } from "../rules/seo.js";
 import { analyzeDesign } from "../rules/design.js";
 import { analyzeImagePrompt } from "../rules/image-prompt.js";
 import { analyzeCode } from "../rules/code.js";
+import { analyzeRhythm } from "../rules/rhythm.js";
+import { analyzeEditorial } from "../rules/editorial.js";
+import { analyzePrecisionRaw, analyzePrecisionText } from "../rules/precision.js";
 import { loadTasteMemory, applyTasteMemory } from "./taste-memory.js";
+import { loadVoiceExtras } from "../profiles.js";
 
 function partition(findings: Finding[]) {
   const pick = (...pats: string[]) =>
@@ -20,7 +24,9 @@ function partition(findings: Finding[]) {
   return {
     textIssues: pick("lexical", "rhetorical", "style", "content", "chatbot"),
     designIssues: findings.filter((f) => f.category === "design" || f.category === "code"),
-    structuralIssues: findings.filter((f) => f.category === "structure"),
+    structuralIssues: findings.filter(
+      (f) => f.category === "structure" || f.pattern.startsWith("repetition-") || f.pattern.startsWith("fragments"),
+    ),
     seoIssues: findings.filter((f) => f.category === "seo"),
     voiceIssues: findings.filter((f) => f.category === "voice"),
   };
@@ -36,6 +42,9 @@ function summarize(findings: Finding[], gate: { passed: boolean }): string {
 export async function audit(input: string, opts: ScanOptions = {}): Promise<AuditReport> {
   const strict = opts.strictness === "strict";
   const maxPasses = opts.projectProfile?.maxAutoPasses ?? 2;
+  // Resolve Pnet voice extras once (canonical file) when caller didn't pass them.
+  const voiceExtras = opts.voiceExtras ?? loadVoiceExtras();
+  const eff: ScanOptions = { ...opts, voiceExtras };
 
   // Taste memory: attenuate approved patterns, boost rejected ones.
   const memory = loadTasteMemory(opts.tasteMemoryPath);
@@ -49,24 +58,46 @@ export async function audit(input: string, opts: ScanOptions = {}): Promise<Audi
 
   // Content-type-specific analyzers run on the ORIGINAL (unprotected) input.
   const extra: Finding[] = [];
-  const ct = opts.contentType ?? "prose";
+  const ct = eff.contentType ?? "prose";
   if (ct === "prose" || ct === "markdown" || ct === "seo") extra.push(...analyzeSeo(input));
+  if (ct === "prose" || ct === "markdown" || ct === "seo") {
+    try {
+      extra.push(...analyzeEditorial(input, eff.projectProfile));
+    } catch { /* editorial never blocks */ }
+    try {
+      extra.push(...analyzePrecisionRaw(input, eff));
+    } catch { /* precision-raw never blocks */ }
+  }
   if (ct === "design") extra.push(...analyzeDesign({ source: input }));
   if (ct === "code") extra.push(...analyzeCode(input));
   if (ct === "image-prompt") extra.push(...analyzeImagePrompt(input));
 
   // Iterative text passes (prose-like types only).
   const isTextual = ct === "prose" || ct === "markdown" || ct === "seo";
+  const rhythmOf = (analyzed: string): Finding[] => {
+    try {
+      return analyzeRhythm(analyzed, eff.projectProfile);
+    } catch {
+      return [];
+    }
+  };
+  const precisionOf = (analyzed: string): Finding[] => {
+    try {
+      return analyzePrecisionText(analyzed, eff);
+    } catch {
+      return [];
+    }
+  };
   if (isTextual) {
     for (pass = 0; pass <= maxPasses; pass++) {
-      const res = scanText(current, opts);
+      const res = scanText(current, eff);
       restore = res.restore;
-      let fs = adjust([...res.findings, ...extra]);
+      let fs = adjust([...res.findings, ...rhythmOf(res.analyzedText), ...precisionOf(res.analyzedText), ...extra]);
 
       // Layer 5: optional LLM critique (semantic judgment only).
-      if (opts.llmCritique) {
+      if (eff.llmCritique) {
         try {
-          const llmFindings = await opts.llmCritique(current, fs);
+          const llmFindings = await eff.llmCritique(current, fs);
           fs = [...fs, ...llmFindings.map((f) => ({ ...f, layer: 5 }))];
         } catch {
           /* LLM offline — deterministic layers stand alone */
@@ -75,11 +106,12 @@ export async function audit(input: string, opts: ScanOptions = {}): Promise<Audi
       findings = fs;
 
       const quality = scoreText(current, findings);
-      if (opts.mode === "scan" || pass === maxPasses || !quality.needsAnotherPass) break;
+      if (eff.mode === "scan" || pass === maxPasses || !quality.needsAnotherPass) break;
 
       // Rewrite pass (audit/rewrite/guard modes).
-      if (opts.mode === "rewrite" || opts.mode === "audit" || opts.mode === "guard") {
-        const threshold = opts.projectProfile?.autoFixThreshold ?? 0.85;
+      // Rhythm + voice-extras + editorial are suggestion-only: never auto-fixed.
+      if (eff.mode === "rewrite" || eff.mode === "audit" || eff.mode === "guard") {
+        const threshold = eff.projectProfile?.autoFixThreshold ?? 0.85;
         const rw = rewriteMinimal(res.analyzedText, findings, threshold);
         if (rw.changesMade.length === 0) break; // nothing safe to change → stop (anti-loop)
         allChanges.push(...rw.changesMade);
@@ -91,11 +123,15 @@ export async function audit(input: string, opts: ScanOptions = {}): Promise<Audi
   }
 
   const finalText = isTextual ? current : input;
-  const finalFindings = isTextual
-    ? adjust([...scanText(finalText, opts).findings, ...extra])
-    : findings;
+  let finalFindings: Finding[];
+  if (isTextual) {
+    const fres = scanText(finalText, eff);
+    finalFindings = adjust([...fres.findings, ...rhythmOf(fres.analyzedText), ...precisionOf(fres.analyzedText), ...extra]);
+  } else {
+    finalFindings = findings;
+  }
 
-  const gate = runQualityGate(finalFindings, opts.projectProfile, strict);
+  const gate = runQualityGate(finalFindings, eff.projectProfile, strict);
   const quality = isTextual ? scoreText(finalText, finalFindings) : undefined;
   const parts = partition(finalFindings);
 

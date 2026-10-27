@@ -14,6 +14,7 @@ import {
   loadDesignProfile,
   loadProjectProfile,
   loadProtectedTerms,
+  loadVoiceExtras,
   loadVoiceProfile,
 } from "./profiles.js";
 
@@ -26,6 +27,7 @@ export interface ApiRequest {
   designProfile?: ScanOptions["designProfile"];
   protectedTerms?: string[];
   strictness?: ScanOptions["strictness"];
+  voiceExtras?: ScanOptions["voiceExtras"];
 }
 
 function withDefaults(req: ApiRequest, projectRoot?: string): ScanOptions {
@@ -37,6 +39,7 @@ function withDefaults(req: ApiRequest, projectRoot?: string): ScanOptions {
     projectProfile: req.projectProfile ?? loadProjectProfile(projectRoot),
     protectedTerms: [...(req.protectedTerms ?? []), ...loadProtectedTerms(projectRoot)],
     strictness: req.strictness ?? req.projectProfile?.strictness ?? "standard",
+    voiceExtras: req.voiceExtras ?? loadVoiceExtras(projectRoot),
   };
 }
 

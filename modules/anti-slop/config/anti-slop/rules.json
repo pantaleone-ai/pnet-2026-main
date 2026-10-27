@@ -5,5 +5,18 @@
   "protectedTerms": [],
   "hardGates": ["fake-specificity", "chatbot"],
   "maxAutoPasses": 2,
-  "autoFixThreshold": 0.85
+  "autoFixThreshold": 0.85,
+  "titleRules": {
+    "stuffers": ["free ", "ultimate", "modern ", "official", "production-ready"],
+    "openerBan": ["the ultimate", "the complete", "a comprehensive", "the definitive", "everything you need to know"],
+    "genericHeadings": ["introduction", "overview", "summary", "conclusion", "background", "preface"],
+    "maxSimilarity": 0.8
+  },
+  "rhythmLimits": {
+    "maxShortParas": 8,
+    "maxRepeatOpening": 4,
+    "maxContrast": 3,
+    "maxPunctDensity": 0.015,
+    "maxHypeDensity": 0.01
+  }
 }

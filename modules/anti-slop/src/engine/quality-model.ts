@@ -21,8 +21,8 @@ export function scoreText(text: string, findings: Finding[]): QualityScore {
   const aiPatterns = by((f) => ["lexical", "rhetorical", "chatbot"].includes(f.category));
   const promo = by((f) => ["content"].includes(f.category) && /superlative|inflation|promotional/i.test(f.explanation + f.pattern));
   const evidenceFails = by((f) => /fake-specificity|vague-authority|unsupported-superlative/.test(f.pattern));
-  const redundancy = by((f) => /idea-repetition|sentence-opening-repetition|sentence-length-monotony/.test(f.pattern));
-  const rhythmFails = by((f) => /monotony|repetition|rule-of-three|em-dash/.test(f.pattern));
+  const redundancy = by((f) => /idea-repetition|sentence-opening-repetition|sentence-length-monotony|repetition-opening/.test(f.pattern));
+  const rhythmFails = by((f) => /monotony|repetition|rule-of-three|em-dash|fragments|colon-density|semicolon-density|contrast-structure|hype-density/.test(f.pattern));
 
   // Specificity: penalize vague-authority + fake-specificity + lexical vagueness.
   const specificity = clamp01(1 - density(evidenceFails) * 30 - density(by((f) => f.category === "lexical")) * 8);
