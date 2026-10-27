@@ -1,0 +1,102 @@
+---
+title: ComfyUI Image Pipeline
+description: ComfyUI Flux workflows for text-to-image generation, API upscaling, and S3 publishing.
+created: "2026-10-27"
+lastUpdated: "2026-10-27"
+image: /images/logo.png
+imageAlt: ComfyUI Image Pipeline blueprint
+author: Matt Pantaleone
+blueprintType: automation-workflow
+category: Content and marketing operations
+tags:
+  - comfyui
+  - flux
+  - text-to-image
+  - upscale
+techStacks:
+  - ComfyUI
+  - Flux
+  - Python
+integrations:
+  - ComfyUI API
+  - AWS S3
+hasCodePackage: true
+codeUrl: https://github.com/pantaleone-ai/pnet-2026-main/tree/main/workflows
+workflowFile: workflows/flux-standard-workflow.json
+difficulty: Intermediate
+seo:
+  - comfyui flux workflow
+  - text to image pipeline comfyui
+  - comfyui api upscale automation
+status: published
+---
+
+## From prompt to published image without opening the ComfyUI canvas
+
+Prompt goes in, a finished image lands in S3. A Flux workflow renders 1024px images locally, an API script upscales the keepers, and an upload script publishes them with folder routing. A person still writes the prompts and picks the winners. The pipeline removes the manual export, upscale, and upload steps in between.
+
+<BlueprintDiagram
+  caption="Prompt to published image"
+  steps={[
+    { label: "Load models", detail: "Flux checkpoint plus dual CLIP encoders" },
+    { label: "Encode prompts", detail: "Positive and negative prompts to conditioning" },
+    { label: "Sample", detail: "Euler, 20 steps, fixed seed in the export" },
+    { label: "Decode and save", detail: "VAE decode to PNG on disk" },
+    { label: "Upscale via API", detail: "Script queues the upscale workflow" },
+    { label: "Publish to S3", detail: "Folder-routed upload per service" },
+  ]}
+/>
+
+## Problem and design decisions
+
+Product and marketing imagery needs volume and consistency. Every step here is deterministic except the diffusion sampling itself, which is why this is an automation workflow and not an agent: no step makes decisions, calls tools, or branches on judgment.
+
+Model weights stay local. Nothing is sent to an external image API, which keeps per-image cost at electricity and keeps unreleased product imagery off third-party servers.
+
+## Architecture and technology
+
+| Layer | Implementation |
+|---|---|
+| Generator | ComfyUI with Flux (`flux1-dev-fp8.safetensors` checkpoint) |
+| Encoding | DualCLIPLoader with paired positive/negative prompt nodes |
+| Sampling | KSampler: euler, 20 steps, cfg 1.0, fixed seed 42 |
+| Output | VAEDecode to PNG, `flux-klein` filename prefix |
+| Upscale | `upscale-workflow.json` via `upscale_image.py` against `127.0.0.1:8188` |
+| Publish | `upload_to_s3.py` with AWS env vars and folder map |
+| Variants | GGUF UNet build, tiled VAE decode, 25-step, smoke test |
+
+## Detailed operation
+
+**1. Generate.** Load `flux-standard-workflow.json` in ComfyUI or queue it via the API. Positive and negative prompts feed the paired CLIPTextEncode nodes, the sampler renders from a 1024×1024 latent, and the decoded PNG saves to disk. Change the seed per image; the export ships with seed 42, which repeats the same composition every run.
+
+**2. Select.** Review the outputs and keep the winners by filename. Selection is manual and stays manual. No scorer in this pipeline grades images.
+
+**3. Upscale.** Run `python3 scripts/upscale_image.py <image_name>` to queue `upscale-workflow.json` against the local ComfyUI instance. The script injects the filename into the LoadImage node, runs the upscale model pass, and saves with an `upscaled` prefix.
+
+**4. Publish.** Run `python3 scripts/upload_to_s3.py <image_file> [service_folder]` to upload with folder routing driven by `S3_FOLDER_MAP`. Credentials come from `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `AWS_REGION`, and `AWS_S3_BUCKET`.
+
+## Code and workflow package
+
+The package lives in this repository: six workflow exports under `workflows/` and two runner scripts under `scripts/`. Import any `.json` through the ComfyUI UI or submit it to `/prompt` on the API unchanged.
+
+What to configure before running:
+
+- Model files referenced by name (`flux1-dev-fp8.safetensors`, the GGUF UNet and `ae.safetensors` for that variant, an upscale model) must exist in the ComfyUI models directories. The exports carry filenames, not weights.
+- A running ComfyUI instance reachable at `127.0.0.1:8188` for the upscale script.
+- AWS credentials and bucket for the upload script. Never commit these; the script reads them from the environment.
+- `boto3`, `requests`, and `python-dotenv` for the scripts.
+
+Known limits: the exports carry no retry, queue management, or logging beyond what ComfyUI provides. Batch rendering many prompts needs a loop around the API, which the scripts do not include.
+
+## Reliability, security, and limits
+
+Missing model files fail loudly at load time. A stopped ComfyUI instance makes the upscale script fail at queue time while the source image waits on disk. Bad AWS credentials fail at upload time while the finished image waits locally. Nothing deletes or overwrites source files at any step.
+
+Keep unreleased imagery in mind: generation is local, but the publish step puts files on S3. Folder routing keeps services separated, yet bucket policy is what actually controls access. Review it before publishing anything sensitive.
+
+## Further reading
+
+- [Nano Banana Pro Prompt Collection](/blog/nano-banana-pro-prompt-collection) for prompt material that feeds the generation step.
+- [Veo3 Prompt Playbook](/blog/veo3-prompt-playbook-json-prompts-for-brand-alignment) on structured JSON prompts for brand-aligned output.
+- [Apps](/apps) for the portfolio image products this pipeline supports.
+- To adapt this pipeline to your product imagery, start with [Services](/services).

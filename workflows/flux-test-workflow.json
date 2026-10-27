@@ -1,0 +1,58 @@
+{
+  "3": {
+    "inputs": {
+      "text": "a sleek modern perfume bottle on marble, commercial product photography, high-end studio lighting, 8k macro, professional shot, cinematic lighting, sharp details",
+      "clip": ["4", 0]
+    },
+    "class_type": "CLIPTextEncode",
+    "id": "3"
+  },
+  "4": {
+    "inputs": {
+      "ckpt_name": "flux1-dev-fp8.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "id": "4"
+  },
+  "5": {
+    "inputs": {
+      "text": "blurry, low quality, distorted, ugly, bad anatomy, bad hands, missing fingers",
+      "clip": ["4", 0]
+    },
+    "class_type": "CLIPTextEncode",
+    "id": "5"
+  },
+  "6": {
+    "inputs": {
+      "width": 1024,
+      "height": 1024,
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage",
+    "id": "6"
+  },
+  "7": {
+    "inputs": {
+      "conditioning": ["3", 0],
+      "guidance": 3.5
+    },
+    "class_type": "FluxGuidance",
+    "id": "7"
+  },
+  "8": {
+    "inputs": {
+      "samples": ["6", 0],
+      "vae": ["4", 2]
+    },
+    "class_type": "VAEDecode",
+    "id": "8"
+  },
+  "9": {
+    "inputs": {
+      "images": ["8", 0],
+      "filename_prefix": "mixphd-test"
+    },
+    "class_type": "SaveImage",
+    "id": "9"
+  }
+}
