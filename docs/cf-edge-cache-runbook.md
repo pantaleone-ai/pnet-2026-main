@@ -68,6 +68,28 @@ NAMEs are API-immutable, so the legacy `(TEST-disabled)` suffix on ruleset
 names cannot be removed — the rules inside are correctly tagged and enabled;
 do not let the name confuse you.
 
+## Redirect inventory (Cloudflare zone, `http_request_dynamic_redirect` phase)
+
+All owned rules are prefixed `[pnet-2026]` and applied idempotently by
+`scripts/cf-redirect-rules.sh` (aborts on foreign rules; creates the phase
+entrypoint via POST on first apply since none existed before 2026-10-28):
+
+1. `[pnet-2026] blog/post bare -> /blog` — exact `/blog/post` → absolute
+   `https://www.pantaleone.net/blog`, 301, query preserved.
+2. `[pnet-2026] blog/post/* prefix -> /blog/*` — `starts_with(..."/blog/post/")`
+   → `concat("https://www.pantaleone.net/blog/", substring(path, 11))`, 301,
+   query preserved. `substring` (not `regex_replace` — the latter requires
+   Business/WAF-Advanced) strips the known 11-char prefix.
+
+Why edge, not `next.config`: `middleware.ts#getLegacyDestination` already
+301s these paths, but every cache MISS re-hits origin (Fluid CPU) and 504s
+with Vercel when the origin is sick (observed 2026-10: ~1.8k MISS 504s on
+the veo3 slug wave). The edge rule serves the 301 with zero origin traffic
+(probe: no `x-vercel-id`, absolute `Location`, query intact). `next.config`
+redirects would still execute at Vercel and risk two-hop apex+legacy chains
+— never add them; middleware stays as backstop (localhost, preview, CF
+bypass). Regression net: `scripts/check-cache-headers.sh` §8.
+
 ## Cost notes (2026-10 pass)
 - HTML `s-maxage` 1200 → 86400 (`next.config.mjs`): `cf-purge-on-deploy.yml`
   purges by tag/file on every merge, so 20min only re-drove origin MISS
