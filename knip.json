@@ -1,0 +1,27 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "modules/anti-slop/src/cli.ts",
+    "modules/anti-slop/src/index.ts",
+    "modules/anti-slop/src/mcp/server.ts",
+    "modules/campaign-os/src/index.ts"
+  ],
+  "project": [
+    "app/**/*.{js,ts,tsx}",
+    "components/**/*.{js,ts,tsx}",
+    "features/**/*.{js,ts,tsx}",
+    "lib/**/*.{js,ts,tsx}",
+    "hooks/**/*.{js,ts,tsx}",
+    "config/**/*.{js,ts,tsx}",
+    "types/**/*.{js,ts,tsx}",
+    "actions/**/*.{js,ts,tsx}",
+    "modules/campaign-os/src/**/*.{js,ts,tsx}",
+    "modules/anti-slop/src/**/*.{js,ts,tsx}",
+    "modules/anti-slop/tests/**/*.mjs",
+    "scripts/**/*.{js,ts,mjs}",
+    "!scripts/halai-agents/**",
+    "mdx-components.tsx",
+    "styles/**/*.css",
+    ".source/**/*.{js,ts}"
+  ]
+}
