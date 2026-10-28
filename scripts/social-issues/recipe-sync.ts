@@ -1,9 +1,9 @@
 // Nightly mixphd intake: poll the public sitemap for recipes published in the
-// last ~36h, verify the hero image, and create one FB + one IG social issue
+// last ~72h, verify the hero image, and create one FB + one IG social issue
 // per recipe (status:queued). Zero changes to the mixphd repo — sitemap poll
 // only (free, unauthenticated). FIFO oldest-first, deduped on recipe slug,
 // copy audited (fail => skip, never publish).
-// Run: npx tsx scripts/social-issues/recipe-sync.ts [--dry-run] [--apply] [--limit 2] [--platforms fb,ig] [--since-hours 36]
+// Run: npx tsx scripts/social-issues/recipe-sync.ts [--dry-run] [--apply] [--limit 2] [--platforms fb,ig] [--since-hours 72]
 import { gh, ghJson } from "../content-issues/gh";
 import { auditSocialCopy } from "@/lib/social-growth/social-audit";
 import { AUTOMATION_POLICY } from "@/config/automation/policy";
@@ -46,31 +46,78 @@ export function inRange(s: string, min: number, max: number): boolean {
 }
 
 export async function sitemapRecipes(): Promise<SitemapRecipe[]> {
-  const res = await fetch(`${SITE}/sitemap.xml`, {
-    signal: AbortSignal.timeout(60000),
-  });
-  if (!res.ok) throw new Error(`sitemap fetch failed: HTTP ${res.status}`);
-  const xml = await res.text();
-  const out: SitemapRecipe[] = [];
-  for (const block of xml.matchAll(/<url>([\s\S]*?)<\/url>/g)) {
-    const body = block[1] ?? "";
-    const loc = /<loc>([^<]+)<\/loc>/.exec(body)?.[1]?.trim() ?? "";
-    if (!loc.startsWith(`${SITE}/recipes/`)) continue;
-    const slug = loc.slice(`${SITE}/recipes/`.length).replace(/\/$/, "");
-    if (!slug || slug === "categories" || slug === "tags" || slug.includes("/"))
-      continue;
-    const lastmod = /<lastmod>([^<]+)<\/lastmod>/.exec(body)?.[1]?.trim() ?? "";
-    const image =
-      /<image:loc>([^<]+)<\/image:loc>/.exec(body)?.[1]?.trim() ?? "";
-    out.push({ url: loc, slug, lastmod, image });
+  // Browser-like UA: Cloudflare on mixphd 403s datacenter/bot UAs (GH runners
+  // hit this, local dev does not). Full Chrome UA + browser headers passes.
+  const headers = {
+    "User-Agent":
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+    Accept:
+      "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Cache-Control": "no-cache",
+  };
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= 3; attempt += 1) {
+    try {
+      const res = await fetch(`${SITE}/sitemap.xml`, {
+        signal: AbortSignal.timeout(60000),
+        headers,
+      });
+      if (res.status === 403 || res.status === 429) {
+        const retryAfter = res.headers.get("retry-after");
+        const waitMs = retryAfter
+          ? Number(retryAfter) * 1000
+          : attempt * 5000;
+        console.log(
+          `sitemap fetch HTTP ${res.status} (attempt ${attempt}/3, Cloudflare/bot-guard?) — retrying in ${Math.round(waitMs / 1000)}s`,
+        );
+        await new Promise((r) => setTimeout(r, waitMs));
+        lastError = new Error(`sitemap fetch failed: HTTP ${res.status}`);
+        continue;
+      }
+      if (!res.ok) throw new Error(`sitemap fetch failed: HTTP ${res.status}`);
+      const xml = await res.text();
+      const out: SitemapRecipe[] = [];
+      for (const block of xml.matchAll(/<url>([\s\S]*?)<\/url>/g)) {
+        const body = block[1] ?? "";
+        const loc = /<loc>([^<]+)<\/loc>/.exec(body)?.[1]?.trim() ?? "";
+        if (!loc.startsWith(`${SITE}/recipes/`)) continue;
+        const slug = loc.slice(`${SITE}/recipes/`.length).replace(/\/$/, "");
+        if (!slug || slug === "categories" || slug === "tags" || slug.includes("/"))
+          continue;
+        const lastmod = /<lastmod>([^<]+)<\/lastmod>/.exec(body)?.[1]?.trim() ?? "";
+        const image =
+          /<image:loc>([^<]+)<\/image:loc>/.exec(body)?.[1]?.trim() ?? "";
+        out.push({ url: loc, slug, lastmod, image });
+      }
+      return out;
+    } catch (e) {
+      lastError = e;
+      if (attempt < 3) {
+        console.log(
+          `sitemap fetch error (attempt ${attempt}/3): ${e instanceof Error ? e.message.split("\n")[0] : String(e)} — retrying`,
+        );
+        await new Promise((r) => setTimeout(r, attempt * 5000));
+      }
+    }
   }
-  return out;
+  throw lastError instanceof Error
+    ? lastError
+    : new Error(`sitemap fetch failed after 3 attempts`);
 }
 
 export async function pageMeta(
   url: string,
 ): Promise<{ title: string; description: string }> {
-  const res = await fetch(url, { signal: AbortSignal.timeout(30000) });
+  const res = await fetch(url, {
+    signal: AbortSignal.timeout(30000),
+    headers: {
+      "User-Agent":
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+      Accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.8",
+      "Accept-Language": "en-US,en;q=0.9",
+    },
+  });
   if (!res.ok) throw new Error(`recipe page fetch failed: HTTP ${res.status}`);
   const html = await res.text();
   const ogTitle =
@@ -102,6 +149,11 @@ export async function heroOk(
     const res = await fetch(url, {
       method: "HEAD",
       signal: AbortSignal.timeout(20000),
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        Accept: "image/avif,image/*,*/*;q=0.8",
+      },
     });
     if (!res.ok) return { ok: false, reason: `hero HEAD ${res.status}` };
     const len = Number(res.headers.get("content-length") ?? "0");
@@ -135,7 +187,7 @@ async function main(): Promise<void> {
     return;
   }
   const limit = Number(flag("--limit") || "2");
-  const sinceHours = Number(flag("--since-hours") || "36");
+  const sinceHours = Number(flag("--since-hours") || "72");
   const platforms = (flag("--platforms") || "fb,ig")
     .split(",")
     .map((p) => p.trim().toLowerCase())
@@ -155,7 +207,7 @@ async function main(): Promise<void> {
     const t = new Date(r.lastmod).getTime();
     return !Number.isNaN(t) && t >= cutoff;
   });
-  console.log(`published in last 36h: ${fresh.length}`);
+  console.log(`published in last ${sinceHours}h: ${fresh.length}`);
   if (fresh.length === 0) {
     console.log("(nothing new)");
     return;

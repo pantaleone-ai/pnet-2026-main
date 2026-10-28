@@ -1992,11 +1992,51 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     format: "avif",
   },
   {
-    id: "2026-10-09-temperature-conceptual-minimalism-hovering-rectangles-15189134",
+    id: "2026-10-09-sand-organic-abstraction-soft-volumes-39223778",
     imageUrl:
-      "https://api.synthetic.pics/image/2026-10-09-temperature-conceptual-minimalism-hovering-rectangles-15189134.avif",
+      "https://api.synthetic.pics/image/2026-10-09-sand-organic-abstraction-soft-volumes-39223778.avif",
     firstSeen: "2026-10-09",
-    descriptor: "temperature conceptual minimalism hovering rectangles",
+    descriptor: "sand organic abstraction soft volumes",
+    format: "avif",
+  },
+  {
+    id: "2026-10-09-smoke-topological-abstraction-prismatic-discs-34863762",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-09-smoke-topological-abstraction-prismatic-discs-34863762.avif",
+    firstSeen: "2026-10-09",
+    descriptor: "smoke topological abstraction prismatic discs",
+    format: "avif",
+  },
+  {
+    id: "2026-10-09-nocturnal-spatial-abstraction-fragmented-circles-53547543",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-09-nocturnal-spatial-abstraction-fragmented-circles-53547543.avif",
+    firstSeen: "2026-10-09",
+    descriptor: "nocturnal spatial abstraction fragmented circles",
+    format: "avif",
+  },
+  {
+    id: "2026-10-09-obsidian-geometric-abstraction-nested-rectangles-2182833",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-09-obsidian-geometric-abstraction-nested-rectangles-2182833.avif",
+    firstSeen: "2026-10-09",
+    descriptor: "obsidian geometric abstraction nested rectangles",
+    format: "avif",
+  },
+  {
+    id: "2026-10-09-contours-architectural-abstraction-flowing-27355111",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-09-contours-architectural-abstraction-flowing-27355111.avif",
+    firstSeen: "2026-10-09",
+    descriptor: "contours architectural abstraction flowing",
+    format: "avif",
+  },
+  {
+    id: "2026-10-09-glyphs-topological-abstraction-spiral-32442049",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-09-glyphs-topological-abstraction-spiral-32442049.avif",
+    firstSeen: "2026-10-09",
+    descriptor: "glyphs topological abstraction spiral",
     format: "avif",
   },
 ];
