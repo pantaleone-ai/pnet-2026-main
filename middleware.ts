@@ -27,6 +27,11 @@ function isGonePath(pathname: string): boolean {
 /**
  * Legacy paths that DO have a true equivalent. Returns the destination
  * pathname, or null when the path is not a legacy redirect.
+ *
+ * NOTE: production serves /blog/post/* at the Cloudflare edge first
+ * (Single Redirect, scripts/cf-redirect-rules.sh — zero origin hit). This
+ * function is the backstop for localhost, preview deployments, and any CF
+ * bypass — keep it in sync with that rule.
  */
 function getLegacyDestination(pathname: string): string | null {
   const normalized =

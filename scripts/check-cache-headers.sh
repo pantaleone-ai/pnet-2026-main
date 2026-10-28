@@ -98,5 +98,25 @@ else
   echo "SKIP: og render unavailable here (http ${OG_CODE:-000}); assert in prod"
 fi
 
+# 8. Legacy /blog/post/* prefix: 301 to canonical with query preserved.
+# Prod serves this at the Cloudflare edge (Single Redirect, no origin hit —
+# no x-vercel-id); local `next start` serves it from middleware.ts with a
+# relative Location. Both must 301 and preserve the query string.
+LEGACY_CODE="$(curl -s -D "${HDR}" -o /dev/null -w "%{http_code}" --max-time 30 "${BASE}/blog/post/veo3-prompt-playbook-json-prompts-for-brand-alignment?foo=bar" || true)"
+check "legacy blog/post status" "301" "${LEGACY_CODE}"
+LEGACY_LOC="$(hval "${HDR}" location)"
+case "${LEGACY_LOC}" in
+  *"/blog/veo3-prompt-playbook-json-prompts-for-brand-alignment?foo=bar"*)
+    echo "ok: legacy blog/post location preserves suffix + query" ;;
+  *) echo "FAIL: legacy blog/post location -- got [${LEGACY_LOC}]"; FAIL=1 ;;
+esac
+case "${BASE}" in
+  *localhost*|*127.0.0.1*) echo "SKIP (local): edge-served assertion (middleware backstop is authoritative here)" ;;
+  *)
+    if grep -qi "^x-vercel-id:" "${HDR}"; then
+      echo "FAIL: legacy blog/post hit origin (x-vercel-id present) — edge redirect bypassed"; FAIL=1
+    else echo "ok: legacy blog/post edge-served (no x-vercel-id)"; fi ;;
+esac
+
 if [ "${FAIL}" = "0" ]; then echo "ALL HEADER CHECKS PASSED"; else
   echo "HEADER CHECKS FAILED"; exit 1; fi
