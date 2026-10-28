@@ -290,6 +290,15 @@ var shop = defineDocs({
   })
 });
 var source_config_default = defineConfig({
+  mdxOptions: {
+    remarkImageOptions: {
+      // Remote cover/body images (img.pantaleone.net) are fetched at build
+      // time to obtain dimensions. A transient fetch failure must not fail
+      // the whole production deploy (Vercel dpl_HRZUuufvxs5gjUC2xkuHhMf3qH7L,
+      // agent-dna4.webp AggregateError). "ignore" leaves the image as-is.
+      onError: "ignore"
+    }
+  },
   plugins: [lastModified()]
 });
 export {
