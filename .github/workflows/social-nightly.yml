@@ -63,6 +63,19 @@ jobs:
             npx tsx scripts/social-issues/gallery-sync.ts --apply --limit "$LIMIT"
             npx tsx scripts/social-issues/recipe-sync.ts --apply --limit 2 || echo "mixphd intake skipped (kill switch or no fresh recipes)"
           fi
+      - name: Commit catalog updates (gallery-sync appends new artwork IDs)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if git diff --quiet -- config/social-growth/syn-catalog.ts; then
+            echo "catalog unchanged"
+          else
+            git config user.name "pantaleone-ai"
+            git config user.email "mdptrading@gmail.com"
+            git add config/social-growth/syn-catalog.ts
+            git commit -m "chore(social): nightly catalog sync $(date -u +%F)" || echo "catalog commit skipped (nothing to commit)"
+            git push origin HEAD:main || echo "catalog push skipped (will retry next run)"
+          fi
       - name: Respin — fresh spin on rested catalog art + recipes (1/site)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -100,7 +113,8 @@ jobs:
         run: |
           for SITE in site:synthetic-pics site:mixphd; do
             for N in $(gh issue list --label social --label "$SITE" --label platform:facebook --label status:packet-ready --state open --limit 20 --json number --jq '.[].number'); do
-              if gh issue view "$N" --json comments --jq '[.comments[].body] | any(contains("Platform publish proof"))'; then echo "skip #$N (proof on file)"; continue; fi
+              HAS_PROOF=$(gh issue view "$N" --json comments --jq '[.comments[].body] | any(contains("Platform publish proof"))')
+              if [ "$HAS_PROOF" = "true" ]; then echo "skip #$N (proof on file)"; continue; fi
               SLOT=$(gh issue view "$N" --json body --jq '.body' | grep -oE '\*\*Publish at:\*\* `[^`]+`' | grep -oE '`[^`]+`' | tr -d '`' | head -n 1)
               if [ -z "$SLOT" ]; then echo "skip #$N (no slot)"; continue; fi
               npx tsx scripts/social-issues/publish/publish-due.ts --issue "$N" --schedule-at "$SLOT" || echo "schedule failed #$N (kept packet-ready for re-slot)"
