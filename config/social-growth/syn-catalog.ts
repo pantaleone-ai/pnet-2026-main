@@ -2039,4 +2039,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "glyphs topological abstraction spiral",
     format: "avif",
   },
+  {
+    id: "2026-10-10-wax-conceptual-minimalism-facade-grid-99340452",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-10-wax-conceptual-minimalism-facade-grid-99340452.avif",
+    firstSeen: "2026-10-10",
+    descriptor: "wax conceptual minimalism facade grid 99340452",
+    format: "avif",
+  },
+  {
+    id: "2026-10-10-arcs-generative-geometry-concentric-46322087",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-10-arcs-generative-geometry-concentric-46322087.avif",
+    firstSeen: "2026-10-10",
+    descriptor: "arcs generative geometry concentric 46322087",
+    format: "avif",
+  },
+  {
+    id: "2026-10-10-particulate-conceptual-minimalism-hovering-rectangles-49065551",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-10-particulate-conceptual-minimalism-hovering-rectangles-49065551.avif",
+    firstSeen: "2026-10-10",
+    descriptor: "particulate conceptual minimalism hovering rectangles 49065551",
+    format: "avif",
+  },
 ];
