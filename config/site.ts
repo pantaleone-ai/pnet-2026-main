@@ -30,6 +30,8 @@ export const siteConfig = {
     twitter: "https://twitter.com/m_pantaleone",
     github: "https://github.com/pantaleone-ai",
     linkedin: "https://linkedin.com/in/m_pantaleone",
+    facebook: "https://www.facebook.com/101092449202509",
+    instagram: "https://www.instagram.com/pantaleonenet",
   },
 };
 

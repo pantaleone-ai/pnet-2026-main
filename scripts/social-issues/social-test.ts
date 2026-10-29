@@ -427,11 +427,14 @@ async function auditTests(): Promise<void> {
   );
 }
 
-// Nightly synthetic grid: 31 slots/week (weekends + off-hours), Tue-Thu heavy.
+// Nightly synthetic grid: 38 slots/week (18 IG + 13 FB + 7 Pinterest;
+// weekends + off-hours), Tue-Thu heavy.
 const synIg = SYN_TIMING_WINDOWS.instagram ?? [];
 const synFb = SYN_TIMING_WINDOWS.facebook ?? [];
+const synPin = SYN_TIMING_WINDOWS.pinterest ?? [];
 check("syn IG 18 slots", synIg.length === 18);
 check("syn FB 13 slots", synFb.length === 13);
+check("syn Pinterest 28 slots", synPin.length === 28);
 const tueIg = synIg.filter((s) => s.startsWith("Tue")).length;
 const tueFb = synFb.filter((s) => s.startsWith("Tue")).length;
 check("syn Tue heavy", tueIg === 4 && tueFb === 2, `ig=${tueIg} fb=${tueFb}`);
@@ -459,7 +462,11 @@ check(
       return `${d}@${h}`;
     };
     const ig = new Set(synIg.map(key));
-    return synFb.every((s) => !ig.has(key(s)));
+    const pin = new Set(synPin.map(key));
+    return (
+      synFb.every((s) => !ig.has(key(s)) && !pin.has(key(s))) &&
+      synPin.every((s) => !ig.has(key(s)))
+    );
   })(),
 );
 const monSlot = parseWindow("Mon 12:00 ET");

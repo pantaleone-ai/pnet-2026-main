@@ -116,10 +116,11 @@ function main(): void {
       names.includes("site:pantaleone");
     if (!siteOk || !names.includes("status:packet-ready")) return false;
     if (hasProof(i)) return false;
-    if (names.includes("platform:pinterest")) return false;
     const pub = i.body.match(/\*\*Publish at:\*\*\s*`([^`]+)`/)?.[1];
     if (pub && new Date(pub) > now) return false;
     if (names.includes("platform:instagram") && !/\*\*Images:\*\*/.test(i.body))
+      return false;
+    if (names.includes("platform:pinterest") && !/\*\*Images:\*\*/.test(i.body))
       return false;
     return true;
   });
@@ -131,7 +132,9 @@ function main(): void {
     const names = issue.labels.map((l) => l.name);
     const platform = names.includes("platform:instagram")
       ? "instagram"
-      : "facebook";
+      : names.includes("platform:pinterest")
+        ? "pinterest"
+        : "facebook";
     const grid = names.includes("site:synthetic-pics")
       ? (SYN_TIMING_WINDOWS[platform] ?? [])
       : names.includes("site:mixphd")

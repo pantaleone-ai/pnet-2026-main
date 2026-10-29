@@ -111,12 +111,14 @@ async function main(): Promise<void> {
     ? "instagram"
     : names.includes("platform:facebook")
       ? "facebook"
-      : "";
+      : names.includes("platform:pinterest")
+        ? "pinterest"
+        : "";
   if (!platform) {
     fail(
       issueArg,
-      "Auto-packet can't build this yet: only instagram/facebook auto-packets exist. " +
-        "Pinterest needs owner OAuth, X/LinkedIn need credentials, Reddit/Shorts are manual.",
+      "Auto-packet can't build this yet: only instagram/facebook/pinterest auto-packets exist. " +
+        "X/LinkedIn need credentials, Reddit/Shorts are manual.",
     );
   }
   const contentId = (

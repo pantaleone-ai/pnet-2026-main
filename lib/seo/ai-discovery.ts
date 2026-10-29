@@ -38,6 +38,8 @@ export const ENTITY = {
       "https://twitter.com/m_pantaleone",
       "https://github.com/pantaleone-ai",
       "https://linkedin.com/in/m_pantaleone",
+      "https://www.facebook.com/101092449202509",
+      "https://www.instagram.com/pantaleonenet",
     ],
   },
   person: {
@@ -53,6 +55,8 @@ export const ENTITY = {
       "https://twitter.com/m_pantaleone",
       "https://github.com/pantaleone-ai",
       "https://linkedin.com/in/m_pantaleone",
+      "https://www.facebook.com/101092449202509",
+      "https://www.instagram.com/pantaleonenet",
     ],
     knowsAbout: [
       "AI agents",

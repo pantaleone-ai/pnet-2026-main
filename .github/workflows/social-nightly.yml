@@ -1,9 +1,9 @@
 name: social-nightly
 
 # Nightly auto-posting pipeline (runs ~02:05 ET): synthetic.pics + mixphd.
-# synthetic: gallery poll -> issues -> packets+visuals+merge (no re-approval) ->
-# slot stamping (SYN_TIMING_WINDOWS) -> FB native scheduling ->
-# Graph-verified audit-close of due proofs.
+# synthetic: gallery poll -> issues (FB+IG+pin) -> packets+visuals+merge (no re-approval) ->
+# slot stamping (SYN_TIMING_WINDOWS, incl. 7/wk Pinterest) -> FB native scheduling ->
+# Pinterest due-pin publishing -> Graph/API-verified audit-close of due proofs.
 # mixphd (canary, 2 recipes/night): sitemap poll -> FB+IG issues -> same packet ->
 # MIX_TIMING_WINDOWS slots -> FB native schedule + IG slot crons (both live).
 # Respin: old catalog art / recipes reposted with a fresh spin (new angle +
@@ -60,7 +60,7 @@ jobs:
             npx tsx scripts/social-issues/gallery-sync.ts --dry-run --limit "$LIMIT"
             npx tsx scripts/social-issues/recipe-sync.ts --dry-run --limit 2
           else
-            npx tsx scripts/social-issues/gallery-sync.ts --apply --limit "$LIMIT"
+            npx tsx scripts/social-issues/gallery-sync.ts --apply --limit "$LIMIT" --platforms fb,ig,pin
             npx tsx scripts/social-issues/recipe-sync.ts --apply --limit 2 || echo "mixphd intake skipped (kill switch or no fresh recipes)"
           fi
       - name: Commit catalog updates (gallery-sync appends new artwork IDs)
@@ -96,7 +96,7 @@ jobs:
           for SITE in site:synthetic-pics site:mixphd; do
             for N in $(gh issue list --label social --label "$SITE" --label status:queued --state open --limit 20 --json number --jq '.[].number'); do
               PLAT=$(gh issue view "$N" --json labels --jq '[.labels[].name] | map(select(startswith("platform:"))) | .[0] // empty')
-              if [ "$PLAT" != "platform:instagram" ] && [ "$PLAT" != "platform:facebook" ]; then echo "skip #$N ($PLAT)"; continue; fi
+              if [ "$PLAT" != "platform:instagram" ] && [ "$PLAT" != "platform:facebook" ] && [ "$PLAT" != "platform:pinterest" ]; then echo "skip #$N ($PLAT)"; continue; fi
               npx tsx scripts/social-issues/auto-packet.ts --issue "$N" --no-reapprove || echo "packet failed #$N (comment on issue, continuing)"
             done
           done
@@ -120,9 +120,16 @@ jobs:
               npx tsx scripts/social-issues/publish/publish-due.ts --issue "$N" --schedule-at "$SLOT" || echo "schedule failed #$N (kept packet-ready for re-slot)"
             done
           done
+      - name: Pinterest — publish due slotted pins (synthetic)
+        if: github.event_name == 'schedule' || github.event.inputs.dry-run != 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PINTEREST_ACCESS_TOKEN: ${{ secrets.PINTEREST_ACCESS_TOKEN }}
+        run: npx tsx scripts/social-issues/publish/publish-due.ts --due --channel pinterest --site synthetic-pics --limit 5
       - name: Audit-close — verify due proofs via Graph/API
         if: github.event_name == 'schedule' || github.event.inputs.dry-run != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           META_CAPI_ACCESS_TOKEN: ${{ secrets.META_CAPI_ACCESS_TOKEN }}
+          PINTEREST_ACCESS_TOKEN: ${{ secrets.PINTEREST_ACCESS_TOKEN }}
         run: npx tsx scripts/social-issues/verify-proofs.ts --limit 20 --apply

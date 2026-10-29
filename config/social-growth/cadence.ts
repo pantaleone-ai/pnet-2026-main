@@ -6,9 +6,9 @@
  */
 
 export const CADENCE = {
-  portfolioWeeklyTarget: 13,
+  portfolioWeeklyTarget: 85,
   portfolioDailyAverage:
-    "1 to 2 posts per day across the portfolio, never more than 3",
+    "SYN anchor ~8/day across IG/FB/Pinterest + supporting brands; Pinterest evergreen discovery volume paced by slots, not the daily cap",
   perProductWeekly: {
     "synthetic-pics": 3,
     print3dmodels: 3,
@@ -41,9 +41,10 @@ export const TIMING_WINDOWS: Record<string, string[]> = {
 };
 
 /**
- * Synthetic.pics nightly auto-posting grid (31 slots/week ≈ 4.4/day).
- * Weekends carry 7 slots (Sat 4, Sun 3); off-hours (<08:00 / >=20:00 ET)
- * carry 6 (early birds + late scrollers). Tue-Thu carry 19 of 31 slots;
+ * Synthetic.pics nightly auto-posting grid (59 slots/week ≈ 8.4/day:
+ * 18 IG + 13 FB + 28 Pinterest).
+ * Weekends carry 13 slots (Sat 7, Sun 6); off-hours (<08:00 / >=20:00 ET)
+ * carry 9 (early birds + late scrollers). Tue-Thu carry 30 of 59 slots;
  * something posts every day; slots never share an hour across platforms
  * or brands (staggered). Times are ET; IG slot crons run in UTC so revisit
  * on EST change. Refine from reporting data once it lands.
@@ -83,6 +84,41 @@ export const SYN_TIMING_WINDOWS: Record<string, string[]> = {
     "Sat 16:00 ET",
     "Sun 13:00 ET",
     "Sun 20:00 ET",
+  ],
+  // Pinterest: 28/wk (4/day, evergreen discovery). Morning + afternoon +
+  // evening spread plus weekend mornings; staggered off every IG/FB/MIX
+  // hour. Pins post via the nightly Pinterest step (no native scheduling
+  // API); slots pace the queue. Fresh unique creatives only — repeat pins
+  // of identical images get suppressed distribution.
+  pinterest: [
+    "Mon 08:00 ET",
+    "Mon 11:00 ET",
+    "Mon 15:00 ET",
+    "Mon 19:00 ET",
+    "Tue 13:00 ET",
+    "Tue 15:00 ET",
+    "Tue 16:00 ET",
+    "Tue 19:00 ET",
+    "Wed 11:00 ET",
+    "Wed 14:00 ET",
+    "Wed 15:00 ET",
+    "Wed 17:00 ET",
+    "Thu 07:00 ET",
+    "Thu 14:00 ET",
+    "Thu 15:00 ET",
+    "Thu 19:00 ET",
+    "Fri 08:00 ET",
+    "Fri 11:00 ET",
+    "Fri 15:00 ET",
+    "Fri 18:00 ET",
+    "Sat 11:00 ET",
+    "Sat 13:00 ET",
+    "Sat 17:00 ET",
+    "Sat 20:00 ET",
+    "Sun 09:00 ET",
+    "Sun 10:00 ET",
+    "Sun 15:00 ET",
+    "Sun 21:00 ET",
   ],
 };
 

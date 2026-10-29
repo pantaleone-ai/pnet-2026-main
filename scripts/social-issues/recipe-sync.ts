@@ -22,7 +22,24 @@ export interface SitemapRecipe {
   image: string;
 }
 
-const SITE = "https://www.mixphd.com";
+const PUBLIC_SITE = "https://www.mixphd.com";
+// Origin-host bypass: www.mixphd.com sits behind Cloudflare Bot Fight Mode
+// (Free plan, cannot be skipped via WAF rules), which 403s GitHub Actions
+// datacenter IPs while residential passes. Vercel serves the same content
+// directly on the stable production alias, so all automation *fetches* go
+// there. User-facing destination URLs stay on www (sitemap <loc> values are
+// kept as-is). Override with MIXPHD_ORIGIN_URL if the alias ever changes.
+const FETCH_SITE = (
+  process.env.MIXPHD_ORIGIN_URL || "https://mixphd-2026.vercel.app"
+).replace(/\/$/, "");
+
+/** Rewrite a public mixphd URL to its direct-origin equivalent for fetching. */
+export function toFetchUrl(url: string): string {
+  if (url.startsWith(`${PUBLIC_SITE}/`)) {
+    return `${FETCH_SITE}${url.slice(PUBLIC_SITE.length)}`;
+  }
+  return url;
+}
 const MIN_IMAGE_BYTES = 30 * 1024;
 
 export function decodeEntities(s: string): string {
@@ -46,8 +63,8 @@ export function inRange(s: string, min: number, max: number): boolean {
 }
 
 export async function sitemapRecipes(): Promise<SitemapRecipe[]> {
-  // Browser-like UA: Cloudflare on mixphd 403s datacenter/bot UAs (GH runners
-  // hit this, local dev does not). Full Chrome UA + browser headers passes.
+  // Fetches go to FETCH_SITE (direct Vercel origin, no Cloudflare in front),
+  // so no UA spoofing is needed. Browser-like headers kept as good practice.
   const headers = {
     "User-Agent":
       "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
@@ -59,7 +76,7 @@ export async function sitemapRecipes(): Promise<SitemapRecipe[]> {
   let lastError: unknown;
   for (let attempt = 1; attempt <= 3; attempt += 1) {
     try {
-      const res = await fetch(`${SITE}/sitemap.xml`, {
+      const res = await fetch(`${FETCH_SITE}/sitemap.xml`, {
         signal: AbortSignal.timeout(60000),
         headers,
       });
@@ -81,8 +98,8 @@ export async function sitemapRecipes(): Promise<SitemapRecipe[]> {
       for (const block of xml.matchAll(/<url>([\s\S]*?)<\/url>/g)) {
         const body = block[1] ?? "";
         const loc = /<loc>([^<]+)<\/loc>/.exec(body)?.[1]?.trim() ?? "";
-        if (!loc.startsWith(`${SITE}/recipes/`)) continue;
-        const slug = loc.slice(`${SITE}/recipes/`.length).replace(/\/$/, "");
+        if (!loc.startsWith(`${PUBLIC_SITE}/recipes/`)) continue;
+        const slug = loc.slice(`${PUBLIC_SITE}/recipes/`.length).replace(/\/$/, "");
         if (!slug || slug === "categories" || slug === "tags" || slug.includes("/"))
           continue;
         const lastmod = /<lastmod>([^<]+)<\/lastmod>/.exec(body)?.[1]?.trim() ?? "";
@@ -109,7 +126,7 @@ export async function sitemapRecipes(): Promise<SitemapRecipe[]> {
 export async function pageMeta(
   url: string,
 ): Promise<{ title: string; description: string }> {
-  const res = await fetch(url, {
+  const res = await fetch(toFetchUrl(url), {
     signal: AbortSignal.timeout(30000),
     headers: {
       "User-Agent":
@@ -146,8 +163,8 @@ export async function heroOk(
 ): Promise<{ ok: boolean; reason: string }> {
   if (!url) return { ok: false, reason: "no hero image in sitemap" };
   try {
-    const res = await fetch(url, {
-      method: "HEAD",
+      const res = await fetch(toFetchUrl(url), {
+        method: "HEAD",
       signal: AbortSignal.timeout(20000),
       headers: {
         "User-Agent":

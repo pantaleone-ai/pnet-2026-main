@@ -5,6 +5,7 @@
 // unverified/dead never close). Manual posts still close via screenshot.
 // FB: Graph API with META_CAPI_ACCESS_TOKEN (fail-soft without token).
 // IG: public HEAD request (login-gated posts report unverified, not dead).
+// Pinterest: v5 GET /pins/{id} with PINTEREST_ACCESS_TOKEN (404 = dead).
 // Run: npx tsx scripts/social-issues/verify-proofs.ts [--limit 20] [--apply]
 import { config as loadEnv } from "dotenv";
 
@@ -58,6 +59,25 @@ async function fbLive(
   }
 }
 
+async function pinLive(
+  url: string,
+  token: string,
+): Promise<"live" | "unverified" | "dead"> {
+  try {
+    const id = url.match(/pinterest\.com\/pin\/(\d+)/)?.[1] ?? "";
+    if (!id || !token) return "unverified";
+    const res = await fetch(`https://api.pinterest.com/v5/pins/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(20000),
+    });
+    if (res.ok) return "live";
+    if (res.status === 404) return "dead";
+    return "unverified";
+  } catch {
+    return "unverified";
+  }
+}
+
 async function igLive(url: string): Promise<"live" | "unverified" | "dead"> {
   try {
     const res = await fetch(url, {
@@ -76,6 +96,7 @@ async function main(): Promise<void> {
   const limit = Number(flag("--limit") || "20");
   const apply = process.argv.includes("--apply");
   const token = process.env.META_CAPI_ACCESS_TOKEN ?? "";
+  const pinToken = process.env.PINTEREST_ACCESS_TOKEN ?? "";
   const issues = ghJson<IssueView[]>([
     "issue",
     "list",
@@ -100,13 +121,15 @@ async function main(): Promise<void> {
     if (!proof) continue;
     const url =
       proof.body.match(
-        /https:\/\/(www\.)?(instagram\.com|facebook\.com)\/\S+/,
+        /https:\/\/(www\.)?(instagram\.com|facebook\.com|pinterest\.com)\/\S+/,
       )?.[0] ?? "";
     if (!url) continue;
     checked += 1;
     let status: "live" | "unverified" | "dead" = "unverified";
     if (url.includes("facebook.com")) {
       status = token ? await fbLive(url, token) : "unverified";
+    } else if (url.includes("pinterest.com")) {
+      status = await pinLive(url, pinToken);
     } else {
       status = await igLive(url);
     }

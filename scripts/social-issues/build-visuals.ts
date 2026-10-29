@@ -2,7 +2,8 @@
 // Run: npx tsx scripts/social-issues/build-visuals.ts --issue <n> [--dry-run] [--write]
 // Reads artwork IDs from the issue **Source asset:** field, resolves them via
 // SYN_CATALOG, renders platform-native JPEG cards (IG 1080x1350 trio,
-// FB 1200x630 single), and stamps **Images:** on the issue with --write.
+// FB 1200x630 single, Pinterest 1000x1500 single), and stamps **Images:** on
+// the issue with --write.
 // IG needs >=3 named artworks; FB needs >=1. Anything less fails needs-asset.
 import { execFileSync } from "node:child_process";
 import { existsSync } from "node:fs";
@@ -44,6 +45,13 @@ export function visualSpec(
       count: 3,
     };
   }
+  if (platform === "pinterest") {
+    return {
+      dir: `public/pins/${contentId}-${issue}`,
+      size: "1000x1500",
+      count: 1,
+    };
+  }
   return { dir: `public/fb/${contentId}-${issue}`, size: "1200x630", count: 1 };
 }
 
@@ -73,10 +81,12 @@ async function main(): Promise<void> {
     ? "instagram"
     : labelNames.includes("platform:facebook")
       ? "facebook"
-      : "";
+      : labelNames.includes("platform:pinterest")
+        ? "pinterest"
+        : "";
   if (!platform) {
     console.error(
-      `build-visuals: no instagram/facebook label on #${issue.number} (Pinterest/manual channels excluded)`,
+      `build-visuals: no instagram/facebook/pinterest label on #${issue.number} (manual channels excluded)`,
     );
     process.exit(1);
   }
@@ -132,7 +142,7 @@ async function main(): Promise<void> {
   const crop = field(issue.body, "Crop") === "top" ? "top" : "center";
   const publicUrls = urls.map(
     (_, i) =>
-      `https://www.pantaleone.net/${platform === "instagram" ? "ig" : "fb"}/${contentId}-${issue.number}/${i + 1}.jpg`,
+      `https://www.pantaleone.net/${platform === "instagram" ? "ig" : platform === "pinterest" ? "pins" : "fb"}/${contentId}-${issue.number}/${i + 1}.jpg`,
   );
   if (dryRun) {
     console.log(

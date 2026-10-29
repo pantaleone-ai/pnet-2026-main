@@ -698,45 +698,100 @@ async function main(): Promise<void> {
   }
 
   if (channel.id === "pinterest") {
-    const { createPin, listBoards } = await import("./pinterest");
+    const { createPin, createVideoPin, listBoards, registerVideoUpload, uploadVideoFile, waitForVideoReady } =
+      await import("./pinterest");
     const pinToken = process.env.PINTEREST_ACCESS_TOKEN ?? "";
+    const { SYNTHETIC_PINTEREST_BOARDS, boardForPillar } = await import(
+      "./pinterest-boards"
+    );
+    const isSynthetic = siteLabel === "site:synthetic-pics";
     const boardId =
-      arg("--board-id") ??
-      process.env.PINTEREST_BOARD ??
-      boardFromBody(issue.body);
+      arg("--board-id") ||
+      process.env.PINTEREST_BOARD ||
+      boardFromBody(issue.body) ||
+      (isSynthetic
+        ? boardForPillar(field(issue.body, "Social pillar"))
+        : "");
     if (!boardId) {
       const boards = listBoards(pinToken);
+      const known = SYNTHETIC_PINTEREST_BOARDS.map(
+        (b) => `${b.name} (${b.id})`,
+      ).join(", ");
       console.error(
-        `pinterest needs --board-id. Available: ${boards.map((b) => `${b.name} (${b.id})`).join(", ") || "none"}`,
+        `pinterest needs --board-id. Live: ${boards.map((b) => `${b.name} (${b.id})`).join(", ") || "none"}. Strategy map: ${known}`,
       );
       process.exit(1);
     }
     const image = images[0];
+    const videoFile = arg("--video-file") || field(issue.body, "Video") || "";
+    const coverImage = arg("--cover-image") || image;
     const hook = field(issue.body, "Hook");
     const text = field(issue.body, "Body");
     const cta = field(issue.body, "CTA");
     const destination = field(issue.body, "Destination");
-    if (!image || !destination) {
+    if ((!image && !videoFile) || !destination) {
       console.error(
-        "pinterest needs --images <public-url> and a **Destination:** `url` in the issue body",
+        "pinterest needs --images <public-url> (or --video-file <local.mp4> + cover) and a **Destination:** `url` in the issue body",
       );
       process.exit(1);
     }
+    if (videoFile && !coverImage) {
+      console.error("pinterest video needs a cover: --cover-image <public-url> or **Images:** `url`");
+      process.exit(1);
+    }
     const description = [text, "", `${cta}: ${destination}`].join("\n");
-    if (dryRun) {
-      console.log(
-        `would-publish-pinterest - #${issue.number} to board ${boardId}\n---title---\n${hook}\n---image---\n${image}\n---link---\n${destination}`,
-      );
+    if (videoFile) {
+      if (dryRun) {
+        console.log(
+          `would-publish-pinterest-video - #${issue.number} to board ${boardId}\n---title---\n${hook}\n---video---\n${videoFile}\n---cover---\n${coverImage}\n---link---\n${destination}`,
+        );
+        return;
+      }
+      const reg = registerVideoUpload(pinToken);
+      uploadVideoFile(reg.upload_url, reg.upload_parameters, videoFile);
+      waitForVideoReady(pinToken, reg.media_id);
+      const vres = createVideoPin(pinToken, boardId, reg.media_id, coverImage as string, hook, description, destination);
+      const vproof = [
+        `## Platform publish proof — ${channel.id} (video)`,
+        ``,
+        `- Post: ${vres.link}`,
+        `- Pin ID: \`${vres.id}\``,
+        `- Media ID: \`${reg.media_id}\``,
+        screenshotUrl
+          ? `- Screenshot:\n\n![${channel.id} post proof](${screenshotUrl})`
+          : `- Screenshot: pending (re-run with --screenshot-url to close)`,
+      ].join("\n");
+      gh(["issue", "comment", String(issue.number), "--body", vproof]);
+      if (screenshotUrl) {
+        gh([
+          "issue", "edit", String(issue.number),
+          "--remove-label", "status:packet-ready",
+          "--remove-label", "needs-manual-post",
+          "--remove-label", "needs-screenshot",
+          "--add-label", "status:published",
+          "--add-label", "status:done",
+        ]);
+        gh(["issue", "close", String(issue.number), "--reason", "completed"]);
+        console.log(`published + closed - #${issue.number} ${vres.link}`);
+      } else {
+        gh([
+          "issue", "edit", String(issue.number),
+          "--add-label", "status:packet-ready",
+          "--add-label", "needs-screenshot",
+          "--remove-label", "needs-manual-post",
+        ]);
+        console.log(`published, awaiting screenshot - #${issue.number} ${vres.link}`);
+      }
       return;
     }
-    const res = createPin(
-      pinToken,
-      boardId,
-      image,
-      hook,
-      description,
-      destination,
-    );
+    if (!videoFile) {
+      if (dryRun) {
+        console.log(
+          `would-publish-pinterest - #${issue.number} to board ${boardId}\n---title---\n${hook}\n---image---\n${image}\n---link---\n${destination}`,
+        );
+        return;
+      }
+      const res = createPin(pinToken, boardId, image as string, hook, description, destination);
     const proof = [
       `## Platform publish proof — ${channel.id}`,
       ``,
@@ -782,6 +837,7 @@ async function main(): Promise<void> {
       );
     }
     return;
+    }
   }
 
   console.error(

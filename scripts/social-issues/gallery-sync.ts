@@ -1,11 +1,12 @@
 // Nightly gallery sync: detect images that went live on synthetic.pics and
-// create one FB + one IG social issue per new artwork (status:queued).
+// create one FB + one IG + one Pinterest social issue per new artwork (status:queued).
 // Detection is a free, unauthenticated poll of the public gallery API —
 // zero changes to the synthetic.pics repo. Idempotent: skips artwork IDs
-// already in SYN_CATALOG or already referenced by any social issue.
+// already in SYN_CATALOG or already referenced by any social issue (FB/IG),
+// and skips Pinterest when a pin issue already references the artwork.
 // Copy is deterministic from real site fields (title/altText/tags/slug) and
 // gated by the social audit (fail => skipped, never published).
-// Run: npx tsx scripts/social-issues/gallery-sync.ts [--dry-run] [--apply] [--limit 10] [--platforms fb,ig]
+// Run: npx tsx scripts/social-issues/gallery-sync.ts [--dry-run] [--apply] [--limit 10] [--platforms fb,ig,pin]
 import { readFileSync, writeFileSync } from "node:fs";
 import { gh, ghJson } from "../content-issues/gh";
 import { SYN_CATALOG } from "@/config/social-growth/syn-catalog";
@@ -33,6 +34,7 @@ interface GalleryItem {
 interface IssueRef {
   number: number;
   body: string;
+  labels: Array<{ name: string }>;
 }
 
 const GALLERY_BASE = "https://www.synthetic.pics/api/gallery";
@@ -81,12 +83,12 @@ function inRange(s: string, min: number, max: number): boolean {
 async function main(): Promise<void> {
   const apply = process.argv.includes("--apply");
   const limit = Number(flag("--limit") || "10");
-  const platforms = (flag("--platforms") || "fb,ig")
+  const platforms = (flag("--platforms") || "fb,ig,pin")
     .split(",")
     .map((p) => p.trim().toLowerCase())
-    .filter((p) => p === "fb" || p === "ig");
+    .filter((p) => p === "fb" || p === "ig" || p === "pin");
   if (platforms.length === 0) {
-    console.error("no valid platforms (want fb and/or ig)");
+    console.error("no valid platforms (want fb, ig and/or pin)");
     process.exit(1);
   }
   console.log(
@@ -124,21 +126,44 @@ async function main(): Promise<void> {
     "--limit",
     "200",
     "--json",
-    "number,body",
+    "number,body,labels",
   ]);
   const referenced = new Set<string>();
+  const pinReferenced = new Set<string>();
   for (const i of issues) {
-    for (const m of i.body.matchAll(/20\d\d-\d\d-\d\d-[a-z0-9-]+/g))
+    const isPin = (i.labels ?? []).some(
+      (l) => l.name === "platform:pinterest",
+    );
+    for (const m of i.body.matchAll(/20\d\d-\d\d-\d\d-[a-z0-9-]+/g)) {
       referenced.add(m[0]);
+      if (isPin) pinReferenced.add(m[0]);
+    }
   }
 
   const fresh = seen.filter(
     (it) => !catalogIds.has(baseId(it.id)) && !referenced.has(baseId(it.id)),
   );
+  // Pinterest coverage is tracked separately: an artwork with FB/IG issues
+  // but no pin still gets its pin (board strategy: every artwork gets a pin).
+  const freshPin = seen.filter(
+    (it) =>
+      !catalogIds.has(baseId(it.id)) && !pinReferenced.has(baseId(it.id)),
+  );
   // FIFO oldest-first: gallery returns newest first, so reverse.
   fresh.reverse();
-  console.log(`fresh artworks: ${fresh.length}`);
-  if (fresh.length === 0) {
+  freshPin.reverse();
+  // Union pool oldest-first (fresh first, then pin-only gaps).
+  const pool: typeof seen = [];
+  const pooled = new Set<string>();
+  for (const it of [...fresh, ...freshPin]) {
+    const k = baseId(it.id);
+    if (!pooled.has(k)) {
+      pooled.add(k);
+      pool.push(it);
+    }
+  }
+  console.log(`fresh artworks: ${fresh.length} (pin gaps: ${freshPin.length})`);
+  if (pool.length === 0) {
     console.log("(nothing new)");
     return;
   }
@@ -146,7 +171,7 @@ async function main(): Promise<void> {
   const yyyymm = new Date().toISOString().slice(0, 7).replace("-", "");
   let created = 0;
   let skipped = 0;
-  for (const item of fresh.slice(0, limit)) {
+  for (const item of pool.slice(0, limit)) {
     const slug = baseId(item.slug || item.id);
     const words = slugWords(slug);
     const title = item.title?.trim() || cap(words.slice(0, 3).join(" "));
@@ -190,19 +215,27 @@ async function main(): Promise<void> {
     }
 
     for (const p of platforms) {
-      const platform = p === "ig" ? "instagram" : "facebook";
+      if (p !== "pin" && (catalogIds.has(slug) || referenced.has(slug)))
+        continue;
+      if (p === "pin" && (catalogIds.has(slug) || pinReferenced.has(slug)))
+        continue;
+      const platform =
+        p === "ig" ? "instagram" : p === "fb" ? "facebook" : "pinterest";
       const contentId = `syn-${p}-${slug}`
         .toLowerCase()
         .replace(/[^a-z0-9-]+/g, "-");
-      const campaign = `SYN_${p === "ig" ? "IG" : "FB"}_DISCOVERY_ARTBUYERS_US_${yyyymm}`;
-      const creative = `SYN_${concept}_${p === "ig" ? "IG" : "FB"}_V1`;
+      const tag = p === "ig" ? "IG" : p === "fb" ? "FB" : "PIN";
+      const campaign = `SYN_${tag}_DISCOVERY_ARTBUYERS_US_${yyyymm}`;
+      const creative = `SYN_${concept}_${tag}_V1`;
       const url = `https://www.synthetic.pics?utm_source=${platform}&utm_medium=organic_social&utm_campaign=${campaign}&utm_content=${creative}`;
-      const pillar = p === "ig" ? "discovery" : "product";
+      const pillar = p === "ig" ? "discovery" : p === "fb" ? "product" : "portfolio";
       const audit = await auditSocialCopy({
         hook,
         body,
         cta: "Explore the gallery",
-        platform: platform as "instagram" | "facebook",
+        platform: (p === "pin" ? "facebook" : platform) as
+          | "instagram"
+          | "facebook",
         pillar,
         hashtags: [],
         sourceAsset: `Gallery artwork: ${slug}`,
@@ -220,13 +253,13 @@ async function main(): Promise<void> {
         `**App:** \`synthetic-pics\``,
         `**Platform:** \`${platform}\``,
         `**Social pillar:** \`${pillar}\``,
-        `**Content type:** \`${p === "ig" ? "photo" : "facebook-post"}\``,
+        `**Content type:** \`${p === "ig" ? "photo" : p === "fb" ? "facebook-post" : "pin"}\``,
         `**Content ID:** \`${contentId}\``,
         `**Hook:** \`${hook}\``,
         `**Body:** \`${body}\``,
         `**CTA:** \`Explore the gallery\``,
         `**Destination:** \`${url}\``,
-        `**Media:** \`${p === "ig" ? "Single 1080x1350 visual + short caption, native IG photo post (one artwork per post)" : "Single 1200x630 visual + short caption, photo post"}\``,
+        `**Media:** \`${p === "ig" ? "Single 1080x1350 visual + short caption, native IG photo post (one artwork per post)" : p === "fb" ? "Single 1200x630 visual + short caption, photo post" : "Single 1000x1500 pin card from gallery artwork (portrait JPEG, native pin)"}\``,
         `**Campaign:** \`${campaign}\``,
         `**Creative:** \`${creative}\``,
         `**Priority:** \`p2\``,
@@ -267,6 +300,7 @@ async function main(): Promise<void> {
       console.log(`created - ${out.trim()} : ${contentId}`);
       created += 1;
       referenced.add(slug);
+      if (p === "pin") pinReferenced.add(slug);
     }
   }
   console.log(

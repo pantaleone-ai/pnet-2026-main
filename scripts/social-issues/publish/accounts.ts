@@ -35,7 +35,29 @@ export const SITE_ACCOUNTS: SiteAccounts[] = [
     igUserId: "17841434747706770",
     igUsername: "mixphd",
   },
-];
+    // FB-only (no linked IG as of 2026-10-28 audit — IG null via Graph).
+    // FB publishing works via page token; IG guards will still skip.
+    {
+      site: "profitsignals",
+      pageId: "1426976343825434",
+      pageName: "ProfitSignals.xyz",
+    },
+    {
+      site: "proswing",
+      pageId: "1375884918941400",
+      pageName: "ProSwing.net",
+    },
+    {
+      site: "aiceo",
+      pageId: "1329336636935220",
+      pageName: "Aiceo.io",
+    },
+    {
+      site: "imgsquash",
+      pageId: "1432709709918097",
+      pageName: "Imgsquash.com",
+    },
+  ];
 
 export function accountsForSite(site: string): SiteAccounts | undefined {
   return SITE_ACCOUNTS.find((a) => a.site === site);

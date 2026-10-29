@@ -64,7 +64,7 @@ to close. All runs are idempotent and never double-post.
 | -------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
 | Instagram      | 5 open           | **LIVE** (proven #91, #101)                                                                                                       | `META_CAPI_ACCESS_TOKEN` ✅ stored                                               |
 | Facebook       | 3 open           | **LIVE** (same token, `pages_manage_posts`) — photo posts with per-post visuals; bare link posts refused (link-scrape duplicates) | `META_CAPI_ACCESS_TOKEN` ✅ stored                                               |
-| Pinterest      | 8 open (largest) | Blocked — owner OAuth                                                                                                             | `PINTEREST_ACCESS_TOKEN`                                                         |
+| Pinterest      | queue grows daily | **LIVE** (proven #96, #114) — 8 public strategy boards, 28 slots/wk (4/day), nightly due-publish + API audit-close | `PINTEREST_ACCESS_TOKEN` ✅ stored (+ Actions secret, refresh in `.env.local`) |
 | X              | 8 open           | Blocked — owner app + OAuth                                                                                                       | `X_API_KEY`, `X_API_SECRET`, `X_ACCESS_TOKEN`, `X_ACCESS_TOKEN_SECRET`           |
 | LinkedIn       | 2 open           | Blocked — owner OAuth (aiceo/profitsignals only)                                                                                  | `LINKEDIN_ACCESS_TOKEN`, `LINKEDIN_PERSON_URN`                                   |
 | Reddit         | 2 open           | Manual-only by policy                                                                                                             | `REDDIT_CLIENT_ID`, `REDDIT_CLIENT_SECRET`, `REDDIT_USERNAME`, `REDDIT_PASSWORD` |
@@ -165,7 +165,7 @@ The media ledger allows same-URL reuse across sites only when`reshareOf`matches 
 Daily scoring runs in `.github/workflows/social-reshare.yml` (read-only;
 draft creation is manual dispatch only).
 
-## Nightly synthetic + mixphd auto-posting (SYN ~4.4/day, MIX ~3.4/day + respins)
+## Nightly synthetic + mixphd auto-posting (SYN ~8.4/day, MIX ~3.4/day + respins)
 
 `social-nightly.yml` (02:05 ET) runs the full loop for both sites with no human gates;
 `social-ig-slots.yml` publishes IG windows just-in-time (IG has no
@@ -176,8 +176,8 @@ workflows.
 
 1. **Intake synthetic** (`gallery-sync.ts`, `--apply --limit 3` by default): polls the
    public gallery API, diffs vs `SYN_CATALOG`, appends new artwork, creates
-   one FB + one IG issue per artwork (FIFO oldest-first, deduped on artwork
-   ID, copy audited — `fail` skips, never publishes).
+   one FB + one IG + one Pinterest issue per artwork (FIFO oldest-first, deduped on artwork
+   ID — Pinterest coverage tracked separately so every artwork gets its pin, copy audited — `fail` skips, never publishes).
 2. **Intake mixphd** (`recipe-sync.ts`, `--apply --limit 2`): polls
    `https://www.mixphd.com/sitemap.xml` for `<lastmod>` ≤36h, dedupes on slug vs
    open/closed issues (`**Source asset:**`), fetches each recipe page for name +
@@ -208,6 +208,10 @@ workflows.
    `publish-due --due --channel instagram --site <site>` (oldest due slot first,
    limit 2 per site; both synthetic.pics + mixphd IG live). Early + late runs
    cover the off-hours grid.
-8. **Close**: `verify-proofs --apply` audit-closes Graph/API-verified
+8. **Pinterest**: `publish-due --due --channel pinterest --site synthetic-pics`
+   (oldest due slot first, limit 5; board from `--board-id`/`**Board:**`/pillar
+   fallback in `pinterest-boards.ts`, 8 public strategy boards). Pins post
+   immediately at the nightly run — slots pace the queue (28/wk, 4/day).
+9. **Close**: `verify-proofs --apply` audit-closes Graph/API-verified
    synthetic + mixphd posts as `published/done` without screenshots; unverified stays
    parked. Manual posts still close via screenshot as before.
