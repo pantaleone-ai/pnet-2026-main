@@ -112,6 +112,34 @@ export interface TitleRules {
   maxSimilarity?: number;
 }
 
+/** One Tier-1 core AI marker (copywriting pack). */
+export interface CopywritingMarker {
+  term: string;
+  why: string;
+  repair: string;
+  register: "default" | "formal";
+  status?: string;
+}
+
+/** One Tier-3 long-tail entry (copywriting pack). */
+export interface CopywritingPackEntry {
+  term: string;
+  why: string;
+  repair: string;
+  category: string;
+  businessFunction?: string;
+  severitySrc?: string;
+}
+
+/** Tier-tagged copywriting pack (CSVs ingested via scripts/build-pack.mjs). */
+export interface CopywritingPack {
+  meta?: { generated?: string; counts?: Record<string, number>; severityMapping?: string; sources?: string[] };
+  tier1Markers?: CopywritingMarker[];
+  tier1Critical?: { id?: string; pattern?: string; why?: string; repair?: string; category?: string }[];
+  tier3?: CopywritingPackEntry[];
+  tier4guard?: { terms?: string[]; legitimateUse?: { term?: string; condition?: string; category?: string }[] };
+}
+
 export interface RhythmLimits {
   /** very short lines threshold (default 8) */
   maxShortParas?: number;
@@ -155,6 +183,12 @@ export interface ProjectProfile {
   rhythmLimits?: RhythmLimits;
   /** length budgets, e.g. { description: [12, 25] } — soft warnings only */
   budgets?: Record<string, [number, number]>;
+  /**
+   * Tier-3 copywriting categories to enforce (domain filter).
+   * Absent = tech-writing defaults (Generic AI slop, Marketing/brand,
+   * Content/SEO, Business jargon, Assistant-style SaaS, Consulting).
+   */
+  copywritingCategories?: string[];
 }
 
 export type ContentType = "prose" | "markdown" | "code" | "design" | "seo" | "image-prompt";
@@ -176,6 +210,8 @@ export interface ScanOptions {
    * and merges with voiceProfile inline arrays.
    */
   voiceExtras?: VoiceExtras;
+  /** Tier-tagged copywriting pack (resolved from config/copywriting/pack.json). */
+  copywritingPack?: CopywritingPack;
 }
 
 export interface AuditReport {

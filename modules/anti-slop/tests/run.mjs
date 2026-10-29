@@ -231,6 +231,106 @@ console.log(`\n${pass} passed, ${fail} failed (incl. voice checks)`);
   check("extras: rewrite leaves soft patterns in place", (rw.rewritten ?? "In today's AI landscape") .includes("In today's AI landscape") || rw.rewritten === undefined, JSON.stringify(rw.changesMade));
 }
 
+// 16. Copywriting pack Tier 1: core markers + deception (soft by design).
+{
+  const t1 = (t, ct = "prose") => scan(t, { mode: "scan", contentType: ct });
+  const has = (r, ...pats) => pats.every((p) => r.findings.some((f) => f.pattern === p));
+
+  const phrase = await t1("This release will pave the way for faster deployments across every team.");
+  check("copywriting: Tier-1 phrase fires copywriting-marker", phrase.findings.some((f) => f.pattern === "copywriting-marker:pave the way" && f.severity === "medium"), JSON.stringify(phrase.findings.map((f) => f.pattern)));
+
+  const single = await t1("The new dashboard is a beacon for the entire platform team.");
+  check("copywriting: Tier-1 single word fires medium", single.findings.some((f) => f.pattern === "copywriting-marker:beacon" && f.severity === "medium"), JSON.stringify(single.findings.map((f) => f.pattern)));
+
+  const formal = await t1("The migration finished on schedule. Moreover, error rates stayed flat through the cutover window.");
+  check("copywriting: formal-register marker stays low", formal.findings.some((f) => f.pattern === "copywriting-marker:moreover" && f.severity === "low"), JSON.stringify(formal.findings.map((f) => f.pattern)));
+
+  const dup = await t1("The landscape shifted after the launch.");
+  check("copywriting: engine-covered terms do not double-fire", !dup.findings.some((f) => f.pattern.startsWith("copywriting-marker:")), JSON.stringify(dup.findings.map((f) => f.pattern)));
+
+  const guar = await t1("We guarantee results within thirty days of onboarding.");
+  check("deception: guarantee-without-terms fires high-soft", guar.findings.some((f) => f.pattern === "deception-risk:guarantee-without-terms" && f.severity === "high"), JSON.stringify(guar.findings.map((f) => f.pattern)));
+  check("deception: highs stay soft (gate passes)", guar.qualityGate.passed, JSON.stringify(guar.qualityGate.hardFailures.map((f) => f.pattern)));
+
+  const free = await t1("Start free today, but the Starter plan bills monthly with no trial period.");
+  check("deception: free-with-hidden-conditions fires (same sentence)", has(free, "deception-risk:free-with-hidden-conditions"), JSON.stringify(free.findings.map((f) => f.pattern)));
+  const freeClean = await t1("Free on GitHub with instant copy-paste functionality. No account needed.");
+  check("deception: genuinely free offer stays silent", !freeClean.findings.some((f) => f.pattern === "deception-risk:free-with-hidden-conditions"), JSON.stringify(freeClean.findings.map((f) => f.pattern)));
+  const freeIdiom = await t1("Use the canvas to break free from the grid. Try free-form queries against the index.");
+  check("deception: idioms and compounds stay silent", !freeIdiom.findings.some((f) => f.pattern === "deception-risk:free-with-hidden-conditions"), JSON.stringify(freeIdiom.findings.map((f) => f.pattern)));
+  const guarNeg = await t1("A gallery is a place to publish and sell, not a guarantee of sales.");
+  check("deception: negated guarantee stays silent", !guarNeg.findings.some((f) => f.pattern === "deception-risk:guarantee-without-terms"), JSON.stringify(guarNeg.findings.map((f) => f.pattern)));
+
+  const anthro = await t1("The model understands your intent and routes the request to the right tool.");
+  check("deception: anthropomorphic-knowing fires without data story", has(anthro, "deception-risk:anthropomorphic-knowing"), JSON.stringify(anthro.findings.map((f) => f.pattern)));
+
+  const auto = await t1("Deploy fully autonomous agents that act on your behalf around the clock.");
+  check("deception: autonomy-without-permissions fires", has(auto, "deception-risk:autonomy-without-permissions"), JSON.stringify(auto.findings.map((f) => f.pattern)));
+
+  const grounded = await t1("The model understands your intent because it was trained on annotated support transcripts.");
+  check("deception: grounded knowing-claim stays silent", !grounded.findings.some((f) => f.pattern === "deception-risk:anthropomorphic-knowing"), JSON.stringify(grounded.findings.map((f) => f.pattern)));
+}
+
+// 17. Copywriting pack Tier 2: gap rhetorical patterns (deduped vs engine).
+{
+  const t2 = (t) => scan(t, { mode: "scan" });
+  const has = (r, ...pats) => pats.every((p) => r.findings.some((f) => f.pattern === p));
+
+  const nab = await t2("It is not about the model. It is about the data underneath it.");
+  check("tier2: not-about-but-about fires", has(nab, "not-about-but-about"), JSON.stringify(nab.findings.map((f) => f.pattern)));
+
+  const mi = await t2("More than a linter, it is a second pair of eyes on every draft.");
+  check("tier2: more-than-inverted fires", has(mi, "more-than-inverted"), JSON.stringify(mi.findings.map((f) => f.pattern)));
+
+  const rf = await t2("The reality is that adoption lags behind the announcements.");
+  check("tier2: reality-frame fires", has(rf, "reality-frame"), JSON.stringify(rf.findings.map((f) => f.pattern)));
+  const rfs = await t2("The truth is simple: shorter drafts win.");
+  check("tier2: reality-frame does not double-fire truth-is-simple", rfs.findings.some((f) => f.pattern === "truth-is-simple") && !rfs.findings.some((f) => f.pattern === "reality-frame"), JSON.stringify(rfs.findings.map((f) => f.pattern)));
+
+  const fi = await t2("Let's be honest, most style guides go unread after week one.");
+  check("tier2: false-intimacy fires", has(fi, "false-intimacy"), JSON.stringify(fi.findings.map((f) => f.pattern)));
+
+  const wit = await t2("What if I told you the gate was the feature?");
+  check("tier2: what-if-told fires", has(wit, "what-if-told"), JSON.stringify(wit.findings.map((f) => f.pattern)));
+
+  const ek = await t2("As we all know, reviews catch what linters miss.");
+  check("tier2: everyone-knows fires", has(ek, "everyone-knows"), JSON.stringify(ek.findings.map((f) => f.pattern)));
+
+  const gws = await t2("It goes without saying that deadlines shape prose.");
+  check("tier2: goes-without-saying fires", has(gws, "goes-without-saying"), JSON.stringify(gws.findings.map((f) => f.pattern)));
+
+  const mh = await t2("The real magic happens when the validator runs before the PR opens.");
+  check("tier2: magic-happens fires", has(mh, "magic-happens"), JSON.stringify(mh.findings.map((f) => f.pattern)));
+
+  const oc = await t2("Our commitment to quality means every draft gets a second pass.");
+  check("tier2: our-commitment fires", has(oc, "our-commitment"), JSON.stringify(oc.findings.map((f) => f.pattern)));
+
+  const emo = await t2("## \u{1F680} Launch checklist\n\n## \u{1F4CB} Review steps\n\nBody copy here.");
+  check("tier2: emoji-headings fires on emoji-led headings", has(emo, "emoji-headings"), JSON.stringify(emo.findings.map((f) => f.pattern)));
+}
+
+// 18. Copywriting pack Tier 3 (domain-filtered long tail) + Tier 4 suppression.
+{
+  const t3 = (t, projectProfile) => scan(t, { mode: "scan", projectProfile });
+  const has = (r, ...pats) => pats.every((p) => r.findings.some((f) => f.pattern === p));
+
+  const pack = await t3("Our industry-leading results speak through the renewal rate alone.");
+  check("tier3: uncovered phrase fires copywriting-pack low", pack.findings.some((f) => f.pattern === "copywriting-pack:industry-leading results" && f.severity === "low" && f.confidence < 0.6), JSON.stringify(pack.findings.map((f) => f.pattern)));
+
+  const dedup = await t3("We leverage the cache to keep p99 latency flat.");
+  check("tier3: engine-covered terms do not double-fire pack", !dedup.findings.some((f) => f.pattern.startsWith("copywriting-pack:") || f.pattern.startsWith("copywriting-marker:")), JSON.stringify(dedup.findings.filter((f) => f.pattern.startsWith("copywriting")).map((f) => f.pattern)));
+  const single = await t3("The proposed solution handles retries with backoff. " + Array(60).fill("Supporting detail fills out the migration notes for review.").join(" "));
+  check("tier3: single ordinary word stays silent (needs repetition)", !single.findings.some((f) => f.pattern.startsWith("copywriting-pack:")), JSON.stringify(single.findings.filter((f) => f.pattern.startsWith("copywriting")).map((f) => f.pattern)));
+
+  const fin = await t3("The plan focuses on wealth creation over ten years.");
+  check("tier3: finance domain filtered out by default", !fin.findings.some((f) => f.pattern.startsWith("copywriting-pack:")), JSON.stringify(fin.findings.map((f) => f.pattern)));
+  const finOn = await t3("The plan focuses on wealth creation over ten years.", { copywritingCategories: ["Finance and investing"] });
+  check("tier3: finance domain enabled via copywritingCategories", has(finOn, "copywriting-pack:wealth creation"), JSON.stringify(finOn.findings.map((f) => f.pattern)));
+
+  const guard = await t3("The agent caches prompts to reduce latency. User flow stays on one screen.");
+  check("tier4: literal domain terms stay silent", !guard.findings.some((f) => f.pattern.startsWith("copywriting-")), JSON.stringify(guard.findings.map((f) => f.pattern)));
+}
+
 // 15. Precision expansion (10 rules) — all soft, schema-conformant.
 {
   const sscan = (t, ct = "prose") => scan(t, { mode: "scan", contentType: ct });

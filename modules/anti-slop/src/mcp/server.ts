@@ -15,7 +15,7 @@
 
 import { stdin, stdout } from "node:process";
 import { audit, scan } from "../engine/orchestrator.js";
-import { loadProjectProfile, loadProtectedTerms, loadVoiceExtras, loadVoiceProfile } from "../profiles.js";
+import { loadCopywritingPack, loadProjectProfile, loadProtectedTerms, loadVoiceExtras, loadVoiceProfile } from "../profiles.js";
 import { analyzeDesign } from "../rules/design.js";
 import { analyzeImagePrompt } from "../rules/image-prompt.js";
 import { analyzeSeo } from "../rules/seo.js";
@@ -93,16 +93,17 @@ function slim(r: AuditReport) {
   };
 }
 
-function defaults(): { voiceProfile: ReturnType<typeof loadVoiceProfile>; projectProfile: ReturnType<typeof loadProjectProfile>; protectedTerms: string[]; voiceExtras: ReturnType<typeof loadVoiceExtras> } {
+function defaults(): { voiceProfile: ReturnType<typeof loadVoiceProfile>; projectProfile: ReturnType<typeof loadProjectProfile>; protectedTerms: string[]; voiceExtras: ReturnType<typeof loadVoiceExtras>; copywritingPack: ReturnType<typeof loadCopywritingPack> } {
   try {
     return {
       voiceProfile: loadVoiceProfile(),
       projectProfile: loadProjectProfile(),
       protectedTerms: loadProtectedTerms(),
       voiceExtras: loadVoiceExtras(),
+      copywritingPack: loadCopywritingPack(),
     };
   } catch {
-    return { voiceProfile: { name: "default" }, projectProfile: { name: "default" }, protectedTerms: [], voiceExtras: {} };
+    return { voiceProfile: { name: "default" }, projectProfile: { name: "default" }, protectedTerms: [], voiceExtras: {}, copywritingPack: undefined };
   }
 }
 

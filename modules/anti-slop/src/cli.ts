@@ -17,7 +17,7 @@ import { audit, scan } from "./engine/orchestrator.js";
 import { analyzeDesign } from "./rules/design.js";
 import { analyzeCode } from "./rules/code.js";
 import { runQualityGate } from "./engine/quality-gate.js";
-import { loadProjectProfile, loadProtectedTerms, loadVoiceExtras, loadVoiceProfile } from "./profiles.js";
+import { loadCopywritingPack, loadProjectProfile, loadProtectedTerms, loadVoiceExtras, loadVoiceProfile } from "./profiles.js";
 import { recordFeedback } from "./engine/taste-memory.js";
 import type { ContentType } from "./types.js";
 
@@ -138,8 +138,9 @@ async function main() {
   const voiceProfile = loadVoiceProfile();
   const protectedTerms = loadProtectedTerms();
   const voiceExtras = loadVoiceExtras();
+  const copywritingPack = loadCopywritingPack();
   const strictness = a.strict ? "strict" : (projectProfile.strictness ?? "standard");
-  const baseOpts = { contentType: a.type, projectProfile, voiceProfile, protectedTerms, voiceExtras, strictness } as const;
+  const baseOpts = { contentType: a.type, projectProfile, voiceProfile, protectedTerms, voiceExtras, copywritingPack, strictness } as const;
 
   if (a.cmd === "feedback") {
     if (!a.pattern || !a.kind) usage();

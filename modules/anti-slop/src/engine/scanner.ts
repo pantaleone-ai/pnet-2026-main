@@ -11,6 +11,8 @@
 import type { Finding, ScanOptions, Severity, VoiceProfile } from "../types.js";
 import { protect } from "./protected.js";
 import { scanVoiceExtras } from "../rules/voice-extras.js";
+import { analyzeCopywriting } from "../rules/copywriting.js";
+import { analyzeDeception } from "../rules/deception.js";
 import { mergeVoiceExtras } from "../profiles.js";
 import {
   CHATBOT_ARTIFACTS,
@@ -226,7 +228,23 @@ export function scanText(input: string, opts: ScanOptions = {}): TextScanResult 
     extras = [];
   }
 
-  const findings = [...chatbot, ...lexical, ...rhetoricalHits, ...style, ...content, ...voice, ...extras].sort(
+  // Copywriting pack: Tier-1 markers + Tier-3 long-tail (soft, suggestion-only).
+  let copywriting: Finding[] = [];
+  try {
+    copywriting = analyzeCopywriting(text, { ...opts, voiceProfile: effectiveVoice });
+  } catch {
+    copywriting = [];
+  }
+
+  // Deception patterns: deterministic Tier-1 CRITICAL subset (soft highs).
+  let deception: Finding[] = [];
+  try {
+    deception = analyzeDeception(text, opts);
+  } catch {
+    deception = [];
+  }
+
+  const findings = [...chatbot, ...lexical, ...rhetoricalHits, ...style, ...content, ...voice, ...extras, ...copywriting, ...deception].sort(
     (a, b) => b.confidence - a.confidence,
   );
   const words = text.split(/\s+/).filter(Boolean).length;

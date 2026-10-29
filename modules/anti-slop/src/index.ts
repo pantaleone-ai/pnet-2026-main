@@ -16,6 +16,8 @@ export { analyzeCode } from "./rules/code.js";
 export { analyzeRhythm } from "./rules/rhythm.js";
 export { analyzeEditorial } from "./rules/editorial.js";
 export { analyzePrecisionRaw, analyzePrecisionText } from "./rules/precision.js";
+export { analyzeCopywriting, DEFAULT_TIER3_CATEGORIES } from "./rules/copywriting.js";
+export { analyzeDeception } from "./rules/deception.js";
 export { scanVoiceExtras } from "./rules/voice-extras.js";
 export {
   loadVoiceProfile,
@@ -23,6 +25,7 @@ export {
   loadProjectProfile,
   loadProtectedTerms,
   loadVoiceExtras,
+  loadCopywritingPack,
   mergeVoiceExtras,
 } from "./profiles.js";
 export * as api from "./api.js";

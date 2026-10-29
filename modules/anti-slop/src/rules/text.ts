@@ -220,6 +220,127 @@ export const RHETORICAL_PATTERNS: RhetoricalPattern[] = [
     explanation: "Asserting obviousness instead of proving the point.",
     action: "Prove it; cut the assertion of clarity.",
   },
+  // --- Tier-2 copywriting gap patterns (aiceo pack; deduped against above) ---
+  {
+    name: "not-about-but-about",
+    re: /\bit(?:'?s| is) not about ([^,.!?;]{2,50})[,.!?;]?\s+it(?:'?s| is) about ([^,.!?;]{2,50})/gi,
+    severity: "medium",
+    confidence: 0.75,
+    explanation: "'It's not about X, it's about Y' reframe — a top AI-generation tell.",
+    action: "State the actual subject directly instead of framing it by negation.",
+  },
+  {
+    name: "more-than-inverted",
+    re: /\bmore than ([^,.!?;]{2,50}),?\s+it(?:'?s| is) ([^,.!?;]{2,50})/gi,
+    severity: "medium",
+    confidence: 0.65,
+    explanation: "Inverted profundity frame ('More than X, it's Y').",
+    action: "Say what it is, concretely.",
+  },
+  {
+    name: "reality-frame",
+    re: /\b(the reality|the truth|the fact of the matter) is\b(?!\s+(simple|clear|obvious|unambiguous|straightforward))/gi,
+    severity: "medium",
+    confidence: 0.6,
+    explanation: "False-authority opener presenting opinion as settled reality.",
+    action: "Attribute the claim or argue it with evidence.",
+  },
+  {
+    name: "false-intimacy",
+    re: /\b(let'?s be honest|let'?s face it|make no mistake( about it)?|let'?s be (clear|real))\b/gi,
+    severity: "medium",
+    confidence: 0.7,
+    explanation: "Manufactured candor manufacturing trust instead of earning it.",
+    action: "Delete the buildup; state the uncomfortable point directly.",
+  },
+  {
+    name: "heres-why",
+    re: /\bhere'?s why\b/gi,
+    severity: "low",
+    confidence: 0.55,
+    explanation: "Scaffolding opener announcing an explanation instead of giving it.",
+    action: "Give the reason; cut the announcement.",
+  },
+  {
+    name: "no-secret",
+    re: /\bit'?s no secret that\b|\bthe secret is\b/gi,
+    severity: "medium",
+    confidence: 0.6,
+    explanation: "Conspiratorial framing selling agreement instead of arguing the point.",
+    action: "Argue the claim directly with evidence.",
+  },
+  {
+    name: "what-if-told",
+    re: /\bwhat if i told you\b/gi,
+    severity: "medium",
+    confidence: 0.7,
+    explanation: "'What if I told you…' — engagement bait, not an argument.",
+    action: "State the surprising fact and its evidence.",
+  },
+  {
+    name: "at-its-core",
+    re: /\bat its (core|heart)\b/gi,
+    severity: "low",
+    confidence: 0.55,
+    explanation: "Essence shorthand that names no actual mechanism.",
+    action: "Name the mechanism instead of gesturing at an essence.",
+  },
+  {
+    name: "everyone-knows",
+    re: /\b(as we all know|we all know|everyone knows|as you know)\b/gi,
+    severity: "medium",
+    confidence: 0.65,
+    explanation: "Consensus assertion without a source — peer pressure as evidence.",
+    action: "Cite the source or cut the appeal to consensus.",
+  },
+  {
+    name: "goes-without-saying",
+    re: /\bit goes without saying\b/gi,
+    severity: "medium",
+    confidence: 0.65,
+    explanation: "If it went without saying, it would not need the sentence.",
+    action: "Delete the phrase; keep the point it was introducing.",
+  },
+  {
+    name: "magic-happens",
+    re: /\bthe (real )?magic (happens|is)\b[^.\n]{0,60}/gi,
+    severity: "medium",
+    confidence: 0.65,
+    explanation: "Magic as explanation — wonder standing in for mechanism.",
+    action: "Describe the mechanism that produces the effect.",
+  },
+  {
+    name: "think-about-it",
+    re: /\b(think about it|consider this)\b/gi,
+    severity: "low",
+    confidence: 0.55,
+    explanation: "Prompting the reader to do the arguing for you.",
+    action: "Make the argument; cut the invitation.",
+  },
+  {
+    name: "in-todays-world",
+    re: /\bin today'?s (world|business environment|market|economy)\b/gi,
+    severity: "medium",
+    confidence: 0.65,
+    explanation: "Generic scene-setting opener with zero information content.",
+    action: "Delete the opener; start with the point.",
+  },
+  {
+    name: "our-commitment",
+    re: /\bour commitment to\b/gi,
+    severity: "medium",
+    confidence: 0.6,
+    explanation: "Corporate virtue declaration without an operating implication.",
+    action: "State the policy, trade-off, or practice — not the posture.",
+  },
+  {
+    name: "simple-answer",
+    re: /\b(the reason|the answer) is simple\b|\bit'?s that simple\b/gi,
+    severity: "medium",
+    confidence: 0.6,
+    explanation: "Simplicity asserted instead of demonstrated.",
+    action: "Demonstrate the simplicity; cut the label.",
+  },
 ];
 
 export const CHATBOT_ARTIFACTS: { name: string; re: RegExp; action: string }[] = [
@@ -451,6 +572,24 @@ export const STYLE_RULES: StyleRule[] = [
             `${hits.length} bullets in Bold Word: explanation format`,
             "Every bullet starts with a bold keyword + colon — the default AI-markdown layout.",
             "Vary the format: plain bullets, a table, or short prose for at least one item.",
+          ),
+        ];
+      }
+      return [];
+    },
+  },
+  {
+    // Emoji-led headings — decoration that breaks screen-reader flow.
+    name: "emoji-headings",
+    check: (text) => {
+      const hits = [...text.matchAll(/^#{1,6}\s*[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gmu)];
+      if (hits.length >= 2) {
+        return [
+          styleFinding(
+            "emoji-headings", "low", 0.5,
+            `${hits.length} headings open with emoji`,
+            "Emoji-led headings read as template output and break screen-reader flow.",
+            "Move emoji out of headings, or drop them.",
           ),
         ];
       }
