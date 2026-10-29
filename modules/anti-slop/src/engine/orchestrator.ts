@@ -16,7 +16,7 @@ import { analyzeRhythm } from "../rules/rhythm.js";
 import { analyzeEditorial } from "../rules/editorial.js";
 import { analyzePrecisionRaw, analyzePrecisionText } from "../rules/precision.js";
 import { loadTasteMemory, applyTasteMemory } from "./taste-memory.js";
-import { loadVoiceExtras } from "../profiles.js";
+import { loadCopywritingPack, loadVoiceExtras } from "../profiles.js";
 
 function partition(findings: Finding[]) {
   const pick = (...pats: string[]) =>
@@ -42,9 +42,10 @@ function summarize(findings: Finding[], gate: { passed: boolean }): string {
 export async function audit(input: string, opts: ScanOptions = {}): Promise<AuditReport> {
   const strict = opts.strictness === "strict";
   const maxPasses = opts.projectProfile?.maxAutoPasses ?? 2;
-  // Resolve Pnet voice extras once (canonical file) when caller didn't pass them.
+  // Resolve Pnet voice extras + copywriting pack once when caller didn't pass them.
   const voiceExtras = opts.voiceExtras ?? loadVoiceExtras();
-  const eff: ScanOptions = { ...opts, voiceExtras };
+  const copywritingPack = opts.copywritingPack ?? loadCopywritingPack();
+  const eff: ScanOptions = { ...opts, voiceExtras, copywritingPack };
 
   // Taste memory: attenuate approved patterns, boost rejected ones.
   const memory = loadTasteMemory(opts.tasteMemoryPath);

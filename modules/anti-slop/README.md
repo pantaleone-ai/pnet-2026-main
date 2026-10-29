@@ -54,7 +54,7 @@ pipeline; the others run their dedicated analyzer only.
 | L3 style/structure | `rules/text.ts` (`STYLE_RULES`) + `rules/rhythm.ts` + `rules/precision.ts` | Sentence rhythm, repetition, punctuation density, section pacing, fragments, markdown symmetry, SEO/alt-text structure. |
 | L4 semantic | `rules/text.ts` (`CONTENT_RULES`) + `rules/editorial.ts` + `rules/precision.ts` | Evidence checks (fake specificity, vague authority), invented labels, analogy stacking, title/heading rules, fluff ratio, code placeholders. |
 | L5 LLM critique | injected `ScanOptions.llmCritique` hook | Optional semantic judgment. Never built in — the deterministic layers stand alone offline. |
-| L6 quality gate | `engine/quality-gate.ts` | 16-item ship checklist + configurable hard gates (see §4). |
+| L6 quality gate | `engine/quality-gate.ts` | 17-item ship checklist (incl. `no deceptive framing`, soft) + configurable hard gates (see §4). |
 
 A word is a *signal*; severity comes from frequency vs document length, clustering with
 other signals, and project context (allowlist, voice profile, protected terms).
@@ -99,6 +99,7 @@ vibrant, thoughtfully, meticulously, foster`
 | `imagine-world` (med/0.65) | "Imagine a world where…" futurist invitation |
 | `patronizing-analogy` (med/0.65) | "Think of it as…" |
 | `truth-is-simple` (low/0.55) | Asserting obviousness instead of proving |
+| Tier-2 gap patterns (copywriting pack) | `not-about-but-about` (med/0.75), `more-than-inverted` (med/0.65), `reality-frame` (med/0.6), `false-intimacy` (med/0.7), `heres-why` (low), `no-secret` (med/0.65), `what-if-told` (med/0.7), `at-its-core` (low), `everyone-knows` (med/0.65), `goes-without-saying` (med/0.65), `magic-happens` (med/0.65), `think-about-it` (low), `in-todays-world` (med/0.65), `our-commitment` (med/0.6), `simple-answer` (med/0.6), `emoji-headings` style rule (low) — see `COPYWRITING.md` |
 
 **Chatbot artifacts** (all `high/0.9`, auto-fixed): `certainly, lets-dive, breakdown,
 in-conclusion-signoff, hope-this-helps, self-reference ("as an AI"),
@@ -163,9 +164,19 @@ triple-flagging.
   `neon, cyberpunk, cinematic, …`), `prompt-too-thin`, intentional-use allowance
   (`generic-render-tokens-intentional`), palette checks (`default-tech-palette`).
 
+### 3.7 Copywriting pack + deception (`COPYWRITING.md`)
+
+Tier-tagged external lexicon (`config/copywriting/pack.json`, built by
+`scripts/build-pack.mjs`): `copywriting-marker:*` (161 Tier-1 core markers,
+always-on, medium; formal register low), `copywriting-pack:*` (1141-entry
+Tier-3 long tail, low + frequency-scaled + domain-filtered), `deception-risk:*`
+(Tier-1 CRITICAL deterministic subset: guarantee/free/baseline/anthropomorphic/
+autonomy framing — high but soft, never default hard gates; non-deterministic
+rows ship as LLM-critique prompts). Tier-4 guardrails never fire findings.
+
 ## 4. Quality gate (`engine/quality-gate.ts`)
 
-16-item checklist. **Default hard gates are factual integrity only**
+17-item checklist (`no deceptive framing` added — soft). **Default hard gates are factual integrity only**
 (`fake-specificity`, `chatbot`) — subjective style never fails a build unless a
 project configures it. Standard mode passes when no hard failures exist; `--strict`
 also requires every checklist item to pass.
@@ -225,7 +236,18 @@ layoutPrinciples[]`).
 
 **`ScanOptions`**: `contentType, mode, voiceProfile, designProfile, projectProfile,
 protectedTerms[], strictness, llmCritique(text, findings) (layer-5 hook, sync/async),
-tasteMemoryPath, voiceExtras`.
+tasteMemoryPath, voiceExtras, copywritingPack`.
+
+**Copywriting pack** (`config/copywriting/pack.json`, built by
+`scripts/build-pack.mjs` from external CSVs — see `COPYWRITING.md`): 161 Tier-1
+core AI markers (always-on lexical signals, medium; formal-register subset low),
+11 Tier-1 deception patterns (deterministic subset in `rules/deception.ts`,
+high-but-soft; the rest are documented LLM-critique prompts), Tier-2 rhetorical
+gap patterns (in `rules/text.ts`), 1141-entry Tier-3 long-tail lexicon (low,
+frequency-scaled, domain-filtered via
+`projectProfile.copywritingCategories` — tech-writing defaults; single ordinary
+words need count ≥ 2, phrases fire on first use), Tier-4 guardrails
+(suppression set + legitimate-use conditions, never findings).
 
 **Pnet canonical extras file** (kept in place, never moved):
 `<project>/config/voice/anti-patterns.json`
@@ -248,6 +270,7 @@ never as one-off exceptions in prose.
 | `config/anti-slop/rules.json` | strictness, allowlist, protectedTerms, hardGates, maxAutoPasses, autoFixThreshold, titleRules, rhythmLimits, budgets |
 | `config/anti-slop/protected-terms.json` | Product/trademark/API/SEO terms never flagged or rewritten |
 | `config/voice/anti-patterns.json` | Canonical Pnet voice buckets (see above) |
+| `config/copywriting/pack.json` | Tier-tagged copywriting pack (build via `scripts/build-pack.mjs`; project override wins outright) |
 
 ## 8. Interfaces
 
@@ -275,7 +298,7 @@ import { handleAudit, handleBatch } from '@forwardos/anti-slop/api';
 
 const report = await audit(text, {
   contentType: 'markdown', mode: 'audit', strictness: 'standard',
-  voiceProfile, projectProfile, protectedTerms, voiceExtras,
+  voiceProfile, projectProfile, protectedTerms, voiceExtras, copywritingPack,
   llmCritique, // optional layer-5 hook
 });
 // report: { summary, findings, textIssues, designIssues, structuralIssues,
@@ -299,7 +322,7 @@ it from the repo root. Rebuild first (`npm run anti-slop:build`; `dist/` is giti
 
 ## 9. Tests
 
-`npm run anti-slop:test` — 64 assertions over `tests/corpus/` (obvious slop blocked;
+`npm run anti-slop:test` — 94 assertions over `tests/corpus/` (obvious slop blocked;
 good technical/docs/table prose passes; SEO/design/image-prompt behavior; protected-span
 survival; rewrite restraint; taste memory; MCP smoke test; voice-drift; never-write
 lexicon + tropes.fyi patterns; Pnet extras; all 10 precision rules incl. the

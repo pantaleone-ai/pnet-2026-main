@@ -55,8 +55,11 @@ engine working — fix the copy or protected-terms, never weaken the gate silent
 
 1. Pick the home file: `rules/text.ts` (lexical/rhetorical/style/content),
    `rules/rhythm.ts` (prose rhythm), `rules/editorial.ts` (markdown structure, RAW
-   input), `rules/voice-extras.ts` (voice buckets), `rules/precision.ts`
-   (cross-cutting precision checks), `rules/seo|design|code|image-prompt.ts`
+   input), `rules/voice-extras.ts` (voice buckets),    `rules/precision.ts`
+   (cross-cutting precision checks), `rules/copywriting.ts` (Tier-1 markers +
+   Tier-3 long tail — data lives in `config/copywriting/pack.json`, never in
+   code), `rules/deception.ts` (deterministic CRITICAL subset only),
+   `rules/seo|design|code|image-prompt.ts`
    (content-type analyzers). Create a new file only for a coherent new family.
 2. Pattern naming: `kebab-case`, namespaced by family
    (`voice-…`, `title-…`, `generic-…`). One pattern string per distinct actionable
@@ -87,8 +90,12 @@ engine working — fix the copy or protected-terms, never weaken the gate silent
    arrays on `VoiceProfile` (`genericOpeners`, `fillerTransitions`, …) — the loader
    merges both.
 4. Project behavior: `config/anti-slop/rules.json` (`strictness`, `allowlist`,
-   `hardGates`, `titleRules`, `rhythmLimits`, `budgets`). Never add subjective style
+   `hardGates`, `titleRules`, `rhythmLimits`, `budgets`,
+   `copywritingCategories` for the Tier-3 domain filter). Never add subjective style
    patterns to `hardGates` without explicit user approval.
+5. Copywriting pack: regenerate via `node scripts/build-pack.mjs <csv>`,
+   never hand-edit `config/copywriting/pack.json`. New Tier-1/3 terms go
+   through the script so the overlap report stays honest.
 5. Verify: `npm run anti-slop:test` + `npm run content:validate`; compare
    before/after finding counts (`anti-slop compare`) on 2–3 real posts.
 

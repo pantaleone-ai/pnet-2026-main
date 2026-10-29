@@ -11,6 +11,7 @@ import { analyzeSeo } from "./rules/seo.js";
 import { analyzeCode } from "./rules/code.js";
 import { runQualityGate } from "./engine/quality-gate.js";
 import {
+  loadCopywritingPack,
   loadDesignProfile,
   loadProjectProfile,
   loadProtectedTerms,
@@ -28,6 +29,7 @@ export interface ApiRequest {
   protectedTerms?: string[];
   strictness?: ScanOptions["strictness"];
   voiceExtras?: ScanOptions["voiceExtras"];
+  copywritingPack?: ScanOptions["copywritingPack"];
 }
 
 function withDefaults(req: ApiRequest, projectRoot?: string): ScanOptions {
@@ -40,6 +42,7 @@ function withDefaults(req: ApiRequest, projectRoot?: string): ScanOptions {
     protectedTerms: [...(req.protectedTerms ?? []), ...loadProtectedTerms(projectRoot)],
     strictness: req.strictness ?? req.projectProfile?.strictness ?? "standard",
     voiceExtras: req.voiceExtras ?? loadVoiceExtras(projectRoot),
+    copywritingPack: req.copywritingPack ?? loadCopywritingPack(projectRoot),
   };
 }
 

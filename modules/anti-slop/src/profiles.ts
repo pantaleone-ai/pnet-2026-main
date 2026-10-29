@@ -8,7 +8,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { DesignProfile, ProjectProfile, VoiceExtras, VoiceProfile } from "./types.js";
+import type { CopywritingPack, DesignProfile, ProjectProfile, VoiceExtras, VoiceProfile } from "./types.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const bundledDir = resolve(here, "../config/anti-slop");
@@ -72,6 +72,17 @@ const DEFAULT_TITLE_RULES: NonNullable<ProjectProfile["titleRules"]> = {
   genericHeadings: ["introduction", "overview", "summary", "conclusion", "background", "preface"],
   maxSimilarity: 0.8,
 };
+
+/**
+ * Tier-tagged copywriting pack (CSVs ingested via scripts/build-pack.mjs).
+ * Project override wins outright (no merge — packs are curated wholes).
+ */
+export function loadCopywritingPack(projectRoot = process.cwd()): CopywritingPack | undefined {
+  return (
+    readJson<CopywritingPack>(join(resolve(projectRoot), "config/copywriting/pack.json")) ??
+    readJson<CopywritingPack>(join(bundledDir, "../copywriting/pack.json"))
+  );
+}
 
 const DEFAULT_RHYTHM_LIMITS: NonNullable<ProjectProfile["rhythmLimits"]> = {
   maxShortParas: 8,

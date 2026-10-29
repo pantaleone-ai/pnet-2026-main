@@ -23,6 +23,8 @@ export const GATE_CHECKLIST: { item: string; test: (fs: Finding[]) => boolean }[
   { item: "no generic openers/closers", test: (fs) => !fs.some((f) => /voice-generic-opener|voice-filler|voice-closer|voice-contrast-cliche/.test(f.pattern) && f.severity !== "low") },
   { item: "no rhythm homogenization", test: (fs) => !fs.some((f) => /repetition-opening|contrast-structure|fragments|hype-density/.test(f.pattern) && f.severity !== "low") },
   { item: "no title/heading duplication", test: (fs) => !fs.some((f) => /title-stuffer|banned-title-opener|generic-first-heading|title-heading-duplicate|body-opens-with-h1|missing-body-heading/.test(f.pattern) && f.severity !== "low") },
+  // Copywriting + deception — soft: suggestion-only, never default hard gates.
+  { item: "no deceptive framing", test: (fs) => !fs.some((f) => f.pattern.startsWith("deception-risk")) },
   // Precision expansion (10 rules) — soft: suggestion-only, never default hard gates.
   { item: "no placeholder code", test: (fs) => !fs.some((f) => f.pattern === "code-placeholder") },
   { item: "no generic links or alt text", test: (fs) => !fs.some((f) => /generic-anchor-text|missing-or-generic-alt-text/.test(f.pattern) && f.severity !== "low") },

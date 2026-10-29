@@ -26,6 +26,14 @@ and must survive a resync.
 
 - `src/rules/rhythm.ts`, `src/rules/editorial.ts`, `src/rules/voice-extras.ts`,
   `src/rules/precision.ts` — Pnet voice/rhythm/editorial/precision ports.
+- `src/rules/copywriting.ts`, `src/rules/deception.ts`,
+  `config/copywriting/pack.json`, `scripts/build-pack.mjs`, `COPYWRITING.md` —
+  copywriting-pack integration (see COPYWRITING.md for external sources).
+- External sources (NOT vendored, live outside the repo):
+  `~/Downloads/anti_slop_copywriting_rules.csv` and
+  `~/Downloads/aiceo_prioritized_anti_slop_rules.csv` (same 2012 rows; the
+  latter adds `aiceo_Implementation_Tier`/`aiceo_Deployment_Target`). Pack JSON
+  is generated from them; re-run the build script to refresh.
 - `install.mjs`, `INSTALL.md`, `AGENT-PROMPT.md` — cross-project distribution
   (installer, human guide, paste-ready agent prompt). `tsconfig.json`
   `"types": ["node"]` — required since TypeScript 7 stopped auto-including
