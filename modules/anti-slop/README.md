@@ -11,6 +11,17 @@ SEO value, and author intent.
 
 Zero runtime dependencies. Node 18+. Self-contained (own tsconfig, no monorepo base).
 
+## Use in another project
+
+```bash
+node /path/to/anti-slop/install.mjs /path/to/your-project --apply-scripts
+```
+
+See [`INSTALL.md`](./INSTALL.md) (human guide: installer, manual copy, CI, MCP),
+[`AGENT-PROMPT.md`](./AGENT-PROMPT.md) (paste-ready prompt that instructs any
+coding agent to install, voice-tune, verify, and wire the engine itself), and
+[`AGENTS.md`](./AGENTS.md) (operator invariants for agents working on the engine).
+
 ## 1. Pipeline
 
 ```

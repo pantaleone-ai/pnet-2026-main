@@ -26,6 +26,10 @@ and must survive a resync.
 
 - `src/rules/rhythm.ts`, `src/rules/editorial.ts`, `src/rules/voice-extras.ts`,
   `src/rules/precision.ts` — Pnet voice/rhythm/editorial/precision ports.
+- `install.mjs`, `INSTALL.md`, `AGENT-PROMPT.md` — cross-project distribution
+  (installer, human guide, paste-ready agent prompt). `tsconfig.json`
+  `"types": ["node"]` — required since TypeScript 7 stopped auto-including
+  `@types` (verified: clean build on TS 5.9 and 7.0).
 - `src/types.ts` (`VoiceExtras`, `TitleRules`, `RhythmLimits`, extended
   `VoiceProfile`/`ProjectProfile`/`ScanOptions`), `src/profiles.ts`
   (`loadVoiceExtras`, `mergeVoiceExtras`, title/rhythm defaults),

@@ -175,8 +175,23 @@ console.log(`\n${pass} passed, ${fail} failed (incl. voice checks)`);
 }
 
 // 14. Pnet extra voice layer (full port, soft-only).
+// Portable: uses the host project's config/voice/anti-patterns.json when
+// present, otherwise a minimal inline fixture covering the tested buckets.
 {
-  const extras = JSON.parse(readFileSync(join(here, "..", "..", "..", "config", "voice", "anti-patterns.json"), "utf-8"));
+  const extrasPath = join(here, "..", "..", "..", "config", "voice", "anti-patterns.json");
+  let extras;
+  try {
+    extras = JSON.parse(readFileSync(extrasPath, "utf-8"));
+  } catch {
+    extras = {
+      generic_openers: ["in today's ai landscape"],
+      filler_transitions: ["here's the thing"],
+      contrast_cliches: ["the problem isn't"],
+      rhetorical_closers: ["now is the time to ship"],
+      marketing_hype: ["cutting-edge"],
+      hedge_superlatives: ["simply"],
+    };
+  }
   const vscan = (t, projectProfile) => scan(t, { mode: "scan", voiceExtras: extras, projectProfile });
   const has = (r, ...pats) => pats.every((p) => r.findings.some((f) => f.pattern.includes(p)));
 
