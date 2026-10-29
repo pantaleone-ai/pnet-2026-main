@@ -1,8 +1,10 @@
 // Build a publish packet for a queued/in-progress social issue.
-// Run: npx tsx scripts/social-issues/build-packet.ts --issue <n> [--dry-run] [--write]
+// Run: npx tsx scripts/social-issues/build-packet.ts --issue <n> [--dry-run] [--write] [--angles] [--paid]
 // Gallery-only: never invents images; fails with needs-asset if Source asset is missing.
 // Output: docs/social-presence/publish/<contentId>-<issue>.md + caption file + PR body.
 // Gate-compatible with close-with-evidence-social.ts (hook/CTA/UTM/creative, no secrets).
+// --angles: append advisory angle variants (advertising-adapter, budget-safe, never auto-publish).
+// --paid: also render paid_social UTM variant (advisory, requires credentialed paid endpoint).
 import { ghJson } from "../content-issues/gh";
 import { parseSocialIssueBody } from "@/lib/social-growth/issue-body";
 import { validateSocialNaming } from "@/lib/social-growth/social-utm";
@@ -84,8 +86,10 @@ async function main(): Promise<void> {
   const issueArg = arg("--issue");
   const dryRun = process.argv.includes("--dry-run");
   const write = process.argv.includes("--write");
+  const withAngles = process.argv.includes("--angles");
+  const paidVariant = process.argv.includes("--paid");
   if (!issueArg) {
-    console.error("Usage: build-packet.ts --issue <n> [--dry-run] [--write]");
+    console.error("Usage: build-packet.ts --issue <n> [--dry-run] [--write] [--angles] [--paid]");
     process.exit(1);
   }
   const issue = ghJson<IssueView>([
@@ -203,6 +207,7 @@ async function main(): Promise<void> {
   // Copy audit advisory (non-blocking): recorded in the packet, enforced at
   // publish/auto-approve time. Never rewrites.
   let auditNote = "not evaluated";
+  let auditVerdict = "";
   try {
     const { auditSocialCopy } =
       await import("@/lib/social-growth/social-audit");
@@ -211,7 +216,7 @@ async function main(): Promise<void> {
       hook: parsed.hook ?? "",
       body: parsed.body ?? "",
       cta: parsed.cta ?? "",
-      platform: platform === "instagram" ? "instagram" : "facebook",
+      platform: (platform === "instagram" ? "instagram" : platform === "facebook" ? "facebook" : "instagram") as "instagram" | "facebook",
       pillar,
       hashtags:
         platform === "instagram" ? suggestHashtags(pillar, undefined) : [],
@@ -219,8 +224,50 @@ async function main(): Promise<void> {
       destinationUrl: parsed.destinationUrl ?? undefined,
     });
     auditNote = `${audit.verdict} (engine ${audit.engineUsed ? "on" : "off"}): ${audit.reasons.join("; ") || "clean"}`;
+    auditVerdict = audit.verdict;
   } catch {
     auditNote = "unavailable (audit module error)";
+  }
+
+  // Advertising angles (opt-in, advisory): budget-safe hook variants.
+  let anglesNote = "angles not requested (run with --angles)";
+  if (withAngles) {
+    try {
+      const { anglesFor, awarenessFor, mechanismNote } = await import(
+        "@/lib/social-growth/advertising-adapter"
+      );
+      const awareness = awarenessFor(platform, pillar);
+      const variants = anglesFor(site, parsed.hook ?? "", pillar);
+      const mech = mechanismNote(site);
+      anglesNote = [
+        `awareness: ${awareness.stage} → ${awareness.angleDirection}`,
+        mech ? `mechanism: ${mech}` : "",
+        ...variants.map((v) => `- [${v.kind}/${v.frameworkId}] ${v.hook}`),
+        `audit: ${auditVerdict || "see above"} — variants are advisory, primary copy unchanged`,
+      ]
+        .filter(Boolean)
+        .join("\n");
+    } catch {
+      anglesNote = "angles unavailable (adapter error)";
+    }
+  }
+
+  // Paid UTM variant (opt-in, advisory): same naming, paid_social medium.
+  let paidNote = "paid variant not requested (run with --paid)";
+  if (paidVariant) {
+    try {
+      const { buildPaidSocialUrl } = await import("@/lib/social-growth/social-utm");
+      const { PAID_PLATFORM_MAP } = await import("@/config/social-growth/platform-matrix");
+      const paidSource = PAID_PLATFORM_MAP[platform] ?? "meta";
+      paidNote = [
+        `paid_source=${paidSource} / paid_medium=paid_social`,
+        `campaign \`${parsed.campaignId}\` + creative \`${parsed.creativeId}\` reused unchanged`,
+        `example: \`${buildPaidSocialUrl(strategy?.domain ?? parsed.destinationUrl ?? "", { paidPlatform: (paidSource === "tiktok" ? "tiktok" : paidSource === "youtube" ? "youtube" : "meta"), campaign: parsed.campaignId ?? "", creative: parsed.creativeId ?? "" })}\``,
+        `requires credentialed paid endpoint — organic publish path unchanged`,
+      ].join("\n");
+    } catch {
+      paidNote = "paid variant unavailable (utm error)";
+    }
   }
   const packetPath = `docs/social-presence/publish/${contentId}-${issue.number}.md`;
   const captionPath = `docs/social-presence/publish/${contentId}-caption.txt`;
@@ -250,6 +297,12 @@ async function main(): Promise<void> {
     `- \`utm_campaign=${parsed.campaignId}\` — 6 segments: APP_PLATFORM_OBJECTIVE_AUDIENCE_GEO_YYYYMM`,
     `- \`utm_content=${parsed.creativeId}\` — 4 segments: APP_CONCEPT_FORMAT_VARIANT`,
     `- Base domain matches registry: \`${strategy?.domain}\` (\`config/social-growth/product-matrix.ts\`)`,
+    ``,
+    `## Advertising angles (advisory, opt-in --angles; primary copy unchanged)`,
+    anglesNote,
+    ``,
+    `## Paid variant (advisory, opt-in --paid; organic path unchanged)`,
+    paidNote,
     ``,
     `## Creative spec (gallery-only)`,
     `- Format: ${parsed.contentType} — ${parsed.body}`,

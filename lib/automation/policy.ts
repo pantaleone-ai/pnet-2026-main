@@ -32,6 +32,7 @@ export interface PolicyInput {
   rule?:
     | "gallery-live"
     | "synthetic-proof"
+    | "advertising-pass"
     | "campaign-promote"
     | "content-discover"
     | "other";

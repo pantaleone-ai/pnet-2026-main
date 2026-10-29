@@ -14,6 +14,9 @@
  *     (excl. URL/hashtags); hook ending in "?" → warn.
  *  6. Cross-post repetition — optional recentTexts (normalized hook+body of
  *     recent issues); shared 4+-word phrase → warn with match count.
+ *  7. Awareness fit (advertising-skills schwartz-awareness-mapper, advisory):
+ *     cold platforms (pinterest/reddit/tiktok) carrying Most-Aware offer copy
+ *     ("buy now", "book a call", "limited") → warn, never fail.
  *
  * Enforcement: pass → proceed; warn → record, proceed; fail → needs_review,
  * block auto-approval and publication until corrected.
@@ -33,7 +36,7 @@ export interface SocialAuditInput {
   hook: string;
   body: string;
   cta: string;
-  platform: "instagram" | "facebook";
+  platform: "instagram" | "facebook" | "pinterest" | "x" | "reddit" | "linkedin" | "youtube-shorts" | "tiktok";
   pillar?: string;
   hashtags?: string[];
   /** Raw **Source asset:** field; descriptors resolved via SYN_CATALOG. */
@@ -245,6 +248,18 @@ export async function auditSocialCopy(
         `repeated phrase across ${matches} recent post(s), e.g. "${example}"`,
       );
     }
+  }
+
+  // Layer 7: awareness fit (warn only, never fail).
+  const coldPlatforms = new Set(["pinterest", "reddit", "tiktok"]);
+  const hardOffer = /(buy now|book a call|limited time|act now|guaranteed)/i;
+  if (
+    coldPlatforms.has(input.platform as string) &&
+    hardOffer.test(`${hook} ${body} ${cta}`)
+  ) {
+    warn.push(
+      "awareness-mismatch: cold platform with hard-offer copy (educate first, offer later)",
+    );
   }
 
   return {

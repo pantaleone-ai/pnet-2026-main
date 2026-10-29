@@ -1,7 +1,7 @@
-// Rule 1 (gallery-live) + Rule 2 (synthetic-proof) auto-approval.
+// Rule 1 (gallery-live) + Rule 2 (synthetic-proof) + Rule 3 (advertising-pass) auto-approval.
 // Adds the existing `publish:approved` label when eligibility passes —
 // no parallel trigger, downstream workflows unchanged.
-// Run: npx tsx scripts/social-issues/publish/auto-approve.ts [--rule gallery-live|synthetic-proof|all] [--dry-run] [--apply] [--limit 10]
+// Run: npx tsx scripts/social-issues/publish/auto-approve.ts [--rule gallery-live|synthetic-proof|advertising-pass|all] [--dry-run] [--apply] [--limit 10]
 // Default is dry-run (prints decisions + reasons, changes nothing).
 // --apply writes labels (+ creates Rule 2 drafts born packet-ready).
 // Idempotent: skips issues already approved / already proven / already reshared.
@@ -514,6 +514,120 @@ async function rule2(apply: boolean, limit: number): Promise<void> {
   if (acted === 0) console.log("(rule 2: nothing eligible)");
 }
 
+async function rule3(apply: boolean, limit: number): Promise<void> {
+  if (!AUTOMATION_POLICY.social.advertising.autoAllowOnPass) {
+    console.log("(rule 3: disabled by policy advertising.autoAllowOnPass=false)");
+    return;
+  }
+  const issues = ghJson<IssueView[]>([
+    "issue",
+    "list",
+    "--label",
+    "social",
+    "--state",
+    "open",
+    "--limit",
+    "100",
+    "--json",
+    "number,title,state,labels,body,comments",
+  ]);
+  let acted = 0;
+  let shown = 0;
+  for (const i of issues) {
+    if (acted >= limit || shown >= limit) break;
+    const names = i.labels.map((l) => l.name);
+    if (!names.includes("status:packet-ready")) continue;
+    if (approved(i)) continue;
+    // Skip Rule 1/2 territory (synthetic-pics originals + reshares own those paths).
+    if (siteOf(i) === "synthetic-pics") continue;
+    const platform = platformOf(i);
+    if (
+      platform !== "instagram" &&
+      platform !== "facebook" &&
+      platform !== "pinterest" &&
+      platform !== "x" &&
+      platform !== "linkedin"
+    )
+      continue;
+    const proof = hasProof(i.comments);
+    if (proof) continue;
+    const channel = channelForLabelNames(names);
+    const creds = channel ? missingEnvs(channel).length === 0 : false;
+    const images = imagesFromBody(i.body);
+    const decision = evaluatePolicy({
+      system: "social",
+      channel: platform,
+      rule: "advertising-pass",
+      autonomyLevel: 3,
+      approvalPresent: true,
+      checks: [
+        ...socialChecks({
+          open: i.state === "OPEN",
+          packetReady: true,
+          proofPresent: false,
+          credsPresent: creds,
+          imagesPresent: images.length > 0,
+          mediaConflict: null,
+          capReached: null,
+          duplicateInProgress: null,
+        }),
+      ],
+    });
+    if (decision.decision !== "allow") {
+      shown += 1;
+      continue;
+    }
+    const { auditSocialCopy } = await import("@/lib/social-growth/social-audit");
+    const { suggestHashtags } = await import("@/lib/social-growth/caption");
+    const auditPlatform =
+      platform === "instagram" || platform === "facebook" ? platform : "instagram";
+    const audit = await auditSocialCopy({
+      hook: field(i.body, "Hook"),
+      body: field(i.body, "Body"),
+      cta: field(i.body, "CTA"),
+      platform: auditPlatform,
+      pillar: field(i.body, "Social pillar") || undefined,
+      hashtags:
+        auditPlatform === "instagram"
+          ? suggestHashtags(field(i.body, "Social pillar") || undefined, undefined)
+          : [],
+      sourceAsset: field(i.body, "Source asset") || undefined,
+      destinationUrl: field(i.body, "Destination") || undefined,
+    });
+    // Auto-allow ONLY on clean pass. Warn proceeds only for SYN+MIX pilot sites
+    // (all other apps require pass). Fail always blocks.
+    const pilot = siteOf(i) === "synthetic-pics" || siteOf(i) === "mixphd";
+    void pilot;
+    if (audit.verdict === "fail") {
+      console.log(`  audit-fail-skip - #${i.number}: ${audit.reasons.join(" | ")}`);
+      shown += 1;
+      continue;
+    }
+    if (audit.verdict !== "pass") {
+      console.log(`  audit-warn-skip - #${i.number}: ${audit.reasons.join(" | ")}`);
+      shown += 1;
+      continue;
+    }
+    console.log(`#${i.number} advertising-pass ${platform} -> allow [audit:pass]`);
+    shown += 1;
+    if (!apply) {
+      console.log(`  would-approve - #${i.number} (dry-run, audit pass)`);
+      continue;
+    }
+    gh([
+      "issue",
+      "comment",
+      String(i.number),
+      "--body",
+      `Rule advertising-pass auto-approval (policy ${decision.policy}): packet-ready, audit pass, credentials + visuals present. Adding \`publish:approved\`.`,
+    ]);
+    gh(["issue", "edit", String(i.number), "--add-label", "publish:approved"]);
+    console.log(`  approved - #${i.number}`);
+    acted += 1;
+  }
+  if (acted === 0) console.log("(rule 3: nothing eligible)");
+}
+
 async function main(): Promise<void> {
   const rule = flag("--rule") || "all";
   const apply = process.argv.includes("--apply");
@@ -523,6 +637,7 @@ async function main(): Promise<void> {
   );
   if (rule === "gallery-live" || rule === "all") await rule1(apply, limit);
   if (rule === "synthetic-proof" || rule === "all") await rule2(apply, limit);
+  if (rule === "advertising-pass" || rule === "all") await rule3(apply, limit);
   if (!apply)
     console.log(
       "dry-run: no labels added, no issues created. Re-run with --apply to act.",

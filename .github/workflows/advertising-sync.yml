@@ -1,0 +1,22 @@
+name: advertising-sync
+
+on:
+  schedule:
+    - cron: "23 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  check-upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check upstream SHA
+        run: |
+          PINNED="45f4a4a1dabe24113193369b55b929b1de4ff04a"
+          LATEST=$(git ls-remote https://github.com/realkimbarrett/advertising-skills.git HEAD | cut -f1)
+          echo "pinned=$PINNED latest=$LATEST"
+          COUNT=$(curl -s -H "User-Agent: pnet-sync" "https://api.github.com/repos/realkimbarrett/advertising-skills/git/trees/main?recursive=1" | python3 -c "import json,sys; print(len([t for t in json.load(sys.stdin).get('tree',[]) if t['path'].endswith('SKILL.md')]))")
+          echo "upstream SKILL.md count=$COUNT (vendored 12)"
+          if [ "$LATEST" != "$PINNED" ]; then
+            echo "UPSTREAM MOVED — open a social issue to re-vendor. See skills/advertising/PROVENANCE.md."
+          fi

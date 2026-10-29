@@ -9,6 +9,7 @@ import {
 /**
  * Social UTM wrapper. Reuses lib/growth/utm.ts as the single standard.
  * Social convention: utm_medium=organic_social, utm_source=<platform>.
+ * Paid convention (opt-in): utm_medium=paid_social, utm_source=<meta|tiktok|youtube>.
  * Never introduce a competing convention.
  */
 
@@ -50,6 +51,33 @@ export function buildSocialUrl(
       utm_id: opts.utmId,
     },
     "organic_social",
+  );
+}
+
+/**
+ * Paid prep (Meta/TikTok/YouTube). Same campaign/creative naming standard,
+ * only the medium + source change. Requires explicit `--paid` flag at packet
+ * time and credentialed publish endpoint. Organic path untouched.
+ */
+export function buildPaidSocialUrl(
+  baseUrl: string,
+  opts: {
+    paidPlatform: "meta" | "tiktok" | "youtube";
+    campaign: string;
+    creative: string;
+    utmId?: string;
+  },
+): string {
+  return buildUtmUrl(
+    baseUrl,
+    {
+      utm_source: opts.paidPlatform,
+      utm_medium: "paid_social",
+      utm_campaign: opts.campaign,
+      utm_content: opts.creative,
+      utm_id: opts.utmId,
+    },
+    "paid_social",
   );
 }
 

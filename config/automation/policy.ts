@@ -5,7 +5,7 @@
  * New auto-approval classes ship disabled-by-default.
  */
 export const AUTOMATION_POLICY = {
-  version: "2026-10-24.2",
+  version: "2026-10-29.1",
   qa: {
     /** Score >= pass: eligible for normal approval evaluation. */
     pass: 80,
@@ -41,6 +41,18 @@ export const AUTOMATION_POLICY = {
         enabled: true,
         intakeLimit: 2,
       },
+    },
+    /**
+     * Advertising upgrade (2026-10-29): angle variants are advisory-only.
+     * Rule 3 advertising-pass auto-allows packet-ready issues with
+     * social-audit=pass across ALL apps (SYN+MIX first). Fail still blocks.
+     * Paid requires explicit --paid + credentialed endpoint, never auto.
+     */
+    advertising: {
+      anglesEnabled: true,
+      autoAllowOnPass: true,
+      paidEnabled: true,
+      paidAutoApprove: false,
     },
     caps: {
       maxPerWeekCombined: 4,

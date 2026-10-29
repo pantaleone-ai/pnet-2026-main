@@ -127,6 +127,15 @@ export const BANNED_PHRASES: string[] = [
   "viral",
   "everyone is talking",
   "you won't believe",
+  // advertising-skills generic-language-killer (additive, 2026-10-29):
+  "scale your business",
+  "proven strategies",
+  "optimize your campaigns",
+  "secret to success",
+  "limited time only",
+  "act now",
+  "don't miss out",
+  "guaranteed results",
 ];
 
 /** Banned hashtags (generic / bait / overused). */

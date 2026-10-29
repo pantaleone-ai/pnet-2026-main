@@ -91,8 +91,7 @@ export const PLATFORM_STRATEGIES: PlatformStrategy[] = [
   },
 ];
 
-export const APP_PLATFORM_FIT: Record<string, Record<string, PlatformFit>> = {
-  "synthetic-pics": {
+export const APP_PLATFORM_FIT: Record<string, Record<string, PlatformFit>> = {  "synthetic-pics": {
     pinterest: "primary",
     instagram: "primary",
     facebook: "secondary",
@@ -173,3 +172,27 @@ export const APP_PLATFORM_FIT: Record<string, Record<string, PlatformFit>> = {
     tiktok: "avoid",
   },
 };
+
+/**
+ * Paid overlay (advertising-skills prep). Organic matrix above is unchanged.
+ * Paid uses utm_medium=paid_social with utm_source meta|tiktok|youtube.
+ * Winners recycle from organic: only promote posts that already earned
+ * audit=pass + real engagement. No paid spend without credentialed endpoint.
+ */
+export const PAID_PLATFORM_MAP: Record<string, string> = {
+  instagram: "meta",
+  facebook: "meta",
+  tiktok: "tiktok",
+  "youtube-shorts": "youtube",
+};
+
+export const PAID_ELIGIBLE_APPS = [
+  "synthetic-pics",
+  "print3dmodels",
+  "mixphd",
+  "proswing",
+  "imgsquash",
+  "aicapturelab",
+  "profitsignals",
+  "aiceo",
+] as const;
