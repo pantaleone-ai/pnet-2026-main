@@ -115,11 +115,32 @@ async function main(): Promise<void> {
         ? "pinterest"
         : "";
   if (!platform) {
-    fail(
-      issueArg,
-      "Auto-packet can't build this yet: only instagram/facebook/pinterest auto-packets exist. " +
-        "X/LinkedIn need credentials, Reddit/Shorts are manual.",
-    );
+    // Soft-park: channels without a credentialed publisher (x/linkedin/
+    // reddit/youtube-shorts) are held for manual posting, never failed.
+    // No retry loop, no fix-loop signal — they cannot fail until creds exist.
+    const parkBody = [
+      `Parked: no credentialed auto-packet exists for this channel yet.`,
+      ``,
+      `Held at \`status:queued\` + \`needs-manual-post\` for a human post. ` +
+        `X/LinkedIn need credentials, Reddit/Shorts are manual by policy.`,
+    ].join("\n");
+    if (dryRun) {
+      console.log(`would-park - #${issueArg} (unconfigured channel, no fail)`);
+      return;
+    }
+    gh(["issue", "comment", issueArg, "--body", parkBody]);
+    gh(["issue", "edit", issueArg, "--add-label", "needs-manual-post"]);
+    if (names.includes("publish:approved")) {
+      gh(["issue", "edit", issueArg, "--remove-label", "publish:approved"]);
+    }
+    if (names.includes("status:in-progress")) {
+      gh(["issue", "edit", issueArg, "--remove-label", "status:in-progress"]);
+    }
+    if (!names.includes("status:queued")) {
+      gh(["issue", "edit", issueArg, "--add-label", "status:queued"]);
+    }
+    console.log(`parked - #${issueArg} (unconfigured channel, held for manual)`);
+    return;
   }
   const contentId = (
     issue.title.match(/^\[Social\]\s*([a-z0-9-]+)/i)?.[1] ??

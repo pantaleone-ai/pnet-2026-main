@@ -1,0 +1,128 @@
+name: social-fix-agent
+
+# Agent repair step for the social fix loop. Fires when social-fix-loop.yml
+# (or a human) adds the `fix:agent` label to an open social issue.
+# Runs the official opencode GitHub action with model
+# opencode-go/muse-spark-1.3-contributor on a scoped repair prompt, then
+# verifies with the packet gates and does attempt bookkeeping:
+#   gate PASS -> clear fix labels, requeue for nightly packet
+#   gate FAIL, attempts < 2 -> bump fix:attempt-N, re-add fix:agent (retry)
+#   gate FAIL, attempts = 2 -> needs-human, stop
+# Guardrails (also restated in the prompt): never run publish-due live,
+# never invent imagery, never touch secrets, only packet/visual paths.
+
+on:
+  issues:
+    types: [labeled]
+
+concurrency:
+  group: social-fix-agent
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  repair:
+    if: github.event.label.name == 'fix:agent'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Guard checks
+        id: guard
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE="${{ github.event.issue.number }}"
+          DATA="$(gh issue view "$ISSUE" --json state,labels,comments,body)"
+          echo "$DATA" | jq -e '.state == "OPEN"' >/dev/null || { echo "skip=not-open" >> "$GITHUB_OUTPUT"; exit 0; }
+          echo "$DATA" | jq -e '[.labels[].name] | contains(["social", "fix:requested"])' >/dev/null || { echo "skip=no-fix-signal" >> "$GITHUB_OUTPUT"; exit 0; }
+          echo "$DATA" | jq -e '[.comments[].body] | any(contains("Platform publish proof"))' >/dev/null && { echo "skip=already-published" >> "$GITHUB_OUTPUT"; exit 0; }
+          echo "$DATA" | jq -e '[.labels[].name] | contains(["fix:attempt-2"])' >/dev/null && { echo "skip=budget-exhausted" >> "$GITHUB_OUTPUT"; exit 0; }
+          if [ -z "${{ secrets.OPENCODE_API_KEY }}" ]; then echo "skip=no-agent-key" >> "$GITHUB_OUTPUT"; exit 0; fi
+          echo "skip=" >> "$GITHUB_OUTPUT"
+      - name: Consume trigger on guard skip
+        if: steps.guard.outputs.skip != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE="${{ github.event.issue.number }}"
+          gh issue edit "$ISSUE" --remove-label "fix:agent"
+          if [ "${{ steps.guard.outputs.skip }}" = "budget-exhausted" ]; then
+            gh issue edit "$ISSUE" --remove-label "fix:requested" --add-label "needs-human"
+            gh issue comment "$ISSUE" --body "Fix loop stopped: 2 agent attempts used without a passing gate. Owner review required — see prior repair comments."
+          elif [ "${{ steps.guard.outputs.skip }}" = "no-agent-key" ]; then
+            gh issue comment "$ISSUE" --body "Fix loop note: OPENCODE_API_KEY is not set, so no agent repair ran. Scripted pre-fix already ran; add the secret and re-add \`fix:agent\` to retry."
+          else
+            gh issue comment "$ISSUE" --body "Fix-agent ignored (guard: ${{ steps.guard.outputs.skip }}). Re-add \`fix:agent\` once the issue is open + social + fix:requested with no publish proof."
+          fi
+      - name: Seed opencode-go auth (verified local format)
+        if: steps.guard.outputs.skip == ''
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+        run: |
+          mkdir -p ~/.local/share/opencode
+          python3 -c "import json,os; json.dump({'opencode-go': {'type': 'api', 'key': os.environ['OPENCODE_API_KEY']}}, open(os.path.expanduser('~/.local/share/opencode/auth.json'), 'w'))"
+          echo "auth seeded (key never logged)"
+      - name: Agent repair
+        if: steps.guard.outputs.skip == ''
+        uses: anomalyco/opencode/github@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          model: opencode-go/muse-spark-1.3-contributor
+          use_github_token: true
+          prompt: |
+            Repair social issue #${{ github.event.issue.number }} for the pantaleone.net social pipeline.
+            First read the issue body + comments to find the `fix:<reason>` label and the last failure text, then read scripts/social-issues/fix-loop.ts (--fix --issue N --dry-run output explains the needed repair class).
+            Rules (all mandatory):
+            - Work ONLY on: the issue body/labels via `gh`, files under docs/social-presence/publish/ and public/fb|ig|pins/, and the existing packet branch social/${{ github.event.issue.number }}-* if present. Never touch any other path.
+            - NEVER run scripts/social-issues/publish/publish-due.ts without --dry-run. Nothing in this task publishes.
+            - NEVER invent imagery: cards come only from catalog art (config/social-growth/syn-catalog.ts) or stamped hero URLs via scripts/social-issues/build-visuals.ts --write.
+            - NEVER invent credentials, metrics, or post URLs. If a required credential is genuinely absent, stop and say so in your summary.
+            - Verify with: build-packet dry-run gate + build-visuals dry-run for the issue. Both must PASS.
+            - Commit packet/visual fixes to the packet branch (git config user.name pantaleone-ai, user.email mdptrading@gmail.com). Do not open a second PR; reuse the open one for the branch if present.
+            - End with an issue comment summarizing what changed and the gate results. Do not add or remove fix:* labels — the verify step owns bookkeeping.
+      - name: Verify gate + bookkeeping
+        if: steps.guard.outputs.skip == ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE="${{ github.event.issue.number }}"
+          npx tsx scripts/social-issues/build-packet.ts --issue "$ISSUE" --dry-run > /tmp/gate.log 2>&1 || true
+          npx tsx scripts/social-issues/build-visuals.ts --issue "$ISSUE" --dry-run >> /tmp/gate.log 2>&1 || true
+          if grep -q "gate: PASS" /tmp/gate.log && grep -q "would-build" /tmp/gate.log; then
+            REASON="$(gh issue view "$ISSUE" --json labels --jq '[.labels[].name] | map(select(startswith("fix:"))) | map(select(. != "fix:requested" and . != "fix:agent" and startswith("fix:attempt") | not)) | .[0] // "packet-build"')"
+            gh issue comment "$ISSUE" --body "## Fix loop — agent repair verified ($(date -u +%FT%TZ))
+
+            Packet gate PASS + visuals resolve. Requeued for nightly packet+merge."
+            gh issue edit "$ISSUE" --remove-label "fix:requested" --remove-label "$REASON" --remove-label "fix:agent" --remove-label "fix:attempt-1" --remove-label "fix:attempt-2" 2>/dev/null || true
+            CUR="$(gh issue view "$ISSUE" --json labels --jq '[.labels[].name]')"
+            echo "$CUR" | jq -e 'contains(["status:in-progress"])' >/dev/null && gh issue edit "$ISSUE" --remove-label "status:in-progress" || true
+            echo "$CUR" | jq -e 'contains(["status:queued"])' >/dev/null || gh issue edit "$ISSUE" --add-label "status:queued"
+          else
+            if gh issue view "$ISSUE" --json labels --jq -e '[.labels[].name] | contains(["fix:attempt-1"])' >/dev/null; then
+              gh issue edit "$ISSUE" --remove-label "fix:attempt-1" --add-label "fix:attempt-2"
+              gh issue comment "$ISSUE" --body "## Fix loop — attempt 2 queued
+
+              Gate still failing after first agent repair (see run logs). One final attempt will run; then \`needs-human\`."
+              gh issue edit "$ISSUE" --remove-label "fix:agent"
+              gh issue edit "$ISSUE" --add-label "fix:agent"
+            elif gh issue view "$ISSUE" --json labels --jq -e '[.labels[].name] | contains(["fix:attempt-2"])' >/dev/null; then
+              gh issue edit "$ISSUE" --remove-label "fix:requested" --remove-label "fix:agent" --add-label "needs-human"
+              gh issue comment "$ISSUE" --body "## Fix loop stopped — needs-human
+
+              2 agent attempts used without a passing gate. Owner review required."
+            else
+              gh issue edit "$ISSUE" --add-label "fix:attempt-1"
+              gh issue comment "$ISSUE" --body "## Fix loop — attempt 1 queued
+
+              Gate still failing after agent repair (see run logs). Retrying once more; then \`needs-human\`."
+              gh issue edit "$ISSUE" --remove-label "fix:agent"
+              gh issue edit "$ISSUE" --add-label "fix:agent"
+            fi
+          fi
