@@ -326,6 +326,8 @@ async function main(): Promise<void> {
     // born packet-ready (auto-packet would try to rebuild from catalog art
     // and fail on `Source asset: Reshare ...`). Publish guard needs
     // status:packet-ready with no proof yet — exactly this state.
+    // Targets are instagram/facebook only (both auto-posted via slots), so
+    // no needs-manual-post: automation publishes at the stamped slot.
     const out = gh([
       "issue",
       "create",
@@ -345,8 +347,6 @@ async function main(): Promise<void> {
       "spri:p2",
       "--label",
       "spillar:portfolio",
-      "--label",
-      "needs-manual-post",
     ]);
     console.log(out);
   }

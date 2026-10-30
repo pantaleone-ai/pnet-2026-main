@@ -7,6 +7,7 @@
 //      -> status:published + status:done, issue CLOSED.
 // Placeholder/"pending" language never counts as platform proof. Idempotent: one evidence comment per PR+SHA.
 import { gh, ghJson } from "../content-issues/gh";
+import { channelForLabelNames } from "./publish/channels";
 
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(name);
@@ -119,6 +120,21 @@ function main(): void {
   const screenshotProof = hasScreenshotProof(body);
   const placeholderBlocked = PLACEHOLDER_RE.test(body) && !platformProof;
 
+  // needs-manual-post means a human must post. Auto-posted channels
+  // (instagram/facebook/pinterest) publish via slots/scheduling, so they
+  // never carry it — packet-ready alone is the pending state.
+  const issueLabels = ghJson<Array<{ name: string }>>([
+    "issue",
+    "view",
+    issueArg,
+    "--json",
+    "labels",
+    "--jq",
+    ".labels",
+  ]);
+  const channel = channelForLabelNames(issueLabels.map((l) => l.name));
+  const manualPost = !channel?.implemented || channel.autoPost === false;
+
   if (!platformProof || !screenshotProof) {
     const missing: string[] = [];
     if (!platformProof)
@@ -136,15 +152,17 @@ function main(): void {
       `- Still missing:`,
       ...missing.map((m) => `  - ${m}`),
       ``,
-      `Next: post manually per the packet, then reply here with the Instagram/Meta post URL (+ media ID) and a screenshot. Only then does this move to \`status:published\` + \`status:done\`.`,
+      manualPost
+        ? `Next: post manually per the packet, then reply here with the Instagram/Meta post URL (+ media ID) and a screenshot. Only then does this move to \`status:published\` + \`status:done\`.`
+        : `Next: automation publishes at the stamped slot (IG slot runs / FB native scheduling / Pinterest due pins) and closes on proof — no manual post needed.`,
     ].join("\n");
     if (dryRun) {
       const dup = alreadyCommented(issueArg, marker, sha) ? " (duplicate comment would be skipped)" : "";
-      console.log(`would-flag-packet-ready${dup} - #${issueArg}\n${comment}`);
+      console.log(`would-flag-packet-ready${dup} - #${issueArg} manual=${manualPost}\n${comment}`);
       return;
     }
     postCommentOnce(issueArg, marker, sha, comment, false, "");
-    gh([
+    const labelArgs = [
       "issue",
       "edit",
       issueArg,
@@ -158,11 +176,12 @@ function main(): void {
       "status:done",
       "--add-label",
       "status:packet-ready",
-      "--add-label",
-      "needs-manual-post",
-    ]);
+    ];
+    if (manualPost) labelArgs.push("--add-label", "needs-manual-post");
+    else labelArgs.push("--remove-label", "needs-manual-post");
+    gh(labelArgs);
     gh(["issue", "reopen", issueArg]);
-    console.log(`flagged packet-ready - #${issueArg} (platform post pending)`);
+    console.log(`flagged packet-ready - #${issueArg} (platform post pending, manual=${manualPost})`);
     return;
   }
 
