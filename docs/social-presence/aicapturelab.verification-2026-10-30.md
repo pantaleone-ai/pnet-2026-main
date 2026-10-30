@@ -100,3 +100,12 @@ Pipeline note: `scripts/social-issues/publish/facebook.ts` supports photo posts 
 - Photo luxury-fragrance: `example-luxury-fragrance.jpg` (388KB) -> `post 1321587721048928_122093163843543326`, `LAB_FRAG_PHOTO_V1`.
 - Photo lipstick-macro: `lipstick-color-macro.jpg` (419KB) -> `post 1321587721048928_122093164005543326`, `LAB_LIP_PHOTO_V1`.
 - Page total after this batch: 9 posts (2 Reels + 2 Page videos + 5 photos including orientation). All copy: hook + 1-sentence body + CTA + UTM link, FB zero hashtags, no banned words.
+
+## Instagram seeding 2026-10-30 (3 posts live, user-approved)
+
+- Link test: `GET /1321587721048928?fields=instagram_business_account` -> `17841454251054008`; `GET /17841454251054008` -> `username aicapturelab`, `name AICaptureLab.com`, 0 followers, 0 media (brand-new). Note: handle is `@aicapturelab` (not `aicapturelab.com`).
+- IG publisher supports photo (1 image) + carousel (2-10) only — no Reels/video path. Images must be public JPEG/PNG.
+- Carousel range (skincare + clean + fragrance): container `18007084043808369` -> media `17999345970012744`, permalink `https://www.instagram.com/p/DfIZnVKgRPu/`, `LAB_RANGE_CAR_V1`.
+- Photo backpack lifestyle: media `17918417025265897`, permalink `https://www.instagram.com/p/DfIZqlqAcWB/`, `LAB_PACK_PHOTO_V1`.
+- Photo lipstick macro: media `17908282188668271`, permalink `https://www.instagram.com/p/DfIZrlpgeFc/`, `LAB_LIP_IG_V1`.
+- `SITE_ACCOUNTS`: added `igUserId 17841454251054008` / `igUsername aicapturelab` — `publish-due --due --channel instagram --site aicapturelab` now serves IG. IG bio/link-in-bio edits are app-only (no Graph endpoint) — owner sets bio link to `https://www.aicapturelab.com/` in the app.

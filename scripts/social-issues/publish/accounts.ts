@@ -59,10 +59,15 @@ export const SITE_ACCOUNTS: SiteAccounts[] = [
     },
     // FB-only as of 2026-10-30 verification — IG null via Graph.
     // FB publishing works via page token; IG guards will still skip.
+    // IG linked 2026-10-30: GET /1321587721048928?fields=instagram_business_account
+    // -> 17841454251054008; GET /17841454251054008 -> username aicapturelab
+    // (0 followers, 0 media, brand-new). Both FB + IG now live.
     {
       site: "aicapturelab",
       pageId: "1321587721048928",
       pageName: "AICaptureLab.com",
+      igUserId: "17841454251054008",
+      igUsername: "aicapturelab",
     },
   ];
 
