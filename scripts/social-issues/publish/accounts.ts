@@ -57,6 +57,13 @@ export const SITE_ACCOUNTS: SiteAccounts[] = [
       pageId: "1432709709918097",
       pageName: "Imgsquash.com",
     },
+    // FB-only as of 2026-10-30 verification — IG null via Graph.
+    // FB publishing works via page token; IG guards will still skip.
+    {
+      site: "aicapturelab",
+      pageId: "1321587721048928",
+      pageName: "AICaptureLab.com",
+    },
   ];
 
 export function accountsForSite(site: string): SiteAccounts | undefined {
