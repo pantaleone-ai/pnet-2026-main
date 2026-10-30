@@ -2063,4 +2063,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "particulate conceptual minimalism hovering rectangles 49065551",
     format: "avif",
   },
+  {
+    id: "2026-10-10-travertine-abstract-landscape-black-square-mass-97374198",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-10-travertine-abstract-landscape-black-square-mass-97374198.avif",
+    firstSeen: "2026-10-10",
+    descriptor: "travertine abstract landscape black square mass 97374198",
+    format: "avif",
+  },
+  {
+    id: "2026-10-10-stone-kinetic-geometry-staircase-cascade-98568927",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-10-stone-kinetic-geometry-staircase-cascade-98568927.avif",
+    firstSeen: "2026-10-10",
+    descriptor: "stone kinetic geometry staircase cascade 98568927",
+    format: "avif",
+  },
+  {
+    id: "2026-10-10-a-rings-monochromatic-study-overlapping-11307870",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-10-a-rings-monochromatic-study-overlapping-11307870.avif",
+    firstSeen: "2026-10-10",
+    descriptor: "a rings monochromatic study overlapping 11307870",
+    format: "avif",
+  },
 ];
