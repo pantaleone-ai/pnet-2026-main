@@ -98,7 +98,7 @@ jobs:
             for N in $(gh issue list --label social --label "$SITE" --label status:queued --state open --limit 20 --json number --jq '.[].number'); do
               PLAT=$(gh issue view "$N" --json labels --jq '[.labels[].name] | map(select(startswith("platform:"))) | .[0] // empty')
               if [ "$PLAT" != "platform:instagram" ] && [ "$PLAT" != "platform:facebook" ] && [ "$PLAT" != "platform:pinterest" ]; then echo "skip #$N ($PLAT)"; continue; fi
-              npx tsx scripts/social-issues/auto-packet.ts --issue "$N" --no-reapprove || echo "packet failed #$N (comment on issue, continuing)"
+              timeout 25m npx tsx scripts/social-issues/auto-packet.ts --issue "$N" --no-reapprove || echo "packet failed/timeout #$N (comment on issue, continuing)"
             done
           done
       - name: Schedule — stamp Publish at slots
