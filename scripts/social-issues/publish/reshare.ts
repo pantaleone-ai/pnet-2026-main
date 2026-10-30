@@ -203,7 +203,11 @@ async function main(): Promise<void> {
         const proof = proofPermalink(i.comments);
         if (!proof) return undefined;
         const appId = appIdOf(i.labels, i.body);
+        if (!PANTA_RESHARE_CAPS.allowedSourceSites.includes(appId))
+          return undefined;
         const pri = priorityOf(i.labels);
+        if (!PANTA_RESHARE_CAPS.autoPublishPriorities.includes(pri))
+          return undefined;
         const closedAt = (i as unknown as { closedAt?: string }).closedAt;
         const ageDays = closedAt
           ? (now - new Date(closedAt).getTime()) / 86400000

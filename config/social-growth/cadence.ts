@@ -173,16 +173,30 @@ export const PERFORMANCE_HIERARCHY = [
 
 /**
  * Pantaleone.net reshare caps (portfolio umbrella).
- * Any app's published FB/IG post may nominate, but only top-scored posts
- * publish here. Raised 2026-10-19 (Rule 2 canary): 4/week combined,
- * 2/platform/week, still 48h after source and 48h between reshares.
+ * Only synthetic-pics + mixphd p1 sources auto-share here (Rule 2).
+ * Raised 2026-10-30 (p1-only 6/week): 6/week combined, 3/platform/week,
+ * still 48h after source and 48h between reshares. Destination is always
+ * the source app page (strategyFor domain), never pantaleone services.
  */
 export const PANTA_RESHARE_CAPS = {
-  maxPerWeekCombined: 4,
-  maxPerPlatformPerWeek: 2,
+  maxPerWeekCombined: 6,
+  maxPerPlatformPerWeek: 3,
   minDelayHoursAfterSource: 48,
   minGapHoursBetweenReshares: 48,
   autoPublishPriorities: ["p1"] as string[],
   gatedPriorities: ["p2"] as string[],
   manualOnlyPriorities: ["p3"] as string[],
+  allowedSourceSites: ["synthetic-pics", "mixphd"] as string[],
+};
+
+/**
+ * Pantaleone.net reshare grid (6 slots/week: 3 IG + 3 FB).
+ * Optimal B2B/portfolio windows (ET), staggered vs SYN (31/wk) and
+ * MIX (24/wk) grids — no shared day+HH:MM. Tue-Thu carry 3 of 6;
+ * weekend carries 2 (Sat IG discovery + Sun FB catch-up).
+ * IG: lunch peaks + Sat discovery. FB: mid-morning catch-up.
+ */
+export const PNT_TIMING_WINDOWS: Record<string, string[]> = {
+  instagram: ["Tue 13:00 ET", "Thu 13:00 ET", "Sat 11:00 ET"],
+  facebook: ["Wed 11:00 ET", "Fri 11:00 ET", "Sun 11:00 ET"],
 };

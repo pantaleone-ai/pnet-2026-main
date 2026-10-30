@@ -17,7 +17,10 @@ import { titleMatchesArtwork } from "@/lib/social-growth/media-registry";
 import { buildReshareBody, reshareScore } from "./reshare";
 import { imagesFromBody } from "./publish-due";
 import { channelForLabelNames, missingEnvs } from "./channels";
-import { PANTA_RESHARE_CAPS } from "@/config/social-growth/cadence";
+import {
+  PANTA_RESHARE_CAPS,
+} from "@/config/social-growth/cadence";
+import { strategyFor } from "@/config/social-growth/product-matrix";
 
 function flag(name: string): string | undefined {
   const i = process.argv.indexOf(name);
@@ -326,7 +329,9 @@ async function rule2(apply: boolean, limit: number): Promise<void> {
   );
   const candidates = closed
     .map((i) => {
-      if (siteOf(i) !== "synthetic-pics") return undefined;
+      const srcSite = siteOf(i);
+      if (!PANTA_RESHARE_CAPS.allowedSourceSites.includes(srcSite))
+        return undefined;
       const srcPlatform = platformOf(i);
       if (srcPlatform !== "instagram" && srcPlatform !== "facebook")
         return undefined;
@@ -341,6 +346,9 @@ async function rule2(apply: boolean, limit: number): Promise<void> {
         i.labels
           .find((l) => /^spri:p[123]$/.test(l.name))
           ?.name.replace("spri:", "") ?? "p2";
+      // p1-only: SOME means top priority sources, never p2/p3 auto-share.
+      if (!PANTA_RESHARE_CAPS.autoPublishPriorities.includes(pri))
+        return undefined;
       const images = imagesFromBody(i.body);
       if (images.length === 0) return undefined;
       // Best-fit target: same platform wins (native format preserved).
@@ -354,16 +362,18 @@ async function rule2(apply: boolean, limit: number): Promise<void> {
       ).toLowerCase();
       return {
         issue: i,
+        srcSite,
         srcPlatform,
         target,
         proof,
         images,
         contentId,
-        score: reshareScore("synthetic-pics", srcPlatform, pri, ageH / 24),
+        score: reshareScore(srcSite, srcPlatform, pri, ageH / 24),
       };
     })
     .filter(Boolean) as Array<{
     issue: IssueView;
+    srcSite: string;
     srcPlatform: string;
     target: "facebook" | "instagram";
     proof: string;
@@ -418,8 +428,14 @@ async function rule2(apply: boolean, limit: number): Promise<void> {
       `#${c.issue.number} synthetic-proof -> pantaleone/${c.target} score=${c.score} cap=${cap.weekCount}/${AUTOMATION_POLICY.social.caps.maxPerWeekCombined} -> ${decision.decision} [${decision.reasonCodes.join(",")}]`,
     );
     if (decision.decision !== "allow") continue;
+    const srcApp = c.srcSite;
+    // App page destination: source issue Destination, else the source app
+    // domain from product-matrix (never pantaleone services).
     const dest =
-      field(c.issue.body, "Destination") || "https://www.synthetic.pics";
+      field(c.issue.body, "Destination") ||
+      strategyFor(srcApp)?.domain ||
+      "https://www.synthetic.pics";
+    const appTag = `@${srcApp.replace(/-/g, "")}`;
     // Copy audit on the draft bridge copy: fail can never auto-approve.
     // Draft source fields mirror the future issue body 1:1 (see reshare.ts).
     const draftHook = field(c.issue.body, "Hook") || c.issue.title;
@@ -433,8 +449,11 @@ async function rule2(apply: boolean, limit: number): Promise<void> {
         draftHook.length > 100
           ? `${draftHook.slice(0, 99).trimEnd()}…`
           : draftHook,
-      body: `${draftBodyText} Via @syntheticpics.`,
-      cta: field(c.issue.body, "CTA") || "Explore the gallery",
+      body: `${draftBodyText} Via ${appTag}.`,
+      cta:
+        field(c.issue.body, "CTA") ||
+        strategyFor(srcApp)?.primaryCta ||
+        "Explore the gallery",
       platform: c.target,
       pillar: "portfolio",
       hashtags: c.target === "instagram" ? suggestTags("portfolio", []) : [],
@@ -454,12 +473,15 @@ async function rule2(apply: boolean, limit: number): Promise<void> {
     const draft = buildReshareBody({
       sourceIssue: c.issue.number,
       sourceContentId: c.contentId,
-      sourceApp: "synthetic-pics",
+      sourceApp: srcApp,
       sourcePlatform: c.srcPlatform,
       sourcePermalink: c.proof,
       hook: field(c.issue.body, "Hook") || c.issue.title,
       body: field(c.issue.body, "Body") || "",
-      cta: field(c.issue.body, "CTA") || "Explore the gallery",
+      cta:
+        field(c.issue.body, "CTA") ||
+        strategyFor(srcApp)?.primaryCta ||
+        "Explore the gallery",
       destinationBase: dest,
       images: targetImages,
       targetPlatform: c.target,
@@ -486,7 +508,7 @@ async function rule2(apply: boolean, limit: number): Promise<void> {
       "--label",
       "status:packet-ready",
       "--label",
-      "spri:p2",
+      "spri:p1",
       "--label",
       "spillar:portfolio",
       "--label",

@@ -20,6 +20,8 @@ import {
 import { nextSlot, parseWindow } from "./schedule-queue";
 import {
   MIX_TIMING_WINDOWS,
+  PANTA_RESHARE_CAPS,
+  PNT_TIMING_WINDOWS,
   SYN_TIMING_WINDOWS,
 } from "@/config/social-growth/cadence";
 import {
@@ -526,6 +528,44 @@ check(
     };
     const syn = new Set([...synIg, ...synFb].map(key));
     return [...mixIg, ...mixFb].every((s) => !syn.has(key(s)));
+  })(),
+);
+
+// Pantaleone reshare grid: 6 slots/week (3 IG + 3 FB), p1-only, app-page
+// destinations. Staggered vs SYN + MIX grids (no shared day+HH:MM).
+const pntIg = PNT_TIMING_WINDOWS.instagram ?? [];
+const pntFb = PNT_TIMING_WINDOWS.facebook ?? [];
+check("pnt IG 3 slots", pntIg.length === 3, pntIg.join(","));
+check("pnt FB 3 slots", pntFb.length === 3, pntFb.join(","));
+check(
+  "pnt reshare caps 6/week p1-only",
+  PANTA_RESHARE_CAPS.maxPerWeekCombined === 6 &&
+    PANTA_RESHARE_CAPS.maxPerPlatformPerWeek === 3 &&
+    PANTA_RESHARE_CAPS.autoPublishPriorities.includes("p1") &&
+    PANTA_RESHARE_CAPS.allowedSourceSites.includes("synthetic-pics") &&
+    PANTA_RESHARE_CAPS.allowedSourceSites.includes("mixphd"),
+  JSON.stringify(PANTA_RESHARE_CAPS),
+);
+check(
+  "pnt staggered vs syn+mix grids (no shared day+HH:MM)",
+  (() => {
+    const key = (s: string) => {
+      const [d, h] = s.split(" ");
+      return `${d}@${h}`;
+    };
+    const busy = new Set(
+      [
+        ...(SYN_TIMING_WINDOWS.instagram ?? []),
+        ...(SYN_TIMING_WINDOWS.facebook ?? []),
+        ...(MIX_TIMING_WINDOWS.instagram ?? []),
+        ...(MIX_TIMING_WINDOWS.facebook ?? []),
+      ].map(key),
+    );
+    const pnt = [...pntIg, ...pntFb];
+    return (
+      pnt.every((s) => !busy.has(key(s))) &&
+      new Set(pnt.map(key)).size === pnt.length
+    );
   })(),
 );
 

@@ -1,6 +1,7 @@
 name: social-nightly
 
-# Nightly auto-posting pipeline (runs ~02:05 ET): synthetic.pics + mixphd.
+# Nightly auto-posting pipeline (runs ~02:05 ET): synthetic.pics + mixphd +
+# pantaleone reshares (Rule 2 p1-only, 6/week via PNT_TIMING_WINDOWS).
 # synthetic: gallery poll -> issues (FB+IG+pin) -> packets+visuals+merge (no re-approval) ->
 # slot stamping (SYN_TIMING_WINDOWS, incl. 7/wk Pinterest) -> FB native scheduling ->
 # Pinterest due-pin publishing -> Graph/API-verified audit-close of due proofs.
@@ -105,13 +106,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx tsx scripts/social-issues/schedule-queue.ts --write
-      - name: Facebook — native schedule for slotted posts (both sites)
+      - name: Facebook — native schedule for slotted posts (all sites incl. pantaleone)
         if: github.event_name == 'schedule' || github.event.inputs.dry-run != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           META_CAPI_ACCESS_TOKEN: ${{ secrets.META_CAPI_ACCESS_TOKEN }}
         run: |
-          for SITE in site:synthetic-pics site:mixphd; do
+          for SITE in site:synthetic-pics site:mixphd site:pantaleone; do
             for N in $(gh issue list --label social --label "$SITE" --label platform:facebook --label status:packet-ready --state open --limit 20 --json number --jq '.[].number'); do
               HAS_PROOF=$(gh issue view "$N" --json comments --jq '[.comments[].body] | any(contains("Platform publish proof"))')
               if [ "$HAS_PROOF" = "true" ]; then echo "skip #$N (proof on file)"; continue; fi

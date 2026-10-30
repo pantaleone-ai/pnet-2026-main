@@ -108,11 +108,13 @@ Until a site is listed, `publish-due` refuses to post for it.
 
 ## Reshares (portfolio -> pantaleone.net)
 
-Any app's published FB/IG post may nominate a `pantaleone` reshare.
-Caps live in `PANTA_RESHARE_CAPS` (`config/social-growth/cadence.ts`):
-max 4/week combined, 2/platform/week, 48h after source, 48h between reshares.
-Best-fit target wins (same-platform usually preserves format).
-`p1` auto-nominates, `p2` needs `reshare:approved`, `p3` manual-only.
+Only synthetic-pics + mixphd `p1` published FB/IG posts nominate a
+`pantaleone` reshare (Rule 2 p1-only). Caps live in `PANTA_RESHARE_CAPS`
+(`config/social-growth/cadence.ts`): max 6/week combined, 3/platform/week,
+48h after source, 48h between reshares. Best-fit target wins (same-platform
+usually preserves format). Destination is always the source app page
+(`strategyFor` domain). Slots come from `PNT_TIMING_WINDOWS` (Tue 13:00 +
+Thu 13:00 + Sat 11:00 IG; Wed/Fri/Sun 11:00 FB, all ET, staggered vs SYN/MIX).
 
 Rule 1 (gallery-live) + Rule 2 (synthetic-proof) auto-approval runs in
 `.github/workflows/social-auto-approve.yml` (twice daily) via

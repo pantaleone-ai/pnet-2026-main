@@ -55,8 +55,8 @@ export const AUTOMATION_POLICY = {
       paidAutoApprove: false,
     },
     caps: {
-      maxPerWeekCombined: 4,
-      maxPerPlatformPerWeek: 2,
+      maxPerWeekCombined: 6,
+      maxPerPlatformPerWeek: 3,
       minDelayHoursAfterSource: 48,
       minGapHoursBetweenReshares: 48,
     },

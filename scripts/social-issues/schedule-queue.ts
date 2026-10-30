@@ -3,13 +3,14 @@
 // Dry-run prints the slot table and writes nothing. --write stamps
 // **Publish at:** + the status:scheduled label (explicit approval gate).
 // Windows come from config/social-growth/cadence.ts — edit config, not code.
-// site:synthetic-pics uses the nightly SYN_TIMING_WINDOWS grid (23/wk);
-// site:mixphd uses MIX_TIMING_WINDOWS (17/wk); other sites keep the
-// portfolio TIMING_WINDOWS.
+// site:synthetic-pics uses the nightly SYN_TIMING_WINDOWS grid (31/wk);
+// site:mixphd uses MIX_TIMING_WINDOWS (24/wk); site:pantaleone uses
+// PNT_TIMING_WINDOWS (6/wk reshare grid); other sites keep TIMING_WINDOWS.
 import {
   TIMING_WINDOWS,
   SYN_TIMING_WINDOWS,
   MIX_TIMING_WINDOWS,
+  PNT_TIMING_WINDOWS,
 } from "@/config/social-growth/cadence";
 import { gh, ghJson } from "../content-issues/gh";
 
@@ -139,7 +140,9 @@ function main(): void {
       ? (SYN_TIMING_WINDOWS[platform] ?? [])
       : names.includes("site:mixphd")
         ? (MIX_TIMING_WINDOWS[platform] ?? [])
-        : (TIMING_WINDOWS[platform] ?? []);
+        : names.includes("site:pantaleone")
+          ? (PNT_TIMING_WINDOWS[platform] ?? [])
+          : (TIMING_WINDOWS[platform] ?? []);
     const windows = grid.map(parseWindow);
     let slot: Date | undefined;
     for (let round = 0; round < 4 && !slot; round += 1) {
