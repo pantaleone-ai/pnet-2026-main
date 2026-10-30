@@ -6,8 +6,8 @@ App: `synthetic-pics` / Platform: `facebook` / Type: `facebook-post` / Pillar: `
 pass (engine on): clean
 
 ## Copy (paste to facebook)
-Hook: From the archive: Chromatic restraint organic in chromatic.
-Body: “Chromatic restraint organic” returns to the gallery.
+Hook: From the archive: Chromatic restraint organic.
+Body: Returns to the gallery after a short rest.
 CTA: Explore the gallery
 Framework: Did You Know Insight (did-you-know) — Fact -> why it matters -> where to see it
 Hashtags: none (facebook stays clean)

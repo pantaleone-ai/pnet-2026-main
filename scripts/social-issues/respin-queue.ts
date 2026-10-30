@@ -45,10 +45,14 @@ export function respinHookSyn(
   tag: string,
 ): string {
   const t = title.length > 40 ? `${title.slice(0, 37).trimEnd()}…` : title;
+  // Rule: never stutter "Title in title-first-word" (tag defaults to words[0]).
+  const tagStutters =
+    tag.trim().toLowerCase() === t.split(/\s+/)[0]!.toLowerCase();
+  const inTag = tagStutters ? "" : ` in ${tag}`;
   const hooks = [
-    `From the archive: ${t} in ${tag}.`,
+    `From the archive: ${t}${inTag}.`,
     `Back by request: ${t}.`,
-    `Weekend walls: ${t} in ${tag}.`,
+    `Weekend walls: ${t}${inTag}.`,
   ];
   return hooks[angle % hooks.length] ?? hooks[0]!;
 }
@@ -188,10 +192,11 @@ async function respinSyn(
     const tag = words[0] ?? "gallery";
     const version = respinVersion(refs.length);
     const angle = (version - 1) % 3;
+    // Rule: body never repeats the artwork name from the hook.
     const bodies = [
-      `“${title}” returns to the gallery.`,
-      `Back on the wall: ${title}.`,
-      `Still turning heads: ${title} in ${tag}.`,
+      `Returns to the gallery after a short rest.`,
+      `Back on the wall for a second look.`,
+      `Still turning heads after its first run.`,
     ];
     const body = bodies[angle] ?? bodies[0]!;
     for (const p of ["ig", "fb"] as const) {

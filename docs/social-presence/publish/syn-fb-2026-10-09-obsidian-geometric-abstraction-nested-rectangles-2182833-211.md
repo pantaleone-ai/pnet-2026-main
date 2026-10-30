@@ -7,7 +7,7 @@ pass (engine on): clean
 
 ## Copy (paste to facebook)
 Hook: New in the gallery: Obsidian in geometric-abstraction.
-Body: Obsidian — nested squares in ochre, sparse arrangement
+Body: Nested squares in ochre, sparse arrangement
 CTA: Explore the gallery
 Framework: Did You Know Insight (did-you-know) — Fact -> why it matters -> where to see it
 Hashtags: none (facebook stays clean)
@@ -24,7 +24,7 @@ Breakdown (verified against `lib/growth/utm.ts` + `lib/social-growth/social-utm.
 - Base domain matches registry: `https://www.synthetic.pics` (`config/social-growth/product-matrix.ts`)
 
 ## Creative spec (gallery-only)
-- Format: facebook-post — Obsidian — nested squares in ochre, sparse arrangement
+- Format: facebook-post — Nested squares in ochre, sparse arrangement
 - Source asset: Gallery artwork: 2026-10-09-obsidian-geometric-abstraction-nested-rectangles-2182833 (real asset only, no generated imagery)
 - Platform format: Single visual plus short useful caption, link post
 - CTA style: Learn more / Shop the product

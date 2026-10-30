@@ -154,6 +154,46 @@ export async function auditSocialCopy(
   const lint = lintCaption([hook, "", body, "", `${cta}`].join("\n"), tags);
   for (const v of lint.violations) fail.push(`voice: ${v}`);
 
+  // Layer 2b: body must not repeat the artwork/recipe name from the hook.
+  // Hook carries the name ("New in the gallery: Sand in ..."); body is
+  // description-only ("Soft forms in ochre, ..."). Catches "Sand — ..." repeats.
+  {
+    const hookLow = hook.toLowerCase();
+    const bodyLow = body.toLowerCase();
+    // Leading "Title — ..." / "Title: ..." where Title word appears in hook.
+    const lead = body.match(/^["“”']?([A-Za-z][A-Za-z\-' ]{1,40}?)["“”']?\s*[—–\-:]\s*/);
+    if (lead && lead[1]) {
+      const candidate = lead[1].trim().toLowerCase();
+      const firstWord = candidate.split(/\s+/)[0];
+      if (
+        firstWord &&
+        firstWord.length >= 3 &&
+        hookLow.includes(firstWord) &&
+        bodyLow.startsWith(candidate.slice(0, Math.min(candidate.length, 12)))
+      ) {
+        fail.push(
+          `body repeats hook title ("${lead[1].trim()} — ...") — strip to description-only`,
+        );
+      }
+    } else {
+      // Quoted-title repeat: `"Title" returns ...` where Title words are in hook.
+      const q = body.match(/^["“”'](.+?)["“”']\s+/);
+      if (q && q[1]) {
+        const quoted = q[1].trim().toLowerCase();
+        const qw = quoted.split(/\s+/).filter((w) => w.length >= 4);
+        if (
+          qw.length > 0 &&
+          qw.some((w) => hookLow.includes(w)) &&
+          qw.length <= 5
+        ) {
+          fail.push(
+            `body repeats hook title ("${q[1].trim()}" ...) — strip to description-only`,
+          );
+        }
+      }
+    }
+  }
+
   // Layer 3: source fidelity.
   if (input.sourceAsset) {
     const descriptors = sourceDescriptors(input.sourceAsset);

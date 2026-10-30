@@ -133,6 +133,13 @@ Every caption follows the same budgets (`COPY_BUDGETS` in
 short sentence (6–14 words), CTA 1–4 words, total copy target ≤ 28 words
 (excl. URL/hashtags), Instagram max 3 relevant hashtags, Facebook none.
 
+Body never repeats the artwork name from the hook. Hook carries the name
+(`New in the gallery: Sand in material-study.`) — body is description-only
+(`Soft forms in ochre, symmetrical arrangement.`). Generator strips leading
+`{Title} — ` via `stripTitlePrefix()` (`lib/social-growth/caption.ts`); audit
+fails `body repeats hook title` until fixed. Same rule for FB, IG, Pinterest,
+respins, and reshares.
+
 `lib/social-growth/social-audit.ts` audits issue body, reshare copy,
 generated captions, and packets using the existing anti-slop engine
 (`scanText` + quality gate, scan-only — it never rewrites) plus budget,

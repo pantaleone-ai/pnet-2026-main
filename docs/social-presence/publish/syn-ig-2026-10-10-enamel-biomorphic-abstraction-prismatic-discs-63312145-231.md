@@ -7,7 +7,7 @@ pass (engine on): clean
 
 ## Copy (paste to instagram)
 Hook: New in the gallery: Enamel in pure-minimalism.
-Body: Enamel — prismatic discs in gray, balanced arrangement
+Body: Prismatic discs in gray, balanced arrangement
 CTA: Explore the gallery
 Framework: Drop Showcase (drop-showcase) — What it is -> who it fits -> where to find it
 Hashtags: #generativeart #abstractart #wallart
@@ -24,7 +24,7 @@ Breakdown (verified against `lib/growth/utm.ts` + `lib/social-growth/social-utm.
 - Base domain matches registry: `https://www.synthetic.pics` (`config/social-growth/product-matrix.ts`)
 
 ## Creative spec (gallery-only)
-- Format: photo — Enamel — prismatic discs in gray, balanced arrangement
+- Format: photo — Prismatic discs in gray, balanced arrangement
 - Source asset: Gallery artwork: 2026-10-10-enamel-biomorphic-abstraction-prismatic-discs-63312145 (real asset only, no generated imagery)
 - Platform format: Reel concept or carousel, first-frame hook, 1 CTA in caption
 - CTA style: Link in bio / Try it / See the result

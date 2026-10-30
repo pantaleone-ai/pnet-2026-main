@@ -7,7 +7,7 @@ pass (engine on): clean
 
 ## Copy (paste to instagram)
 Hook: New in the gallery: Smoke in organic-abstraction.
-Body: Smoke — prismatic discs in blue, layered arrangement
+Body: Prismatic discs in blue, layered arrangement
 CTA: Explore the gallery
 Framework: Drop Showcase (drop-showcase) — What it is -> who it fits -> where to find it
 Hashtags: #generativeart #abstractart #wallart
@@ -24,7 +24,7 @@ Breakdown (verified against `lib/growth/utm.ts` + `lib/social-growth/social-utm.
 - Base domain matches registry: `https://www.synthetic.pics` (`config/social-growth/product-matrix.ts`)
 
 ## Creative spec (gallery-only)
-- Format: photo — Smoke — prismatic discs in blue, layered arrangement
+- Format: photo — Prismatic discs in blue, layered arrangement
 - Source asset: Gallery artwork: 2026-10-09-smoke-topological-abstraction-prismatic-discs-34863762 (real asset only, no generated imagery)
 - Platform format: Reel concept or carousel, first-frame hook, 1 CTA in caption
 - CTA style: Link in bio / Try it / See the result

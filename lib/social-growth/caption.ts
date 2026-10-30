@@ -7,6 +7,10 @@
  * - One CTA per post; CTA style comes from the platform matrix.
  * - Hook 4-10 words (max 100 chars); body one short sentence (6-14 words);
  *   total copy target <= 28 words excluding URL and hashtags.
+ * - Body never repeats the artwork name from the hook: hook carries
+ *   "New in the gallery: {Title} in {tag}." — body is description-only
+ *   ("Soft forms in black, spiral arrangement."). Strip leading
+ *   "{Title} — " via stripTitlePrefix().
  */
 
 export type CaptionPlatform = "instagram" | "facebook";
@@ -30,6 +34,39 @@ export const COPY_BUDGETS = {
 
 export function countWords(s: string): number {
   return s.trim().split(/\s+/).filter(Boolean).length;
+}
+
+/**
+ * Rule: body never repeats the artwork/recipe name already in the hook.
+ * Gallery alt/desc arrive as "Title — description" — strip the leading
+ * "{Title} — " / "{Title} - " / "{Title}: " prefix and capitalise.
+ */
+export function stripTitlePrefix(raw: string, title: string): string {
+  const t = raw.trim();
+  const tnorm = title.trim().toLowerCase().replace(/^["“”']+|["“”']+$/g, "");
+  const m = t.match(/^(.+?)\s*[—–\-:]\s*(.+)$/);
+  if (m) {
+    const prefix = m[1]!.trim().replace(/^["“”']+|["“”']+$/g, "");
+    const pl = prefix.toLowerCase();
+    if (
+      pl === tnorm ||
+      tnorm.startsWith(pl) ||
+      pl.startsWith(tnorm) ||
+      tnorm.split(/\s+/)[0] === pl
+    ) {
+      const rest = m[2]!.trim();
+      if (rest.length > 0) {
+        return rest.charAt(0).toUpperCase() + rest.slice(1);
+      }
+      return t;
+    }
+  }
+  const q = t.match(/^["“”'](.+?)["“”']\s+(.+)$/);
+  if (q && q[1]!.trim().toLowerCase() === tnorm && q[2]) {
+    const rest = q[2].trim();
+    return rest.charAt(0).toUpperCase() + rest.slice(1);
+  }
+  return t;
 }
 
 /** Platform CTA styles (mirrors config/social-growth/platform-matrix.ts). */

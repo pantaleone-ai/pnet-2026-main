@@ -6,8 +6,8 @@ App: `synthetic-pics` / Platform: `instagram` / Type: `photo` / Pillar: `discove
 pass (engine on): clean
 
 ## Copy (paste to instagram)
-Hook: From the archive: Afterimage minimalist composition in afterimage.
-Body: “Afterimage minimalist composition” returns to the gallery.
+Hook: From the archive: Afterimage minimalist composition.
+Body: Returns to the gallery after a short rest.
 CTA: Explore the gallery
 Framework: Drop Showcase (drop-showcase) — What it is -> who it fits -> where to find it
 Hashtags: #generativeart #abstractart #wallart

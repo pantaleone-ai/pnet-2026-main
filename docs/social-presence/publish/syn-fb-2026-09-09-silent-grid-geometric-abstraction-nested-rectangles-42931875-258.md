@@ -6,8 +6,8 @@ App: `synthetic-pics` / Platform: `facebook` / Type: `facebook-post` / Pillar: `
 pass (engine on): clean
 
 ## Copy (paste to facebook)
-Hook: From the archive: Silent grid geometric in silent.
-Body: “Silent grid geometric” returns to the gallery.
+Hook: From the archive: Silent grid geometric.
+Body: Returns to the gallery after a short rest.
 CTA: Explore the gallery
 Framework: Did You Know Insight (did-you-know) — Fact -> why it matters -> where to see it
 Hashtags: none (facebook stays clean)

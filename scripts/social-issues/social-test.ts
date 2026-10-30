@@ -7,6 +7,7 @@ import {
   suggestHashtags,
   COPY_BUDGETS,
   countWords,
+  stripTitlePrefix,
 } from "@/lib/social-growth/caption";
 import { auditSocialCopy } from "@/lib/social-growth/social-audit";
 import { buildReshareBody } from "./publish/reshare";
@@ -338,6 +339,17 @@ async function auditTests(): Promise<void> {
     auditCta.verdict === "fail",
     auditCta.reasons.join(" | "),
   );
+  const auditRepeatTitle = await auditSocialCopy({
+    hook: "New in the gallery: Sand in material-study.",
+    body: "Sand — soft forms in ochre, symmetrical arrangement",
+    cta: "Explore the gallery",
+    platform: "facebook",
+  });
+  check(
+    "audit fail body repeats hook title",
+    auditRepeatTitle.verdict === "fail",
+    auditRepeatTitle.reasons.join(" | "),
+  );
   const auditSlop = await auditSocialCopy({
     hook: "Unlock the future of wall art",
     body: "Branching filaments in ochre over warm ground.",
@@ -571,6 +583,21 @@ check(
   respinHookSyn(0, "Warm Field", "ochre").length <= 100 &&
     respinHookMix(2, "Gin Basil Smash with a Very Long Name Indeed Here Yes")
       .length <= 100,
+);
+check(
+  "respin hook drops stutter tag",
+  respinHookSyn(0, "Silent grid geometric", "silent") ===
+    "From the archive: Silent grid geometric.",
+);
+check(
+  "stripTitlePrefix removes name + dash",
+  stripTitlePrefix("Sand — soft forms in ochre.", "Sand") ===
+    "Soft forms in ochre.",
+);
+check(
+  "stripTitlePrefix leaves clean body alone",
+  stripTitlePrefix("Soft forms in ochre, symmetrical arrangement.", "Sand") ===
+    "Soft forms in ochre, symmetrical arrangement.",
 );
 
 auditTests().then(

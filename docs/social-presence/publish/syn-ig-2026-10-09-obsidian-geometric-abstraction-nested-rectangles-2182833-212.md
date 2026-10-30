@@ -7,7 +7,7 @@ pass (engine on): clean
 
 ## Copy (paste to instagram)
 Hook: New in the gallery: Obsidian in geometric-abstraction.
-Body: Obsidian — nested squares in ochre, sparse arrangement
+Body: Nested squares in ochre, sparse arrangement
 CTA: Explore the gallery
 Framework: Drop Showcase (drop-showcase) — What it is -> who it fits -> where to find it
 Hashtags: #generativeart #abstractart #wallart
@@ -24,7 +24,7 @@ Breakdown (verified against `lib/growth/utm.ts` + `lib/social-growth/social-utm.
 - Base domain matches registry: `https://www.synthetic.pics` (`config/social-growth/product-matrix.ts`)
 
 ## Creative spec (gallery-only)
-- Format: photo — Obsidian — nested squares in ochre, sparse arrangement
+- Format: photo — Nested squares in ochre, sparse arrangement
 - Source asset: Gallery artwork: 2026-10-09-obsidian-geometric-abstraction-nested-rectangles-2182833 (real asset only, no generated imagery)
 - Platform format: Reel concept or carousel, first-frame hook, 1 CTA in caption
 - CTA style: Link in bio / Try it / See the result

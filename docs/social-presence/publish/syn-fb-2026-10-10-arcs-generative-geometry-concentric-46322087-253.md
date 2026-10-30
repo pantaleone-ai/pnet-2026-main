@@ -7,7 +7,7 @@ pass (engine on): clean
 
 ## Copy (paste to facebook)
 Hook: New in the gallery: Arcs in geometric-abstraction.
-Body: Arcs — curved bands in blue, scattered arrangement
+Body: Curved bands in blue, scattered arrangement
 CTA: Explore the gallery
 Framework: Did You Know Insight (did-you-know) — Fact -> why it matters -> where to see it
 Hashtags: none (facebook stays clean)
@@ -24,7 +24,7 @@ Breakdown (verified against `lib/growth/utm.ts` + `lib/social-growth/social-utm.
 - Base domain matches registry: `https://www.synthetic.pics` (`config/social-growth/product-matrix.ts`)
 
 ## Creative spec (gallery-only)
-- Format: facebook-post — Arcs — curved bands in blue, scattered arrangement
+- Format: facebook-post — Curved bands in blue, scattered arrangement
 - Source asset: Gallery artwork: 2026-10-10-arcs-generative-geometry-concentric-46322087 (real asset only, no generated imagery)
 - Platform format: Single visual plus short useful caption, link post
 - CTA style: Learn more / Shop the product

@@ -11,6 +11,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { gh, ghJson } from "../content-issues/gh";
 import { SYN_CATALOG } from "@/config/social-growth/syn-catalog";
 import { auditSocialCopy } from "@/lib/social-growth/social-audit";
+import { stripTitlePrefix } from "@/lib/social-growth/caption";
 import { AUTOMATION_POLICY } from "@/config/automation/policy";
 
 function flag(name: string): string | undefined {
@@ -70,6 +71,8 @@ function slugWords(slug: string): string[] {
 function cap(s: string): string {
   return s.length > 0 ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 }
+
+export { stripTitlePrefix };
 
 function countWords(s: string): number {
   return s.trim().split(/\s+/).filter(Boolean).length;
@@ -181,11 +184,13 @@ async function main(): Promise<void> {
       hook = `New in the gallery: ${title.slice(0, 40).trimEnd()}.`;
     const alt = (item.altText ?? "").trim();
     const desc = (item.description ?? "").trim();
-    const body = inRange(alt, 6, 14)
+    const rawBody = inRange(alt, 6, 14)
       ? alt
       : inRange(desc, 6, 14)
         ? desc
-        : `\u201c${title}\u201d joined the gallery.`;
+        : `Now hanging in the gallery, ready to browse.`;
+    // Rule: body never repeats the artwork name from the hook.
+    const body = stripTitlePrefix(rawBody, title);
     const concept =
       (words[0] ?? "art")
         .toUpperCase()

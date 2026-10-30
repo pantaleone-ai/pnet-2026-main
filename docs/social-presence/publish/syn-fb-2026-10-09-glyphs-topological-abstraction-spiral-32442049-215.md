@@ -7,7 +7,7 @@ pass (engine on): clean
 
 ## Copy (paste to facebook)
 Hook: New in the gallery: Glyphs in organic-abstraction.
-Body: Glyphs — spiral marks in rose, balanced arrangement
+Body: Spiral marks in rose, balanced arrangement
 CTA: Explore the gallery
 Framework: Did You Know Insight (did-you-know) — Fact -> why it matters -> where to see it
 Hashtags: none (facebook stays clean)
@@ -24,7 +24,7 @@ Breakdown (verified against `lib/growth/utm.ts` + `lib/social-growth/social-utm.
 - Base domain matches registry: `https://www.synthetic.pics` (`config/social-growth/product-matrix.ts`)
 
 ## Creative spec (gallery-only)
-- Format: facebook-post — Glyphs — spiral marks in rose, balanced arrangement
+- Format: facebook-post — Spiral marks in rose, balanced arrangement
 - Source asset: Gallery artwork: 2026-10-09-glyphs-topological-abstraction-spiral-32442049 (real asset only, no generated imagery)
 - Platform format: Single visual plus short useful caption, link post
 - CTA style: Learn more / Shop the product
