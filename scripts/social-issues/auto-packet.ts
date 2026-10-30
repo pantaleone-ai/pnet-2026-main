@@ -6,6 +6,7 @@
 // Nothing publishes here — publish-due owns the live step.
 import { execFileSync } from "node:child_process";
 import { gh, ghJson } from "../content-issues/gh";
+import { channelForLabelNames } from "./publish/channels";
 
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(name);
@@ -510,7 +511,11 @@ async function main(): Promise<void> {
   if (!prUrl) {
     // Direct-push path has no PR for close-with-evidence to read. The packet
     // already passed every builder gate pre-commit, so record packet-ready
-    // with the same labels the evidence script would set.
+    // with the same labels the evidence script would set. needs-manual-post
+    // only for manual/unconfigured channels — auto channels publish via slots.
+    const directChannel = channelForLabelNames(names);
+    const directManual =
+      !directChannel?.implemented || directChannel.autoPost === false;
     gh([
       "issue",
       "comment",
@@ -522,10 +527,12 @@ async function main(): Promise<void> {
         `- Packet verified at build time: hook, CTA, destination, UTM, creative spec, per-post visual`,
         `- Still missing: platform post URL + published screenshot`,
         ``,
-        `Next: publishing fires on re-approval. Only then does this move to \`status:published\` + \`status:done\`.`,
+        directManual
+          ? `Next: post manually per the packet, then reply with the post URL + screenshot. Only then does this move to \`status:published\` + \`status:done\`.`
+          : `Next: automation publishes at the stamped slot and closes on proof — no manual post needed.`,
       ].join("\n"),
     ]);
-    gh([
+    const directLabelArgs = [
       "issue",
       "edit",
       issueArg,
@@ -539,11 +546,12 @@ async function main(): Promise<void> {
       "status:done",
       "--add-label",
       "status:packet-ready",
-      "--add-label",
-      "needs-manual-post",
-    ]);
+    ];
+    if (directManual) directLabelArgs.push("--add-label", "needs-manual-post");
+    else directLabelArgs.push("--remove-label", "needs-manual-post");
+    gh(directLabelArgs);
     gh(["issue", "reopen", issueArg]);
-    console.log(`flagged packet-ready (direct) - #${issueArg}`);
+    console.log(`flagged packet-ready (direct) - #${issueArg} manual=${directManual}`);
   } else {
     try {
       execFileSync(

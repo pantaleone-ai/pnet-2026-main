@@ -1,6 +1,6 @@
 // Proof verification: confirm platform permalinks behind open
 // `needs-screenshot` / proof-carrying issues are still live. Report only by
-// default. With --apply, Graph/API-verified synthetic.pics + mixphd posts close as
+// default. With --apply, Graph/API-verified automated-channel posts close as
 // published+done without a screenshot (audit-close for the nightly class;
 // unverified/dead never close). Manual posts still close via screenshot.
 // FB: Graph API with META_CAPI_ACCESS_TOKEN (fail-soft without token).
@@ -92,6 +92,35 @@ async function igLive(url: string): Promise<"live" | "unverified" | "dead"> {
   }
 }
 
+/**
+ * Instagram liveness via the Graph API. The publish flow records
+ * `Media ID: \`<id>\`` in the proof comment; that ID is readable with the
+ * Meta system-user token even though permalink HEAD requests are
+ * login-gated. Without a media ID or token, falls back to unverified
+ * (never dead — same policy as the HEAD path).
+ */
+async function igLiveViaGraph(
+  mediaId: string,
+  token: string,
+): Promise<"live" | "unverified" | "dead"> {
+  if (!mediaId || !token) return "unverified";
+  try {
+    const res = await fetch(
+      `https://graph.facebook.com/v26.0/${encodeURIComponent(mediaId)}?fields=id,timestamp&access_token=${token}`,
+      { signal: AbortSignal.timeout(20000) },
+    );
+    if (res.ok) return "live";
+    if (res.status === 404) return "dead";
+    return "unverified";
+  } catch {
+    return "unverified";
+  }
+}
+
+function mediaIdFromProof(proof: string): string {
+  return proof.match(/Media ID:\s*`([^`]+)`/)?.[1]?.trim() ?? "";
+}
+
 async function main(): Promise<void> {
   const limit = Number(flag("--limit") || "20");
   const apply = process.argv.includes("--apply");
@@ -131,7 +160,10 @@ async function main(): Promise<void> {
     } else if (url.includes("pinterest.com")) {
       status = await pinLive(url, pinToken);
     } else {
-      status = await igLive(url);
+      // Instagram permalinks are login-gated (HEAD never verifies), so check
+      // the Graph media ID from the proof comment first — same token as FB.
+      const graphStatus = await igLiveViaGraph(mediaIdFromProof(proof.body), token);
+      status = graphStatus === "unverified" ? await igLive(url) : graphStatus;
     }
     if (status === "live") live += 1;
     else if (status === "dead") dead += 1;
@@ -139,14 +171,17 @@ async function main(): Promise<void> {
     console.log(
       `#${i.number} ${url} -> ${status}${token ? "" : " (no token)"}`,
     );
-    // Audit-close (synthetic + mixphd nightly classes only): verified-live closes as
+    // Audit-close (nightly classes only): verified-live closes as
     // published+done without a screenshot. Unverified/dead never closes.
+    // Covers synthetic-pics + mixphd + pantaleone — all three publish through
+    // the same automated slot proof path, so all three close the same way.
     const names = i.labels.map((l) => l.name);
     const autoCloseable =
       apply &&
       status === "live" &&
       (names.includes("site:synthetic-pics") ||
-        names.includes("site:mixphd")) &&
+        names.includes("site:mixphd") ||
+        names.includes("site:pantaleone")) &&
       names.includes("needs-screenshot");
     if (autoCloseable) {
       gh([
@@ -159,7 +194,7 @@ async function main(): Promise<void> {
           ``,
           `- Post: ${url}`,
           `- Verified: Graph/API readable at ${new Date().toISOString()}`,
-          `- Policy: synthetic.pics / mixphd nightly audit-close; manual posts still need screenshots.`,
+          `- Policy: automated-channel audit-close (synthetic-pics/mixphd/pantaleone); manual posts still need screenshots.`,
         ].join("\n"),
       ]);
       gh([
