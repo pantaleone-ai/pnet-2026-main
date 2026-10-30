@@ -431,6 +431,56 @@ async function main(): Promise<void> {
     .filter(Boolean);
   if (images.length === 0) images.push(...imagesFromBody(issue.body));
 
+  // Regression net (2026-10-30): **Images:** URLs were once stamped while the
+  // card files were never committed, so 9 pin URLs 404d for a week before
+  // anyone noticed. Refuse to hand a dead same-origin URL to any platform
+  // API — park at needs-asset with the rebuild instruction instead.
+  // External (non-pantaleone.net) URLs only warn: third-party HEAD behavior
+  // is unreliable and must never block a publish on its own.
+  const deadImages: string[] = [];
+  for (const url of images) {
+    let live = false;
+    try {
+      const res = await fetch(url, {
+        method: "HEAD",
+        signal: AbortSignal.timeout(20000),
+      });
+      live = res.ok;
+    } catch {
+      live = false;
+    }
+    if (!live) {
+      let sameOrigin = false;
+      try {
+        sameOrigin = new URL(url).hostname.endsWith("pantaleone.net");
+      } catch {
+        sameOrigin = false;
+      }
+      if (sameOrigin) deadImages.push(url);
+      else console.error(`warning: image HEAD failed (external, non-blocking): ${url}`);
+    }
+  }
+  if (deadImages.length > 0) {
+    const comment = [
+      `## Publish blocked — ${channel.id} (needs-asset)`,
+      ``,
+      `- Image URL is not reachable (HTTP != 200):`,
+      ...deadImages.map((u) => `  - \`${u}\``),
+      `- The card file was likely never committed/deployed. Re-run the card build`,
+      `  for #${issue.number} (build-visuals --write / packet flow), merge, verify 200, then re-run.`,
+      ``,
+      `Stays at \`status:packet-ready\`.`,
+    ].join("\n");
+    if (dryRun) {
+      console.log(`would-flag-dead-image - #${issue.number}\n${comment}`);
+      return;
+    }
+    gh(["issue", "comment", String(issue.number), "--body", comment]);
+    gh(["issue", "edit", String(issue.number), "--add-label", "needs-asset"]);
+    console.error(`dead image - #${issue.number}: ${deadImages.join(", ")}`);
+    process.exit(1);
+  }
+
   if (channel.id === "instagram") {
     if (arg("--schedule-at")) {
       console.error(
