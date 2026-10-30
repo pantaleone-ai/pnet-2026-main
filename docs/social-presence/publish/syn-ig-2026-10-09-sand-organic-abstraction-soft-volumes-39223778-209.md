@@ -23,6 +23,12 @@ Breakdown (verified against `lib/growth/utm.ts` + `lib/social-growth/social-utm.
 - `utm_content=SYN_SAND_IG_V1` — 4 segments: APP_CONCEPT_FORMAT_VARIANT
 - Base domain matches registry: `https://www.synthetic.pics` (`config/social-growth/product-matrix.ts`)
 
+## Advertising angles (advisory, opt-in --angles; primary copy unchanged)
+angles not requested (run with --angles)
+
+## Paid variant (advisory, opt-in --paid; organic path unchanged)
+paid variant not requested (run with --paid)
+
 ## Creative spec (gallery-only)
 - Format: photo — Soft forms in ochre, symmetrical arrangement
 - Source asset: Gallery artwork: 2026-10-09-sand-organic-abstraction-soft-volumes-39223778 (real asset only, no generated imagery)
