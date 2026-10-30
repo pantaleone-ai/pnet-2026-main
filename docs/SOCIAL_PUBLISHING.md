@@ -224,3 +224,27 @@ workflows.
 9. **Close**: `verify-proofs --apply` audit-closes Graph/API-verified
    synthetic + mixphd posts as `published/done` without screenshots; unverified stays
    parked. Manual posts still close via screenshot as before.
+
+## Fix loop (auto-repair)
+
+When a pipeline step fails, `social-fix-loop.yml` (2x/day at :33, on
+nightly/auto-packet/publish failure, or dispatch) scans open social issues
+(`fix-loop.ts --scan`, max 3/run oldest-first) and applies deterministic
+scripted repairs (`--fix`: card rebuild, packet-gate re-verify, stale-claim
+requeue, slot restamp). Unfixed issues get `fix:agent`, which fires
+`social-fix-agent.yml`: the opencode agent
+(`opencode-go/muse-spark-1.3-contributor`, key in `OPENCODE_API_KEY` secret)
+repairs on a scoped prompt, then a verify step checks the packet gates.
+Exit policy: gate PASS → labels cleared, requeued for nightly packet;
+FAIL → `fix:attempt-1/2` (max 2 attempts) → `needs-human` with owner steps.
+
+Credential matrix: `instagram`/`facebook`/`pinterest` are enforced — missing
+envs there are real errors (`fix:publish-creds`, escalate with setup steps;
+the agent never invents credentials). `x`/`linkedin`/`reddit`/
+`youtube-shorts` are soft-parked: `auto-packet` holds them at
+`status:queued` + `needs-manual-post` with an informational comment, never
+fails them, and the fix loop skips them entirely until creds exist.
+
+Agent guardrails: never runs `publish-due` live, never invents imagery
+(catalog art or stamped hero URLs only), never touches secrets, only
+packet/visual paths + issue bodies/labels. Per-issue 25 min cap.

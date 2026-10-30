@@ -1,0 +1,104 @@
+name: social-fix-loop
+
+# Social fix loop: detect failed social-queue issues, apply deterministic
+# scripted repairs, and hand the remainder to the opencode agent step.
+# Schedule 2x/day at :33 (offset from orchestrators :17/:47 and reshare :23).
+# Also fires when nightly/auto-packet/publish fail, and on manual dispatch.
+# Budgets: max 3 issues/run, 25 min per issue, 60 min job cap.
+# Never publishes: only labels, issue bodies, packet/visual files under
+# docs/social-presence/publish/ and public/fb|ig|pins/. Publishing still
+# requires publish:approved + slots via the normal pipeline.
+
+on:
+  schedule:
+    - cron: "33 8,20 * * *"
+  workflow_run:
+    workflows: ["social-nightly", "social-auto-packet", "social-publish"]
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      issue:
+        description: "Single social issue number to fix (empty = scan)"
+        required: false
+        default: ""
+      dry-run:
+        description: "Scan only, no writes (true/false)"
+        required: false
+        default: "true"
+
+concurrency:
+  group: social-fix-loop
+  cancel-in-progress: false
+
+permissions:
+  issues: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  triage-and-prefix:
+    # Only run on failed upstream runs; skip when they succeeded.
+    if: >
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'failure' ||
+      github.event.workflow_run.conclusion == 'timed_out'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+      - run: npm ci
+      - name: Image toolchain (PIL + AVIF decode for card rendering)
+        run: pip install --quiet pillow pillow-avif-plugin
+      - name: Ensure labels
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx tsx scripts/content-issues/labels.ts
+      - name: Scan for failures
+        id: scan
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ -n "${{ github.event.inputs.issue }}" ]; then
+            echo "single-issue mode: #${{ github.event.inputs.issue }}"
+            echo "issues=${{ github.event.inputs.issue }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.inputs.dry-run || 'false' }}" = "true" ] && [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            npx tsx scripts/social-issues/fix-loop.ts --scan --dry-run
+            echo "issues=" >> "$GITHUB_OUTPUT"
+          else
+            npx tsx scripts/social-issues/fix-loop.ts --scan --limit 3
+            ISSUES="$(gh issue list --label social --label fix:requested --state open --limit 10 --json number --jq '.[].number' | tr '\n' ' ')"
+            echo "issues=$ISSUES" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Scripted pre-fix (no LLM, no publishing)
+        if: steps.scan.outputs.issues != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          META_CAPI_ACCESS_TOKEN: ${{ secrets.META_CAPI_ACCESS_TOKEN }}
+          PINTEREST_ACCESS_TOKEN: ${{ secrets.PINTEREST_ACCESS_TOKEN }}
+        run: |
+          for N in ${{ steps.scan.outputs.issues }}; do
+            ATTEMPTS="$(gh issue view "$N" --json labels --jq '[.labels[].name] | map(select(startswith("fix:attempt"))) | length')"
+            if [ "$ATTEMPTS" -ge 2 ] 2>/dev/null; then
+              echo "skip #$N (attempt budget exhausted, needs-human owns it)"
+              continue
+            fi
+            set +e
+            timeout 25m npx tsx scripts/social-issues/fix-loop.ts --fix --issue "$N"
+            CODE=$?
+            set -e
+            if [ "$CODE" -eq 0 ]; then
+              echo "repaired #$N (requeued)"
+            elif [ "$CODE" -eq 2 ]; then
+              echo "escalated #$N (needs-human)"
+            else
+              echo "agent-needed #$N (labeling fix:agent)"
+              gh issue edit "$N" --remove-label "fix:agent" 2>/dev/null || true
+              gh issue edit "$N" --add-label "fix:agent"
+            fi
+          done

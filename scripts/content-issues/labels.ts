@@ -62,6 +62,16 @@ const LABELS: Array<{ name: string; color: string; description: string }> = [
   { name: "publish:approved", color: "0e8a16", description: "Human approval: publish this packet-ready issue now (one-shot trigger)." },
   { name: "status:analyzing", color: "fbca04", description: "Published, collecting metrics." },
   { name: "status:winner", color: "5319e7", description: "Winner. Recycle with new angle." },
+  { name: "fix:requested", color: "b60205", description: "Fix loop: failure detected, repair queued. Do not edit manually." },
+  { name: "fix:packet-build", color: "d93f0b", description: "Fix loop reason: packet build validation failed." },
+  { name: "fix:visuals", color: "d93f0b", description: "Fix loop reason: visual/card build failed." },
+  { name: "fix:pr-stall", color: "d93f0b", description: "Fix loop reason: packet PR checks/merge stalled." },
+  { name: "fix:slot-missing", color: "d93f0b", description: "Fix loop reason: packet-ready but no publish slot stamped." },
+  { name: "fix:publish-creds", color: "d93f0b", description: "Fix loop reason: configured channel missing credentials in CI." },
+  { name: "fix:stale-claim", color: "fbca04", description: "Fix loop reason: orphaned in-progress claim requeued." },
+  { name: "fix:attempt-1", color: "fbca04", description: "Fix loop: first repair attempt used." },
+  { name: "fix:attempt-2", color: "fbca04", description: "Fix loop: second (final) repair attempt used." },
+  { name: "needs-human", color: "b60205", description: "Fix loop escalated: owner action required. See issue comments." },
 ];
 
 function existingLabels(): Set<string> {
