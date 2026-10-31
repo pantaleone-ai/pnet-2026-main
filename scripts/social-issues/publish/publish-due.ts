@@ -226,6 +226,8 @@ async function publishDueSlots(
     .filter((i) => {
       const names = i.labels.map((l) => l.name);
       if (!names.includes("status:packet-ready")) return false;
+      if (names.includes("needs-manual-post")) return false;
+      if (names.includes("needs-human")) return false;
       if (i.comments.some((c) => c.body.includes("Platform publish proof")))
         return false;
       const slot = i.body.match(/\*\*Publish at:\*\*\s*`([^`]+)`/)?.[1];

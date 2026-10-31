@@ -71,6 +71,7 @@ const LABELS: Array<{ name: string; color: string; description: string }> = [
   { name: "fix:stale-claim", color: "fbca04", description: "Fix loop reason: orphaned in-progress claim requeued." },
   { name: "fix:attempt-1", color: "fbca04", description: "Fix loop: first repair attempt used." },
   { name: "fix:attempt-2", color: "fbca04", description: "Fix loop: second (final) repair attempt used." },
+  { name: "fix:agent", color: "5319e7", description: "Fix loop: agent repair queued. Runs social-fix-agent.yml." },
   { name: "needs-human", color: "b60205", description: "Fix loop escalated: owner action required. See issue comments." },
 ];
 

@@ -124,7 +124,8 @@ function detect(issue: IssueView): Reason | null {
   if (
     names.includes("status:published") ||
     names.includes("status:done") ||
-    names.includes("needs-human")
+    names.includes("needs-human") ||
+    names.includes("needs-manual-post")
   )
     return null;
   if (hasProof(issue)) return null;
