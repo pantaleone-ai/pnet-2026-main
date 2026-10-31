@@ -2087,4 +2087,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "a rings monochromatic study overlapping 11307870",
     format: "avif",
   },
+  {
+    id: "2026-10-10-gradients-material-study-flowing-contours-93284902",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-10-gradients-material-study-flowing-contours-93284902.avif",
+    firstSeen: "2026-10-10",
+    descriptor: "gradients material study flowing contours 93284902",
+    format: "avif",
+  },
+  {
+    id: "2026-10-10-acrylic-spatial-abstraction-impossible-geometry-97403482",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-10-acrylic-spatial-abstraction-impossible-geometry-97403482.avif",
+    firstSeen: "2026-10-10",
+    descriptor: "acrylic spatial abstraction impossible geometry 97403482",
+    format: "avif",
+  },
+  {
+    id: "2026-10-10-glass-geometric-abstraction-asymmetric-planes-64152571",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-10-glass-geometric-abstraction-asymmetric-planes-64152571.avif",
+    firstSeen: "2026-10-10",
+    descriptor: "glass geometric abstraction asymmetric planes 64152571",
+    format: "avif",
+  },
 ];
