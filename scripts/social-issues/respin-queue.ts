@@ -372,11 +372,19 @@ async function respinMix(
     const sents = sentences(meta.description);
     const alt = sents[1] ?? "";
     const first = firstSentence(meta.description);
-    const body = inRange(alt, 6, 14)
+    // Rule: body never repeats the recipe name from the hook (audit Layer
+    // 2b fails mid-sentence repeats like "Stir a Martinez with ...").
+    const nameIn = (s: string): boolean =>
+      s.toLowerCase().includes(name.toLowerCase());
+    const candidate = inRange(alt, 6, 14)
       ? alt
       : inRange(first, 6, 14)
         ? first
-        : `A house-favorite ${slugWords_.slice(0, 2).join(" ") || "pour"} worth a second look.`;
+        : "";
+    const body =
+      candidate && !nameIn(candidate)
+        ? candidate
+        : `A house-favorite worth a second look.`;
     const descriptors = [
       ...slugWords_,
       ...name

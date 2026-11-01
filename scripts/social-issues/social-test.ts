@@ -9,7 +9,10 @@ import {
   countWords,
   stripTitlePrefix,
 } from "@/lib/social-growth/caption";
-import { auditSocialCopy } from "@/lib/social-growth/social-audit";
+import {
+  auditSocialCopy,
+  hookTitlePhrase,
+} from "@/lib/social-growth/social-audit";
 import { buildReshareBody } from "./publish/reshare";
 import {
   eligible,
@@ -352,6 +355,39 @@ async function auditTests(): Promise<void> {
     auditRepeatTitle.verdict === "fail",
     auditRepeatTitle.reasons.join(" | "),
   );
+  const auditMidRepeat = await auditSocialCopy({
+    hook: "From the recipe box: Bloody Mary.",
+    body: "Build a Bloody Mary with vodka, tomato, lemon over ice.",
+    cta: "Read the recipe",
+    platform: "facebook",
+  });
+  check(
+    "audit fail mid-sentence title repeat",
+    auditMidRepeat.verdict === "fail",
+    auditMidRepeat.reasons.join(" | "),
+  );
+  const auditPinRepeat = await auditSocialCopy({
+    hook: "Displaced center topological abstraction.",
+    body: "A displaced center topological study from the gallery floor.",
+    cta: "Explore the gallery",
+    platform: "instagram",
+  });
+  check(
+    "audit fail pin title-phrase repeat",
+    auditPinRepeat.verdict === "fail",
+    auditPinRepeat.reasons.join(" | "),
+  );
+  const auditCleanRepeat = await auditSocialCopy({
+    hook: "New in the gallery: Sand in material-study.",
+    body: "Soft forms in ochre, symmetrical arrangement.",
+    cta: "Explore the gallery",
+    platform: "facebook",
+  });
+  check(
+    "audit pass description-only body",
+    auditCleanRepeat.verdict !== "fail",
+    auditCleanRepeat.reasons.join(" | "),
+  );
   const auditSlop = await auditSocialCopy({
     hook: "Unlock the future of wall art",
     body: "Branching filaments in ochre over warm ground.",
@@ -638,6 +674,30 @@ check(
   "stripTitlePrefix leaves clean body alone",
   stripTitlePrefix("Soft forms in ochre, symmetrical arrangement.", "Sand") ===
     "Soft forms in ochre, symmetrical arrangement.",
+);
+check(
+  "hookTitlePhrase extracts gallery title",
+  hookTitlePhrase("New in the gallery: Sand in material-study.") === "sand",
+);
+check(
+  "hookTitlePhrase extracts recipe name",
+  hookTitlePhrase("From the recipe box: Bloody Mary.") === "bloody mary",
+);
+check(
+  "hookTitlePhrase drops stutter tag",
+  hookTitlePhrase("From the archive: Silent grid geometric in silent.") ===
+    "silent grid geometric",
+);
+check(
+  "hookTitlePhrase handles bare hook",
+  hookTitlePhrase("Phone photo left. Studio look right.") ===
+    "phone photo left studio look right",
+);
+check(
+  "hookTitlePhrase null on over-long hook",
+  hookTitlePhrase(
+    "This is a very long custom hook with far too many words to be a title at all",
+  ) === null,
 );
 
 auditTests().then(

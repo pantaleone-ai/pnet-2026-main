@@ -289,10 +289,13 @@ async function main(): Promise<void> {
       rawName.replace(/\s+(cocktail\s+)?recipe$/i, "").trim() || rawName;
     const hook = `New recipe: ${name.length > 40 ? `${name.slice(0, 37).trimEnd()}…` : name}.`;
     const first = firstSentence(meta.description);
-    const fallbackWords = slugWords.slice(0, 2);
-    const body = inRange(first, 6, 14)
-      ? first
-      : `A new ${fallbackWords.join(" ") || "house"} pour to try tonight.`;
+    // Rule: body never repeats the recipe name from the hook. Meta
+    // descriptions usually open with the name ("The Boulevardier is ..."),
+    // so a contaminated first sentence falls back to the name-free line.
+    const nameIn = (s: string): boolean =>
+      s.toLowerCase().includes(name.toLowerCase());
+    const fallback = `A new house pour to try tonight.`;
+    const body = inRange(first, 6, 14) && !nameIn(first) ? first : fallback;
     const descriptors = [
       ...slugWords,
       ...name

@@ -77,7 +77,15 @@ async function main(): Promise<void> {
     const concept = ((words[0] ?? "art").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 12) || "ART");
     const pillar = PILLARS[n % PILLARS.length] as string;
     const hook = `${cap(words.slice(0, 4).join(" "))}.`;
-    const body = `A ${words.slice(0, 3).join(" ")} study from the gallery floor.`;
+    // Rule: body never repeats the hook title words. Use the hook's last
+    // word only ("An abstraction study ...") — full/2-word phrase repeats
+    // fail the copy audit.
+    const lastWord = words[3] ?? words[words.length - 1] ?? "piece";
+    const article = /^[aeiou]/i.test(lastWord) ? "An" : "A";
+    const body =
+      lastWord.toLowerCase() === "study"
+        ? `A ${words[2] ?? "gallery"} piece from the gallery floor.`
+        : `${article} ${lastWord} study from the gallery floor.`;
     const campaign = `SYN_PIN_DISCOVERY_ARTBUYERS_US_${yyyymm}`;
     const creative = `SYN_${concept}_PIN_V1`;
     const url = `https://www.synthetic.pics?utm_source=pinterest&utm_medium=organic_social&utm_campaign=${campaign}&utm_content=${creative}`;

@@ -179,7 +179,12 @@ async function main(): Promise<void> {
     const words = slugWords(slug);
     const title = item.title?.trim() || cap(words.slice(0, 3).join(" "));
     const tag0 = item.tags?.[0]?.trim() || words[0] || "gallery";
-    let hook = `New in the gallery: ${title} in ${tag0}.`;
+    // Rule: never stutter "Title in title-first-word" (tag defaults to
+    // words[0], e.g. "Silent grid geometric in silent"). Mirrors respinHookSyn.
+    const tagStutters =
+      tag0.trim().toLowerCase() === title.split(/\s+/)[0]!.toLowerCase();
+    const inTag = tagStutters ? "" : ` in ${tag0}`;
+    let hook = `New in the gallery: ${title}${inTag}.`;
     if (hook.length > 100)
       hook = `New in the gallery: ${title.slice(0, 40).trimEnd()}.`;
     const alt = (item.altText ?? "").trim();

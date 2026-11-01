@@ -135,12 +135,18 @@ Every caption follows the same budgets (`COPY_BUDGETS` in
 short sentence (6–14 words), CTA 1–4 words, total copy target ≤ 28 words
 (excl. URL/hashtags), Instagram max 3 relevant hashtags, Facebook none.
 
-Body never repeats the artwork name from the hook. Hook carries the name
-(`New in the gallery: Sand in material-study.`) — body is description-only
-(`Soft forms in ochre, symmetrical arrangement.`). Generator strips leading
-`{Title} — ` via `stripTitlePrefix()` (`lib/social-growth/caption.ts`); audit
-fails `body repeats hook title` until fixed. Same rule for FB, IG, Pinterest,
-respins, and reshares.
+Body never repeats the artwork/recipe name from the hook. Hook carries the
+name (`New in the gallery: Sand in material-study.`) — body is
+description-only (`Soft forms in ochre, symmetrical arrangement.`).
+Generators strip leading `{Title} — ` via `stripTitlePrefix()`
+(`lib/social-growth/caption.ts`); recipe/pin generators fall back to
+name-free lines when the source sentence contains the name; gallery hooks
+never stutter `Title in title-word`. Audit (`hookTitlePhrase` +
+`social-audit.ts` Layer 2b) fails `body repeats hook title` for leading,
+quoted, AND mid-sentence repeats (`Build a Bloody Mary with ...`,
+`A displaced center topological study ...`) until fixed. Same rule for FB,
+IG, Pinterest, respins, and reshares; `publish-due.ts` gates all three
+auto-posted channels (IG/FB/Pinterest).
 
 `lib/social-growth/social-audit.ts` audits issue body, reshare copy,
 generated captions, and packets using the existing anti-slop engine

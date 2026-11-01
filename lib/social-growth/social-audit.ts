@@ -100,6 +100,35 @@ const FORMULAIC_OPENERS = [
   "introducing our",
   "introducing the",
 ];
+/**
+ * Extract the title/name phrase from a hook for repeat detection.
+ * Handles "Prefix: Title in tag.", "Prefix: Title.", pin-style bare
+ * titles ("Displaced center topological abstraction."), and bare "Prefix:
+ * Title". Returns the title lowercased, or null when nothing repeatable
+ * (over-long custom hooks are skipped to avoid false positives).
+ */
+export function hookTitlePhrase(hook: string): string | null {
+  const colon = hook.indexOf(":");
+  let rest =
+    colon === -1
+      ? hook.trim().replace(/[.?!…]+$/, "")
+      : hook
+          .slice(colon + 1)
+          .trim()
+          .replace(/[.?!…]+$/, "")
+          .trim();
+  // Strip trailing " in <tag>" (gallery/archive/respin hook convention).
+  rest = rest.replace(/\s+in\s+[a-z0-9-]+$/i, "").trim();
+  rest = rest
+    .replace(/[^a-z0-9\s]/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+  if (rest.length < 3) return null;
+  if (rest.split(/\s+/).length > 8) return null;
+  return rest;
+}
+
 export function parseSourceArtworkIds(sourceAsset: string): string[] {
   const ids = [...sourceAsset.matchAll(/20\d\d-\d\d-\d\d-[a-z0-9-]+/g)].map(
     (m) => m[0].trim(),
@@ -188,6 +217,46 @@ export async function auditSocialCopy(
         ) {
           fail.push(
             `body repeats hook title ("${q[1].trim()}" ...) — strip to description-only`,
+          );
+        }
+      }
+    }
+    // Mid-sentence repeat: hook title phrase appears anywhere in the body.
+    // Catches recipe copy like hook "From the recipe box: Bloody Mary." +
+    // body "Build a Bloody Mary with ..." (leading/dash checks miss it).
+    {
+      const title = hookTitlePhrase(hook);
+      if (title) {
+        const norm = (s: string): string =>
+          ` ${s
+            .toLowerCase()
+            .replace(/[^a-z0-9\s]/g, " ")
+            .replace(/\s+/g, " ")
+            .trim()} `;
+        const bodyNorm = norm(body);
+        const words = title.split(" ").filter((w) => w.length >= 3);
+        const full = words.join(" ");
+        const wholeWord = (phrase: string): boolean =>
+          phrase.length >= 4 && bodyNorm.includes(` ${phrase} `);
+        let hit: string | null = null;
+        if (words.length <= 2 && wholeWord(full)) {
+          hit = full;
+        } else if (words.length > 2) {
+          if (wholeWord(full)) hit = full;
+          else {
+            for (let k = 0; k < words.length - 1; k += 1) {
+              const phrase = `${words[k]} ${words[k + 1]}`;
+              const parts = phrase.split(" ");
+              if (parts.every((p) => p.length >= 4) && wholeWord(phrase)) {
+                hit = phrase;
+                break;
+              }
+            }
+          }
+        }
+        if (hit) {
+          fail.push(
+            `body repeats hook title ("${title}" appears in body) — strip to description-only`,
           );
         }
       }

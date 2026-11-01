@@ -110,7 +110,7 @@ function reshareOfFromBody(
  */
 async function gateCopyAudit(
   issue: IssueView,
-  channelId: "instagram" | "facebook",
+  channelId: "instagram" | "facebook" | "pinterest",
   dryRun: boolean,
 ): Promise<void> {
   if (!AUTOMATION_POLICY.social.audit.enabled) {
@@ -121,11 +121,15 @@ async function gateCopyAudit(
   const tags = field(issue.body, "Hashtags");
   const { auditSocialCopy } = await import("@/lib/social-growth/social-audit");
   const { suggestHashtags } = await import("@/lib/social-growth/caption");
+  const auditPlatform =
+    channelId === "instagram" || channelId === "facebook"
+      ? channelId
+      : "instagram";
   const result = await auditSocialCopy({
     hook: field(issue.body, "Hook"),
     body: field(issue.body, "Body"),
     cta: field(issue.body, "CTA"),
-    platform: channelId,
+    platform: auditPlatform,
     pillar: pillar || undefined,
     hashtags:
       channelId === "instagram"
@@ -791,6 +795,9 @@ async function main(): Promise<void> {
       console.error("pinterest video needs a cover: --cover-image <public-url> or **Images:** `url`");
       process.exit(1);
     }
+    // Copy audit gate (same budgets/voice/fidelity/slop net as IG/FB —
+    // pins previously published with no gate at all).
+    await gateCopyAudit(issue, "pinterest", dryRun);
     const description = [text, "", `${cta}: ${destination}`].join("\n");
     if (videoFile) {
       if (dryRun) {
