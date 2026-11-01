@@ -2111,4 +2111,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "glass geometric abstraction asymmetric planes 64152571",
     format: "avif",
   },
+  {
+    id: "2026-10-10-resin-abstract-landscape-stacked-slabs-70409682",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-10-resin-abstract-landscape-stacked-slabs-70409682.avif",
+    firstSeen: "2026-10-10",
+    descriptor: "resin abstract landscape stacked slabs 70409682",
+    format: "avif",
+  },
+  {
+    id: "2026-10-10-lattice-abstract-landscape-drip-10488588",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-10-lattice-abstract-landscape-drip-10488588.avif",
+    firstSeen: "2026-10-10",
+    descriptor: "lattice abstract landscape drip 10488588",
+    format: "avif",
+  },
+  {
+    id: "2026-10-10-anchoring-kinetic-geometry-radial-structure-25248805",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-10-anchoring-kinetic-geometry-radial-structure-25248805.avif",
+    firstSeen: "2026-10-10",
+    descriptor: "anchoring kinetic geometry radial structure 25248805",
+    format: "avif",
+  },
 ];
