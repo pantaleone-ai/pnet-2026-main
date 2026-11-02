@@ -2135,4 +2135,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "anchoring kinetic geometry radial structure 25248805",
     format: "avif",
   },
+  {
+    id: "2026-10-10-bands-sculptural-abstraction-parallel-28643030",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-10-bands-sculptural-abstraction-parallel-28643030.avif",
+    firstSeen: "2026-10-10",
+    descriptor: "bands sculptural abstraction parallel 28643030",
+    format: "avif",
+  },
+  {
+    id: "2026-10-11-translucent-kinetic-geometry-hexagonal-lattice-27948926",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-11-translucent-kinetic-geometry-hexagonal-lattice-27948926.avif",
+    firstSeen: "2026-10-11",
+    descriptor: "translucent kinetic geometry hexagonal lattice 27948926",
+    format: "avif",
+  },
+  {
+    id: "2026-10-11-metal-surreal-minimalism-impossible-geometry-53997540",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-11-metal-surreal-minimalism-impossible-geometry-53997540.avif",
+    firstSeen: "2026-10-11",
+    descriptor: "metal surreal minimalism impossible geometry 53997540",
+    format: "avif",
+  },
 ];
