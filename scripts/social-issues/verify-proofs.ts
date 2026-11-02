@@ -27,12 +27,25 @@ interface IssueView {
 }
 
 async function fbLive(
-  postIdOrUrl: string,
+  proofBody: string,
+  postUrl: string,
   token: string,
-): Promise<"live" | "unverified" | "dead"> {
+): Promise<"live" | "scheduled" | "unverified" | "dead"> {
   try {
-    const m = postIdOrUrl.match(/facebook\.com\/(\d+)[_ ](\d+)/);
-    const id = m ? `${m[1]}_${m[2]}` : postIdOrUrl;
+    // Scheduled-future posts are not live yet — native FB scheduling succeeded
+    // (API proof on file), verification happens after due. Never human-gated.
+    const scheduledFor = proofBody.match(/Scheduled for:\s*`([^`]+)`/)?.[1];
+    if (scheduledFor) {
+      const when = new Date(scheduledFor).getTime();
+      if (Number.isFinite(when) && when > Date.now()) return "scheduled";
+    }
+    // Prefer the explicit Post ID from the proof comment (scheduled photo
+    // posts record a single numeric ID, not pageID_postID).
+    const proofId = proofBody.match(/Post ID:\s*`([^`]+)`/)?.[1]?.trim();
+    const m = postUrl.match(/facebook\.com\/(\d+)[_ ](\d+)/);
+    const single = postUrl.match(/facebook\.com\/(\d+)/);
+    const id = proofId || (m ? `${m[1]}_${m[2]}` : (single?.[1] ?? ""));
+    if (!id || !/^\d+(_\d+)?$/.test(id)) return "unverified";
     // Page-scoped token reads page posts more reliably than the system-user token.
     let readToken = token;
     if (m) {
@@ -142,6 +155,7 @@ async function main(): Promise<void> {
   let live = 0;
   let unverified = 0;
   let dead = 0;
+  let scheduled = 0;
   for (const i of issues) {
     if (checked >= limit) break;
     const proof = i.comments.find((c) =>
@@ -154,9 +168,9 @@ async function main(): Promise<void> {
       )?.[0] ?? "";
     if (!url) continue;
     checked += 1;
-    let status: "live" | "unverified" | "dead" = "unverified";
+    let status: "live" | "scheduled" | "unverified" | "dead" = "unverified";
     if (url.includes("facebook.com")) {
-      status = token ? await fbLive(url, token) : "unverified";
+      status = token ? await fbLive(proof.body, url, token) : "unverified";
     } else if (url.includes("pinterest.com")) {
       status = await pinLive(url, pinToken);
     } else {
@@ -167,6 +181,7 @@ async function main(): Promise<void> {
     }
     if (status === "live") live += 1;
     else if (status === "dead") dead += 1;
+    else if (status === "scheduled") scheduled += 1;
     else unverified += 1;
     console.log(
       `#${i.number} ${url} -> ${status}${token ? "" : " (no token)"}`,
@@ -221,10 +236,10 @@ async function main(): Promise<void> {
     }
   }
   console.log(
-    `\nverify-proofs: checked=${checked} live=${live} unverified=${unverified} dead=${dead} mode=${apply ? "APPLY" : "dry-run (no closes)"}`,
+    `\nverify-proofs: checked=${checked} live=${live} scheduled=${scheduled} unverified=${unverified} dead=${dead} mode=${apply ? "APPLY" : "dry-run (no closes)"}`,
   );
   console.log(
-    "Unverified is informational (login-gate/rate-limit), never evidence of removal.",
+    "Scheduled = native FB slot in the future, verifies after due (no human needed). Unverified is informational (login-gate/rate-limit), never evidence of removal.",
   );
 }
 

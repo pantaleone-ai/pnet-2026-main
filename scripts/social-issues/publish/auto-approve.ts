@@ -511,9 +511,7 @@ async function rule2(apply: boolean, limit: number): Promise<void> {
       "spri:p1",
       "--label",
       "spillar:portfolio",
-      "--label",
-      "needs-manual-post",
-    ]);
+    ]); // pantaleone FB/IG are auto channels — no manual label; publish clears via slots/scheduling.
     const created = Number((out.match(/\/issues\/(\d+)/) ?? [])[1] ?? 0);
     if (created) {
       gh(["issue", "edit", String(created), "--add-label", "publish:approved"]);

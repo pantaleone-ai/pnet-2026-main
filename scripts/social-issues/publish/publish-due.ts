@@ -230,7 +230,9 @@ async function publishDueSlots(
     .filter((i) => {
       const names = i.labels.map((l) => l.name);
       if (!names.includes("status:packet-ready")) return false;
-      if (names.includes("needs-manual-post")) return false;
+      // Stale needs-manual-post on auto channels (instagram/facebook/pinterest)
+      // is ignored here — successful publish clears it. Manual-only channels
+      // never reach --due (no publisher), so no human gate remains.
       if (names.includes("needs-human")) return false;
       if (i.comments.some((c) => c.body.includes("Platform publish proof")))
         return false;
