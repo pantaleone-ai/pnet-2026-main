@@ -2159,4 +2159,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "metal surreal minimalism impossible geometry 53997540",
     format: "avif",
   },
+  {
+    id: "2026-10-11-membrane-biomorphic-abstraction-hexagonal-lattice-25539931",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-11-membrane-biomorphic-abstraction-hexagonal-lattice-25539931.avif",
+    firstSeen: "2026-10-11",
+    descriptor: "membrane biomorphic abstraction hexagonal lattice 25539931",
+    format: "avif",
+  },
+  {
+    id: "2026-10-11-controlled-organic-abstraction-displaced-horizon-line-52094658",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-11-controlled-organic-abstraction-displaced-horizon-line-52094658.avif",
+    firstSeen: "2026-10-11",
+    descriptor: "controlled organic abstraction displaced horizon line 52094658",
+    format: "avif",
+  },
+  {
+    id: "2026-10-11-cascade-conceptual-minimalism-calligraphic-beams-66425120",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-11-cascade-conceptual-minimalism-calligraphic-beams-66425120.avif",
+    firstSeen: "2026-10-11",
+    descriptor: "cascade conceptual minimalism calligraphic beams 66425120",
+    format: "avif",
+  },
 ];
