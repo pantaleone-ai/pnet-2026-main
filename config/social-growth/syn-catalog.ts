@@ -2183,4 +2183,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "cascade conceptual minimalism calligraphic beams 66425120",
     format: "avif",
   },
+  {
+    id: "2026-10-11-answers-surreal-minimalism-stacked-slabs-62764953",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-11-answers-surreal-minimalism-stacked-slabs-62764953.avif",
+    firstSeen: "2026-10-11",
+    descriptor: "answers surreal minimalism stacked slabs 62764953",
+    format: "avif",
+  },
+  {
+    id: "2026-10-12-interrupts-sculptural-abstraction-floating-discs-61246232",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-12-interrupts-sculptural-abstraction-floating-discs-61246232.avif",
+    firstSeen: "2026-10-12",
+    descriptor: "interrupts sculptural abstraction floating discs 61246232",
+    format: "avif",
+  },
+  {
+    id: "2026-10-12-filaments-material-study-branching-65695552",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-12-filaments-material-study-branching-65695552.avif",
+    firstSeen: "2026-10-12",
+    descriptor: "filaments material study branching 65695552",
+    format: "avif",
+  },
 ];
