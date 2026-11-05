@@ -2207,4 +2207,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "filaments material study branching 65695552",
     format: "avif",
   },
+  {
+    id: "2026-10-12-signs-surreal-minimalism-constellation-88618338",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-12-signs-surreal-minimalism-constellation-88618338.avif",
+    firstSeen: "2026-10-12",
+    descriptor: "signs surreal minimalism constellation 88618338",
+    format: "avif",
+  },
+  {
+    id: "2026-10-12-parallel-spatial-abstraction-bands-26591353",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-12-parallel-spatial-abstraction-bands-26591353.avif",
+    firstSeen: "2026-10-12",
+    descriptor: "parallel spatial abstraction bands 26591353",
+    format: "avif",
+  },
+  {
+    id: "2026-10-12-organized-monochromatic-study-calligraphic-beams-1326598",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-12-organized-monochromatic-study-calligraphic-beams-1326598.avif",
+    firstSeen: "2026-10-12",
+    descriptor: "organized monochromatic study calligraphic beams 1326598",
+    format: "avif",
+  },
 ];
