@@ -2231,4 +2231,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "organized monochromatic study calligraphic beams 1326598",
     format: "avif",
   },
+  {
+    id: "2026-10-12-terrazzo-atmospheric-abstraction-single-zip-line-11164187",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-12-terrazzo-atmospheric-abstraction-single-zip-line-11164187.avif",
+    firstSeen: "2026-10-12",
+    descriptor: "terrazzo atmospheric abstraction single zip line 11164187",
+    format: "avif",
+  },
+  {
+    id: "2026-10-12-glyphs-material-study-spiral-85044089",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-12-glyphs-material-study-spiral-85044089.avif",
+    firstSeen: "2026-10-12",
+    descriptor: "glyphs material study spiral 85044089",
+    format: "avif",
+  },
+  {
+    id: "2026-10-12-fields-organic-abstraction-overlapping-rings-56466709",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-12-fields-organic-abstraction-overlapping-rings-56466709.avif",
+    firstSeen: "2026-10-12",
+    descriptor: "fields organic abstraction overlapping rings 56466709",
+    format: "avif",
+  },
 ];
