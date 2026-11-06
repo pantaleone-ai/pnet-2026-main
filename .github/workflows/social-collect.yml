@@ -54,6 +54,8 @@ jobs:
         env:
           META_CAPI_ACCESS_TOKEN: ${{ secrets.META_CAPI_ACCESS_TOKEN }}
           PINTEREST_ACCESS_TOKEN: ${{ secrets.PINTEREST_ACCESS_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           STAMP=$(date -u +%F)
           LIMIT="${{ github.event.inputs.limit-posts || '50' }}"
@@ -65,6 +67,7 @@ jobs:
             mkdir -p data/social-metrics
             npx tsx scripts/social-issues/collect/meta-collect.ts --limit-posts "$LIMIT" --out-prefix "data/social-metrics/${STAMP}-meta"
             npx tsx scripts/social-issues/collect/pinterest-collect.ts --max-pins "$MAXPINS" --out-prefix "data/social-metrics/${STAMP}-pin"
+            npx tsx scripts/social-issues/collect/campaign-lineage.ts --out-prefix "data/social-metrics/${STAMP}-lineage"
             echo "STAMP=$STAMP" >> "$GITHUB_ENV"
           fi
       - name: Auth to Google Cloud (WIF, keyless)
@@ -80,16 +83,44 @@ jobs:
         if: github.event_name == 'schedule' || github.event.inputs.dry-run != 'true'
         run: |
           D="$BQ_PROJECT.$BQ_DATASET"
+          M="data/social-metrics/${STAMP}"
+          # Concatenate per-channel JSONL first: bq load takes one source file
+          # and --replace would wipe a previous channel's load.
+          cat "$M-meta.posts.jsonl" "$M-pin.posts.jsonl" > "$M.posts.jsonl"
+          cat "$M-meta.observations.jsonl" "$M-pin.observations.jsonl" > "$M.observations.jsonl"
           bq --location="$BQ_LOCATION" load --replace --source_format=NEWLINE_DELIMITED_JSON \
-            "$D.stg_posts" "data/social-metrics/${STAMP}-meta.posts.jsonl" \
-            "data/social-metrics/${STAMP}-pin.posts.jsonl"
+            "$D.stg_posts" "$M.posts.jsonl"
           bq --location="$BQ_LOCATION" load --replace --source_format=NEWLINE_DELIMITED_JSON \
-            "$D.stg_observations" "data/social-metrics/${STAMP}-meta.observations.jsonl" \
-            "data/social-metrics/${STAMP}-pin.observations.jsonl"
+            "$D.stg_observations" "$M.observations.jsonl"
           bq --location="$BQ_LOCATION" query --nouse_legacy_sql "
             MERGE \`$D.social_posts\` T USING \`$D.stg_posts\` S
             ON T.post_id = S.post_id
             WHEN NOT MATCHED THEN INSERT ROW;"
+          # Lineage: registry upserts (insert-only) + fill null lineage on posts.
+          # FB proof IDs are bare while warehouse keys are page_post composite,
+          # hence the second ENDS_WITH merge. Empty staging = merge no-op.
+          L="$M-lineage"
+          [ -s "$L.campaigns.jsonl" ] && bq --location="$BQ_LOCATION" load --replace --source_format=NEWLINE_DELIMITED_JSON "$D.stg_campaigns" "$L.campaigns.jsonl" || echo "skip stg_campaigns (empty)"
+          [ -s "$L.content.jsonl" ] && bq --location="$BQ_LOCATION" load --replace --source_format=NEWLINE_DELIMITED_JSON "$D.stg_content" "$L.content.jsonl" || echo "skip stg_content (empty)"
+          [ -s "$L.post_updates.jsonl" ] && bq --location="$BQ_LOCATION" load --replace --source_format=NEWLINE_DELIMITED_JSON "$D.stg_post_lineage" "$L.post_updates.jsonl" || echo "skip stg_post_lineage (empty)"
+          bq --location="$BQ_LOCATION" query --nouse_legacy_sql "
+            MERGE \`$D.dim_campaigns\` T USING \`$D.stg_campaigns\` S
+            ON T.campaign_id = S.campaign_id
+            WHEN NOT MATCHED THEN INSERT ROW;"
+          bq --location="$BQ_LOCATION" query --nouse_legacy_sql "
+            MERGE \`$D.dim_content\` T USING \`$D.stg_content\` S
+            ON T.content_id = S.content_id AND T.project_id = S.project_id
+            WHEN NOT MATCHED THEN INSERT ROW;"
+          bq --location="$BQ_LOCATION" query --nouse_legacy_sql "
+            MERGE \`$D.social_posts\` T USING \`$D.stg_post_lineage\` S
+            ON T.post_id = S.post_id
+            WHEN MATCHED AND (T.content_id IS NULL OR T.campaign_id IS NULL)
+            THEN UPDATE SET content_id = COALESCE(T.content_id, S.content_id), campaign_id = COALESCE(T.campaign_id, S.campaign_id);"
+          bq --location="$BQ_LOCATION" query --nouse_legacy_sql "
+            MERGE \`$D.social_posts\` T USING \`$D.stg_post_lineage\` S
+            ON T.platform = 'facebook' AND ENDS_WITH(T.post_id, CONCAT('_', S.post_id))
+            WHEN MATCHED AND (T.content_id IS NULL OR T.campaign_id IS NULL)
+            THEN UPDATE SET content_id = COALESCE(T.content_id, S.content_id), campaign_id = COALESCE(T.campaign_id, S.campaign_id);"
           bq --location="$BQ_LOCATION" query --nouse_legacy_sql "
             MERGE \`$D.social_metric_observations\` T USING \`$D.stg_observations\` S
             ON T.entity_id = S.entity_id
