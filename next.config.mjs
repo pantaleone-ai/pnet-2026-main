@@ -399,3 +399,5 @@ if (process.env.ANALYZE === "true") {
   );
 }
 export default finalConfig;
+
+import('@opennextjs/cloudflare').then(m => m.initOpenNextCloudflareForDev());
