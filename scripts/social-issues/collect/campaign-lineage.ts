@@ -36,13 +36,21 @@ interface ProofHit {
 function findProofs(issue: IssueRef): ProofHit[] {
   const hits: ProofHit[] = [];
   for (const c of issue.comments) {
+    // FB/IG use `Post ID`/`Media ID`; Pinterest proofs use `Pin ID`.
     const m = c.body.match(
-      /## Platform publish proof — (\w+)[\s\S]*?- Post: (\S+)[\s\S]*?(?:Media ID|Post ID): `([^`]+)`/,
+      /## Platform publish proof — (\w+)[\s\S]*?- Post: (\S+)[\s\S]*?(?:Media ID|Post ID|Pin ID): `([^`]+)`/,
     );
     if (!m || !m[2] || !m[3]) continue;
     hits.push({ url: m[2], mediaId: m[3] });
   }
   return hits;
+}
+
+/** utm_* value from a proof Post URL (authoritative per-post; may be absent on canonical pin URLs). */
+function proofUtm(url: string, key: string): string | null {
+  const m = url.match(new RegExp(`[?&]${key}=([^&\\s\`'")]+)`, "i"));
+  const v = m?.[1]?.trim();
+  return v || null;
 }
 
 /** First explicit content/creative identifier in the issue body, if any. */
@@ -94,13 +102,17 @@ function main(): void {
     const project = siteLabel.replace("site:", "");
     const proofs = findProofs(issue);
     if (!proofs.length) continue;
-    const contentId = findContentId(issue.body);
-    const campaignId = findCampaign(issue.body);
-    if (campaignId && !campaigns.has(campaignId))
-      campaigns.set(campaignId, { campaign_id: campaignId, project_id: project });
-    if (contentId && !contents.has(contentId))
-      contents.set(contentId, { content_id: contentId, project_id: project });
+    const bodyContentId = findContentId(issue.body);
+    const bodyCampaignId = findCampaign(issue.body);
     for (const p of proofs) {
+      // Proof-URL UTMs are authoritative for that post (Pinterest destination
+      // links carry utm_campaign/utm_content); fall back to issue body.
+      const campaignId = proofUtm(p.url, "utm_campaign") ?? bodyCampaignId;
+      const contentId = bodyContentId ?? proofUtm(p.url, "utm_content");
+      if (campaignId && !campaigns.has(campaignId))
+        campaigns.set(campaignId, { campaign_id: campaignId, project_id: project });
+      if (contentId && !contents.has(contentId + "|" + project))
+        contents.set(contentId + "|" + project, { content_id: contentId, project_id: project });
       if (!postUpdates.has(p.mediaId))
         postUpdates.set(p.mediaId, { post_id: p.mediaId, content_id: contentId, campaign_id: campaignId });
     }
