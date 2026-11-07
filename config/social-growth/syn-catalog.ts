@@ -2255,4 +2255,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "fields organic abstraction overlapping rings 56466709",
     format: "avif",
   },
+  {
+    id: "2026-10-12-shards-topological-abstraction-sharp-angular-69464884",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-12-shards-topological-abstraction-sharp-angular-69464884.avif",
+    firstSeen: "2026-10-12",
+    descriptor: "shards topological abstraction sharp angular 69464884",
+    format: "avif",
+  },
+  {
+    id: "2026-10-12-mass-conceptual-minimalism-black-square-60865243",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-12-mass-conceptual-minimalism-black-square-60865243.avif",
+    firstSeen: "2026-10-12",
+    descriptor: "mass conceptual minimalism black square 60865243",
+    format: "avif",
+  },
+  {
+    id: "2026-10-12-luminous-topological-abstraction-cellular-forms-77200877",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-12-luminous-topological-abstraction-cellular-forms-77200877.avif",
+    firstSeen: "2026-10-12",
+    descriptor: "luminous topological abstraction cellular forms 77200877",
+    format: "avif",
+  },
 ];
