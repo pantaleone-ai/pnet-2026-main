@@ -2279,4 +2279,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "luminous topological abstraction cellular forms 77200877",
     format: "avif",
   },
+  {
+    id: "2026-10-13-dominates-material-study-staircase-cascade-3035793",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-13-dominates-material-study-staircase-cascade-3035793.avif",
+    firstSeen: "2026-10-13",
+    descriptor: "dominates material study staircase cascade 3035793",
+    format: "avif",
+  },
+  {
+    id: "2026-10-13-wax-color-field-drip-lattice-14101087",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-13-wax-color-field-drip-lattice-14101087.avif",
+    firstSeen: "2026-10-13",
+    descriptor: "wax color field drip lattice 14101087",
+    format: "avif",
+  },
+  {
+    id: "2026-10-13-governing-monochromatic-study-folded-planes-95626671",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-13-governing-monochromatic-study-folded-planes-95626671.avif",
+    firstSeen: "2026-10-13",
+    descriptor: "governing monochromatic study folded planes 95626671",
+    format: "avif",
+  },
 ];
