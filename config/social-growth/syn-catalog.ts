@@ -2303,4 +2303,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "governing monochromatic study folded planes 95626671",
     format: "avif",
   },
+  {
+    id: "2026-10-13-contours-surreal-minimalism-flowing-1187397",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-13-contours-surreal-minimalism-flowing-1187397.avif",
+    firstSeen: "2026-10-13",
+    descriptor: "contours surreal minimalism flowing 1187397",
+    format: "avif",
+  },
+  {
+    id: "2026-10-14-aluminum-generative-geometry-parallel-bands-72608864",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-14-aluminum-generative-geometry-parallel-bands-72608864.avif",
+    firstSeen: "2026-10-14",
+    descriptor: "aluminum generative geometry parallel bands 72608864",
+    format: "avif",
+  },
+  {
+    id: "2026-10-14-negative-spatial-abstraction-floating-discs-55484646",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-14-negative-spatial-abstraction-floating-discs-55484646.avif",
+    firstSeen: "2026-10-14",
+    descriptor: "negative spatial abstraction floating discs 55484646",
+    format: "avif",
+  },
 ];
