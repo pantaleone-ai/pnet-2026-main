@@ -2327,4 +2327,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "negative spatial abstraction floating discs 55484646",
     format: "avif",
   },
+  {
+    id: "2026-10-14-dense-surreal-minimalism-branching-filaments-35374146",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-14-dense-surreal-minimalism-branching-filaments-35374146.avif",
+    firstSeen: "2026-10-14",
+    descriptor: "dense surreal minimalism branching filaments 35374146",
+    format: "avif",
+  },
+  {
+    id: "2026-10-14-obsidian-fragments-monochromatic-study-hovering-rectangles-78334456",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-14-obsidian-fragments-monochromatic-study-hovering-rectangles-78334456.avif",
+    firstSeen: "2026-10-14",
+    descriptor: "obsidian fragments monochromatic study hovering rectangles 78334456",
+    format: "avif",
+  },
+  {
+    id: "2026-10-14-arcs-kinetic-geometry-concentric-73949423",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-14-arcs-kinetic-geometry-concentric-73949423.avif",
+    firstSeen: "2026-10-14",
+    descriptor: "arcs kinetic geometry concentric 73949423",
+    format: "avif",
+  },
 ];
