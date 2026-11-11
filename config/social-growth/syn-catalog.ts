@@ -2351,4 +2351,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "arcs kinetic geometry concentric 73949423",
     format: "avif",
   },
+  {
+    id: "2026-10-14-acrylic-light-and-shadow-study-radial-structure-6352321",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-14-acrylic-light-and-shadow-study-radial-structure-6352321.avif",
+    firstSeen: "2026-10-14",
+    descriptor: "acrylic light and shadow study radial structure 6352321",
+    format: "avif",
+  },
+  {
+    id: "2026-10-15-perfectly-color-field-branching-filaments-92638726",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-15-perfectly-color-field-branching-filaments-92638726.avif",
+    firstSeen: "2026-10-15",
+    descriptor: "perfectly color field branching filaments 92638726",
+    format: "avif",
+  },
+  {
+    id: "2026-10-15-enamel-material-study-spiral-glyphs-28145480",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-15-enamel-material-study-spiral-glyphs-28145480.avif",
+    firstSeen: "2026-10-15",
+    descriptor: "enamel material study spiral glyphs 28145480",
+    format: "avif",
+  },
 ];
