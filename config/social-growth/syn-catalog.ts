@@ -2375,4 +2375,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "enamel material study spiral glyphs 28145480",
     format: "avif",
   },
+  {
+    id: "2026-10-15-resin-material-study-concentric-squares-38538279",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-15-resin-material-study-concentric-squares-38538279.avif",
+    firstSeen: "2026-10-15",
+    descriptor: "resin material study concentric squares 38538279",
+    format: "avif",
+  },
+  {
+    id: "2026-10-15-mineral-monochromatic-study-asymmetric-planes-51187493",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-15-mineral-monochromatic-study-asymmetric-planes-51187493.avif",
+    firstSeen: "2026-10-15",
+    descriptor: "mineral monochromatic study asymmetric planes 51187493",
+    format: "avif",
+  },
+  {
+    id: "2026-10-15-ivory-compression-geometric-abstraction-flowing-contours-15681873",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-15-ivory-compression-geometric-abstraction-flowing-contours-15681873.avif",
+    firstSeen: "2026-10-15",
+    descriptor: "ivory compression geometric abstraction flowing contours 15681873",
+    format: "avif",
+  },
 ];
