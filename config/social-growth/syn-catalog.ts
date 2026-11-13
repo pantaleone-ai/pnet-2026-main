@@ -2399,4 +2399,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "ivory compression geometric abstraction flowing contours 15681873",
     format: "avif",
   },
+  {
+    id: "2026-10-15-bands-surreal-minimalism-parallel-95778128",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-15-bands-surreal-minimalism-parallel-95778128.avif",
+    firstSeen: "2026-10-15",
+    descriptor: "bands surreal minimalism parallel 95778128",
+    format: "avif",
+  },
+  {
+    id: "2026-10-16-quads-spatial-abstraction-offset-41178169",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-16-quads-spatial-abstraction-offset-41178169.avif",
+    firstSeen: "2026-10-16",
+    descriptor: "quads spatial abstraction offset 41178169",
+    format: "avif",
+  },
+  {
+    id: "2026-10-16-absorption-surreal-minimalism-fragmented-circles-57538759",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-16-absorption-surreal-minimalism-fragmented-circles-57538759.avif",
+    firstSeen: "2026-10-16",
+    descriptor: "absorption surreal minimalism fragmented circles 57538759",
+    format: "avif",
+  },
 ];
