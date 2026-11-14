@@ -2423,4 +2423,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "absorption surreal minimalism fragmented circles 57538759",
     format: "avif",
   },
+  {
+    id: "2026-10-16-concentric-generative-geometry-arcs-16963934",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-16-concentric-generative-geometry-arcs-16963934.avif",
+    firstSeen: "2026-10-16",
+    descriptor: "concentric generative geometry arcs 16963934",
+    format: "avif",
+  },
+  {
+    id: "2026-10-16-rings-abstract-landscape-overlapping-90660141",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-16-rings-abstract-landscape-overlapping-90660141.avif",
+    firstSeen: "2026-10-16",
+    descriptor: "rings abstract landscape overlapping 90660141",
+    format: "avif",
+  },
+  {
+    id: "2026-10-16-analogous-light-and-shadow-study-black-square-mass-58220013",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-16-analogous-light-and-shadow-study-black-square-mass-58220013.avif",
+    firstSeen: "2026-10-16",
+    descriptor: "analogous light and shadow study black square mass 58220013",
+    format: "avif",
+  },
 ];
