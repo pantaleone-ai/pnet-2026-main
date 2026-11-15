@@ -2447,4 +2447,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "analogous light and shadow study black square mass 58220013",
     format: "avif",
   },
+  {
+    id: "2026-10-16-interrupts-brutalist-abstraction-calligraphic-beams-279618",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-16-interrupts-brutalist-abstraction-calligraphic-beams-279618.avif",
+    firstSeen: "2026-10-16",
+    descriptor: "interrupts brutalist abstraction calligraphic beams 279618",
+    format: "avif",
+  },
+  {
+    id: "2026-10-17-lattice-sculptural-abstraction-drip-48660198",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-17-lattice-sculptural-abstraction-drip-48660198.avif",
+    firstSeen: "2026-10-17",
+    descriptor: "lattice sculptural abstraction drip 48660198",
+    format: "avif",
+  },
+  {
+    id: "2026-10-17-controlled-sculptural-abstraction-sharp-angular-shards-89091301",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-17-controlled-sculptural-abstraction-sharp-angular-shards-89091301.avif",
+    firstSeen: "2026-10-17",
+    descriptor: "controlled sculptural abstraction sharp angular shards 89091301",
+    format: "avif",
+  },
 ];
