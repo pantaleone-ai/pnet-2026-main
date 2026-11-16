@@ -2471,4 +2471,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "controlled sculptural abstraction sharp angular shards 89091301",
     format: "avif",
   },
+  {
+    id: "2026-10-17-crystalline-cascade-atmospheric-abstraction-concentric-arcs-8841487",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-17-crystalline-cascade-atmospheric-abstraction-concentric-arcs-8841487.avif",
+    firstSeen: "2026-10-17",
+    descriptor: "crystalline cascade atmospheric abstraction concentric arcs 8841487",
+    format: "avif",
+  },
+  {
+    id: "2026-10-17-neutrals-spatial-abstraction-interrupted-grid-30504784",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-17-neutrals-spatial-abstraction-interrupted-grid-30504784.avif",
+    firstSeen: "2026-10-17",
+    descriptor: "neutrals spatial abstraction interrupted grid 30504784",
+    format: "avif",
+  },
+  {
+    id: "2026-10-17-steel-abstract-landscape-offset-quads-58393864",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-17-steel-abstract-landscape-offset-quads-58393864.avif",
+    firstSeen: "2026-10-17",
+    descriptor: "steel abstract landscape offset quads 58393864",
+    format: "avif",
+  },
 ];
