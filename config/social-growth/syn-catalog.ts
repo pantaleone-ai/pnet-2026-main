@@ -2495,4 +2495,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "steel abstract landscape offset quads 58393864",
     format: "avif",
   },
+  {
+    id: "2026-10-17-ochre-arches-light-and-shadow-study-vaulted-99580790",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-17-ochre-arches-light-and-shadow-study-vaulted-99580790.avif",
+    firstSeen: "2026-10-17",
+    descriptor: "ochre arches light and shadow study vaulted 99580790",
+    format: "avif",
+  },
+  {
+    id: "2026-10-18-glass-slab-disruption-geometric-abstraction-stacked-slabs-31224340",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-18-glass-slab-disruption-geometric-abstraction-stacked-slabs-31224340.avif",
+    firstSeen: "2026-10-18",
+    descriptor: "glass slab disruption geometric abstraction stacked slabs 31224340",
+    format: "avif",
+  },
+  {
+    id: "2026-10-18-organized-geometric-abstraction-single-zip-line-3224966",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-18-organized-geometric-abstraction-single-zip-line-3224966.avif",
+    firstSeen: "2026-10-18",
+    descriptor: "organized geometric abstraction single zip line 3224966",
+    format: "avif",
+  },
 ];
