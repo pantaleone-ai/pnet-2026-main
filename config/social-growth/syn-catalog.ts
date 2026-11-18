@@ -2519,4 +2519,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "organized geometric abstraction single zip line 3224966",
     format: "avif",
   },
+  {
+    id: "2026-10-18-signs-material-study-constellation-23834496",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-18-signs-material-study-constellation-23834496.avif",
+    firstSeen: "2026-10-18",
+    descriptor: "signs material study constellation 23834496",
+    format: "avif",
+  },
+  {
+    id: "2026-10-18-ceramic-architectural-abstraction-nested-squares-12197644",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-18-ceramic-architectural-abstraction-nested-squares-12197644.avif",
+    firstSeen: "2026-10-18",
+    descriptor: "ceramic architectural abstraction nested squares 12197644",
+    format: "avif",
+  },
+  {
+    id: "2026-10-18-cellular-monochromatic-study-forms-295505",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-18-cellular-monochromatic-study-forms-295505.avif",
+    firstSeen: "2026-10-18",
+    descriptor: "cellular monochromatic study forms 295505",
+    format: "avif",
+  },
 ];
