@@ -2543,4 +2543,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "cellular monochromatic study forms 295505",
     format: "avif",
   },
+  {
+    id: "2026-10-18-terrazzo-color-field-stacked-slabs-20597520",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-18-terrazzo-color-field-stacked-slabs-20597520.avif",
+    firstSeen: "2026-10-18",
+    descriptor: "terrazzo color field stacked slabs 20597520",
+    format: "avif",
+  },
+  {
+    id: "2026-10-19-friction-material-study-parallel-bands-87617304",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-19-friction-material-study-parallel-bands-87617304.avif",
+    firstSeen: "2026-10-19",
+    descriptor: "friction material study parallel bands 87617304",
+    format: "avif",
+  },
+  {
+    id: "2026-10-19-aluminum-architectural-abstraction-asymmetric-planes-38870703",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-19-aluminum-architectural-abstraction-asymmetric-planes-38870703.avif",
+    firstSeen: "2026-10-19",
+    descriptor: "aluminum architectural abstraction asymmetric planes 38870703",
+    format: "avif",
+  },
 ];
