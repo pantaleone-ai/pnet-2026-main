@@ -123,7 +123,10 @@ const darkModeScript = `
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: META_THEME_COLORS.light,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: META_THEME_COLORS.light },
+    { media: "(prefers-color-scheme: dark)", color: META_THEME_COLORS.dark },
+  ],
 };
 
 // 3. Metadata Configuration (Connected to siteConfig)
@@ -173,7 +176,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: siteConfig.name,
     description: siteConfig.description,
-    images: ["/summary_large_image.png"],
+    images: [{ url: "/summary_large_image.png", alt: siteConfig.name }],
     creator: "@m_pantaleone",
   },
 
@@ -214,6 +217,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: darkModeScript }} />
+        {/* Preconnect to the R2 image CDN: blog/project imagery loads
+            cross-origin from img.pantaleone.net, so resolve + handshake
+            early (saves a full RTT on LCP-critical images). */}
+        <link rel="preconnect" href="https://img.pantaleone.net" />
+        <link rel="dns-prefetch" href="https://img.pantaleone.net" />
         {/* Google Consent Mode v2 defaults — denied until c15t measurement consent.
             PageTracker + analytics helpers re-check consent before any event,
             so no page_view / PageView fires for opted-out visitors. */}

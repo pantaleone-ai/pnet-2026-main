@@ -85,7 +85,12 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: `${product.title} - ${pageConfig.title}`,
       description: product.description || "Shop AI products",
-      images: [product.imageUrl || "/summary_large_image.png"],
+      images: [
+        {
+          url: product.imageUrl || "/summary_large_image.png",
+          alt: product.title,
+        },
+      ],
     },
     other: {
       "product:price:amount": String(product.price),
