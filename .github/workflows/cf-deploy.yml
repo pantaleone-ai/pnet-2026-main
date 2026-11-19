@@ -1,0 +1,52 @@
+name: cf-deploy
+
+# Vercel-like CI/CD for Cloudflare Workers (OpenNext).
+# - push to main  -> build + deploy to production worker
+# - pull_request  -> build + upload unpromoted version (preview, no traffic)
+# - manual runs   -> workflow_dispatch (defaults to preview upload)
+#
+# Required repo secret: CLOUDFLARE_API_TOKEN (Workers Scripts:Edit on the account).
+# Optional secret: CLOUDFLARE_ACCOUNT_ID (inferred from the token when unset).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      promote:
+        description: "Deploy to production (otherwise preview upload only)"
+        required: false
+        default: "false"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cf-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Build + deploy to production
+        if: github.event_name == 'push' || inputs.promote == 'true'
+        run: npm run deploy
+
+      - name: Build + upload version preview (no traffic)
+        if: github.event_name != 'push' && inputs.promote != 'true'
+        run: npm run upload
