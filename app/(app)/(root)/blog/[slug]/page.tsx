@@ -157,7 +157,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: data.title,
       description,
-      images: [imageUrl],
+      images: [{ url: imageUrl, alt: data.title }],
     },
     other: {
       "og:logo": "summary_large_image.png",
