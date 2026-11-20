@@ -51,7 +51,7 @@ export function getPageMetadata(
       card: "summary_large_image",
       title: page.title,
       description: page.description,
-      images: [siteConfig.ogImage],
+      images: [{ url: siteConfig.ogImage, alt: page.title }],
       creator: "@m_pantaleone",
     },
   };
