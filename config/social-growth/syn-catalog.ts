@@ -2567,4 +2567,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "aluminum architectural abstraction asymmetric planes 38870703",
     format: "avif",
   },
+  {
+    id: "2026-10-19-smoke-atmospheric-abstraction-constellation-signs-32745720",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-19-smoke-atmospheric-abstraction-constellation-signs-32745720.avif",
+    firstSeen: "2026-10-19",
+    descriptor: "smoke atmospheric abstraction constellation signs 32745720",
+    format: "avif",
+  },
+  {
+    id: "2026-10-19-gray-cascade-material-study-staircase-24189620",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-19-gray-cascade-material-study-staircase-24189620.avif",
+    firstSeen: "2026-10-19",
+    descriptor: "gray cascade material study staircase 24189620",
+    format: "avif",
+  },
+  {
+    id: "2026-10-19-arrangement-topological-abstraction-calligraphic-beams-37418914",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-19-arrangement-topological-abstraction-calligraphic-beams-37418914.avif",
+    firstSeen: "2026-10-19",
+    descriptor: "arrangement topological abstraction calligraphic beams 37418914",
+    format: "avif",
+  },
 ];
