@@ -88,6 +88,34 @@ const NO_STORE_HEADERS = {
   "Vercel-CDN-Cache-Control": "no-store",
 } as const;
 
+/**
+ * HTML pages that are safe to edge-cache (public, no per-user content).
+ * Feeds/APIs carry their own TTLs (1yr force-static in-route), checkout
+ * is per-visitor dynamic, and anything with a file extension is a static
+ * or feed asset with its own cache story — middleware must not touch them.
+ */
+function isPublicHtmlPath(pathname: string): boolean {
+  return (
+    !pathname.includes(".") &&
+    !pathname.startsWith("/api/") &&
+    !pathname.startsWith("/checkout") &&
+    !pathname.startsWith("/feeds/") &&
+    !pathname.startsWith("/blog.mdx/")
+  );
+}
+
+// Public HTML edge TTL (mirrors the next.config.mjs HTML block intent).
+// REQUIRED on Cloudflare Workers: OpenNext drops the `public` directive
+// (and Vercel-CDN-Cache-Control) from next.config headers(), so without
+// this stamp the origin emits bare `s-maxage` and the Cloudflare
+// "HTML + feeds respect origin" cache rule never caches — every page view
+// executes the worker instead of serving an edge HIT. See issue #351.
+const PUBLIC_HTML_HEADERS = {
+  "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=86400",
+  "Vercel-CDN-Cache-Control":
+    "public, s-maxage=31536000, stale-while-revalidate=31536000",
+} as const;
+
 function applyNoStore(response: NextResponse): NextResponse {
   response.headers.set("Cache-Control", NO_STORE_HEADERS["Cache-Control"]);
   response.headers.set(
@@ -153,11 +181,19 @@ export function middleware(request: NextRequest) {
 
   const response = NextResponse.next();
   // Flight responses must never be cacheable at origin (CF bypass is
-  // primary; this is the Vercel-layer backstop). Plain HTML passes through
-  // untouched so the 24h/1yr next.config split keeps working.
+  // primary; this is the Vercel-layer backstop). Plain public HTML gets
+  // the edge-cacheable stamp here (not next.config — OpenNext drops
+  // `public` from next.config headers on Workers, see PUBLIC_HTML_HEADERS).
+  // Feeds/APIs/checkout keep their own TTLs via isPublicHtmlPath.
   if (isFlightRequest(request)) {
     applyNoStore(response);
     response.headers.set("Vary", "RSC");
+  } else if (isPublicHtmlPath(pathname)) {
+    response.headers.set("Cache-Control", PUBLIC_HTML_HEADERS["Cache-Control"]);
+    response.headers.set(
+      "Vercel-CDN-Cache-Control",
+      PUBLIC_HTML_HEADERS["Vercel-CDN-Cache-Control"],
+    );
   }
   return response;
 }
