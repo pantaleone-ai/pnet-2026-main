@@ -2591,4 +2591,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "arrangement topological abstraction calligraphic beams 37418914",
     format: "avif",
   },
+  {
+    id: "2026-10-19-organizes-monochromatic-study-prismatic-discs-87512141",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-19-organizes-monochromatic-study-prismatic-discs-87512141.avif",
+    firstSeen: "2026-10-19",
+    descriptor: "organizes monochromatic study prismatic discs 87512141",
+    format: "avif",
+  },
+  {
+    id: "2026-10-20-contours-material-study-flowing-31678593",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-20-contours-material-study-flowing-31678593.avif",
+    firstSeen: "2026-10-20",
+    descriptor: "contours material study flowing 31678593",
+    format: "avif",
+  },
+  {
+    id: "2026-10-20-directional-topological-abstraction-cellular-forms-87467770",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-20-directional-topological-abstraction-cellular-forms-87467770.avif",
+    firstSeen: "2026-10-20",
+    descriptor: "directional topological abstraction cellular forms 87467770",
+    format: "avif",
+  },
 ];
