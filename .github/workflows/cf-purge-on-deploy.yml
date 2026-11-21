@@ -84,7 +84,7 @@ jobs:
         run: |
           set -euo pipefail
           BEFORE="${BEFORE:-}"
-          SHA="${SHA:-${{ github.sha }}"
+          SHA="${SHA:-${{ github.sha }}}"
           if [ -n "$BEFORE" ] && git cat-file -e "$BEFORE" 2>/dev/null; then
             DIFF="$(git diff --name-only "$BEFORE" "$SHA" || true)"
           else
