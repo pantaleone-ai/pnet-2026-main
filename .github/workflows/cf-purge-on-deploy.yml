@@ -1,7 +1,8 @@
 name: cf-purge-on-deploy
 
-# Targeted edge invalidation: every merge/push to main purges ONLY what that
-# merge affected — never purge_everything.
+# Targeted edge invalidation: after every successful cf-deploy to the
+# production Worker, purges ONLY what that deploy affected — never
+# purge_everything.
 #
 # Two signals from the merge diff (see compute job):
 # - files: public/* -> exact asset URLs; route files -> their page URLs
@@ -23,8 +24,12 @@ name: cf-purge-on-deploy
 # through the controller with invalidation_type: tags.
 
 on:
-  push:
-    branches: [main]
+  # Runs AFTER cf-deploy finishes so purges never re-cache the old Worker
+  # version. (Previously push-triggered with a blind sleep for Vercel;
+  # production traffic is now served by the pantaleonenet Worker.)
+  workflow_run:
+    workflows: ["cf-deploy"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       extra_paths:
@@ -36,16 +41,19 @@ permissions:
   contents: read
 
 jobs:
-  wait-for-vercel-cutover:
+  wait-for-cf-deploy:
+    # workflow_run fires when cf-deploy completes; only purge on success.
+    # Short settle so the new Worker version is serving worldwide before
+    # we invalidate the edge (purging too early re-caches the OLD build).
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     steps:
-      - name: Wait for Vercel production deploy to go live
-        # Purging before the new deployment serves traffic would just
-        # re-cache the OLD build.
-        run: sleep 180
+      - name: Settle for Worker version propagation
+        run: sleep 60
 
   compute-changed-urls:
     name: Derive affected URLs + tags from merge diff
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -55,10 +63,11 @@ jobs:
       count: ${{ steps.map.outputs.count }}
       tags_csv: ${{ steps.map.outputs.tags_csv }}
     steps:
-      - name: Checkout caller (for merge diff)
+      - name: Checkout deployed commit (for merge diff)
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
 
       - name: Map changed files to edge URLs + cache tags
         id: map
@@ -70,11 +79,12 @@ jobs:
           PFX: "pnet"
           DATA_TAG: ""
           BEFORE: ${{ github.event.before }}
+          SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
           EXTRA: ${{ inputs.extra_paths }}
         run: |
           set -euo pipefail
           BEFORE="${BEFORE:-}"
-          SHA="${{ github.sha }}"
+          SHA="${SHA:-${{ github.sha }}"
           if [ -n "$BEFORE" ] && git cat-file -e "$BEFORE" 2>/dev/null; then
             DIFF="$(git diff --name-only "$BEFORE" "$SHA" || true)"
           else
@@ -82,7 +92,7 @@ jobs:
           fi
           APP_PREFIX="$APP_PREFIX" ROUTE_ROOT="$ROUTE_ROOT" HOSTS="$HOSTS" AGG_PATHS="$AGG_PATHS" PFX="$PFX" DATA_TAG="$DATA_TAG" DIFF="$DIFF" EXTRA="$EXTRA" python3 scripts/cf-map-diff.py
   purge-cdn:
-    needs: [compute-changed-urls, wait-for-vercel-cutover]
+    needs: [compute-changed-urls, wait-for-cf-deploy]
     if: needs.compute-changed-urls.outputs.files_json != '' && needs.compute-changed-urls.outputs.count != '0'
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -123,7 +133,7 @@ jobs:
           fi
           echo "purge succeeded ($INV_TYPE)"
   purge-tags:
-    needs: [compute-changed-urls, wait-for-vercel-cutover]
+    needs: [compute-changed-urls, wait-for-cf-deploy]
     if: needs.compute-changed-urls.outputs.tags_csv != ''
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -165,7 +175,7 @@ jobs:
           echo "purge succeeded ($INV_TYPE)"
 
   warm-edge:
-    needs: [compute-changed-urls, wait-for-vercel-cutover]
+    needs: [compute-changed-urls, wait-for-cf-deploy]
     if: needs.compute-changed-urls.outputs.count != '0'
     runs-on: ubuntu-latest
     timeout-minutes: 5
