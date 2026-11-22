@@ -2615,4 +2615,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "directional topological abstraction cellular forms 87467770",
     format: "avif",
   },
+  {
+    id: "2026-10-20-glyphs-generative-geometry-spiral-97799093",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-20-glyphs-generative-geometry-spiral-97799093.avif",
+    firstSeen: "2026-10-20",
+    descriptor: "glyphs generative geometry spiral 97799093",
+    format: "avif",
+  },
+  {
+    id: "2026-10-20-deliberate-conceptual-minimalism-stacked-slabs-39909419",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-20-deliberate-conceptual-minimalism-stacked-slabs-39909419.avif",
+    firstSeen: "2026-10-20",
+    descriptor: "deliberate conceptual minimalism stacked slabs 39909419",
+    format: "avif",
+  },
+  {
+    id: "2026-10-20-temperature-surreal-minimalism-nested-squares-57541734",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-20-temperature-surreal-minimalism-nested-squares-57541734.avif",
+    firstSeen: "2026-10-20",
+    descriptor: "temperature surreal minimalism nested squares 57541734",
+    format: "avif",
+  },
 ];
