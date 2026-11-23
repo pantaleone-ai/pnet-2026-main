@@ -2639,4 +2639,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "temperature surreal minimalism nested squares 57541734",
     format: "avif",
   },
+  {
+    id: "2026-10-20-sand-generative-geometry-tessellation-16206789",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-20-sand-generative-geometry-tessellation-16206789.avif",
+    firstSeen: "2026-10-20",
+    descriptor: "sand generative geometry tessellation 16206789",
+    format: "avif",
+  },
+  {
+    id: "2026-10-21-dissipation-biomorphic-abstraction-soft-organic-volumes-1763889",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-21-dissipation-biomorphic-abstraction-soft-organic-volumes-1763889.avif",
+    firstSeen: "2026-10-21",
+    descriptor: "dissipation biomorphic abstraction soft organic volumes 1763889",
+    format: "avif",
+  },
+  {
+    id: "2026-10-21-pools-conceptual-minimalism-soak-stain-58880702",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-21-pools-conceptual-minimalism-soak-stain-58880702.avif",
+    firstSeen: "2026-10-21",
+    descriptor: "pools conceptual minimalism soak stain 58880702",
+    format: "avif",
+  },
 ];
