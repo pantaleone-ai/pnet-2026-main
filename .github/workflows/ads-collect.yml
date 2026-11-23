@@ -1,0 +1,125 @@
+name: ads-collect
+
+# Paid-ads collection (read-only APIs) -> BigQuery hub (same tables as social-collect).
+# Collectors write JSONL, bq load replaces staging tables, MERGE dedupes
+# into canonical tables. Observations are append-only; paid entity_ids are
+# namespaced (meta-ads:*, google-ads:*) so they never collide with organic.
+# Runs ~07:30 ET daily (after social-collect). Manual dispatch defaults to dry-run.
+# Cron is UTC: 11:30 UTC = 07:30 EDT. Revisit on EST (UTC-5) change.
+# Requires: META_ADS_ACCESS_TOKEN (or fallback META_CAPI_ACCESS_TOKEN) +
+# GOOGLE_ADS_ACCESS_TOKEN + GOOGLE_ADS_DEVELOPER_TOKEN Actions secrets,
+# plus META_ADS_ACCOUNT_IDS + GOOGLE_ADS_CUSTOMER_IDS repo vars/secrets.
+# BQ write uses the same WIF trust as social-collect (github-bq-loader).
+
+on:
+  schedule:
+    - cron: "30 11 * * *"
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "Print the plan without collecting/loading (true/false)"
+        required: false
+        default: "true"
+      since:
+        description: "Lookback start YYYY-MM-DD (default: 30d ago)"
+        required: false
+        default: ""
+      until:
+        description: "Lookback end YYYY-MM-DD (default: today)"
+        required: false
+        default: ""
+      level:
+        description: "Meta Ads granularity (campaign|adset|ad)"
+        required: false
+        default: "campaign"
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  BQ_PROJECT: pantaleone-cross-app
+  BQ_LOCATION: us-central1
+  BQ_DATASET: social_reporting
+
+jobs:
+  collect-load:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    concurrency:
+      group: ads-collect
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+      - run: npm ci
+      - name: Collect — Meta Ads + Google Ads to JSONL
+        env:
+          META_ADS_ACCESS_TOKEN: ${{ secrets.META_ADS_ACCESS_TOKEN }}
+          META_CAPI_ACCESS_TOKEN: ${{ secrets.META_CAPI_ACCESS_TOKEN }}
+          META_ADS_ACCOUNT_IDS: ${{ secrets.META_ADS_ACCOUNT_IDS }}
+          GOOGLE_ADS_ACCESS_TOKEN: ${{ secrets.GOOGLE_ADS_ACCESS_TOKEN }}
+          GOOGLE_ADS_DEVELOPER_TOKEN: ${{ secrets.GOOGLE_ADS_DEVELOPER_TOKEN }}
+          GOOGLE_ADS_CUSTOMER_IDS: ${{ secrets.GOOGLE_ADS_CUSTOMER_IDS }}
+          GOOGLE_ADS_LOGIN_CUSTOMER_ID: ${{ secrets.GOOGLE_ADS_LOGIN_CUSTOMER_ID }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          STAMP=$(date -u +%F)
+          SINCE="${{ github.event.inputs.since }}"
+          UNTIL="${{ github.event.inputs.until || '' }}"
+          LEVEL="${{ github.event.inputs.level || 'campaign' }}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.dry-run || 'true' }}" = "true" ]; then
+            npx tsx scripts/social-issues/collect/meta-ads-collect.ts --dry-run --level "$LEVEL"
+            npx tsx scripts/social-issues/collect/google-ads-collect.ts --dry-run
+          else
+            mkdir -p data/ads-metrics
+            ARGS_SINCE=""; [ -n "$SINCE" ] && ARGS_SINCE="--since $SINCE"
+            ARGS_UNTIL=""; [ -n "$UNTIL" ] && ARGS_UNTIL="--until $UNTIL"
+            # shellcheck disable=SC2086
+            npx tsx scripts/social-issues/collect/meta-ads-collect.ts --level "$LEVEL" $ARGS_SINCE $ARGS_UNTIL --out-prefix "data/ads-metrics/${STAMP}-meta-ads"
+            # shellcheck disable=SC2086
+            npx tsx scripts/social-issues/collect/google-ads-collect.ts $ARGS_SINCE $ARGS_UNTIL --out-prefix "data/ads-metrics/${STAMP}-google-ads"
+            echo "STAMP=$STAMP" >> "$GITHUB_ENV"
+          fi
+      - name: Auth to Google Cloud (WIF, keyless)
+        if: github.event_name == 'schedule' || github.event.inputs.dry-run != 'true'
+        id: gcp-auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_pool: "projects/1013667288588/locations/global/workloadIdentityPools/github-pool"
+          service_account: "github-bq-loader@pantaleone-cross-app.iam.gserviceaccount.com"
+      - uses: google-github-actions/setup-gcloud@v2
+        if: github.event_name == 'schedule' || github.event.inputs.dry-run != 'true'
+      - name: Load — staging replace + validated merge
+        if: github.event_name == 'schedule' || github.event.inputs.dry-run != 'true'
+        run: |
+          D="$BQ_PROJECT.$BQ_DATASET"
+          T="$BQ_PROJECT:$BQ_DATASET"
+          M="data/ads-metrics/${STAMP}"
+          cat "$M-meta-ads.observations.jsonl" "$M-google-ads.observations.jsonl" > "$M.ads.observations.jsonl"
+          # NOTE: bq CLI table args use PROJECT:DATASET.TABLE (colon);
+          # SQL inside backticks uses PROJECT.DATASET.TABLE (dots).
+          bq --location="$BQ_LOCATION" --project_id="$BQ_PROJECT" load --replace --source_format=NEWLINE_DELIMITED_JSON \
+            "$T.stg_ads_observations" "$M.ads.observations.jsonl"
+          cat "$M-meta-ads.campaigns.jsonl" "$M-google-ads.campaigns.jsonl" > "$M.ads.campaigns.jsonl"
+          [ -s "$M.ads.campaigns.jsonl" ] && bq --location="$BQ_LOCATION" --project_id="$BQ_PROJECT" load --replace --source_format=NEWLINE_DELIMITED_JSON "$T.stg_ads_campaigns" "$M.ads.campaigns.jsonl" || echo "skip stg_ads_campaigns (empty)"
+          bq --location="$BQ_LOCATION" --project_id="$BQ_PROJECT" query --nouse_legacy_sql "
+            MERGE \`$D.dim_campaigns\` T USING \`$D.stg_ads_campaigns\` S
+            ON T.campaign_id = S.campaign_id
+            WHEN NOT MATCHED THEN INSERT ROW;"
+          bq --location="$BQ_LOCATION" --project_id="$BQ_PROJECT" query --nouse_legacy_sql "
+            MERGE \`$D.social_metric_observations\` T USING \`$D.stg_ads_observations\` S
+            ON T.entity_id = S.entity_id
+              AND T.metric_name = S.metric_name
+              AND T.metric_scope = S.metric_scope
+              AND DATE(T.snapshot_at) = DATE(S.snapshot_at)
+              AND IFNULL(T.period_start, TIMESTAMP '1970-01-01 00:00:00+00') = IFNULL(S.period_start, TIMESTAMP '1970-01-01 00:00:00+00')
+            WHEN NOT MATCHED THEN INSERT ROW;"
+          bq --location="$BQ_LOCATION" --project_id="$BQ_PROJECT" query --nouse_legacy_sql --parameter="run_id:STRING:${{ github.run_id }}-${STAMP}" "
+            INSERT \`$D.ingest_runs\` (run_id, started_at, source, rows_loaded, status, notes)
+            VALUES (@run_id, CURRENT_TIMESTAMP(), 'ci-ads-collect',
+              (SELECT COUNT(*) FROM \`$D.stg_ads_observations\`), 'ok', 'paid ads collect+merge');"

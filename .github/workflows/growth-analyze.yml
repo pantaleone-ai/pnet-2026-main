@@ -1,0 +1,62 @@
+name: growth-analyze
+
+# Always-on analysis loop (read-only analysis, advisory writes only).
+# Runs growth-analyze.ts after the collect jobs: reads latest warehouse data,
+# applies deterministic checks (freshness, dedupe grain, organic winners,
+# paid efficiency) and MERGEs proposed rows into insight_recommendations.
+# Nothing auto-approves: rows land as approval_status='proposed'; humans move
+# them to approved/testing/decided. Paid actions never execute from here.
+# Runs ~08:00 ET daily. Manual dispatch defaults to dry-run.
+# Cron is UTC: 12:00 UTC = 08:00 EDT. Revisit on EST (UTC-5) change.
+
+on:
+  schedule:
+    - cron: "0 12 * * *"
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: "Print the plan without writing recommendations (true/false)"
+        required: false
+        default: "true"
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  BQ_PROJECT: pantaleone-cross-app
+  BQ_LOCATION: us-central1
+  BQ_DATASET: social_reporting
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    concurrency:
+      group: growth-analyze
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: "npm"
+      - run: npm ci
+      - name: Auth to Google Cloud (WIF, keyless)
+        if: github.event_name == 'schedule' || github.event.inputs.dry-run != 'true'
+        id: gcp-auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: "projects/1013667288588/locations/global/workloadIdentityPools/github-pool/providers/github-provider"
+          service_account: "github-bq-loader@pantaleone-cross-app.iam.gserviceaccount.com"
+      - uses: google-github-actions/setup-gcloud@v2
+        if: github.event_name == 'schedule' || github.event.inputs.dry-run != 'true'
+      - name: Analyze — latest warehouse data to proposed recs
+        run: |
+          STAMP=$(date -u +%F)
+          if [ "${{ github.event.inputs.dry-run || 'false' }}" = "true" ] && [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            npx tsx scripts/social-issues/analyze/growth-analyze.ts --dry-run
+          else
+            mkdir -p data/growth
+            npx tsx scripts/social-issues/analyze/growth-analyze.ts --out-prefix "data/growth/${STAMP}-recs"
+          fi

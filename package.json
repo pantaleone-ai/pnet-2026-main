@@ -67,6 +67,9 @@
     "social:schedule": "tsx scripts/social-issues/schedule-queue.ts",
     "social:collect-meta": "tsx scripts/social-issues/collect/meta-collect.ts",
     "social:collect-pin": "tsx scripts/social-issues/collect/pinterest-collect.ts",
+    "ads:collect-meta": "tsx scripts/social-issues/collect/meta-ads-collect.ts",
+    "ads:collect-google": "tsx scripts/social-issues/collect/google-ads-collect.ts",
+    "growth:analyze": "tsx scripts/social-issues/analyze/growth-analyze.ts",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
