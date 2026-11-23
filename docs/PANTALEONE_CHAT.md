@@ -1,8 +1,10 @@
 # Pantaleone Chat — Revised Plan (grounded in this codebase)
 
-This document revises the original Pantaleone Chat brief against what
-actually exists in `pnet-2026-main`, then records the minimal MVP that
-was built. Canonical domain everywhere: `https://www.pantaleone.net`.
+Strategy: two stages. **Stage 1 first** — first-party chat on
+`https://www.pantaleone.net/chat`, done well. **Stage 2 only after** —
+self-serve chatbots for businesses. Nothing in Stage 2 may block or
+complicate Stage 1. Canonical domain everywhere for the parent brand:
+`https://www.pantaleone.net`.
 
 ## 1. What the original brief assumed (and what is actually true)
 
@@ -67,6 +69,11 @@ owner actions (see §5).
   `npm run deploy`); no wrangler resource changes required.
 
 ## 5. Phase 2 gates (owner actions required before multi-tenant build)
+
+Stage 2 = self-serve platform for businesses (the `chat.pantaleone.net`
+vision: accounts, chatbot builder, knowledge ingestion, embed.js).
+Do not start it until Stage 1 meets its definition of done (§4) and
+these gates are cleared:
 
 1. Decide auth provider (compatible with D1 + Cloudflare Workers).
 2. Provision Cloudflare resources: D1 database(s), Vectorize index(es),
