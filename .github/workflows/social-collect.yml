@@ -4,14 +4,15 @@ name: social-collect
 # Collectors write JSONL, bq load replaces staging tables, MERGE dedupes
 # into canonical tables. Observations are append-only by design;
 # social_posts dedupes on post_id. Never fabricates: collector nulls stay null.
-# Runs ~07:15 ET daily. Manual dispatch defaults to dry-run (plan only).
-# Cron is UTC: 11:15 UTC = 07:15 EDT. Revisit on EST (UTC-5) change.
+# Runs 12:01 AM Mountain daily. Manual dispatch defaults to dry-run (plan only).
+# Cron is UTC: 07:01 UTC = 12:01 AM MST (UTC-7). During MDT (UTC-6) this fires
+# at 01:01 AM MDT — fixed UTC crons can't track DST; revisit if exactness matters.
 # Requires: META_CAPI_ACCESS_TOKEN + PINTEREST_ACCESS_TOKEN Actions secrets
 # (present), WIF trust for github-bq-loader (configured 2026-11-05).
 
 on:
   schedule:
-    - cron: "15 11 * * *"
+    - cron: "1 7 * * *"
   workflow_dispatch:
     inputs:
       dry-run:
