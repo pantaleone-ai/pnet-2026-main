@@ -66,6 +66,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly" as const,
       priority: 0.9,
     },
+    {
+      url: getBaseUrl("/chat"),
+      lastModified: LAST_MODIFIED,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    },
     // NOTE: /about, /experience, and /education are intentionally absent.
     // middleware.ts permanently redirects them to the homepage, so they
     // are not indexable 200 pages. Removing those redirects (a public URL

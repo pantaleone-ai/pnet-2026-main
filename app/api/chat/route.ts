@@ -5,7 +5,7 @@ import {
   CHAT_MAX_MESSAGE_LENGTH,
   chatPayloadSchema,
 } from "@/lib/validations/chat";
-import { getPostsBySearchQuery } from "@/lib/search-server";
+import { searchChatCorpus, type ChatRetrievalHit } from "@/lib/chat-retrieval";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -31,13 +31,12 @@ function toSourceUrl(item: {
   return `${SITE_URL}/shop`;
 }
 
-function buildContext(results: Awaited<ReturnType<typeof getPostsBySearchQuery>>) {
+function buildContext(results: ChatRetrievalHit[]) {
   return results.slice(0, RETRIEVAL_TOP_K).map((r) => ({
     title: r.title,
     type: r.type,
     url: toSourceUrl({ type: r.type, slug: r.slug }),
-    excerpt:
-      typeof r.content === "string" ? r.content.slice(0, 600) : "",
+    excerpt: r.excerpt || "",
   }));
 }
 
@@ -72,6 +71,15 @@ function streamExtractiveFallback(
           "I could not find that on https://www.pantaleone.net.",
           "Try different words, or ask via https://www.pantaleone.net/contact.",
         ];
+
+  logger.info("chat turn", {
+    context: "chat-api",
+    meta: {
+      path: "fallback",
+      sources: context.length,
+      promptChars: question.length,
+    },
+  });
 
   const stream = new ReadableStream({
     start(controller) {
@@ -116,6 +124,7 @@ async function streamFromOpenAI(
       model: OPENAI_MODEL,
       stream: true,
       max_tokens: 800,
+      stream_options: { include_usage: true },
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         {
@@ -137,6 +146,11 @@ async function streamFromOpenAI(
   }
 
   const sourcesChunk = sseEncode({ sources: context });
+  // Token usage arrives in the final streamed chunk when
+  // stream_options.include_usage is set. Logged for cost visibility
+  // (Stage 1: observability only, no billing).
+  let promptTokens: number | null = null;
+  let completionTokens: number | null = null;
   const stream = new ReadableStream({
     async start(controller) {
       controller.enqueue(sourcesChunk);
@@ -157,6 +171,10 @@ async function streamFromOpenAI(
               const delta: string =
                 json?.choices?.[0]?.delta?.content ?? "";
               if (delta) controller.enqueue(sseEncode({ delta }));
+              if (json?.usage) {
+                promptTokens = json.usage.prompt_tokens ?? null;
+                completionTokens = json.usage.completion_tokens ?? null;
+              }
             } catch {
               // Ignore non-JSON keepalive chunks.
             }
@@ -169,6 +187,18 @@ async function streamFromOpenAI(
           context: "chat-api",
         });
         controller.close();
+      } finally {
+        logger.info("chat turn", {
+          context: "chat-api",
+          meta: {
+            path: "model",
+            model: OPENAI_MODEL,
+            promptTokens,
+            completionTokens,
+            sources: context.length,
+            promptChars: message.length,
+          },
+        });
       }
     },
   });
@@ -221,8 +251,7 @@ export async function POST(request: Request) {
 
     let context: ReturnType<typeof buildContext> = [];
     try {
-      const results = await getPostsBySearchQuery(message);
-      context = buildContext(results);
+      context = buildContext(searchChatCorpus(message));
     } catch (error) {
       logger.error("Chat retrieval failed", error, { context: "chat-api" });
     }

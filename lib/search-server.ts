@@ -21,6 +21,26 @@ export const SEARCH_MAX_RESULTS = 20;
 const SEARCH_MAX_QUERY_LENGTH = 100;
 const FUZZY_THRESHOLD = 2;
 
+// Tokens that match nearly every document (short fragments, stopwords)
+// contribute equal scores everywhere — pure ranking noise. They are
+// excluded from scoring (both chat retrieval and site search) while the
+// full query still drives snippet extraction.
+const SEARCH_STOPWORDS = new Set([
+  "a", "an", "and", "are", "as", "at", "be", "but", "by", "can", "did",
+  "do", "does", "for", "from", "had", "has", "have", "how", "if", "in",
+  "is", "it", "its", "me", "my", "of", "on", "or", "our", "should",
+  "so", "that", "the", "they", "this", "to", "was", "we", "what",
+  "when", "where", "which", "who", "why", "will", "with", "you",
+  "your",
+]);
+
+function scoringTerms(searchWords: string[]): string[] {
+  const filtered = searchWords.filter(
+    (w) => w.length >= 3 && !SEARCH_STOPWORDS.has(w),
+  );
+  return filtered.length > 0 ? filtered : searchWords;
+}
+
 function slugTokens(slug: string): string[] {
   return slug.toLowerCase().split(/[-_/\s]+/).filter(Boolean);
 }
@@ -32,6 +52,7 @@ export async function getPostsBySearchQuery(query: string) {
 
   const searchQuery = trimmed.toLowerCase();
   const searchWords = searchQuery.split(/\s+/).filter(Boolean);
+  const terms = scoringTerms(searchWords);
   const results: SearchResult[] = [];
 
   // Pass 1: exact substring matches only (cheap).
@@ -42,7 +63,7 @@ export async function getPostsBySearchQuery(query: string) {
     const content = post.content.toLowerCase();
     const fileName = post.slug.toLowerCase();
 
-    for (const word of searchWords) {
+    for (const word of terms) {
       if (title.includes(word)) score += 10;
       if (fileName.includes(word)) score += 8;
       if (description.includes(word)) score += 6;
@@ -68,7 +89,7 @@ export async function getPostsBySearchQuery(query: string) {
     const fileName = product.slug.toLowerCase();
     const category = product.category.toLowerCase();
 
-    for (const word of searchWords) {
+    for (const word of terms) {
       if (title.includes(word)) score += 10;
       if (fileName.includes(word)) score += 8;
       if (description.includes(word)) score += 6;
@@ -123,7 +144,7 @@ export async function getPostsBySearchQuery(query: string) {
     const titleTerms = post.title.toLowerCase().split(/\s+/).filter(Boolean);
     const slugTerms = slugTokens(post.slug);
 
-    for (const word of searchWords) {
+    for (const word of terms) {
       if (titleTerms.some((term) => levenshtein(term, word) <= FUZZY_THRESHOLD)) {
         score += 5;
       }
@@ -148,7 +169,7 @@ export async function getPostsBySearchQuery(query: string) {
     const titleTerms = product.title.toLowerCase().split(/\s+/).filter(Boolean);
     const slugTerms = slugTokens(product.slug);
 
-    for (const word of searchWords) {
+    for (const word of terms) {
       if (titleTerms.some((term) => levenshtein(term, word) <= FUZZY_THRESHOLD)) {
         score += 5;
       }
