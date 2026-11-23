@@ -45,6 +45,9 @@ export interface SocialAuditInput {
   destinationUrl?: string;
   /** Normalized recent hook+body strings for repetition detection. */
   recentTexts?: string[];
+  /** Taxonomy v1 tracking: validated by layer 8 (fail when missing/mismatched). */
+  campaignId?: string;
+  creativeId?: string;
 }
 
 export interface SocialAuditResult {
@@ -369,6 +372,34 @@ export async function auditSocialCopy(
     warn.push(
       "awareness-mismatch: cold platform with hard-offer copy (educate first, offer later)",
     );
+  }
+
+  // Layer 8: tracking completeness (taxonomy v1, fail).
+  // Destination must carry utm_campaign + utm_content matching the issue
+  // Campaign/Creative fields, so GA4 ↔ warehouse joins work.
+  {
+    const url = (input.destinationUrl ?? "").trim();
+    const mCamp = url.match(/[?&]utm_campaign=([^&#]*)/i)?.[1] ?? "";
+    const mCont = url.match(/[?&]utm_content=([^&#]*)/i)?.[1] ?? "";
+    const wantCamp = (input.campaignId ?? "").trim();
+    const wantCont = (input.creativeId ?? "").trim();
+    if (wantCamp || wantCont || url) {
+      if (!mCamp || !mCont) {
+        fail.push(
+          "tracking: destination lacks utm_campaign/utm_content (packet tracking block required)",
+        );
+      } else {
+        try {
+          if (wantCamp && decodeURIComponent(mCamp) !== wantCamp)
+            fail.push(`tracking: utm_campaign "${decodeURIComponent(mCamp)}" != Campaign "${wantCamp}"`);
+          if (wantCont && decodeURIComponent(mCont) !== wantCont)
+            fail.push(`tracking: utm_content "${decodeURIComponent(mCont)}" != Creative "${wantCont}"`);
+        } catch {
+          if (wantCamp && mCamp !== wantCamp)
+            fail.push(`tracking: utm_campaign mismatch (Campaign "${wantCamp}")`);
+        }
+      }
+    }
   }
 
   return {

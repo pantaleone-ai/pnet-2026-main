@@ -74,5 +74,11 @@ npm run check-types
 - Optional: `utm_campaign` join — lineage already maps `dim_campaigns.campaign_id`
   to content via `campaign-lineage.ts`; add paid campaign IDs to issue bodies to
   link spend → organic winners (see `docs/SOCIAL_ADVERTISING_PLAYBOOK.md`).
+- Taxonomy v1 (`docs/TAXONOMY.md`): paid merges emit `platform='google_ads' /
+  'meta_ads'`, `metric_scope='daily'`, `confidence='ok'`,
+  `metric_definition_version='mdv2-taxonomy-v1'`; grain is one row per
+  (campaign, day, metric) SUMmed from transfer breakdowns. Legacy
+  `google-ads` / `day` rows are mapped, not rewritten, by
+  `v_observations_canonical`.
 - Optional: add `organic_or_paid` to MERGE keys + `ads_*` views for ROAS/CAC in
-  `lib/growth/reporting.ts`.
+  `lib/growth/reporting.ts` (`rollupCanonical` helper reads the canonical view).

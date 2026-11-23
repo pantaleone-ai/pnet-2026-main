@@ -4,7 +4,7 @@ import { Suspense, useEffect, useCallback } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import posthog from "posthog-js";
 
-import { isGaEnabled, isMetaPixelEnabled } from "@/lib/analytics";
+import { isGaEnabled, isMetaPixelEnabled, setTaxonomyContext, taxonomyFromUtm } from "@/lib/analytics";
 import { metaTrack } from "@/lib/meta-pixel";
 
 function PageTrackingInner() {
@@ -16,6 +16,17 @@ function PageTrackingInner() {
       pathname +
       (searchParams?.toString() ? `?${searchParams.toString()}` : "");
     const pageTitle = document.title || "";
+
+    // Taxonomy v1: derive campaign/content join keys from the URL once per
+    // route and attach as GA4 default params (gtag 'set'). Additive only.
+    try {
+      setTaxonomyContext({
+        ...taxonomyFromUtm(searchParams?.toString() ?? ""),
+        taxonomy_version: "v1",
+      });
+    } catch {
+      // best-effort; page_view below still fires
+    }
 
     // Google Analytics page tracking — single page_view per SPA route,
     // consent-gated inside isGaEnabled (Consent Mode v2 + localStorage).

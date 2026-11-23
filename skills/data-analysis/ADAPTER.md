@@ -30,6 +30,10 @@ Humans move rows to `approved`/`testing`/`decided`. Paid never auto-approves
   table vs prior period, worked / needs-improvement, 2x2 prioritized recs).
   Benchmarks table is reference only — our baselines come from our own
   history, not upstream generic ranges.
+- Taxonomy v1 (`docs/TAXONOMY.md`): checks 3–5 read
+  `v_observations_canonical` (platform_group / metric_family /
+  scope_canonical); raw tables are never mutated. New `taxonomy-coverage`
+  check keeps mapping at 100%.
 
 ## Warehouse map (the only tables the loop reads/writes)
 

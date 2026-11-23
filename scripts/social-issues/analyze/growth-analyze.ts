@@ -20,6 +20,8 @@ const D = `${PROJECT}.${DATASET}`;
 const T = `${PROJECT}:${DATASET}`;
 const A = `${PROJECT}.${ADS_DATASET}`;
 const STAMP = new Date().toISOString().slice(0, 10);
+const TAXONOMY_VERSION = "v1";
+const V = `${PROJECT}.${DATASET}.v_observations_canonical`;
 
 interface Rec {
   recommendation_id: string;
@@ -35,6 +37,7 @@ interface Rec {
   expected_impact: string | null;
   confidence: string | null;
   approval_status: string | null;
+  taxonomy_version: string | null;
   test_start: string | null;
   test_end: string | null;
   actual_result: string | null;
@@ -53,7 +56,9 @@ function bqExec(sql: string): void {
   execFileSync("bq", ["query", "--nouse_legacy_sql", "--project_id=" + PROJECT, sql], { stdio: "inherit" });
 }
 
-const ENGAGEMENT_METRICS = ["saved", "saves", "shares", "comments", "outbound_clicks", "pin_clicks", "engagements"];
+// Winners filter metric_family='engagement' in v_observations_canonical.
+// Pre-canonical hardcoded set (retired): saved, saves, shares, comments,
+// outbound_clicks, pin_clicks, engagements.
 
 function checkFreshness(recs: Rec[]): void {
   const rows = bqJson<{ platform: string; latest: string }>(
@@ -81,6 +86,7 @@ function checkFreshness(recs: Rec[]): void {
         test_end: null,
         actual_result: null,
         decision: null,
+        taxonomy_version: TAXONOMY_VERSION,
       });
     }
   });
@@ -117,17 +123,18 @@ function checkDedupe(recs: Rec[]): void {
     test_end: null,
     actual_result: null,
     decision: null,
+    taxonomy_version: TAXONOMY_VERSION,
   });
   console.log(`dedupe: ${rows.length} violating groups, rec=1`);
 }
 
 function checkWinners(recs: Rec[]): void {
-  const list = ENGAGEMENT_METRICS.map((m) => `'${m}'`).join(",");
+  // Canonical: metric_family='engagement' replaces the hardcoded metric list.
   const rows = bqJson<{ entity_id: string; platform: string; campaign_id: string | null; v: string }>(
-    `SELECT entity_id, platform, campaign_id, CAST(SUM(metric_value) AS STRING) v ` +
-      `FROM \`${D}.social_metric_observations\` ` +
-      `WHERE organic_or_paid='organic' AND metric_name IN (${list}) AND DATE(snapshot_at) >= DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY) ` +
-      `GROUP BY 1,2,3 HAVING SUM(metric_value) > 0 ORDER BY SUM(metric_value) DESC LIMIT 3`,
+    `SELECT entity_id, MAX(platform_group) platform, MAX(campaign_id) campaign_id, CAST(SUM(metric_value) AS STRING) v ` +
+      `FROM \`${V}\` ` +
+      `WHERE organic_or_paid='organic' AND metric_family='engagement' AND DATE(snapshot_at) >= DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY) ` +
+      `GROUP BY 1 HAVING SUM(metric_value) > 0 ORDER BY SUM(metric_value) DESC LIMIT 3`,
   );
   rows.forEach((r, i) => {
     recs.push({
@@ -136,7 +143,7 @@ function checkWinners(recs: Rec[]): void {
       campaign_id: r.campaign_id,
       content_id: null,
       observation: `Organic winner (7d): ${r.entity_id} (${r.platform}) with ${r.v} total engagement signals.`,
-      evidence: `SUM(${ENGAGEMENT_METRICS.join("+")})=${r.v} over last 7d in ${D}.social_metric_observations; playbook rule: only promote organic winners.`,
+      evidence: `SUM(metric_family='engagement')=${r.v} over last 7d in ${V}; playbook rule: only promote organic winners.`,
       hypothesis: "Creative/audience fit proven organically; small paid test measures incremental reach at controlled cost.",
       suggested_action: `Human review: if creative still on-brand, approve a capped paid test (utm_medium=paid_social). Paid never auto-approves.`,
       primary_kpi: "cost_per_engagement",
@@ -148,9 +155,43 @@ function checkWinners(recs: Rec[]): void {
       test_end: null,
       actual_result: null,
       decision: null,
+      taxonomy_version: TAXONOMY_VERSION,
     });
   });
   console.log(`winners: ${rows.length} candidates`);
+}
+
+function checkTaxonomyCoverage(recs: Rec[]): void {
+  const rows = bqJson<{ metric_name: string; c: string }>(
+    `SELECT metric_name, CAST(COUNT(*) AS STRING) c FROM \`${V}\` ` +
+      `WHERE metric_family LIKE 'unmapped:%' AND DATE(snapshot_at) >= DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY) ` +
+      `GROUP BY 1 ORDER BY COUNT(*) DESC LIMIT 5`,
+  );
+  if (!rows.length) {
+    console.log("taxonomy: full coverage, no unmapped metrics in last 7d");
+    return;
+  }
+  recs.push({
+    recommendation_id: `rec-${STAMP}-taxonomy-unmapped`,
+    project_id: "growth",
+    campaign_id: null,
+    content_id: null,
+    observation: `${rows.length} unmapped metric(s) in last 7d: ${rows.map((r) => `${r.metric_name} x${r.c}`).join(", ")}. Rollups exclude them.`,
+    evidence: `metric_family LIKE 'unmapped:%' in ${V} last 7d.`,
+    hypothesis: "New source metric not yet in dim_metric_map.",
+    suggested_action: "Add mapping row to dim_metric_map (taxonomy_version='v1') or confirm the metric should stay excluded.",
+    primary_kpi: "taxonomy_coverage",
+    guardrail_kpi: "unmapped_rows",
+    expected_impact: "medium (restores rollup completeness)",
+    confidence: "ok",
+    approval_status: "proposed",
+    test_start: null,
+    test_end: null,
+    actual_result: null,
+    decision: null,
+    taxonomy_version: TAXONOMY_VERSION,
+  });
+  console.log(`taxonomy: ${rows.length} unmapped metrics`);
 }
 
 function checkPaid(recs: Rec[]): void {
@@ -189,6 +230,7 @@ function checkPaid(recs: Rec[]): void {
         test_end: null,
         actual_result: null,
         decision: null,
+        taxonomy_version: TAXONOMY_VERSION,
       });
     }
   });
@@ -205,6 +247,7 @@ function main(): void {
   const recs: Rec[] = [];
   checkFreshness(recs);
   checkDedupe(recs);
+  checkTaxonomyCoverage(recs);
   checkWinners(recs);
   checkPaid(recs);
   console.log(`total recs=${recs.length}`);

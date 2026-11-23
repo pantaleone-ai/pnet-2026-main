@@ -100,6 +100,75 @@ export interface SearchResultClickEvent {
 
 export const MEASUREMENT_CONSENT_KEY = "pnet-measurement-consent";
 
+// ── Taxonomy v1 context (additive, opt-in) ─────────────────────────────
+// Call setTaxonomyContext once per page (e.g. from UTM params) and every
+// ga4.* event below merges these params automatically. No existing call
+// signature changes; empty context = zero behavior change.
+
+export interface TaxonomyContext {
+  app_id?: string;
+  campaign_id?: string;
+  content_id?: string;
+  platform_group?: string;
+  funnel_stage?: string;
+  taxonomy_version?: string;
+}
+
+let taxonomyContext: TaxonomyContext = {};
+
+type GtagFn = (command: string, ...args: Array<unknown>) => void;
+
+function getGtag(): GtagFn | undefined {
+  try {
+    const g = (window as unknown as { gtag?: GtagFn }).gtag;
+    return typeof g === "function" ? g : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export function setTaxonomyContext(ctx: TaxonomyContext): void {
+  taxonomyContext = { ...taxonomyContext, ...ctx };
+  // Fan out to GA4 as default event params (gtag 'set' attaches to all
+  // subsequent events on the page). No-op when gtag isn't loaded; existing
+  // event calls are untouched.
+  try {
+    const clean = Object.fromEntries(
+      Object.entries(taxonomyContext).filter(([, v]) => v !== undefined && v !== ""),
+    ) as TaxonomyContext;
+    if (Object.keys(clean).length > 0) {
+      getGtag()?.("set", { ...clean, taxonomy_version: clean.taxonomy_version ?? "v1" });
+    }
+  } catch {
+    // gtag not ready — params apply on next setTaxonomyContext call
+  }
+}
+
+export function getTaxonomyContext(): TaxonomyContext {
+  return { ...taxonomyContext };
+}
+
+function withTaxonomy<T extends Record<string, unknown>>(params: T): Record<string, unknown> {
+  const merged = { ...params, ...taxonomyContext };
+  return Object.fromEntries(
+    Object.entries(merged).filter(([, v]) => v !== undefined && v !== ""),
+  );
+}
+
+export function taxonomyFromUtm(search: string): TaxonomyContext {
+  try {
+    const q = new URLSearchParams(search.startsWith("?") ? search : `?${search}`);
+    const out: TaxonomyContext = {};
+    const camp = q.get("utm_campaign");
+    const cont = q.get("utm_content");
+    if (camp) out.campaign_id = camp;
+    if (cont) out.content_id = cont;
+    return out;
+  } catch {
+    return {};
+  }
+}
+
 // Write-through cache for the c15t consent store (the source of truth).
 // ConsentManagerClient syncs this key from c15t's onConsentSet callback
 // (which replays on store init, covering return visitors). Do not treat
@@ -1150,6 +1219,28 @@ export const growth = {
         event_id: normalized.event_id,
         ...normalized.properties,
       });
+    }
+    // GA4 fan-out (taxonomy v1, additive): same normalized event + canonical
+    // params. Consent-gated via isGaEnabled; no-op when gtag is absent.
+    // Existing ga4.* funnel calls are untouched.
+    if (normalized.consented && isGaEnabled()) {
+      try {
+        getGtag()?.(
+          "event",
+          normalized.event,
+          withTaxonomy({
+            app_id: normalized.app_id,
+            event_id: normalized.event_id,
+            ...normalized.properties,
+            utm_source: normalized.utm.utm_source ?? undefined,
+            utm_medium: normalized.utm.utm_medium ?? undefined,
+            utm_campaign: normalized.utm.utm_campaign ?? undefined,
+            utm_content: normalized.utm.utm_content ?? undefined,
+          }),
+        );
+      } catch {
+        // analytics best-effort; never throw into product code
+      }
     }
     return normalized;
   },

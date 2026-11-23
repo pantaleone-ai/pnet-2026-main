@@ -222,6 +222,8 @@ async function main(): Promise<void> {
         platform === "instagram" ? suggestHashtags(pillar, undefined) : [],
       sourceAsset: parsed.sourceAsset ?? undefined,
       destinationUrl: parsed.destinationUrl ?? undefined,
+      campaignId: parsed.campaignId ?? undefined,
+      creativeId: parsed.creativeId ?? undefined,
     });
     auditNote = `${audit.verdict} (engine ${audit.engineUsed ? "on" : "off"}): ${audit.reasons.join("; ") || "clean"}`;
     auditVerdict = audit.verdict;
@@ -297,6 +299,12 @@ async function main(): Promise<void> {
     `- \`utm_campaign=${parsed.campaignId}\` — 6 segments: APP_PLATFORM_OBJECTIVE_AUDIENCE_GEO_YYYYMM`,
     `- \`utm_content=${parsed.creativeId}\` — 4 segments: APP_CONCEPT_FORMAT_VARIANT`,
     `- Base domain matches registry: \`${strategy?.domain}\` (\`config/social-growth/product-matrix.ts\`)`,
+    ``,
+    `## Tracking block (taxonomy v1, enforced by social-audit layer 8)`,
+    `- \`campaign_id=${parsed.campaignId}\` (must equal utm_campaign)`,
+    `- \`content_id=${contentId}\` / creative \`${parsed.creativeId}\` (must equal utm_content)`,
+    `- \`platform_group\` per \`platformGroupFor(${platform})\`, \`funnel_stage\` per \`funnelStageFor(${pillar})\`, \`taxonomy_version=v1\``,
+    `- GA4 join: \`utm_campaign\` → campaign_id, \`utm_content\` → content_id (custom dimensions, see docs/TAXONOMY.md §6)`,
     ``,
     `## Advertising angles (advisory, opt-in --angles; primary copy unchanged)`,
     anglesNote,

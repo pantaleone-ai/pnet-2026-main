@@ -87,3 +87,21 @@ export function validateSocialNaming(campaign: string, creative: string) {
     creative: validateCreativeName(creative),
   };
 }
+
+/** Taxonomy v1: raw platform → platform_group (mirrors dim_platform_map). */
+export function platformGroupFor(platform: string): string {
+  if (platform === "facebook" || platform === "instagram") return "meta";
+  if (platform === "google_ads" || platform === "google-ads") return "google_ads";
+  if (platform === "meta_ads") return "meta_ads";
+  return platform;
+}
+
+/** Taxonomy v1: pillar → funnel_stage. */
+export function funnelStageFor(pillar: string): string {
+  const proof = new Set(["proof", "product", "comparison", "conversion"]);
+  if (proof.has(pillar)) return "conversion";
+  if (pillar === "traffic" || pillar === "discovery") return "consideration";
+  return "awareness";
+}
+
+export const TAXONOMY_VERSION = "v1";
