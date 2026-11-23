@@ -55,10 +55,28 @@ owner actions (see §5).
   on Node, Vercel, and Cloudflare. Re-run when content changes.
 - `lib/chat-retrieval.ts` — pure retrieval over the corpus (same
   weights as site search; no fs, no network).
-- `app/api/chat/route.ts` — rate limit → validate → retrieve → stream
-  (OpenAI passthrough with usage logging, or labeled extractive
-  fallback). `force-dynamic`, `no-store`, 413/429/400 handling. Server
-  owns the provider key.
+- `app/api/chat/route.ts` — rate limit → validate → retrieve (lexical
+  shortlist, embedding rerank when the AI binding is present) → stream.
+  Generation priority: **Workers AI Gemma
+  (`@cf/google/gemma-4-26b-a4b-it`)** → OpenAI (optional secondary,
+  `OPENAI_API_KEY`) → labeled extractive fallback. `force-dynamic`,
+  `no-store`, 413/429/400 handling. The server owns all provider keys.
+- Retrieval rerank uses the Workers AI embedding model
+  `@cf/qwen/qwen3-embedding-0.6b`: top-12 lexical pool, query + candidate
+  (title + description + excerpt) embeddings in one batch call, then
+  **reciprocal rank fusion** of lexical rank and embedding rank. Measured
+  on the eval set: lexical 19/20, pure-cosine rerank 17/20 (demotes strong
+  lexical hits), RRF 19/20 with no regressions — RRF shipped.
+  `CHAT_NO_RERANK=1` forces lexical order for debugging. No Vectorize
+  index — same top-K contract, no new infrastructure.
+- `wrangler.jsonc` — `ai` binding plus `observability` (traces + logs,
+  full sampling). Tail with `npx wrangler tail pantaleonenet [--version-id
+  <id>]`. Failed invocations surface as issues in dashboard
+  Observability. Note: version-preview traffic can take minutes to appear
+  in tail; production traffic shows immediately.
+- `cloudflare-env.d.ts` — minimal hand-written env types (AI binding
+  only). Do NOT regenerate with `wrangler types`: its output redeclares
+  global fetch types and breaks `tsc` in unrelated files.
 - `app/(app)/(root)/chat/page.tsx` — route metadata (canonical
   `https://www.pantaleone.net/chat`).
 - `app/(app)/(root)/chat/_ChatPanel.tsx` — client chat UI (messages,
