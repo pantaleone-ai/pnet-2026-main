@@ -171,10 +171,23 @@ export function taxonomyFromUtm(search: string): TaxonomyContext {
 
 // Write-through cache for the c15t consent store (the source of truth).
 // ConsentManagerClient syncs this key from c15t's onConsentSet callback
-// (which replays on store init, covering return visitors). Do not treat
-// this key as authoritative anywhere on mount — always let c15t overwrite
-// it via setMeasurementConsent.
+// (which replays on store init, covering return visitors).
+//
+// GA is opt-out: collected by default, blocked only on explicit "denied".
+// Meta/PostHog remain opt-in and must check for explicit "granted" — do not
+// use this helper for those vendors (see isMetaPixelEnabled below).
 export function hasMeasurementConsent(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.localStorage.getItem(MEASUREMENT_CONSENT_KEY) !== "denied";
+  } catch {
+    // storage unavailable (private mode) — default to collecting GA
+    return true;
+  }
+}
+
+/** Explicit opt-in check for marketing vendors (Meta, PostHog). GA must not use this. */
+export function hasExplicitMeasurementConsent(): boolean {
   if (typeof window === "undefined") return false;
   try {
     return window.localStorage.getItem(MEASUREMENT_CONSENT_KEY) === "granted";
@@ -204,7 +217,7 @@ export function setMeasurementConsent(granted: boolean): void {
       });
     }
   } catch {
-    // gtag not ready yet — defaults in layout head stay denied
+    // gtag not ready yet — defaults in layout head stay analytics-granted
   }
 }
 
@@ -225,7 +238,7 @@ export function isGaEnabled(): boolean {
 
 export function isMetaPixelEnabled(): boolean {
   if (typeof window === "undefined") return false;
-  if (!hasMeasurementConsent()) return false;
+  if (!hasExplicitMeasurementConsent()) return false;
   // Domain gate (fixes preview-URL dataset pollution): PageView and all
   // funnel events fire only on prod hosts — never localhost/*.vercel.app.
   if (!isProdHost()) return false;
@@ -1221,7 +1234,7 @@ export const growth = {
       });
     }
     // GA4 fan-out (taxonomy v1, additive): same normalized event + canonical
-    // params. Consent-gated via isGaEnabled; no-op when gtag is absent.
+    // params. GA is opt-out via isGaEnabled; no-op when gtag is absent.
     // Existing ga4.* funnel calls are untouched.
     if (normalized.consented && isGaEnabled()) {
       try {

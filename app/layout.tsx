@@ -222,9 +222,11 @@ export default function RootLayout({ children }: RootLayoutProps) {
             early (saves a full RTT on LCP-critical images). */}
         <link rel="preconnect" href="https://img.pantaleone.net" />
         <link rel="dns-prefetch" href="https://img.pantaleone.net" />
-        {/* Google Consent Mode v2 defaults — denied until c15t measurement consent.
-            PageTracker + analytics helpers re-check consent before any event,
-            so no page_view / PageView fires for opted-out visitors. */}
+        {/* Google Consent Mode v2 defaults — GA collected by default
+            (analytics_storage granted). Ads remain denied until explicit
+            measurement consent. PageTracker + analytics helpers re-check
+            consent before Meta/PostHog events, and GA no-ops only on
+            explicit opt-out (pnet-measurement-consent === 'denied'). */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -234,14 +236,18 @@ export default function RootLayout({ children }: RootLayoutProps) {
                 ad_storage: 'denied',
                 ad_user_data: 'denied',
                 ad_personalization: 'denied',
-                analytics_storage: 'denied',
+                analytics_storage: 'granted',
                 functionality_storage: 'denied',
                 personalization_storage: 'denied',
                 security_storage: 'granted',
                 wait_for_update: 500,
               });
               try {
-                if (window.localStorage.getItem('pnet-measurement-consent') === 'granted') {
+                if (window.localStorage.getItem('pnet-measurement-consent') === 'denied') {
+                  gtag('consent', 'update', {
+                    analytics_storage: 'denied',
+                  });
+                } else if (window.localStorage.getItem('pnet-measurement-consent') === 'granted') {
                   gtag('consent', 'update', {
                     ad_storage: 'granted',
                     ad_user_data: 'granted',
@@ -302,8 +308,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <PageTracker />
 
         {/* Google Analytics - script loads so Consent Mode works; PageTracker
-            sends a single page_view per route only when measurement consent
-            is granted. Init uses send_page_view:false to avoid double counting
+            sends a single page_view per route by default (opt-out only).
+            Init uses send_page_view:false to avoid double counting
             with the SPA tracker. */}
         {analyticsConfig.googleAnalytics.enabled && (
           <>

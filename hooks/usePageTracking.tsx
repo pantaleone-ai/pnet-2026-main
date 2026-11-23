@@ -29,7 +29,7 @@ function PageTrackingInner() {
     }
 
     // Google Analytics page tracking — single page_view per SPA route,
-    // consent-gated inside isGaEnabled (Consent Mode v2 + localStorage).
+    // collected by default (opt-out via isGaEnabled Consent Mode check).
     // Layout init uses send_page_view:false so this is the only page_view.
     if (isGaEnabled()) {
       window.gtag("event", "page_view", {
