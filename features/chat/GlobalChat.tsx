@@ -70,27 +70,24 @@ export default function GlobalChat() {
 
   return (
     <>
-      <div className="fixed right-[max(1rem,env(safe-area-inset-right))] bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 lg:right-[max(2rem,env(safe-area-inset-right))]">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              type="button"
-              size="icon"
-              onClick={() => setPopupOpen(!popupOpen)}
-              aria-label={
-                popupOpen
-                  ? "Close chat with Pantaleone Assistant"
-                  : "Open chat with Pantaleone Assistant"
-              }
-              aria-expanded={popupOpen}
-              className="size-12 rounded-full shadow-lg"
-            >
-              <MessageCircleIcon className="size-5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="left">Chat with us</TooltipContent>
-        </Tooltip>
-      </div>
+      {!popupOpen && (
+        <div className="fixed right-[max(1rem,env(safe-area-inset-right))] bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 lg:right-[max(2rem,env(safe-area-inset-right))]">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                size="icon"
+                onClick={() => setPopupOpen(true)}
+                aria-label="Open chat with Pantaleone Assistant"
+                className="size-12 rounded-full shadow-lg"
+              >
+                <MessageCircleIcon className="size-5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="left">Chat with us</TooltipContent>
+          </Tooltip>
+        </div>
+      )}
 
       <Sheet open={popupOpen} onOpenChange={setPopupOpen} modal={!isDesktop}>
         <SheetContent
