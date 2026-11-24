@@ -57,26 +57,49 @@ async function runCase({ q, expect, expectText }) {
   let buffer = "";
   let sources = [];
   let text = "";
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    const events = buffer.split("\n\n");
-    buffer = events.pop() ?? "";
-    for (const event of events) {
-      for (const line of event.split("\n")) {
-        const t = line.trim();
-        if (!t.startsWith("data:")) continue;
-        const data = t.slice(5).trim();
-        if (data === "[DONE]") continue;
-        try {
-          const json = JSON.parse(data);
-          if (json.sources) sources = json.sources;
-          if (json.delta) text += json.delta;
-        } catch {
-          // ignore
+  // Sources arrive in the first SSE event, before any generation tokens.
+  // Stop reading as soon as we have them: retrieval is what this eval
+  // measures, and it avoids paying for 20 full generations per run.
+  // (expectText cases keep reading until the text matches or the stream
+  // ends, capped — the fallback message arrives as deltas.)
+  let haveSources = false;
+  let chunks = 0;
+  try {
+    outer: for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      if (++chunks > 60) break;
+      const events = buffer.split("\n\n");
+      buffer = events.pop() ?? "";
+      for (const event of events) {
+        for (const line of event.split("\n")) {
+          const t = line.trim();
+          if (!t.startsWith("data:")) continue;
+          const data = t.slice(5).trim();
+          if (data === "[DONE]") continue;
+          try {
+            const json = JSON.parse(data);
+            if (json.sources) {
+              sources = json.sources;
+              haveSources = true;
+            }
+            if (json.delta) text += json.delta;
+          } catch {
+            // ignore
+          }
+          if (haveSources && !expectText) break outer;
+          if (expectText && text.toLowerCase().includes(expectText)) {
+            break outer;
+          }
         }
       }
+    }
+  } finally {
+    try {
+      await reader.cancel();
+    } catch {
+      // already closed
     }
   }
   if (expectText) {

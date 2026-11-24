@@ -25,6 +25,18 @@
 	"ai": {
 		"binding": "AI"
 	},
+	"vectorize": [
+		{
+			"binding": "VECTORIZE",
+			"index_name": "pnet-chat-index"
+		}
+	],
+	"kv_namespaces": [
+		{
+			"binding": "CHAT_ANALYTICS",
+			"id": "b811d0f5bc4a40b1a5c86ac8ff33af64"
+		}
+	],
 	"observability": {
 		"enabled": true,
 		"head_sampling_rate": 1,

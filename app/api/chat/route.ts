@@ -6,7 +6,13 @@ import {
   CHAT_MAX_MESSAGE_LENGTH,
   chatPayloadSchema,
 } from "@/lib/validations/chat";
-import { searchChatCorpus, type ChatRetrievalHit } from "@/lib/chat-retrieval";
+import {
+  docKey,
+  findDocsBySlugs,
+  fuseRanks,
+  searchChatCorpus,
+  type ChatRetrievalHit,
+} from "@/lib/chat-retrieval";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -28,14 +34,43 @@ const CHAT_MODEL = "@cf/google/gemma-4-26b-a4b-it";
 const EMBED_MODEL = "@cf/qwen/qwen3-embedding-0.6b";
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
 const SITE_URL = "https://www.pantaleone.net";
+// Kill switches (env): CHAT_NO_RERANK=1 forces lexical order;
+// CHAT_VECTORIZE=1 enables the Vectorize index leg. Default off: the index
+// leg scored 17/20 vs the 19/20 lexical+RRF baseline on the eval set
+// (2026-11-24) and stays opt-in until a recipe beats the baseline.
+const VECTORIZE_ENABLED = process.env.CHAT_VECTORIZE === "1";
+const VECTORIZE_TOP_K = 12;
 
-async function getAIBinding(): Promise<CloudflareAI | null> {
+type ChatBindings = {
+  ai: CloudflareAI | null;
+  vectorize: CloudflareVectorize | null;
+  kv: CloudflareKV | null;
+  waitUntil: ((p: Promise<unknown>) => void) | null;
+};
+
+async function getChatBindings(): Promise<ChatBindings> {
+  const empty: ChatBindings = {
+    ai: null,
+    vectorize: null,
+    kv: null,
+    waitUntil: null,
+  };
   try {
-    const { env } = await getCloudflareContext({ async: true });
-    return env.AI ?? null;
+    const context = (await getCloudflareContext({
+      async: true,
+    })) as unknown as {
+      env?: Partial<CloudflareEnv>;
+      ctx?: { waitUntil?: (p: Promise<unknown>) => void };
+    };
+    return {
+      ai: context?.env?.AI ?? null,
+      vectorize: context?.env?.VECTORIZE ?? null,
+      kv: context?.env?.CHAT_ANALYTICS ?? null,
+      waitUntil: context?.ctx?.waitUntil ?? null,
+    };
   } catch {
-    // Local dev without the Cloudflare runtime: no AI binding.
-    return null;
+    // Local dev without the Cloudflare runtime: no bindings.
+    return empty;
   }
 }
 
@@ -56,29 +91,13 @@ function cosineSimilarity(a: number[], b: number[]): number {
 }
 
 /**
- * Embedding rerank: lexical shortlist first (cheap, deterministic), then
- * fuse lexical rank with embedding-similarity rank via reciprocal rank
- * fusion. Pure cosine reorder demonstrably demotes strong lexical hits on
- * this corpus (eval 19→17); RRF keeps lexical winners unless the
- * embeddings disagree across the pool. Throws on AI failure so the caller
- * keeps lexical order as fallback.
+ * Single batched embedding call. Returns one vector per input text, in
+ * order. Throws on shape mismatch so callers keep lexical order.
  */
-async function rerankWithEmbeddings(
+async function embedTexts(
   ai: CloudflareAI,
-  question: string,
-  hits: ChatRetrievalHit[],
-): Promise<ChatRetrievalHit[]> {
-  const pool = hits.slice(0, RERANK_POOL);
-  if (pool.length <= 1) return hits;
-  const texts = [
-    question.slice(0, EMBED_TEXT_CHARS),
-    ...pool.map((h) =>
-      `${h.title}\n${h.description}\n${h.excerpt}`.slice(
-        0,
-        EMBED_TEXT_CHARS,
-      ),
-    ),
-  ];
+  texts: string[],
+): Promise<number[][]> {
   const result = (await ai.run(EMBED_MODEL, { text: texts })) as {
     shape?: number[];
     data?: number[][];
@@ -87,27 +106,104 @@ async function rerankWithEmbeddings(
   if (!Array.isArray(vectors) || vectors.length !== texts.length) {
     throw new Error("Unexpected embedding response shape");
   }
-  const queryVector = vectors[0];
-  if (!queryVector) throw new Error("Missing query embedding");
-  const embeddingRank = new Map<ChatRetrievalHit, number>(
-    pool
-      .map((hit, i) => ({
-        hit,
-        similarity: cosineSimilarity(queryVector, vectors[i + 1] ?? []),
-      }))
-      .sort((a, b) => b.similarity - a.similarity)
-      .map(({ hit }, rank) => [hit, rank + 1] as const),
-  );
-  const K = 60;
+  return vectors;
+}
+
+function orderByCosine(
+  pool: ChatRetrievalHit[],
+  queryVector: number[],
+  vectors: number[][],
+): ChatRetrievalHit[] {
   return pool
-    .map((hit, lexicalRank) => ({
+    .map((hit, i) => ({
       hit,
-      score:
-        1 / (K + (lexicalRank + 1)) +
-        1 / (K + (embeddingRank.get(hit) ?? pool.length + 1)),
+      similarity: cosineSimilarity(queryVector, vectors[i] ?? []),
     }))
-    .sort((a, b) => b.score - a.score)
+    .sort((a, b) => b.similarity - a.similarity)
     .map(({ hit }) => hit);
+}
+
+function lengthBucket(n: number): "short" | "medium" | "long" {
+  if (n < 30) return "short";
+  if (n < 100) return "medium";
+  return "long";
+}
+
+function hashQuery(q: string): string {
+  let h = 0x811c9dc5;
+  const s = q.trim().toLowerCase();
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h.toString(16).padStart(8, "0");
+}
+
+export type TurnReport = {
+  path: string;
+  model?: string;
+  promptTokens?: number | null;
+  completionTokens?: number | null;
+};
+
+/**
+ * Usage analytics (Stage 2 foundation). Per-turn aggregates plus
+ * zero-result query capture (raw text ≤200 chars, owner-approved for
+ * search-term mining). Best-effort: analytics never breaks chat.
+ * Keys expire after 90 days.
+ */
+async function recordAnalytics(
+  kv: CloudflareKV,
+  entry: TurnReport & {
+    sources: number;
+    promptChars: number;
+    promptBucket: "short" | "medium" | "long";
+    retrievalMs: number;
+    zeroResult: boolean;
+    question: string;
+  },
+): Promise<void> {
+  const TTL = 90 * 24 * 3600;
+  const day = new Date().toISOString().slice(0, 10);
+  try {
+    const dayKey = `day:${day}`;
+    const cur = JSON.parse((await kv.get(dayKey)) ?? "{}") as Record<
+      string,
+      unknown
+    >;
+    const paths = (cur.paths ?? {}) as Record<string, number>;
+    paths[entry.path] = (paths[entry.path] ?? 0) + 1;
+    const models = (cur.models ?? {}) as Record<string, number>;
+    if (entry.model) models[entry.model] = (models[entry.model] ?? 0) + 1;
+    await kv.put(
+      dayKey,
+      JSON.stringify({
+        turns: ((cur.turns as number) ?? 0) + 1,
+        paths,
+        models,
+        zeroResults: ((cur.zeroResults as number) ?? 0) + (entry.zeroResult ? 1 : 0),
+      }),
+      { expirationTtl: TTL },
+    );
+    if (entry.zeroResult) {
+      const zkey = `zero:${day}:${hashQuery(entry.question)}`;
+      const z = JSON.parse((await kv.get(zkey)) ?? "{}") as Record<
+        string,
+        unknown
+      >;
+      await kv.put(
+        zkey,
+        JSON.stringify({
+          q: entry.question,
+          n: ((z.n as number) ?? 0) + 1,
+          first: (z.first as number) ?? Date.now(),
+        }),
+        { expirationTtl: TTL },
+      );
+    }
+  } catch {
+    // Analytics is observability, not the product path.
+  }
 }
 
 const limiter = rateLimit({
@@ -147,6 +243,7 @@ function sseEncode(payload: unknown): Uint8Array {
 function streamExtractiveFallback(
   question: string,
   context: ReturnType<typeof buildContext>,
+  report?: (r: TurnReport) => void,
 ): Response {
   const lines =
     context.length > 0
@@ -172,6 +269,7 @@ function streamExtractiveFallback(
       promptChars: question.length,
     },
   });
+  report?.({ path: "fallback" });
 
   const stream = new ReadableStream({
     start(controller) {
@@ -208,6 +306,7 @@ async function streamFromWorkersAI(
   message: string,
   history: { role: "user" | "assistant"; content: string }[],
   context: ReturnType<typeof buildContext>,
+  report?: (r: TurnReport) => void,
 ): Promise<Response> {
   const contextBlock = context
     .map((c) => `SOURCE: ${c.title} (${c.url})\n${c.excerpt}`)
@@ -278,6 +377,7 @@ async function streamFromWorkersAI(
             promptChars: message.length,
           },
         });
+        report?.({ path: "workers-ai", model: CHAT_MODEL });
       }
     },
   });
@@ -291,6 +391,7 @@ async function streamFromOpenAI(
   message: string,
   history: { role: "user" | "assistant"; content: string }[],
   context: ReturnType<typeof buildContext>,
+  report?: (r: TurnReport) => void,
 ): Promise<Response> {
   const contextBlock = context
     .map((c) => `SOURCE: ${c.title} (${c.url})\n${c.excerpt}`)
@@ -324,7 +425,7 @@ async function streamFromOpenAI(
       context: "chat-api",
       meta: { status: upstream.status },
     });
-    return streamExtractiveFallback(message, context);
+    return streamExtractiveFallback(message, context, report);
   }
 
   const sourcesChunk = sseEncode({ sources: context });
@@ -381,6 +482,12 @@ async function streamFromOpenAI(
             promptChars: message.length,
           },
         });
+        report?.({
+          path: "model",
+          model: OPENAI_MODEL,
+          promptTokens,
+          completionTokens,
+        });
       }
     },
   });
@@ -431,36 +538,125 @@ export async function POST(request: Request) {
     const { message, history } = parsed.data;
     void CHAT_MAX_MESSAGE_LENGTH;
 
-    const ai = await getAIBinding();
+    const bindings = await getChatBindings();
+    const { ai, vectorize, kv, waitUntil } = bindings;
 
-    let hits = searchChatCorpus(message);
-    if (RERANK_ENABLED && ai && hits.length > 1) {
+    const retrievalStart = Date.now();
+    const lexical = searchChatCorpus(message);
+    let ranked = lexical;
+    if (RERANK_ENABLED && ai && lexical.length > 1) {
       try {
-        const reranked = await rerankWithEmbeddings(ai, message, hits);
-        hits = reranked;
+        const pool = lexical.slice(0, RERANK_POOL);
+        const vectors = await embedTexts(ai, [
+          message.slice(0, EMBED_TEXT_CHARS),
+          ...pool.map((h) =>
+            `${h.title}\n${h.description}\n${h.excerpt}`.slice(
+              0,
+              EMBED_TEXT_CHARS,
+            ),
+          ),
+        ]);
+        const queryVector = vectors[0];
+        if (!queryVector) throw new Error("Missing query embedding");
+        const lists: ChatRetrievalHit[][] = [
+          pool,
+          orderByCosine(pool, queryVector, vectors.slice(1)),
+        ];
+        if (VECTORIZE_ENABLED && vectorize) {
+          try {
+            const res = await vectorize.query(queryVector, {
+              topK: VECTORIZE_TOP_K,
+              returnMetadata: "all",
+            });
+            const candidates = res.matches
+              .map((m) => m.metadata)
+              .filter(
+                (md): md is { type: string; slug: string } =>
+                  !!md &&
+                  typeof md.type === "string" &&
+                  typeof md.slug === "string",
+              );
+            const vecHits = findDocsBySlugs(candidates, message);
+            if (vecHits.length > 0) lists.push(vecHits);
+            logger.info("chat vectorize", {
+              context: "chat-api",
+              meta: { matches: res.count },
+            });
+          } catch (error) {
+            // Index leg is additive — cosine fusion still applies.
+            logger.warn("Vectorize query failed, skipping index leg", {
+              context: "chat-api",
+              meta: {
+                error: error instanceof Error ? error.message : String(error),
+              },
+            });
+          }
+        }
+        const fused = fuseRanks(lists);
+        const fusedKeys = new Set(fused.map(docKey));
+        ranked = [
+          ...fused,
+          ...lexical.filter((h) => !fusedKeys.has(docKey(h))),
+        ];
         logger.info("chat rerank", {
           context: "chat-api",
-          meta: { model: EMBED_MODEL, pool: Math.min(hits.length, RERANK_POOL) },
+          meta: {
+            model: EMBED_MODEL,
+            pool: pool.length,
+            vectorize: lists.length > 2,
+          },
         });
       } catch (error) {
-        // Embedding rerank is an enhancement — lexical order stands.
-        logger.warn("Embedding rerank failed, using lexical order", {
+        // Semantic legs are enhancements — lexical order stands.
+        logger.warn("Semantic rerank failed, using lexical order", {
           context: "chat-api",
           meta: { error: error instanceof Error ? error.message : String(error) },
         });
       }
     }
+    const retrievalMs = Date.now() - retrievalStart;
 
     let context: ReturnType<typeof buildContext> = [];
     try {
-      context = buildContext(hits);
+      context = buildContext(ranked);
     } catch (error) {
       logger.error("Chat retrieval failed", error, { context: "chat-api" });
     }
 
+    // Usage analytics: structured per-turn record (KV, 90-day TTL) plus
+    // the log line. Raw question text (≤200 chars) is stored owner-approved
+    // for zero-result search-term mining.
+    const report = (r: TurnReport) => {
+      if (!kv) return;
+      const task = recordAnalytics(kv, {
+        ...r,
+        sources: context.length,
+        promptChars: message.length,
+        promptBucket: lengthBucket(message.length),
+        retrievalMs,
+        zeroResult: context.length === 0,
+        question: message.slice(0, 200),
+      });
+      if (waitUntil) {
+        try {
+          waitUntil(task);
+        } catch {
+          void task.catch(() => {});
+        }
+      } else {
+        void task.catch(() => {});
+      }
+    };
+
     if (ai) {
       try {
-        return await streamFromWorkersAI(ai, message, history ?? [], context);
+        return await streamFromWorkersAI(
+          ai,
+          message,
+          history ?? [],
+          context,
+          report,
+        );
       } catch (error) {
         logger.error("Workers AI chat failed, trying OpenAI", error, {
           context: "chat-api",
@@ -468,9 +664,9 @@ export async function POST(request: Request) {
       }
     }
     if (process.env.OPENAI_API_KEY) {
-      return streamFromOpenAI(message, history ?? [], context);
+      return streamFromOpenAI(message, history ?? [], context, report);
     }
-    return streamExtractiveFallback(message, context);
+    return streamExtractiveFallback(message, context, report);
   } catch (error) {
     logger.error("Unexpected error in chat API", error, {
       context: "chat-api",

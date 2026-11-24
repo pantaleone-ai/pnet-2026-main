@@ -98,6 +98,51 @@ function termsFor(query: string): string[] {
 }
 
 /**
+ * Resolves Vectorize matches (which carry only metadata) back to full
+ * corpus hits. Used to fuse semantic index results with lexical order.
+ */
+export function findDocsBySlugs(
+  items: { type: string; slug: string }[],
+  query: string,
+): ChatRetrievalHit[] {
+  const docs = (corpus as { docs: ChatSourceDoc[] }).docs;
+  const lowered = query.trim().toLowerCase();
+  const out: ChatRetrievalHit[] = [];
+  for (const item of items) {
+    const doc = docs.find((d) => d.type === item.type && d.slug === item.slug);
+    if (doc) {
+      out.push({ ...doc, score: 0, excerpt: excerptAround(doc.content, lowered) });
+    }
+  }
+  return out;
+}
+
+/**
+ * Reciprocal rank fusion over id-keyed hit lists. Preserves lexical winners
+ * unless semantic signals disagree across the pool (pure cosine reorder
+ * demonstrably demotes strong lexical hits on this corpus).
+ */
+export function docKey(h: { type: string; slug: string }): string {
+  return `${h.type}/${h.slug}`;
+}
+
+export function fuseRanks(lists: ChatRetrievalHit[][]): ChatRetrievalHit[] {
+  const K = 60;
+  const seen = new Map<string, { hit: ChatRetrievalHit; score: number }>();
+  for (const list of lists) {
+    list.forEach((hit, i) => {
+      const key = docKey(hit);
+      const entry = seen.get(key) ?? { hit, score: 0 };
+      entry.score += 1 / (K + (i + 1));
+      seen.set(key, entry);
+    });
+  }
+  return [...seen.values()]
+    .sort((a, b) => b.score - a.score)
+    .map((e) => e.hit);
+}
+
+/**
  * Pure, runtime-safe retrieval over the build-time corpus
  * (scripts/build-chat-corpus.mjs). No fs, no network — identical results
  * on Node, Vercel, and Cloudflare Workers.
