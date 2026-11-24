@@ -6,6 +6,7 @@ import {
   // GraduationCapIcon as EducationIcon,
   // FileTextIcon as ExperienceIcon,
   LayoutGridIcon as AppsIcon,
+  MessageCircleIcon as ChatIcon,
   // MailIcon as ContactIcon,
   ShoppingCartIcon as ShopIcon,
   BrainIcon,
@@ -107,6 +108,11 @@ const NAVIGATION_LINKS: NavigationLinkType[] = [
     icon: AppsIcon,
     href: "/apps",
     label: "Apps",
+  },
+  {
+    icon: ChatIcon,
+    href: "/chat",
+    label: "Chat",
   },
 
   {

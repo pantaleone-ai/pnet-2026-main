@@ -47,6 +47,8 @@
     "content:validate": "npm run editorial && npm run anti-slop:build && node modules/anti-slop/dist/cli.js audit --type markdown features/blog/content features/projects/content features/shop/content",
     "campaign:test": "tsx scripts/campaign-test.ts",
     "campaign:tick": "tsx scripts/campaign-tick.ts",
+    "chat:corpus": "node scripts/build-chat-corpus.mjs",
+    "chat:eval": "node scripts/chat-eval.mjs",
     "content:labels": "tsx scripts/content-issues/labels.ts",
     "content:seed": "tsx scripts/content-issues/seed-backlog.ts",
     "content:next": "tsx scripts/content-issues/pick-next.ts",

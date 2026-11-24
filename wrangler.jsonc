@@ -22,6 +22,18 @@
 			"service": "pantaleonenet"
 		}
 	],
+	"ai": {
+		"binding": "AI"
+	},
+	"observability": {
+		"enabled": true,
+		"head_sampling_rate": 1,
+		"logs": {
+			"enabled": true,
+			"head_sampling_rate": 1,
+			"invocation_logs": true
+		}
+	},
 	"r2_buckets": [
 		// Use R2 incremental cache
 		// See https://opennext.js.org/cloudflare/caching
