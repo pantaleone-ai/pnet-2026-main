@@ -7,6 +7,7 @@ import {
   chatPayloadSchema,
 } from "@/lib/validations/chat";
 import {
+  MIN_LEXICAL_SCORE,
   docKey,
   findDocsBySlugs,
   fuseRanks,
@@ -223,11 +224,9 @@ const limiter = rateLimit({
   uniqueTokenPerInterval: 1000,
 });
 
-function toSourceUrl(item: {
-  type: string;
-  slug: string;
-}): string {
+function toSourceUrl(item: { type: string; slug: string; category?: string }): string {
   if (item.type === "blog") return `${SITE_URL}/blog/${item.slug}`;
+  if (item.category) return `${SITE_URL}/shop/${item.category}/${item.slug}`;
   return `${SITE_URL}/shop`;
 }
 
@@ -235,7 +234,7 @@ function buildContext(results: ChatRetrievalHit[]) {
   return results.slice(0, RETRIEVAL_TOP_K).map((r) => ({
     title: r.title,
     type: r.type,
-    url: toSourceUrl({ type: r.type, slug: r.slug }),
+    url: toSourceUrl({ type: r.type, slug: r.slug, category: r.category }),
     excerpt: r.excerpt || "",
   }));
 }
@@ -245,6 +244,10 @@ const SYSTEM_PROMPT = [
   "Answer in direct, plain language using ONLY the site context provided.",
   "If the context does not contain the answer, say so and point to",
   "https://www.pantaleone.net/contact.",
+  "Relevance check before answering: if none of the sources actually answer",
+  "the question (for example hiring, pricing, contact details, or anything",
+  "off-topic), say you cannot help from site content and point to the contact",
+  "page. Never force an answer from unrelated sources.",
   "Never invent URLs, prices, dates, or facts. Cite the source titles you used.",
 ].join(" ");
 
@@ -626,6 +629,14 @@ export async function POST(request: Request) {
       }
     }
     const retrievalMs = Date.now() - retrievalStart;
+
+    // Relevance floor: exact matches need title-level evidence (10+).
+    // Weak single-content-word hits become honest fallbacks instead of
+    // confident answers from unrelated pages. Fuzzy typo-rescues and
+    // Vectorize rescues pass through on their own signal.
+    ranked = ranked.filter(
+      (h) => h.origin !== "lexical" || (h.score ?? 0) >= MIN_LEXICAL_SCORE,
+    );
 
     let context: ReturnType<typeof buildContext> = [];
     try {

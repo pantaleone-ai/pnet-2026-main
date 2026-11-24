@@ -31,6 +31,14 @@ async function mdxFiles(dir) {
   return files;
 }
 
+// Mirrors getProductCategorySlug in lib/helpers.ts (kept in sync manually):
+// product citations deep-link to /shop/[category]/[slug] instead of the
+// catalog root, so sources identify the exact product.
+const PRODUCT_CATEGORY_SLUGS = {
+  Apps: "ai-apps",
+  "Ai Workflows": "ai-workflows",
+};
+
 async function loadDocs(contentDir, type) {
   const dir = path.join(ROOT, contentDir);
   let files = [];
@@ -45,13 +53,19 @@ async function loadDocs(contentDir, type) {
     const { data, content } = matter(raw);
     if (!data.title) continue;
     const slug = path.basename(file, ".mdx");
-    docs.push({
+    const doc = {
       type,
       slug,
       title: String(data.title),
       description: String(data.description || ""),
       content: content.trim().slice(0, MAX_CONTENT_CHARS),
-    });
+    };
+    if (type === "product" && typeof data.category === "string") {
+      doc.category =
+        PRODUCT_CATEGORY_SLUGS[data.category] ||
+        data.category.toLowerCase().replace(/\s+/g, "-");
+    }
+    docs.push(doc);
   }
   return docs;
 }

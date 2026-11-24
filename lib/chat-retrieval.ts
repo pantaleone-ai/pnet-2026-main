@@ -8,7 +8,17 @@ export type ChatSourceDoc = {
   title: string;
   description: string;
   content: string;
+  /** Product category slug (e.g. ai-apps) — deep-links citations to /shop/[category]/[slug]. */
+  category?: string;
+  /**
+   * Provenance: exact lexical matches need title-level evidence
+   * (MIN_LEXICAL_SCORE) to count; fuzzy typo-rescues and Vectorize
+   * rescues pass through on the strength of their own signal.
+   */
+  origin?: "lexical" | "fuzzy" | "vector";
 };
+
+export const MIN_LEXICAL_SCORE = 10;
 
 export type ChatRetrievalHit = ChatSourceDoc & {
   excerpt: string;
@@ -21,6 +31,9 @@ const FUZZY_THRESHOLD = 2;
 // Same scoring weights as site search (lib/search-server.ts): title +10,
 // slug +8, description +6, content +4. Kept in sync manually — if the
 // weights change there, update here and re-run scripts/chat-eval.mjs.
+// Body-text matching requires 4+ char terms: short tokens ("sea", "aid")
+// match inside unrelated longer words ("research") and fabricate
+// confident-looking hits out of off-topic queries.
 function scoreDoc(doc: ChatSourceDoc, terms: string[]): number {
   let score = 0;
   const title = doc.title.toLowerCase();
@@ -31,7 +44,7 @@ function scoreDoc(doc: ChatSourceDoc, terms: string[]): number {
     if (title.includes(word)) score += 10;
     if (slug.includes(word)) score += 8;
     if (description.includes(word)) score += 6;
-    if (content.includes(word)) score += 4;
+    if (word.length >= 4 && content.includes(word)) score += 4;
   }
   return score;
 }
@@ -87,13 +100,15 @@ function excerptAround(content: string, query: string): string {
 
 // Stopword/short-token filtering mirrors lib/search-server.ts scoring:
 // ubiquitous tokens score equally everywhere and only add ranking noise.
+// "about" and "write" are included: alone they carried entire off-topic
+// queries ("write a poem") to confident citations.
 const STOPWORDS = new Set([
   "a", "an", "and", "are", "as", "at", "be", "but", "by", "can", "did",
   "do", "does", "for", "from", "had", "has", "have", "how", "if", "in",
   "is", "it", "its", "me", "my", "of", "on", "or", "our", "should",
   "so", "that", "the", "they", "this", "to", "was", "we", "what",
   "when", "where", "which", "who", "why", "will", "with", "you",
-  "your",
+  "your", "about", "write", "get", "give", "much",
 ]);
 
 function termsFor(query: string): string[] {
@@ -118,7 +133,12 @@ export function findDocsBySlugs(
   for (const item of items) {
     const doc = docs.find((d) => d.type === item.type && d.slug === item.slug);
     if (doc) {
-      out.push({ ...doc, score: 0, excerpt: excerptAround(doc.content, lowered) });
+      out.push({
+        ...doc,
+        score: 0,
+        origin: "vector" as const,
+        excerpt: excerptAround(doc.content, lowered),
+      });
     }
   }
   return out;
@@ -167,9 +187,20 @@ export function searchChatCorpus(query: string): ChatRetrievalHit[] {
     .filter((h) => h.score > 0);
 
   if (hits.length === 0) {
+    // Genuine typo path: fuzzy matches pass through regardless of the
+    // lexical floor below — a near-miss on a real term is strong evidence.
     hits = docs
       .map((doc) => ({ doc, score: fuzzyScore(doc, terms) }))
       .filter((h) => h.score > 0);
+    return hits
+      .sort((a, b) => b.score - a.score)
+      .slice(0, SEARCH_MAX_RESULTS)
+      .map(({ doc, score }) => ({
+        ...doc,
+        score,
+        origin: "fuzzy" as const,
+        excerpt: excerptAround(doc.content, lowered),
+      }));
   }
 
   return hits
@@ -178,6 +209,7 @@ export function searchChatCorpus(query: string): ChatRetrievalHit[] {
     .map(({ doc, score }) => ({
       ...doc,
       score,
+      origin: "lexical" as const,
       excerpt: excerptAround(doc.content, lowered),
     }));
 }
