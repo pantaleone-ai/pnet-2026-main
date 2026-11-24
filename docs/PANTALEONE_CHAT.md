@@ -160,6 +160,36 @@ dependency (responsive Sheet covers both), no backend message fetch
 CTA only), no Message/Bubble component set (custom transcript reuses
 shadcn Button/Textarea/Sheet/Skeleton/Tooltip).
 
+## Stage 2 execution (in progress, branch `feat/chat-stage2`)
+
+**1. Asymmetric embeddings — DONE (index re-seeded).**
+`npm run chat:index [--mode compact|full]` (default compact: title +
+description only, 500 chars). Compact is the fair-rematch candidate
+against the full-body vectors that lost the gate. Record the active
+mode here when changed. Currently: **compact**.
+
+**2. Per-query index fallback — DONE (code).**
+The Vectorize leg runs only when the lexical top-1 score is weak
+(`WEAK_LEXICAL_TOP_SCORE = 10`, i.e. no title-level match) AND the
+master switch allows it. Strong lexical matches skip the extra
+embedding+index latency entirely. Switch: `CHAT_VECTORIZE=1` enables the
+leg (default OFF until the 50-question eval beats the 20/20 baseline).
+
+**3. Eval: 20 → 50 questions — DONE.**
+Paraphrase pairs, shop-product coverage, honest fallbacks
+(pricing/refunds), off-topic honesty (`expectEmpty`), and prompt-injection
+resistance with leak detection (`expectAbsent`, e.g. system-prompt
+phrases must never appear). Gates: overall ≥ 90%, adversarial 100%.
+
+**4. Analytics loop — DONE (code) + weekly runbook.**
+`via` (suggestion/typed/retry) and conversation-depth buckets
+(first/followup/deep) flow into the KV day aggregates; `npm run
+chat:analytics` prints via/depth breakdowns plus per-question coverage
+hints ("possibly covered by: slug" vs "genuine gap candidate"). Weekly:
+run the report, turn top zero-result questions into corpus keywords,
+aliases, or new content; prune/replace suggestion chips with low
+click-through (via=suggestion share falling while typed rises).
+
 ## 4. Verification- `npx tsc --noEmit` (must pass).
 - `npx eslint` on new/changed files (must pass).
 - `node scripts/chat-eval.mjs <base-url>` against a running server:
