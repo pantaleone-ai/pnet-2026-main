@@ -129,19 +129,17 @@ One assistant, one backend, one conversation state, two presentations:
 
 ## Stage 2 status (2026-11-24)
 
-**Vectorize: provisioned, seeded, gated OFF by default.**
-Index `pnet-chat-index` (1024 dims, cosine) holds all 46 corpus docs
-(seed: `npm run chat:index`, stable hash IDs, metadata carries
-type/slug/title). Query path fuses lexical + embedding-cosine +
-Vectorize ranks with RRF. Measured on the eval set against the live
-preview: **17/20 vs the 19/20 lexical+RRF baseline** — the index leg
-demoted two previously-passing cases, so it stays opt-in
-(`CHAT_VECTORIZE=1`) until a recipe beats the baseline. Prime suspect:
-symmetric cosine between short queries and 2000-char doc embeddings.
-Next experiments, in order: (1) lexical-weighted RRF (2× lexical weight),
-(2) asymmetric candidates (title+description only, or chunked doc
-embeddings), (3) per-query fallback (use index leg only when lexical
-top-1 score is weak).
+**Vectorize: provisioned, seeded, evaluated — stays OFF.**
+Index `pnet-chat-index` (1024 dims, cosine, 46 docs) is live and queryable,
+but the eval series decided its status: pure-cosine rerank 17/20,
+unweighted 3-way fusion 17/20, lexical+RRF 19/20 — the index leg demoted
+previously-passing cases, so it stays opt-in (`CHAT_VECTORIZE=1`).
+Shipped instead: **weighted RRF with 2× lexical weight**, which scored
+**20/20 on the live preview**, fixing both the readiness tie-flip and the
+Docker morphology gap with no index. Query terms are punctuation-stripped
+before scoring ("business?" now matches "business"). Next experiments if
+quality regresses: asymmetric embedding candidates, chunked doc vectors,
+per-query index fallback.
 
 **Usage analytics: live.** Every turn writes a structured record to the
 `CHAT_ANALYTICS` KV namespace (90-day TTL): per-day aggregates
