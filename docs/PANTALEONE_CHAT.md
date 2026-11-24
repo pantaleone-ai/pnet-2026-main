@@ -147,9 +147,14 @@ top-1 score is weak).
 `CHAT_ANALYTICS` KV namespace (90-day TTL): per-day aggregates
 (turns, paths, models, zero-result count) plus raw zero-result questions
 (≤200 chars, owner-approved) for search-term mining. Report:
-`npm run chat:analytics`. Retention decision recorded here: 90-day TTL,
-question text only, no PII scrubbing yet — revisit before any
-multi-tenant phase.
+`npm run chat:analytics` (reads the production namespace via `--remote`;
+bare wrangler kv commands hit local dev storage). Two hard-won notes:
+writes fire when the generation path is chosen, not when the stream
+finishes — stream-finally writes silently dropped abandoned streams;
+and fuzzy matching ignores tokens under 4 chars after a gibberish query
+matched the stopword "for" and fabricated citations. Retention decision
+recorded here: 90-day TTL, question text only, no PII scrubbing yet —
+revisit before any multi-tenant phase.
 
 Adaptations from the original responsive plan: no Drawer/vaul
 dependency (responsive Sheet covers both), no backend message fetch

@@ -37,9 +37,13 @@ function wrangler(...a) {
   });
 }
 
+// NOTE: wrangler kv commands default to LOCAL dev storage. Analytics must
+// read the production namespace, hence --remote on every command.
+const REMOTE = ["--remote"];
+
 const NS = namespaceId();
 const keys = JSON.parse(
-  wrangler("kv", "key", "list", "--namespace-id", NS),
+  wrangler("kv", "key", "list", "--namespace-id", NS, ...REMOTE),
 ).map((k) => k.name);
 
 const cutoff = new Date();
@@ -55,7 +59,15 @@ const zeroKeys = keys.filter(
 
 function get(key) {
   try {
-    const out = wrangler("kv", "key", "get", key, "--namespace-id", NS);
+    const out = wrangler(
+      "kv",
+      "key",
+      "get",
+      key,
+      "--namespace-id",
+      NS,
+      ...REMOTE,
+    );
     return JSON.parse(out);
   } catch {
     return null;
