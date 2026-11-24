@@ -93,9 +93,36 @@ owner actions (see §5).
   (shared by chat retrieval and site search; snippet extraction
   unchanged).
 
-## 4. Verification
+## Chat UI architecture (Stage 1 responsive pass)
 
-- `npx tsc --noEmit` (must pass).
+One assistant, one backend, one conversation state, two presentations:
+
+- `features/chat/store.ts` — message/conversation types, localStorage
+  persistence (`pnet-chat:v1` + `pnet-chat:active-id`). localStorage is
+  the store of record; there is no backend conversation table yet
+  (Stage 2). No sensitive data is persisted.
+- `features/chat/ChatProvider.tsx` — single state machine (messages,
+  streaming, error + retry, popup open state). Mounted once via
+  `ChatHost` in `app/(app)/layout.tsx`, so the transcript survives page
+  navigation.
+- `features/chat/ChatPanel.tsx` — shared transcript + suggestions +
+  composer, used by both `/chat` (page variant, 800px) and the popup.
+  `/chat` opened from the popup continues the same conversation.
+- `features/chat/GlobalChat.tsx` — floating launcher (hidden on
+  `/chat`) + responsive Sheet: floating 420px card on desktop,
+  92dvh bottom sheet on mobile. Panel code is lazy-loaded with
+  `next/dynamic` — no chat bytes or backend calls until first open.
+- `ChatTranscript` (collapsible sources, thinking dots, stick-to-bottom
+  autoscroll), `ChatComposer` (autogrow, Enter-to-send, safe-area
+  padding), `ChatMarkdown` (GFM, safe links).
+
+Adaptations from the original responsive plan: no Drawer/vaul
+dependency (responsive Sheet covers both), no backend message fetch
+(no D1 yet — documented Stage 2 hook), no lead-capture forms (contact
+CTA only), no Message/Bubble component set (custom transcript reuses
+shadcn Button/Textarea/Sheet/Skeleton/Tooltip).
+
+## 4. Verification- `npx tsc --noEmit` (must pass).
 - `npx eslint` on new/changed files (must pass).
 - `node scripts/chat-eval.mjs <base-url>` against a running server:
   20 questions, citation-hit gate ≥ 80%. Baseline 2026-11-23: **19/20**

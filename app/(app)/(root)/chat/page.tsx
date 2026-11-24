@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import ChatPanel from "./_ChatPanel";
+import ChatPanel from "@/features/chat/ChatPanel";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Pantaleone Chat | Pantaleone",
+    absolute: "Pantaleone Assistant | Pantaleone",
   },
   description:
-    "Ask about the work, writing, and products on https://www.pantaleone.net. Answers come from published site content.",
+    "Ask about Pantaleone, our products, AI, or business automation. Answers come from published content on https://www.pantaleone.net.",
   alternates: {
     canonical: "https://www.pantaleone.net/chat",
   },
@@ -17,5 +17,11 @@ export const metadata: Metadata = {
 };
 
 export default function ChatPage() {
-  return <ChatPanel />;
+  return (
+    <div className="mx-auto flex w-full max-w-[800px] flex-col px-4 py-10">
+      <div className="flex min-h-[70dvh] flex-col rounded-xl border border-border bg-card p-4">
+        <ChatPanel variant="page" />
+      </div>
+    </div>
+  );
 }

@@ -1,0 +1,93 @@
+export type Role = "user" | "assistant";
+
+export type Source = { title: string; type: string; url: string };
+
+export type ChatMessage = {
+  role: Role;
+  content: string;
+  sources?: Source[];
+};
+
+export type StoredConversation = {
+  id: string;
+  title: string;
+  updatedAt: string;
+  messages: ChatMessage[];
+};
+
+export const SITE_URL = "https://www.pantaleone.net";
+export const ASSISTANT_NAME = "Pantaleone Assistant";
+
+const STORAGE_KEY = "pnet-chat:v1";
+const ACTIVE_ID_KEY = "pnet-chat:active-id";
+export const MAX_STORED_CONVERSATIONS = 20;
+export const MAX_STORED_MESSAGES = 60;
+
+export const GREETING: ChatMessage = {
+  role: "assistant",
+  content:
+    "Hello. Ask about Pantaleone, our products, AI, or business automation. I answer from published site content and say so when something is not covered.",
+};
+
+function makeId(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+  return `c-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+export function newConversationId(): string {
+  return makeId();
+}
+
+export function titleFor(messages: ChatMessage[]): string {
+  const firstUser = messages.find((m) => m.role === "user");
+  const base = (firstUser?.content ?? "New conversation").trim();
+  return base.length > 48 ? `${base.slice(0, 48)}…` : base;
+}
+
+export function loadConversations(): StoredConversation[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as StoredConversation[];
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .filter((c) => c && typeof c.id === "string" && Array.isArray(c.messages))
+      .slice(0, MAX_STORED_CONVERSATIONS);
+  } catch {
+    return [];
+  }
+}
+
+export function saveConversations(conversations: StoredConversation[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(conversations.slice(0, MAX_STORED_CONVERSATIONS)),
+    );
+  } catch {
+    // Storage full or unavailable — chat still works in-memory.
+  }
+}
+
+export function loadActiveId(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return window.localStorage.getItem(ACTIVE_ID_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function saveActiveId(id: string | null): void {
+  if (typeof window === "undefined") return;
+  try {
+    if (id) window.localStorage.setItem(ACTIVE_ID_KEY, id);
+    else window.localStorage.removeItem(ACTIVE_ID_KEY);
+  } catch {
+    // Ignore persistence failures.
+  }
+}

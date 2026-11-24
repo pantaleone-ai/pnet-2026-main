@@ -19,7 +19,7 @@ export default function ChatMarkdown({ content }: { content: string }) {
         "prose-headings:mt-3 prose-headings:mb-1 prose-headings:text-foreground",
         "prose-a:text-foreground prose-a:underline prose-a:underline-offset-4",
         "prose-code:rounded-md prose-code:border prose-code:bg-muted/50",
-        "prose-code:px-[0.3rem] prose-code:py-[0.2rem] prose-code:text-[0.85em]",
+        "prose-code:px-[0.3rem] prose-code:py-[0.2em] prose-code:text-[0.85em]",
         "prose-code:before:content-none prose-code:after:content-none",
         "prose-pre:rounded-lg prose-pre:border",
       )}
