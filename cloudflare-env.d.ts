@@ -10,6 +10,33 @@ interface CloudflareAI {
   run(model: string, inputs: Record<string, unknown>): Promise<unknown>;
 }
 
+interface CloudflareVectorizeMatch {
+  id: string;
+  score: number;
+  metadata?: Record<string, unknown>;
+}
+
+interface CloudflareVectorize {
+  query(
+    vector: number[],
+    options?: {
+      topK?: number;
+      returnMetadata?: "none" | "indexed" | "all";
+    },
+  ): Promise<{ matches: CloudflareVectorizeMatch[]; count: number }>;
+}
+
+interface CloudflareKV {
+  put(
+    key: string,
+    value: string,
+    options?: { expirationTtl?: number },
+  ): Promise<void>;
+  get(key: string): Promise<string | null>;
+}
+
 interface CloudflareEnv {
   AI?: CloudflareAI;
+  VECTORIZE?: CloudflareVectorize;
+  CHAT_ANALYTICS?: CloudflareKV;
 }

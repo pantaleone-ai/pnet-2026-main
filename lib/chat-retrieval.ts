@@ -42,9 +42,16 @@ function slugTokens(slug: string): string[] {
 
 function fuzzyScore(doc: ChatSourceDoc, terms: string[]): number {
   let score = 0;
-  const titleTerms = doc.title.toLowerCase().split(/\s+/).filter(Boolean);
-  const slugTerms = slugTokens(doc.slug);
-  for (const word of terms) {
+  // Only match substantial tokens: short title/slug words ("for", "top",
+  // "ai") sit within edit distance 2 of countless unrelated query words
+  // and turned gibberish queries into confident-looking citations.
+  const titleTerms = doc.title
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((t) => t.length >= 4);
+  const slugTerms = slugTokens(doc.slug).filter((t) => t.length >= 4);
+  const longTerms = terms.filter((w) => w.length >= 4);
+  for (const word of longTerms) {
     if (titleTerms.some((t) => levenshtein(t, word) <= FUZZY_THRESHOLD))
       score += 5;
     if (slugTerms.some((t) => levenshtein(t, word) <= FUZZY_THRESHOLD))
@@ -91,10 +98,55 @@ const STOPWORDS = new Set([
 
 function termsFor(query: string): string[] {
   const words = query.split(/\s+/).filter(Boolean);
-  const filtered = words.filter(
-    (w) => w.length >= 3 && !STOPWORDS.has(w),
-  );
-  return filtered.length > 0 ? filtered : words;
+  const cleaned = words
+    .map((w) => w.replace(/[^a-z0-9]/g, ""))
+    .filter((w) => w.length >= 3 && !STOPWORDS.has(w));
+  return cleaned.length > 0 ? cleaned : words;
+}
+
+/**
+ * Resolves Vectorize matches (which carry only metadata) back to full
+ * corpus hits. Used to fuse semantic index results with lexical order.
+ */
+export function findDocsBySlugs(
+  items: { type: string; slug: string }[],
+  query: string,
+): ChatRetrievalHit[] {
+  const docs = (corpus as { docs: ChatSourceDoc[] }).docs;
+  const lowered = query.trim().toLowerCase();
+  const out: ChatRetrievalHit[] = [];
+  for (const item of items) {
+    const doc = docs.find((d) => d.type === item.type && d.slug === item.slug);
+    if (doc) {
+      out.push({ ...doc, score: 0, excerpt: excerptAround(doc.content, lowered) });
+    }
+  }
+  return out;
+}
+
+/**
+ * Reciprocal rank fusion over id-keyed hit lists. Preserves lexical winners
+ * unless semantic signals disagree across the pool (pure cosine reorder
+ * demonstrably demotes strong lexical hits on this corpus).
+ */
+export function docKey(h: { type: string; slug: string }): string {
+  return `${h.type}/${h.slug}`;
+}
+
+export function fuseRanks(lists: ChatRetrievalHit[][]): ChatRetrievalHit[] {
+  const K = 60;
+  const seen = new Map<string, { hit: ChatRetrievalHit; score: number }>();
+  for (const list of lists) {
+    list.forEach((hit, i) => {
+      const key = docKey(hit);
+      const entry = seen.get(key) ?? { hit, score: 0 };
+      entry.score += 1 / (K + (i + 1));
+      seen.set(key, entry);
+    });
+  }
+  return [...seen.values()]
+    .sort((a, b) => b.score - a.score)
+    .map((e) => e.hit);
 }
 
 /**

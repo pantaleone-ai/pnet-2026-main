@@ -94,7 +94,6 @@ owner actions (see §5).
   unchanged).
 
 ## Chat UI architecture (Stage 1 responsive pass)
-
 One assistant, one backend, one conversation state, two presentations:
 
 - `features/chat/store.ts` — message/conversation types, localStorage
@@ -124,6 +123,36 @@ One assistant, one backend, one conversation state, two presentations:
 - `ChatTranscript` (collapsible sources, thinking dots, stick-to-bottom
   autoscroll), `ChatComposer` (autogrow, Enter-to-send, safe-area
   padding), `ChatMarkdown` (GFM, safe links).
+- Suggestions are page-aware (`suggestionsFor(pathname)`): shop, blog,
+  services/b2b/contact, and apps pages each get their own chip set;
+  everywhere else gets the general set. No tracking, purely the pathname.
+
+## Stage 2 status (2026-11-24)
+
+**Vectorize: provisioned, seeded, evaluated — stays OFF.**
+Index `pnet-chat-index` (1024 dims, cosine, 46 docs) is live and queryable,
+but the eval series decided its status: pure-cosine rerank 17/20,
+unweighted 3-way fusion 17/20, lexical+RRF 19/20 — the index leg demoted
+previously-passing cases, so it stays opt-in (`CHAT_VECTORIZE=1`).
+Shipped instead: **weighted RRF with 2× lexical weight**, which scored
+**20/20 on the live preview**, fixing both the readiness tie-flip and the
+Docker morphology gap with no index. Query terms are punctuation-stripped
+before scoring ("business?" now matches "business"). Next experiments if
+quality regresses: asymmetric embedding candidates, chunked doc vectors,
+per-query index fallback.
+
+**Usage analytics: live.** Every turn writes a structured record to the
+`CHAT_ANALYTICS` KV namespace (90-day TTL): per-day aggregates
+(turns, paths, models, zero-result count) plus raw zero-result questions
+(≤200 chars, owner-approved) for search-term mining. Report:
+`npm run chat:analytics` (reads the production namespace via `--remote`;
+bare wrangler kv commands hit local dev storage). Two hard-won notes:
+writes fire when the generation path is chosen, not when the stream
+finishes — stream-finally writes silently dropped abandoned streams;
+and fuzzy matching ignores tokens under 4 chars after a gibberish query
+matched the stopword "for" and fabricated citations. Retention decision
+recorded here: 90-day TTL, question text only, no PII scrubbing yet —
+revisit before any multi-tenant phase.
 
 Adaptations from the original responsive plan: no Drawer/vaul
 dependency (responsive Sheet covers both), no backend message fetch

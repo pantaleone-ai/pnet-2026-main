@@ -49,6 +49,8 @@
     "campaign:tick": "tsx scripts/campaign-tick.ts",
     "chat:corpus": "node scripts/build-chat-corpus.mjs",
     "chat:eval": "node scripts/chat-eval.mjs",
+    "chat:analytics": "node scripts/chat-analytics.mjs",
+    "chat:index": "node scripts/seed-chat-index.mjs",
     "content:labels": "tsx scripts/content-issues/labels.ts",
     "content:seed": "tsx scripts/content-issues/seed-backlog.ts",
     "content:next": "tsx scripts/content-issues/pick-next.ts",
