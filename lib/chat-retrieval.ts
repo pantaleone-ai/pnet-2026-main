@@ -42,9 +42,16 @@ function slugTokens(slug: string): string[] {
 
 function fuzzyScore(doc: ChatSourceDoc, terms: string[]): number {
   let score = 0;
-  const titleTerms = doc.title.toLowerCase().split(/\s+/).filter(Boolean);
-  const slugTerms = slugTokens(doc.slug);
-  for (const word of terms) {
+  // Only match substantial tokens: short title/slug words ("for", "top",
+  // "ai") sit within edit distance 2 of countless unrelated query words
+  // and turned gibberish queries into confident-looking citations.
+  const titleTerms = doc.title
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((t) => t.length >= 4);
+  const slugTerms = slugTokens(doc.slug).filter((t) => t.length >= 4);
+  const longTerms = terms.filter((w) => w.length >= 4);
+  for (const word of longTerms) {
     if (titleTerms.some((t) => levenshtein(t, word) <= FUZZY_THRESHOLD))
       score += 5;
     if (slugTerms.some((t) => levenshtein(t, word) <= FUZZY_THRESHOLD))

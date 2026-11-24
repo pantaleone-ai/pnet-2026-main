@@ -139,12 +139,18 @@ export async function getPostsBySearchQuery(query: string) {
   }
 
   // Pass 2: zero exact hits — capped fuzzy over title/slug tokens only.
+  // Substantial tokens only (see scoringTerms): short words sit within
+  // edit distance 2 of unrelated queries and produce false positives.
+  const fuzzyTerms = terms.filter((w) => w.length >= 4);
   for (const post of getBlogPosts()) {
     let score = 0;
-    const titleTerms = post.title.toLowerCase().split(/\s+/).filter(Boolean);
-    const slugTerms = slugTokens(post.slug);
+    const titleTerms = post.title
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((t) => t.length >= 4);
+    const slugTerms = slugTokens(post.slug).filter((t) => t.length >= 4);
 
-    for (const word of terms) {
+    for (const word of fuzzyTerms) {
       if (titleTerms.some((term) => levenshtein(term, word) <= FUZZY_THRESHOLD)) {
         score += 5;
       }
@@ -166,10 +172,13 @@ export async function getPostsBySearchQuery(query: string) {
 
   for (const product of getProducts()) {
     let score = 0;
-    const titleTerms = product.title.toLowerCase().split(/\s+/).filter(Boolean);
-    const slugTerms = slugTokens(product.slug);
+    const titleTerms = product.title
+      .toLowerCase()
+      .split(/\s+/)
+      .filter((t) => t.length >= 4);
+    const slugTerms = slugTokens(product.slug).filter((t) => t.length >= 4);
 
-    for (const word of terms) {
+    for (const word of fuzzyTerms) {
       if (titleTerms.some((term) => levenshtein(term, word) <= FUZZY_THRESHOLD)) {
         score += 5;
       }
