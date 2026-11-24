@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   ArrowUpRightIcon,
   MessageSquarePlusIcon,
@@ -11,15 +12,9 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { useChat } from "./ChatProvider";
-import { ASSISTANT_NAME, SITE_URL } from "./store";
+import { ASSISTANT_NAME, SITE_URL, suggestionsFor } from "./store";
 import ChatComposer from "./ChatComposer";
 import ChatTranscript from "./ChatTranscript";
-
-const SUGGESTIONS = [
-  "Explore Pantaleone's products.",
-  "How can AI automate my business?",
-  "I have an AI project to discuss.",
-];
 
 function HistoryPills() {
   const {
@@ -84,6 +79,8 @@ export default function ChatPanel({
     dismissError,
     newChat,
   } = useChat();
+  const pathname = usePathname();
+  const suggestions = suggestionsFor(pathname);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
@@ -166,7 +163,7 @@ export default function ChatPanel({
       <ChatTranscript messages={messages} streaming={pending} />
 
       <div className="flex shrink-0 flex-wrap gap-2">
-        {SUGGESTIONS.map((s) => (
+        {suggestions.map((s) => (
           <Button
             key={s}
             type="button"

@@ -24,6 +24,60 @@ const OPEN_KEY = "pnet-chat:open";
 export const MAX_STORED_CONVERSATIONS = 20;
 export const MAX_STORED_MESSAGES = 60;
 
+export const DEFAULT_SUGGESTIONS = [
+  "Explore Pantaleone's products.",
+  "How can AI automate my business?",
+  "I have an AI project to discuss.",
+];
+
+const SUGGESTION_SETS: { match: RegExp; suggestions: string[] }[] = [
+  {
+    match: /^\/shop/,
+    suggestions: [
+      "What AI products do you sell?",
+      "Which product fits a small team?",
+      "Do you help with product setup?",
+    ],
+  },
+  {
+    match: /^\/blog/,
+    suggestions: [
+      "What have you written about AI agents?",
+      "Summarize the latest posts.",
+      "How do I apply what the blog describes?",
+    ],
+  },
+  {
+    match: /^\/(services|b2b|contact)/,
+    suggestions: [
+      "What services do you offer?",
+      "How do we start a project?",
+      "Do you work with small teams?",
+    ],
+  },
+  {
+    match: /^\/apps/,
+    suggestions: [
+      "What apps have you built?",
+      "Can you build something like this for me?",
+      "How can AI automate my business?",
+    ],
+  },
+];
+
+/**
+ * Page-aware suggestion chips. The popup inherits the page it was opened
+ * on; /chat always gets the general set. No tracking, no backend — purely
+ * the current pathname.
+ */
+export function suggestionsFor(pathname: string | null | undefined): string[] {
+  if (!pathname) return DEFAULT_SUGGESTIONS;
+  return (
+    SUGGESTION_SETS.find((s) => s.match.test(pathname))?.suggestions ??
+    DEFAULT_SUGGESTIONS
+  );
+}
+
 export const GREETING: ChatMessage = {
   role: "assistant",
   content:
