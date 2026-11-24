@@ -16,9 +16,11 @@ import {
   MAX_STORED_MESSAGES,
   loadActiveId,
   loadConversations,
+  loadPopupOpen,
   newConversationId,
   saveActiveId,
   saveConversations,
+  savePopupOpen,
   titleFor,
   type ChatMessage,
   type Source,
@@ -65,8 +67,13 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   const [failedMessage, setFailedMessage] = useState<string | null>(null);
   const [isFallback, setIsFallback] = useState(false);
   const [hydrated, setHydrated] = useState(false);
-  const [popupOpen, setPopupOpen] = useState(false);
+  const [popupOpen, setPopupOpenState] = useState<boolean>(() => loadPopupOpen());
   const abortRef = useRef<AbortController | null>(null);
+
+  const setPopupOpen = useCallback((open: boolean) => {
+    setPopupOpenState(open);
+    savePopupOpen(open);
+  }, []);
 
   // Load persisted state once on mount. Resume the active conversation,
   // falling back to the most recent one.
@@ -312,6 +319,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       hydrated,
       popupOpen,
       isPristine,
+      setPopupOpen,
       send,
       stop,
       retry,

@@ -109,9 +109,18 @@ One assistant, one backend, one conversation state, two presentations:
   composer, used by both `/chat` (page variant, 800px) and the popup.
   `/chat` opened from the popup continues the same conversation.
 - `features/chat/GlobalChat.tsx` — floating launcher (hidden on
-  `/chat`) + responsive Sheet: floating 420px card on desktop,
-  92dvh bottom sheet on mobile. Panel code is lazy-loaded with
-  `next/dynamic` — no chat bytes or backend calls until first open.
+  `/chat`) + responsive Sheet: **modeless** floating 420px card on
+  desktop (page stays clickable/scrollable, Esc closes, launcher
+  toggles), modal 92dvh bottom sheet on mobile. Panel code is
+  lazy-loaded with `next/dynamic` — no chat bytes or backend calls
+  until first open.
+- Popup open state persists per-tab in sessionStorage
+  (`pnet-chat:open`): a reload restores the chat UI as left, a fresh tab
+  never auto-opens.
+- `components/ScrollToTop.tsx` stacks above the launcher (same gutter,
+  `lg` aligned) on pages where the launcher exists; unlifted on `/chat`.
+- `components/ui/sheet.tsx` gained a `hideOverlay` prop for the
+  modeless desktop panel (shared component, default behavior unchanged).
 - `ChatTranscript` (collapsible sources, thinking dots, stick-to-bottom
   autoscroll), `ChatComposer` (autogrow, Enter-to-send, safe-area
   padding), `ChatMarkdown` (GFM, safe links).

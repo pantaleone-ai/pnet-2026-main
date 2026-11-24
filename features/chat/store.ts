@@ -20,6 +20,7 @@ export const ASSISTANT_NAME = "Pantaleone Assistant";
 
 const STORAGE_KEY = "pnet-chat:v1";
 const ACTIVE_ID_KEY = "pnet-chat:active-id";
+const OPEN_KEY = "pnet-chat:open";
 export const MAX_STORED_CONVERSATIONS = 20;
 export const MAX_STORED_MESSAGES = 60;
 
@@ -87,6 +88,29 @@ export function saveActiveId(id: string | null): void {
   try {
     if (id) window.localStorage.setItem(ACTIVE_ID_KEY, id);
     else window.localStorage.removeItem(ACTIVE_ID_KEY);
+  } catch {
+    // Ignore persistence failures.
+  }
+}
+
+/**
+ * Popup open state lives in sessionStorage (per-tab): a reload restores
+ * the chat UI exactly as the visitor left it, but a fresh tab never
+ * auto-opens the popup uninvited.
+ */
+export function loadPopupOpen(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.sessionStorage.getItem(OPEN_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function savePopupOpen(open: boolean): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage.setItem(OPEN_KEY, open ? "1" : "0");
   } catch {
     // Ignore persistence failures.
   }

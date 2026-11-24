@@ -46,9 +46,12 @@ function SheetContent({
   children,
   side = "left",
   className,
+  hideOverlay = false,
   ...props
 }: React.ComponentProps<typeof SheetPrimitive.Content> & {
   side?: "top" | "right" | "bottom" | "left";
+  /** Skip the dimming overlay (used for modeless panels that leave the page interactive). */
+  hideOverlay?: boolean;
 }) {
   const sideVariants: Record<string, string> = {
     top: "inset-x-0 top-18 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
@@ -60,7 +63,7 @@ function SheetContent({
   };
   return (
     <SheetPortal>
-      <SheetOverlay />
+      {!hideOverlay && <SheetOverlay />}
       <SheetPrimitive.Content
         data-slot="sheet-content"
         className={cn(
