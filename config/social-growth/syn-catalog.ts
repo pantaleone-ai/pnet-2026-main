@@ -2663,4 +2663,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "pools conceptual minimalism soak stain 58880702",
     format: "avif",
   },
+  {
+    id: "2026-10-21-suspension-organic-abstraction-single-zip-line-94309577",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-21-suspension-organic-abstraction-single-zip-line-94309577.avif",
+    firstSeen: "2026-10-21",
+    descriptor: "suspension organic abstraction single zip line 94309577",
+    format: "avif",
+  },
+  {
+    id: "2026-10-21-punctuates-minimalist-composition-floating-discs-97854709",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-21-punctuates-minimalist-composition-floating-discs-97854709.avif",
+    firstSeen: "2026-10-21",
+    descriptor: "punctuates minimalist composition floating discs 97854709",
+    format: "avif",
+  },
+  {
+    id: "2026-10-21-enamel-surreal-minimalism-impossible-geometry-86768930",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-21-enamel-surreal-minimalism-impossible-geometry-86768930.avif",
+    firstSeen: "2026-10-21",
+    descriptor: "enamel surreal minimalism impossible geometry 86768930",
+    format: "avif",
+  },
 ];
