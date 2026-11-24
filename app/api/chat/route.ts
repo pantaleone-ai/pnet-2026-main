@@ -243,7 +243,6 @@ function sseEncode(payload: unknown): Uint8Array {
 function streamExtractiveFallback(
   question: string,
   context: ReturnType<typeof buildContext>,
-  report?: (r: TurnReport) => void,
 ): Response {
   const lines =
     context.length > 0
@@ -269,7 +268,6 @@ function streamExtractiveFallback(
       promptChars: question.length,
     },
   });
-  report?.({ path: "fallback" });
 
   const stream = new ReadableStream({
     start(controller) {
@@ -306,7 +304,6 @@ async function streamFromWorkersAI(
   message: string,
   history: { role: "user" | "assistant"; content: string }[],
   context: ReturnType<typeof buildContext>,
-  report?: (r: TurnReport) => void,
 ): Promise<Response> {
   const contextBlock = context
     .map((c) => `SOURCE: ${c.title} (${c.url})\n${c.excerpt}`)
@@ -377,7 +374,6 @@ async function streamFromWorkersAI(
             promptChars: message.length,
           },
         });
-        report?.({ path: "workers-ai", model: CHAT_MODEL });
       }
     },
   });
@@ -391,7 +387,6 @@ async function streamFromOpenAI(
   message: string,
   history: { role: "user" | "assistant"; content: string }[],
   context: ReturnType<typeof buildContext>,
-  report?: (r: TurnReport) => void,
 ): Promise<Response> {
   const contextBlock = context
     .map((c) => `SOURCE: ${c.title} (${c.url})\n${c.excerpt}`)
@@ -425,7 +420,7 @@ async function streamFromOpenAI(
       context: "chat-api",
       meta: { status: upstream.status },
     });
-    return streamExtractiveFallback(message, context, report);
+    return streamExtractiveFallback(message, context);
   }
 
   const sourcesChunk = sseEncode({ sources: context });
@@ -481,12 +476,6 @@ async function streamFromOpenAI(
             sources: context.length,
             promptChars: message.length,
           },
-        });
-        report?.({
-          path: "model",
-          model: OPENAI_MODEL,
-          promptTokens,
-          completionTokens,
         });
       }
     },
@@ -623,11 +612,22 @@ export async function POST(request: Request) {
       logger.error("Chat retrieval failed", error, { context: "chat-api" });
     }
 
-    // Usage analytics: structured per-turn record (KV, 90-day TTL) plus
-    // the log line. Raw question text (≤200 chars) is stored owner-approved
-    // for zero-result search-term mining.
-    const report = (r: TurnReport) => {
-      if (!kv) return;
+    // Usage analytics: one structured KV record per turn (90-day TTL),
+    // written when the generation path is chosen — not when the stream
+    // finishes — so abandoned streams (navigation, early cancel) still
+    // count. Token counts remain log-only. Raw question text (≤200 chars)
+    // is stored owner-approved for zero-result search-term mining.
+    let kvMissingWarned = false;
+    const schedule = (r: TurnReport) => {
+      if (!kv) {
+        if (!kvMissingWarned) {
+          kvMissingWarned = true;
+          logger.warn("CHAT_ANALYTICS binding missing, skipping usage record", {
+            context: "chat-api",
+          });
+        }
+        return;
+      }
       const task = recordAnalytics(kv, {
         ...r,
         sources: context.length,
@@ -650,13 +650,14 @@ export async function POST(request: Request) {
 
     if (ai) {
       try {
-        return await streamFromWorkersAI(
+        const res = await streamFromWorkersAI(
           ai,
           message,
           history ?? [],
           context,
-          report,
         );
+        schedule({ path: "workers-ai", model: CHAT_MODEL });
+        return res;
       } catch (error) {
         logger.error("Workers AI chat failed, trying OpenAI", error, {
           context: "chat-api",
@@ -664,9 +665,13 @@ export async function POST(request: Request) {
       }
     }
     if (process.env.OPENAI_API_KEY) {
-      return streamFromOpenAI(message, history ?? [], context, report);
+      const res = await streamFromOpenAI(message, history ?? [], context);
+      schedule({ path: "model", model: OPENAI_MODEL });
+      return res;
     }
-    return streamExtractiveFallback(message, context, report);
+    const res = streamExtractiveFallback(message, context);
+    schedule({ path: "fallback" });
+    return res;
   } catch (error) {
     logger.error("Unexpected error in chat API", error, {
       context: "chat-api",
