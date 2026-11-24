@@ -98,10 +98,10 @@ const STOPWORDS = new Set([
 
 function termsFor(query: string): string[] {
   const words = query.split(/\s+/).filter(Boolean);
-  const filtered = words.filter(
-    (w) => w.length >= 3 && !STOPWORDS.has(w),
-  );
-  return filtered.length > 0 ? filtered : words;
+  const cleaned = words
+    .map((w) => w.replace(/[^a-z0-9]/g, ""))
+    .filter((w) => w.length >= 3 && !STOPWORDS.has(w));
+  return cleaned.length > 0 ? cleaned : words;
 }
 
 /**

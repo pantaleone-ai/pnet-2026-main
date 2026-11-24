@@ -549,6 +549,9 @@ export async function POST(request: Request) {
         if (!queryVector) throw new Error("Missing query embedding");
         const lists: ChatRetrievalHit[][] = [
           pool,
+          // Lexical evidence counts twice: exact term matches are the
+          // strongest signal on this corpus, embeddings break ties.
+          pool,
           orderByCosine(pool, queryVector, vectors.slice(1)),
         ];
         if (VECTORIZE_ENABLED && vectorize) {
@@ -592,7 +595,7 @@ export async function POST(request: Request) {
           meta: {
             model: EMBED_MODEL,
             pool: pool.length,
-            vectorize: lists.length > 2,
+            vectorize: lists.length > 3,
           },
         });
       } catch (error) {

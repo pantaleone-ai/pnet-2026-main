@@ -35,10 +35,10 @@ const SEARCH_STOPWORDS = new Set([
 ]);
 
 function scoringTerms(searchWords: string[]): string[] {
-  const filtered = searchWords.filter(
-    (w) => w.length >= 3 && !SEARCH_STOPWORDS.has(w),
-  );
-  return filtered.length > 0 ? filtered : searchWords;
+  const cleaned = searchWords
+    .map((w) => w.replace(/[^a-z0-9]/g, ""))
+    .filter((w) => w.length >= 3 && !SEARCH_STOPWORDS.has(w));
+  return cleaned.length > 0 ? cleaned : searchWords;
 }
 
 function slugTokens(slug: string): string[] {
