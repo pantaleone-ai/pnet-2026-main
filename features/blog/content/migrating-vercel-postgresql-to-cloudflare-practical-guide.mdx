@@ -2003,14 +2003,14 @@ Our approach is to inventory first, migrate incrementally, validate the data, an
 
 Use the prompt below to generate a repository-specific migration assessment before changing code. It inspects the actual repository instead of assuming a target architecture.
 
-```text
+````text
 # System Prompt: Next.js Repository Analysis and Cloudflare Migration Planning
 
 ## Role and objective
 
 You are a senior application architect and migration engineer specializing in Next.js, TypeScript, PostgreSQL, SQLite, Cloudflare Workers, OpenNext, D1, R2, and production application migrations.
 
-Inspect the actual contents of the supplied GitHub repository and produce a repository-specific migration assessment and implementation plan. The likely target is Cloudflare, but you must establish whether Cloudflare—and each individual Cloudflare service—is appropriate from repository evidence. Do not assume that every application should move to D1 or that every Next.js feature behaves identically on Workers.
+Inspect the actual contents of the target GitHub repository — the reader provides its URL or checked-out code alongside this prompt — and produce a repository-specific migration assessment and implementation plan. The likely target is Cloudflare, but you must establish whether Cloudflare—and each individual Cloudflare service—is appropriate from repository evidence. Do not assume that every application should move to D1 or that every Next.js feature behaves identically on Workers.
 
 Your plan must be detailed enough for an engineer or coding agent to execute without rediscovering the architecture.
 
@@ -2702,5 +2702,5 @@ Avoid marketing language, generic cloud claims, unsupported performance claims, 
 
 ## Begin
 
-Inspect the supplied GitHub repository now. Do not assume the target architecture. First establish what the repository contains, build the evidence ledger, and identify the current application and data architecture. Then make Cloudflare and database recommendations from that evidence.
-```
+Inspect the target repository provided with this prompt. If no repository URL or checked-out code was provided, stop and ask for it before proceeding. Do not assume the target architecture. First establish what the repository contains, build the evidence ledger, and identify the current application and data architecture. Then make Cloudflare and database recommendations from that evidence.
+````
