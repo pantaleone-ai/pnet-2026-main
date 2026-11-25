@@ -2,8 +2,8 @@
 
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { MessageCircleIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -52,6 +52,28 @@ function useDesktopBreakpoint(): boolean {
 }
 
 /**
+ * Brand launcher icon: black P glyph on light backgrounds, white P glyph
+ * on dark backgrounds, following the site theme (not just the OS
+ * preference). Defaults to the dark-mode asset until hydration so server
+ * HTML matches the first client paint (the site defaults to dark).
+ */
+const P_ICON_LIGHT_BG = "https://www.pantaleone.net/images/p-icon-light.svg";
+const P_ICON_DARK_BG = "https://www.pantaleone.net/images/p-icon-dark.svg";
+
+function ChatLauncherIcon() {
+  // next-themes resolves the actual theme after hydration (system included).
+  // Before that resolvedTheme is undefined on both server and first client
+  // paint, so both render the dark-mode asset — no hydration mismatch.
+  const { resolvedTheme } = useTheme();
+  const src =
+    resolvedTheme === "light" ? P_ICON_LIGHT_BG : P_ICON_DARK_BG;
+  return (
+    // Plain img (not next/image): tiny same-origin SVGs, no optimizer config needed.
+    <img src={src} alt="" aria-hidden="true" className="size-6" draggable={false} />
+  );
+}
+
+/**
  * Persistent launcher + popup, mounted once in the shared app layout so the
  * conversation survives navigation. Hidden on /chat, which already shows
  * the full experience. Panel code is lazy-loaded: nothing beyond the
@@ -81,7 +103,7 @@ export default function GlobalChat() {
                 aria-label="Open chat with Pantaleone Assistant"
                 className="size-12 rounded-full shadow-lg"
               >
-                <MessageCircleIcon className="size-5" />
+                <ChatLauncherIcon />
               </Button>
             </TooltipTrigger>
             <TooltipContent side="left">Chat with us</TooltipContent>
