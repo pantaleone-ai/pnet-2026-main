@@ -24,64 +24,64 @@ export const TIER_ASSIGNMENTS: TierAssignment[] = [
     tier: "tier1",
     score: 58,
     rationale: "Purchasable downloads, strongest visual + Pinterest fit, clear discovery-to-purchase path.",
-    postsPerWeek: 3,
+    postsPerWeek: 6,
   },
   {
     appId: "print3dmodels",
     tier: "tier1",
     score: 56,
     rationale: "Only true purchase event in registry, visual product pages, giftable use cases.",
-    postsPerWeek: 3,
+    postsPerWeek: 5,
   },
   {
     appId: "mixphd",
     tier: "tier1",
     score: 55,
     rationale: "Recipe discovery plus affiliate revenue, evergreen Pinterest + SEO loop.",
-    postsPerWeek: 2,
+    postsPerWeek: 5,
   },
   {
     appId: "proswing",
     tier: "tier2",
     score: 46,
     rationale: "Strong demo potential (before/after swing), activation clear, monetization not yet flagged.",
-    postsPerWeek: 2,
+    postsPerWeek: 5,
   },
   {
     appId: "imgsquash",
     tier: "tier2",
     score: 45,
     rationale: "One-step tool demo, easy proof content, broad audience but low visual novelty.",
-    postsPerWeek: 1,
+    postsPerWeek: 5,
   },
   {
     appId: "aicapturelab",
     tier: "tier2",
     score: 44,
     rationale: "High visual transformation value, purchase path, narrower audience than gallery apps.",
-    postsPerWeek: 1,
+    postsPerWeek: 5,
   },
   {
     appId: "profitsignals",
     tier: "tier3",
     score: 34,
     rationale: "Subscription upside but regulated claims. Education-only content, no performance promises.",
-    postsPerWeek: 1,
+    postsPerWeek: 5,
   },
   {
     appId: "aiceo",
     tier: "tier3",
     score: 32,
     rationale: "B2B subscription, LinkedIn-only fit. Founder insight format, low volume.",
-    postsPerWeek: 0.5,
+    postsPerWeek: 5,
   },
 ];
 
-export const PORTFOLIO_WEEKLY_TARGET = 13;
+export const PORTFOLIO_WEEKLY_TARGET = 41;
 export const TIER_WEEKLY_TARGETS: Record<GrowthTier, number> = {
-  tier1: 8,
-  tier2: 4,
-  tier3: 1,
+  tier1: 16,
+  tier2: 15,
+  tier3: 10,
 };
 
 export function tierFor(appId: string): GrowthTier {

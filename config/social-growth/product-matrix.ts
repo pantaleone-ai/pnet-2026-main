@@ -41,8 +41,8 @@ export const PRODUCT_STRATEGIES: ProductStrategy[] = [
     bestPlatforms: ["pinterest", "instagram", "facebook"],
     bestFormats: ["pin", "carousel", "reel-concept"],
     recurringThemes: ["artwork-drop", "style-comparison", "room-context", "process-note"],
-    postsPerWeek: 3,
-    postingWindows: ["Tue 12:00 ET", "Thu 19:00 ET", "Sat 10:00 ET"],
+    postsPerWeek: 6,
+    postingWindows: ["Mon 12:00 ET", "Tue 12:00 ET", "Thu 19:00 ET", "Fri 16:00 ET", "Sat 10:00 ET", "Sun 10:00 ET"],
   },
   {
     appId: "print3dmodels",
@@ -59,8 +59,8 @@ export const PRODUCT_STRATEGIES: ProductStrategy[] = [
     bestPlatforms: ["pinterest", "instagram", "facebook"],
     bestFormats: ["pin", "before-after", "carousel"],
     recurringThemes: ["model-drop", "print-timelapse-concept", "gift-use-case", "detail-closeup"],
-    postsPerWeek: 3,
-    postingWindows: ["Mon 12:00 ET", "Wed 19:00 ET", "Sat 11:00 ET"],
+    postsPerWeek: 5,
+    postingWindows: ["Mon 12:00 ET", "Wed 19:00 ET", "Fri 16:00 ET", "Sat 11:00 ET", "Sun 10:00 ET"],
   },
   {
     appId: "mixphd",
@@ -77,8 +77,8 @@ export const PRODUCT_STRATEGIES: ProductStrategy[] = [
     bestPlatforms: ["pinterest", "instagram", "facebook"],
     bestFormats: ["pin", "carousel", "short-recipe-card"],
     recurringThemes: ["recipe-drop", "my-bar-match", "technique-tip", "seasonal-roundup"],
-    postsPerWeek: 2,
-    postingWindows: ["Thu 17:00 ET", "Fri 16:00 ET"],
+    postsPerWeek: 5,
+    postingWindows: ["Mon 12:00 ET", "Thu 17:00 ET", "Fri 16:00 ET", "Sat 10:00 ET", "Sun 10:00 ET"],
   },
   {
     appId: "proswing",
@@ -95,8 +95,8 @@ export const PRODUCT_STRATEGIES: ProductStrategy[] = [
     bestPlatforms: ["instagram", "x", "youtube-shorts"],
     bestFormats: ["reel-concept", "before-after", "x-post"],
     recurringThemes: ["one-swing-fix", "common-mistake", "drill-demo", "coach-note"],
-    postsPerWeek: 2,
-    postingWindows: ["Tue 18:00 ET", "Sun 10:00 ET"],
+    postsPerWeek: 5,
+    postingWindows: ["Mon 18:00 ET", "Tue 18:00 ET", "Fri 16:00 ET", "Sat 10:00 ET", "Sun 10:00 ET"],
   },
   {
     appId: "imgsquash",
@@ -113,8 +113,8 @@ export const PRODUCT_STRATEGIES: ProductStrategy[] = [
     bestPlatforms: ["x", "reddit", "instagram"],
     bestFormats: ["x-post", "before-after", "how-to-card"],
     recurringThemes: ["size-proof", "format-tip", "before-after-bytes", "speed-note"],
-    postsPerWeek: 1,
-    postingWindows: ["Wed 12:00 ET"],
+    postsPerWeek: 5,
+    postingWindows: ["Mon 12:00 ET", "Wed 12:00 ET", "Fri 16:00 ET", "Sat 10:00 ET", "Sun 10:00 ET"],
   },
   {
     appId: "aicapturelab",
@@ -131,8 +131,8 @@ export const PRODUCT_STRATEGIES: ProductStrategy[] = [
     bestPlatforms: ["pinterest", "instagram", "facebook"],
     bestFormats: ["before-after", "carousel", "pin"],
     recurringThemes: ["input-output", "background-swap", "niche-showcase", "quality-note"],
-    postsPerWeek: 1,
-    postingWindows: ["Wed 19:00 ET"],
+    postsPerWeek: 5,
+    postingWindows: ["Mon 19:00 ET", "Wed 19:00 ET", "Fri 16:00 ET", "Sat 10:00 ET", "Sun 10:00 ET"],
   },
   {
     appId: "profitsignals",
@@ -149,8 +149,8 @@ export const PRODUCT_STRATEGIES: ProductStrategy[] = [
     bestPlatforms: ["x", "linkedin"],
     bestFormats: ["x-post", "linkedin-post"],
     recurringThemes: ["research-method", "data-hygiene", "workflow-note"],
-    postsPerWeek: 1,
-    postingWindows: ["Tue 09:00 ET"],
+    postsPerWeek: 5,
+    postingWindows: ["Mon 09:00 ET", "Tue 09:00 ET", "Fri 16:00 ET", "Sat 10:00 ET", "Sun 10:00 ET"],
   },
   {
     appId: "aiceo",
@@ -167,8 +167,8 @@ export const PRODUCT_STRATEGIES: ProductStrategy[] = [
     bestPlatforms: ["linkedin", "x"],
     bestFormats: ["linkedin-post", "x-post"],
     recurringThemes: ["build-note", "operating-lesson", "failure-mode"],
-    postsPerWeek: 0.5,
-    postingWindows: ["Thu 09:00 ET"],
+    postsPerWeek: 5,
+    postingWindows: ["Mon 09:00 ET", "Thu 09:00 ET", "Fri 16:00 ET", "Sat 10:00 ET", "Sun 10:00 ET"],
   },
 ];
 
