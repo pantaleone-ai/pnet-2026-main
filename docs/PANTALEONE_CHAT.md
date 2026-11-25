@@ -130,16 +130,18 @@ One assistant, one backend, one conversation state, two presentations:
 ## Stage 2 status (2026-11-24)
 
 **Vectorize: provisioned, seeded, evaluated — stays OFF.**
-Index `pnet-chat-index` (1024 dims, cosine, 46 docs) is live and queryable,
-but the eval series decided its status: pure-cosine rerank 17/20,
-unweighted 3-way fusion 17/20, lexical+RRF 19/20 — the index leg demoted
+Index `pnet-chat-index` (1024 dims, cosine, 46 docs) is live and queryable.
+The eval series decided its status: pure-cosine rerank 17/20, unweighted
+3-way fusion 17/20, lexical+RRF 19/20 — the index leg demoted
 previously-passing cases, so it stays opt-in (`CHAT_VECTORIZE=1`).
-Shipped instead: **weighted RRF with 2× lexical weight**, which scored
-**20/20 on the live preview**, fixing both the readiness tie-flip and the
-Docker morphology gap with no index. Query terms are punctuation-stripped
-before scoring ("business?" now matches "business"). Next experiments if
-quality regresses: asymmetric embedding candidates, chunked doc vectors,
-per-query index fallback.
+Shipped instead: **weighted RRF (2× lexical) + relevance floor with
+semantic rescue**, which scored **50/50 on the live preview with zero
+adversarial failures**. Query terms are punctuation-stripped; body-text
+matching requires 4+ char terms ("sea" no longer matches "research");
+editorial topic aliases (`KEYWORD_ALIASES` in the corpus builder,
+surfaced by the mining loop) rescue slug-only topic matches. Next
+experiments if quality regresses: chunked doc vectors, per-query index
+fallback (leg already consults only on weak lexical top-1).
 
 **Usage analytics: live.** Every turn writes a structured record to the
 `CHAT_ANALYTICS` KV namespace (90-day TTL): per-day aggregates
