@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import TurnstileWidget, { type TurnstileRef } from "@/components/TurnstileWidget";
 import { authClient } from "@/lib/auth-client";
 
 export default function SignupPage() {
@@ -16,24 +17,44 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const turnstileRef = useRef<TurnstileRef>(null);
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setPending(true);
     try {
-      const { error: signUpError } = await authClient.signUp.email({
-        name: name.trim() || email.trim(),
-        email: email.trim(),
-        password,
-        callbackURL: "/dashboard",
-      });
+      // Mint a fresh single-use Turnstile token per attempt. When no site
+      // key is configured (local dev), the server skips verification.
+      let captchaHeaders: Record<string, string> | undefined;
+      if (turnstileSiteKey) {
+        try {
+          const token = await turnstileRef.current?.execute();
+          if (!token) throw new Error("Verification did not complete. Please try again.");
+          captchaHeaders = { "x-captcha-response": token };
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Verification failed. Please try again.");
+          return;
+        }
+      }
+      const { error: signUpError } = await authClient.signUp.email(
+        {
+          name: name.trim() || email.trim(),
+          email: email.trim(),
+          password,
+          callbackURL: "/dashboard",
+        },
+        { headers: captchaHeaders },
+      );
       if (signUpError) {
+        turnstileRef.current?.reset();
         setError(signUpError.message || "Could not create your account.");
         return;
       }
       router.push("/dashboard");
     } catch (err) {
+      turnstileRef.current?.reset();
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
       setPending(false);
@@ -86,6 +107,7 @@ export default function SignupPage() {
             {error}
           </p>
         )}
+        <TurnstileWidget ref={turnstileRef} siteKey={turnstileSiteKey} />
         <Button type="submit" disabled={pending || !email || !password}>
           {pending ? "Creating account…" : "Create account"}
         </Button>

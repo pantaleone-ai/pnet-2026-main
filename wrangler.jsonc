@@ -27,13 +27,9 @@
 	},
 	"d1_databases": [
 		{
-			// TEMPORARY until the env split lands: all envs share the DEV
-			// database. No production code path touches CHAT_DB yet (no SaaS
-			// UI, no hostname), so this is safe — but do NOT ship SaaS UI or
-			// chat.pantaleone.net traffic before splitting per-env bindings.
 			"binding": "CHAT_DB",
-			"database_name": "pantaleone-chat-dev",
-			"database_id": "648e9d0b-364c-4a51-8364-d93c9ae90470",
+			"database_name": "pantaleone-chat-prod",
+			"database_id": "62f4e755-4aa9-4a51-8364-d93c9ae90470",
 			"migrations_dir": "drizzle/migrations"
 		}
 	],
@@ -49,19 +45,139 @@
 			"id": "b811d0f5bc4a40b1a5c86ac8ff33af64"
 		},
 		{
-			// TEMPORARY: dev namespace for all envs (see CHAT_DB note above).
 			"binding": "CHAT_PLATFORM",
-			"id": "cc15922efc81452a8abfe4ec6bdb53a8"
+			"id": "59c956ebc41f45838fab8ff33af64"
 		}
 	],
 	"queues": {
 		"producers": [
 			{
-				// TEMPORARY: dev queue for all envs (see CHAT_DB note above).
 				"binding": "CHAT_INGEST",
-				"queue": "chat-ingest-dev"
+				"queue": "chat-ingest"
 			}
 		]
+	},
+	"env": {
+		"staging": {
+			"name": "pantaleonenet-staging",
+			"services": [
+				{
+					"binding": "WORKER_SELF_REFERENCE",
+					"service": "pantaleonenet-staging"
+				}
+			],
+			"images": {
+				"binding": "IMAGES"
+			},
+			"d1_databases": [
+				{
+					"binding": "CHAT_DB",
+					"database_name": "pantaleone-chat-staging",
+					"database_id": "46df8b0b-3cf0-42e4-a914-022fe6fcd05f",
+					"migrations_dir": "drizzle/migrations"
+				}
+			],
+			"kv_namespaces": [
+				{
+					"binding": "CHAT_ANALYTICS",
+					"id": "b811d0f5bc4a40b1a5c86ac8ff33af64"
+				},
+				{
+					"binding": "CHAT_PLATFORM",
+					"id": "2448c9fa5c3448abfe4ec6bdb53a8"
+				}
+			],
+			"queues": {
+				"producers": [
+					{
+						"binding": "CHAT_INGEST",
+						"queue": "chat-ingest-staging"
+					}
+				]
+			},
+			"r2_buckets": [
+				{
+					"binding": "NEXT_INC_CACHE_R2_BUCKET",
+					"bucket_name": "pantaleonenet-opennext-cache-staging"
+				},
+				{
+					"binding": "CHAT_UPLOADS",
+					"bucket_name": "pantaleone-chat-uploads-staging"
+				}
+			],
+			"ai": {
+				"binding": "AI"
+			},
+			"vectorize": [
+				{
+					"binding": "VECTORIZE",
+					"index_name": "pnet-chat-index"
+				}
+			],
+			"observability": {
+				"enabled": true
+			}
+		},
+		"development": {
+			"name": "pantaleonenet-dev",
+			"services": [
+				{
+					"binding": "WORKER_SELF_REFERENCE",
+					"service": "pantaleonenet-dev"
+				}
+			],
+			"images": {
+				"binding": "IMAGES"
+			},
+			"d1_databases": [
+				{
+					"binding": "CHAT_DB",
+					"database_name": "pantaleone-chat-dev",
+					"database_id": "648e9d0b-364c-4a51-8364-d93c9ae90470",
+					"migrations_dir": "drizzle/migrations"
+				}
+			],
+			"kv_namespaces": [
+				{
+					"binding": "CHAT_ANALYTICS",
+					"id": "b811d0f5bc4a40b1a5c86ac8ff33af64"
+				},
+				{
+					"binding": "CHAT_PLATFORM",
+					"id": "cc15922efc81452a8abfe4ec6bdb53a8"
+				}
+			],
+			"queues": {
+				"producers": [
+					{
+						"binding": "CHAT_INGEST",
+						"queue": "chat-ingest-dev"
+					}
+				]
+			},
+			"r2_buckets": [
+				{
+					"binding": "NEXT_INC_CACHE_R2_BUCKET",
+					"bucket_name": "pantaleonenet-opennext-cache-dev"
+				},
+				{
+					"binding": "CHAT_UPLOADS",
+					"bucket_name": "pantaleone-chat-uploads-dev"
+				}
+			],
+			"ai": {
+				"binding": "AI"
+			},
+			"vectorize": [
+				{
+					"binding": "VECTORIZE",
+					"index_name": "pnet-chat-index"
+				}
+			],
+			"observability": {
+				"enabled": true
+			}
+		}
 	},
 	"observability": {
 		"enabled": true,
@@ -83,9 +199,8 @@
 			"bucket_name": "pantaleonenet-opennext-cache"
 		},
 		{
-			// TEMPORARY: dev bucket for all envs (see CHAT_DB note above).
 			"binding": "CHAT_UPLOADS",
-			"bucket_name": "pantaleone-chat-uploads-dev"
+			"bucket_name": "pantaleone-chat-uploads"
 		}
 	],
 	"images": {
