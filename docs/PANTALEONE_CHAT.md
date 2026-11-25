@@ -190,11 +190,12 @@ master switch allows it. Strong lexical matches skip the extra
 embedding+index latency entirely. Switch: `CHAT_VECTORIZE=1` enables the
 leg (default OFF until the 50-question eval beats the 20/20 baseline).
 
-**3. Eval: 20 → 50 questions — DONE.**
+**3. Eval: 20 → 54 questions — DONE (50/50 gate, now 54 with intents).**
 Paraphrase pairs, shop-product coverage, honest fallbacks
-(pricing/refunds), off-topic honesty (`expectEmpty`), and prompt-injection
-resistance with leak detection (`expectAbsent`, e.g. system-prompt
-phrases must never appear). Gates: overall ≥ 90%, adversarial 100%.
+(pricing/refunds), off-topic honesty, prompt-injection resistance with
+leak detection (`expectAbsent`), plus 4 permanent intent regression
+tests (greeting, explore-products, hire, services). Gates: overall ≥
+90%, adversarial 100%.
 
 **4. Analytics loop — DONE (code) + weekly runbook.**
 `via` (suggestion/typed/retry) and conversation-depth buckets
@@ -204,6 +205,19 @@ hints ("possibly covered by: slug" vs "genuine gap candidate"). Weekly:
 run the report, turn top zero-result questions into corpus keywords,
 aliases, or new content; prune/replace suggestion chips with low
 click-through (via=suggestion share falling while typed rises).
+
+## Stage 2.5 — deterministic intents + hardening (2026-11-25)
+
+RAG could not be trusted for the highest-value journeys: the model's
+occasional empty completions rendered as blank bubbles, and the top chip
+("Explore Pantaleone's products") plus the hire flow depended on
+retrieval luck. `lib/chat-intents.ts` now handles greeting,
+explore-products (deep product links), hire (contact card), and services
+overviews before retrieval, streaming the same SSE shape. Empty model
+output anywhere else falls back to the standard "couldn't find it"
+message instead of silence (observed in production, logged as a warning).
+UI: removed the popup "Answers from ..." footer; assistant markdown uses
+default prose colors in light mode (`dark:prose-invert` only).
 
 ## 4. Verification- `npx tsc --noEmit` (must pass).
 - `npx eslint` on new/changed files (must pass).

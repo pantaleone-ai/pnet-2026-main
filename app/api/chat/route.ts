@@ -14,6 +14,7 @@ import {
   searchChatCorpus,
   type ChatRetrievalHit,
 } from "@/lib/chat-retrieval";
+import { matchIntent, type ChatIntent } from "@/lib/chat-intents";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -279,6 +280,37 @@ function sseEncode(payload: unknown): Uint8Array {
   return new TextEncoder().encode(`data: ${JSON.stringify(payload)}\n\n`);
 }
 
+const FALLBACK_LINES = [
+  "I could not find that on https://www.pantaleone.net.",
+  "Try different words, or ask via https://www.pantaleone.net/contact.",
+];
+
+/**
+ * Deterministic intent answers stream in the same SSE shape as every other
+ * path (sources event, delta chunks, [DONE]) so the client treats them
+ * identically. No model call, no retrieval — same contract, zero latency.
+ */
+function streamIntent(intent: ChatIntent): Response {
+  const stream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(
+        sseEncode({ sources: intent.sources }),
+      );
+      const full = intent.reply;
+      const chunkSize = 120;
+      for (let i = 0; i < full.length; i += chunkSize) {
+        controller.enqueue(sseEncode({ delta: full.slice(i, i + chunkSize) }));
+      }
+      controller.enqueue(new TextEncoder().encode("data: [DONE]\n\n"));
+      controller.close();
+    },
+  });
+
+  return new Response(stream, {
+    headers: { ...NO_STORE, "Content-Type": "text/event-stream" },
+  });
+}
+
 function streamExtractiveFallback(
   question: string,
   context: ReturnType<typeof buildContext>,
@@ -294,10 +326,7 @@ function streamExtractiveFallback(
           "",
           "Ask a follow-up, or use the contact page for anything not covered above.",
         ]
-      : [
-          "I could not find that on https://www.pantaleone.net.",
-          "Try different words, or ask via https://www.pantaleone.net/contact.",
-        ];
+      : [...FALLBACK_LINES];
 
   logger.info("chat turn", {
     context: "chat-api",
@@ -373,6 +402,7 @@ async function streamFromWorkersAI(
       controller.enqueue(sourcesChunk);
       const reader = upstream.getReader();
       const decoder = new TextDecoder();
+      let emitted = "";
       try {
         for (;;) {
           const { done, value } = await reader.read();
@@ -390,10 +420,25 @@ async function streamFromWorkersAI(
               };
               const delta =
                 json.response ?? json.choices?.[0]?.delta?.content ?? "";
-              if (delta) controller.enqueue(sseEncode({ delta }));
+              if (delta) {
+                emitted += delta;
+                controller.enqueue(sseEncode({ delta }));
+              }
             } catch {
               // Ignore non-JSON keepalive chunks.
             }
+          }
+        }
+        if (!emitted.trim()) {
+          // Observed in production: the model occasionally returns an empty
+          // completion (short/greeting prompts, no usable context). Never
+          // ship a blank bubble — fall back deterministically and log it.
+          logger.warn("Workers AI returned empty completion, using fallback", {
+            context: "chat-api",
+            meta: { promptChars: message.length, sources: context.length },
+          });
+          for (const line of FALLBACK_LINES) {
+            controller.enqueue(sseEncode({ delta: `${line}\n` }));
           }
         }
         controller.enqueue(new TextEncoder().encode("data: [DONE]\n\n"));
@@ -468,6 +513,7 @@ async function streamFromOpenAI(
   // (Stage 1: observability only, no billing).
   let promptTokens: number | null = null;
   let completionTokens: number | null = null;
+  let emitted = "";
   const stream = new ReadableStream({
     async start(controller) {
       controller.enqueue(sourcesChunk);
@@ -487,7 +533,10 @@ async function streamFromOpenAI(
               const json = JSON.parse(data);
               const delta: string =
                 json?.choices?.[0]?.delta?.content ?? "";
-              if (delta) controller.enqueue(sseEncode({ delta }));
+              if (delta) {
+                emitted += delta;
+                controller.enqueue(sseEncode({ delta }));
+              }
               if (json?.usage) {
                 promptTokens = json.usage.prompt_tokens ?? null;
                 completionTokens = json.usage.completion_tokens ?? null;
@@ -495,6 +544,11 @@ async function streamFromOpenAI(
             } catch {
               // Ignore non-JSON keepalive chunks.
             }
+          }
+        }
+        if (!emitted.trim()) {
+          for (const line of FALLBACK_LINES) {
+            controller.enqueue(sseEncode({ delta: `${line}\n` }));
           }
         }
         controller.enqueue(new TextEncoder().encode("data: [DONE]\n\n"));
@@ -607,7 +661,60 @@ export async function POST(request: Request) {
 
     const { ai, vectorize } = bindings;
 
-    const retrievalStart = Date.now();
+    const requestElapsed = () => Date.now() - requestStart;
+    let context: ReturnType<typeof buildContext> = [];
+
+    // Usage analytics: one structured KV record per turn (90-day TTL),
+    // written when the generation path is chosen — not when the stream
+    // finishes — so abandoned streams (navigation, early cancel) still
+    // count. Token counts remain log-only. Raw question text (≤200 chars)
+    // is stored owner-approved for zero-result search-term mining.
+    let kvMissingWarned = false;
+    const schedule = (r: TurnReport) => {
+      if (!kv) {
+        if (!kvMissingWarned) {
+          kvMissingWarned = true;
+          logger.warn("CHAT_ANALYTICS binding missing, skipping usage record", {
+            context: "chat-api",
+          });
+        }
+        return;
+      }
+      const historyLen = history?.length ?? 0;
+      const task = recordAnalytics(kv, {
+        ...r,
+        sources: context.length,
+        promptChars: message.length,
+        promptBucket: lengthBucket(message.length),
+        retrievalMs: requestElapsed(),
+        serverMs: requestElapsed(),
+        zeroResult: context.length === 0,
+        question: message.slice(0, 200),
+        via: via ?? "typed",
+        route: routeGroup(route),
+        depthBucket:
+          historyLen <= 0 ? "first" : historyLen <= 3 ? "followup" : "deep",
+      });
+      if (waitUntil) {
+        try {
+          waitUntil(task);
+          return;
+        } catch {
+          // fall through to floating promise
+        }
+      }
+      void task.catch(() => {});
+    };
+
+    // Deterministic intents run before retrieval: greetings, catalog
+    // browsing, hiring/contact, and services overviews must never depend
+    // on lexical luck. Same SSE shape as every other answer.
+    const intent = matchIntent(message);
+    if (intent) {
+      schedule({ path: "intent", model: intent.id });
+      return streamIntent(intent);
+    }
+
     const lexical = searchChatCorpus(message);
     let ranked = lexical;
     let embRank: Map<string, number> | null = null;
@@ -695,8 +802,6 @@ export async function POST(request: Request) {
         });
       }
     }
-    const retrievalMs = Date.now() - retrievalStart;
-
     // Relevance floor: exact matches need title-level evidence (10+),
     // unless the embedding model ranks them top-3 (semantic rescue for
     // slug-only topic matches and paraphrases). Weak single-content-word
@@ -708,54 +813,11 @@ export async function POST(request: Request) {
       (embRank?.get(docKey(h)) ?? 99) <= 3;
     ranked = ranked.filter(keep);
 
-    let context: ReturnType<typeof buildContext> = [];
     try {
       context = buildContext(ranked);
     } catch (error) {
       logger.error("Chat retrieval failed", error, { context: "chat-api" });
     }
-
-    // Usage analytics: one structured KV record per turn (90-day TTL),
-    // written when the generation path is chosen — not when the stream
-    // finishes — so abandoned streams (navigation, early cancel) still
-    // count. Token counts remain log-only. Raw question text (≤200 chars)
-    // is stored owner-approved for zero-result search-term mining.
-    let kvMissingWarned = false;
-    const schedule = (r: TurnReport) => {
-      if (!kv) {
-        if (!kvMissingWarned) {
-          kvMissingWarned = true;
-          logger.warn("CHAT_ANALYTICS binding missing, skipping usage record", {
-            context: "chat-api",
-          });
-        }
-        return;
-      }
-      const historyLen = history?.length ?? 0;
-      const task = recordAnalytics(kv, {
-        ...r,
-        sources: context.length,
-        promptChars: message.length,
-        promptBucket: lengthBucket(message.length),
-        retrievalMs,
-        serverMs: Date.now() - requestStart,
-        zeroResult: context.length === 0,
-        question: message.slice(0, 200),
-        via: via ?? "typed",
-        route: routeGroup(route),
-        depthBucket:
-          historyLen <= 0 ? "first" : historyLen <= 3 ? "followup" : "deep",
-      });
-      if (waitUntil) {
-        try {
-          waitUntil(task);
-        } catch {
-          void task.catch(() => {});
-        }
-      } else {
-        void task.catch(() => {});
-      }
-    };
 
     if (ai) {
       try {

@@ -13,8 +13,11 @@ export default function ChatMarkdown({ content }: { content: string }) {
   return (
     <div
       className={cn(
+        // Light mode uses default prose colors (dark text); dark mode
+        // inverts. A blanket prose-invert made assistant messages
+        // near-unreadable in light mode.
         "prose prose-sm max-w-none break-words",
-        "prose-invert",
+        "dark:prose-invert",
         "prose-p:my-1.5 prose-ul:my-1.5 prose-ol:my-1.5 prose-li:my-0.5",
         "prose-headings:mt-3 prose-headings:mb-1 prose-headings:text-foreground",
         "prose-a:text-foreground prose-a:underline prose-a:underline-offset-4",
