@@ -180,6 +180,12 @@ export function fuseRanks(lists: ChatRetrievalHit[][]): ChatRetrievalHit[] {
  * Pure, runtime-safe retrieval over the build-time corpus
  * (scripts/build-chat-corpus.mjs). No fs, no network — identical results
  * on Node, Vercel, and Cloudflare Workers.
+ *
+ * NOTE (retrieval fork): this intentionally differs from site search in
+ * lib/search-server.ts. A catalog may show weak matches; the assistant
+ * may only answer from strong ones (MIN_LEXICAL_SCORE floor, extra
+ * stopwords, len>=4 content matching, fuzzy typo-rescue that bypasses the
+ * floor). Keep the weights in sync, but do NOT merge the two paths.
  */
 export function searchChatCorpus(query: string): ChatRetrievalHit[] {
   if (!query || typeof query !== "string") return [];

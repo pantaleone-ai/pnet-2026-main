@@ -145,16 +145,26 @@ fallback (leg already consults only on weak lexical top-1).
 
 **Usage analytics: live.** Every turn writes a structured record to the
 `CHAT_ANALYTICS` KV namespace (90-day TTL): per-day aggregates
-(turns, paths, models, zero-result count) plus raw zero-result questions
+(turns, paths, models, via, depth, routes, server-latency buckets,
+suggestion-clicks-by-page, errors) plus raw zero-result questions
 (≤200 chars, owner-approved) for search-term mining. Report:
 `npm run chat:analytics` (reads the production namespace via `--remote`;
 bare wrangler kv commands hit local dev storage). Two hard-won notes:
 writes fire when the generation path is chosen, not when the stream
 finishes — stream-finally writes silently dropped abandoned streams;
 and fuzzy matching ignores tokens under 4 chars after a gibberish query
-matched the stopword "for" and fabricated citations. Retention decision
-recorded here: 90-day TTL, question text only, no PII scrubbing yet —
-revisit before any multi-tenant phase.
+matched the stopword "for" and fabricated citations.
+
+Weekly runbook (5 minutes): run the report, then for each question with
+n ≥ 2 do exactly one of: (a) covered by an existing page → add the
+query's distinctive words to `KEYWORD_ALIASES` in
+`scripts/build-chat-corpus.mjs` and reseed (`npm run chat:index`);
+(b) genuine gap → file a content task, do not fake coverage;
+(c) off-topic/abuse → ignore (the floor + fallback handle it). Monthly:
+compare suggestion CTR per page (`suggByRoute` vs `routes`); rewrite or
+drop chip sets below 5% CTR. Retention decision recorded here: 90-day
+TTL, question text only, no PII scrubbing yet — revisit before any
+multi-tenant phase.
 
 Adaptations from the original responsive plan: no Drawer/vaul
 dependency (responsive Sheet covers both), no backend message fetch

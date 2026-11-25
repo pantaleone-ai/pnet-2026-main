@@ -144,6 +144,20 @@ function hashQuery(q: string): string {
   return h.toString(16).padStart(8, "0");
 }
 
+function bucketMs(n: number): "fast" | "ok" | "slow" | "stalled" {
+  if (n < 1000) return "fast";
+  if (n < 3000) return "ok";
+  if (n < 10000) return "slow";
+  return "stalled";
+}
+
+/** First path segment only — page-set analytics without page fingerprinting. */
+function routeGroup(pathname: string | undefined): string {
+  if (!pathname || !pathname.startsWith("/")) return "(unknown)";
+  const seg = pathname.split("/").filter(Boolean)[0];
+  return seg ? `/${seg}` : "/";
+}
+
 export type TurnReport = {
   path: string;
   model?: string;
@@ -164,9 +178,11 @@ async function recordAnalytics(
     promptChars: number;
     promptBucket: "short" | "medium" | "long";
     retrievalMs: number;
+    serverMs: number;
     zeroResult: boolean;
     question: string;
     via: "suggestion" | "typed" | "retry";
+    route: string;
     depthBucket: "first" | "followup" | "deep";
   },
 ): Promise<void> {
@@ -178,14 +194,19 @@ async function recordAnalytics(
       string,
       unknown
     >;
-    const paths = (cur.paths ?? {}) as Record<string, number>;
-    paths[entry.path] = (paths[entry.path] ?? 0) + 1;
-    const models = (cur.models ?? {}) as Record<string, number>;
-    if (entry.model) models[entry.model] = (models[entry.model] ?? 0) + 1;
-    const via = (cur.via ?? {}) as Record<string, number>;
-    via[entry.via] = (via[entry.via] ?? 0) + 1;
-    const depth = (cur.depth ?? {}) as Record<string, number>;
-    depth[entry.depthBucket] = (depth[entry.depthBucket] ?? 0) + 1;
+    const bump = (obj: unknown, key: string) => {
+      const m = (obj ?? {}) as Record<string, number>;
+      m[key] = (m[key] ?? 0) + 1;
+      return m;
+    };
+    const paths = bump(cur.paths, entry.path);
+    const models = entry.model ? bump(cur.models, entry.model) : cur.models ?? {};
+    const via = bump(cur.via, entry.via);
+    const depth = bump(cur.depth, entry.depthBucket);
+    const routes = bump(cur.routes, entry.route);
+    const latency = bump(cur.latency, bucketMs(entry.serverMs));
+    const suggByRoute =
+      entry.via === "suggestion" ? bump(cur.suggByRoute, entry.route) : (cur.suggByRoute ?? {});
     await kv.put(
       dayKey,
       JSON.stringify({
@@ -194,6 +215,9 @@ async function recordAnalytics(
         models,
         via,
         depth,
+        routes,
+        latency,
+        suggByRoute,
         zeroResults: ((cur.zeroResults as number) ?? 0) + (entry.zeroResult ? 1 : 0),
       }),
       { expirationTtl: TTL },
@@ -509,11 +533,50 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const requestStart = Date.now();
+  // Bindings first: a local context read (no I/O) that also provides
+  // waitUntil, so even rejected requests can record error counters.
+  const bindings = await getChatBindings();
+  const { kv, waitUntil } = bindings;
+
+  const countError = (kind: "r429" | "e500") => {
+    if (!kv) return;
+    const task = (async () => {
+      try {
+        const day = new Date().toISOString().slice(0, 10);
+        const key = `day:${day}`;
+        const cur = JSON.parse((await kv.get(key)) ?? "{}") as Record<
+          string,
+          unknown
+        >;
+        const errors = (cur.errors ?? {}) as Record<string, number>;
+        errors[kind] = (errors[kind] ?? 0) + 1;
+        await kv.put(
+          key,
+          JSON.stringify({ ...cur, errors }),
+          { expirationTtl: 90 * 24 * 3600 },
+        );
+      } catch {
+        // Error accounting must never break error responses.
+      }
+    })();
+    if (waitUntil) {
+      try {
+        waitUntil(task);
+        return;
+      } catch {
+        // fall through to floating promise
+      }
+    }
+    void task.catch(() => {});
+  };
+
   try {
     const identifier = getIdentifier(request);
     try {
       await limiter.check(RATE_LIMIT_MAX, identifier);
     } catch {
+      countError("r429");
       return NextResponse.json(
         { error: "Too many requests. Please try again later." },
         { status: 429, headers: NO_STORE },
@@ -539,11 +602,10 @@ export async function POST(request: Request) {
       );
     }
 
-    const { message, history, via } = parsed.data;
+    const { message, history, via, route } = parsed.data;
     void CHAT_MAX_MESSAGE_LENGTH;
 
-    const bindings = await getChatBindings();
-    const { ai, vectorize, kv, waitUntil } = bindings;
+    const { ai, vectorize } = bindings;
 
     const retrievalStart = Date.now();
     const lexical = searchChatCorpus(message);
@@ -676,9 +738,11 @@ export async function POST(request: Request) {
         promptChars: message.length,
         promptBucket: lengthBucket(message.length),
         retrievalMs,
+        serverMs: Date.now() - requestStart,
         zeroResult: context.length === 0,
         question: message.slice(0, 200),
         via: via ?? "typed",
+        route: routeGroup(route),
         depthBucket:
           historyLen <= 0 ? "first" : historyLen <= 3 ? "followup" : "deep",
       });
@@ -721,6 +785,7 @@ export async function POST(request: Request) {
     logger.error("Unexpected error in chat API", error, {
       context: "chat-api",
     });
+    countError("e500");
     return NextResponse.json(
       { error: "An unexpected error occurred. Please try again later." },
       { status: 500, headers: NO_STORE },

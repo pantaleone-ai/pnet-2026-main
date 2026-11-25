@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { usePathname } from "next/navigation";
 
 import {
   GREETING,
@@ -41,7 +42,10 @@ type ChatContextValue = {
   popupOpen: boolean;
   isPristine: boolean;
   setPopupOpen: (open: boolean) => void;
-  send: (text: string, opts?: { via?: "suggestion" | "typed" | "retry" }) => Promise<void>;
+  send: (
+    text: string,
+    opts?: { via?: "suggestion" | "typed" | "retry"; route?: string | null },
+  ) => Promise<void>;
   stop: () => void;
   retry: () => Promise<void>;
   dismissError: () => void;
@@ -59,6 +63,7 @@ export function useChat(): ChatContextValue {
 }
 
 export function ChatProvider({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const [conversations, setConversations] = useState<StoredConversation[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([GREETING]);
@@ -118,7 +123,10 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   }, [messages, hydrated, activeId]);
 
   const send = useCallback(
-    async (text: string, opts?: { via?: "suggestion" | "typed" | "retry" }) => {
+    async (
+      text: string,
+      opts?: { via?: "suggestion" | "typed" | "retry"; route?: string | null },
+    ) => {
       const question = text.trim();
       if (!question || abortRef.current) return;
       setError(null);
@@ -142,6 +150,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
             message: question,
             history,
             via: opts?.via ?? "typed",
+            route: opts?.route ?? pathname ?? undefined,
           }),
           signal: controller.signal,
         });
@@ -216,7 +225,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         abortRef.current = null;
       }
     },
-    [messages],
+    [messages, pathname],
   );
 
   const stop = useCallback(() => {

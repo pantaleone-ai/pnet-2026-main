@@ -21,10 +21,10 @@
     "url": "git+https://github.com/pantaleone-ai/pnet-2026-main.git"
   },
   "scripts": {
-    "build": "next build",
+    "build": "node scripts/build-chat-corpus.mjs && next build",
     "dev": "next dev --turbopack",
     "start": "next start",
-    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "preview": "node scripts/build-chat-corpus.mjs && opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "check-types": "tsc --noEmit --pretty",
@@ -74,8 +74,8 @@
     "ads:collect-meta": "tsx scripts/social-issues/collect/meta-ads-collect.ts",
     "ads:collect-google": "tsx scripts/social-issues/collect/google-ads-collect.ts",
     "growth:analyze": "tsx scripts/social-issues/analyze/growth-analyze.ts",
-    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
-    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "deploy": "node scripts/build-chat-corpus.mjs && opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "upload": "node scripts/build-chat-corpus.mjs && opennextjs-cloudflare build && opennextjs-cloudflare upload",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
