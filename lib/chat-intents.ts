@@ -34,7 +34,36 @@ const HIRE_RE =
 const BROWSE_RE =
   /\b(explore|browse|show|list|see|all|shop|buy|offer|sell|have|got)\b/;
 const CATALOG_RE =
-  /\b(products?|apps?|tools?|workflows?|catalog(ue)?|shop|store|prompts?|packs?|bundles?|bundles?)\b/;
+  /\b(products?|apps?|tools?|workflows?|catalog(ue)?|shop|store|prompts?|packs?|bundles?)\b/;
+// Generic catalog nouns: a whole query made only of these (after dropping
+// filler words) is browsing, not searching — "products", "your apps".
+// Specific type words (prompt, bundle, saas) stay with retrieval.
+const GENERIC_CATALOG = new Set([
+  "ai",
+  "product",
+  "products",
+  "app",
+  "apps",
+  "tool",
+  "tools",
+  "software",
+  "shop",
+  "store",
+  "catalog",
+  "catalogue",
+]);
+const FILLER = new Set([
+  "my",
+  "your",
+  "the",
+  "a",
+  "an",
+  "me",
+  "us",
+  "our",
+  "all",
+  "any",
+]);
 
 const SERVICES_RE =
   /\bservices?\b.*\b(what|which|offer|do you do|provide|include)\b|\b(what|which)\b.*\bservices?\b|^services?\??$|what do you do/;
@@ -86,11 +115,12 @@ export function matchIntent(message: string): ChatIntent | null {
       sources: [{ title: "Contact", type: "page", url: `${SITE}/contact` }],
     };
   }
-  const words = q.split(" ");
-  if (
-    (BROWSE_RE.test(q) && CATALOG_RE.test(q)) ||
-    (words.length <= 3 && CATALOG_RE.test(q))
-  ) {
+  const words = q.split(" ").filter((w) => w && !FILLER.has(w));
+  const isBareCatalogBrowse =
+    words.length > 0 &&
+    words.length <= 2 &&
+    words.every((w) => GENERIC_CATALOG.has(w));
+  if ((BROWSE_RE.test(q) && CATALOG_RE.test(q)) || isBareCatalogBrowse) {
     return {
       id: "explore-products",
       reply: EXPLORE_PRODUCTS_REPLY,
