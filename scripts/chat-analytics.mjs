@@ -81,6 +81,10 @@ const paths = {};
 const models = {};
 const via = {};
 const depth = {};
+const routes = {};
+const latency = {};
+const suggByRoute = {};
+const errors = {};
 for (const k of dayKeys) {
   const d = get(k);
   if (!d) continue;
@@ -90,6 +94,10 @@ for (const k of dayKeys) {
   for (const [m, n] of Object.entries(d.models || {})) models[m] = (models[m] || 0) + n;
   for (const [v, n] of Object.entries(d.via || {})) via[v] = (via[v] || 0) + n;
   for (const [t, n] of Object.entries(d.depth || {})) depth[t] = (depth[t] || 0) + n;
+  for (const [r, n] of Object.entries(d.routes || {})) routes[r] = (routes[r] || 0) + n;
+  for (const [l, n] of Object.entries(d.latency || {})) latency[l] = (latency[l] || 0) + n;
+  for (const [r, n] of Object.entries(d.suggByRoute || {})) suggByRoute[r] = (suggByRoute[r] || 0) + n;
+  for (const [e, n] of Object.entries(d.errors || {})) errors[e] = (errors[e] || 0) + n;
 }
 
 const questions = [];
@@ -105,6 +113,10 @@ console.log("paths:", JSON.stringify(paths));
 console.log("models:", JSON.stringify(models));
 console.log("via (suggestion vs typed vs retry):", JSON.stringify(via));
 console.log("depth (first vs followup vs deep):", JSON.stringify(depth));
+console.log("routes (page sets):", JSON.stringify(routes));
+console.log("server latency to first byte:", JSON.stringify(latency));
+console.log("suggestion clicks by page:", JSON.stringify(suggByRoute));
+console.log("errors (r429 rate-limited, e500 server):", JSON.stringify(errors));
 
 // Coverage hints: zero-result queries that share a real token with an
 // existing doc are probably vocabulary mismatches, not content gaps —

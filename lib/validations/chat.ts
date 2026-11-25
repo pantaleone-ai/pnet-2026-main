@@ -18,6 +18,13 @@ export const chatPayloadSchema = z.object({
   // How the message was composed: suggestion chip, typed composer, retry.
   // Used only for aggregate funnel analytics, never PII.
   via: z.enum(["suggestion", "typed", "retry"]).optional(),
+  // Page the widget was opened on (route group only, e.g. /shop).
+  // Powers per-page suggestion CTR. Normalized server-side.
+  route: z
+    .string()
+    .regex(/^\/[a-z0-9/-]*$/, "Must be a same-site path")
+    .max(64)
+    .optional(),
 });
 
 export type ChatPayload = z.infer<typeof chatPayloadSchema>;

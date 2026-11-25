@@ -83,12 +83,27 @@ const docs = [...blog, ...shop].sort((a, b) =>
   `${a.type}/${a.slug}`.localeCompare(`${b.type}/${b.slug}`),
 );
 
-await fs.writeFile(
-  OUT,
-  JSON.stringify(
-    { generatedAt: new Date().toISOString(), count: docs.length, docs },
-    null,
-    0,
-  ) + "\n",
-);
-console.log(`chat corpus: ${docs.length} docs (${blog.length} blog, ${shop.length} product) -> lib/chat-corpus.json`);
+// Skip the write when content is unchanged (ignoring the timestamp) so
+// automated runs — e.g. as part of `npm run build` — never dirty the tree.
+let unchanged = false;
+try {
+  const prev = JSON.parse(await fs.readFile(OUT, "utf-8"));
+  unchanged =
+    Array.isArray(prev.docs) &&
+    JSON.stringify(prev.docs) === JSON.stringify(docs);
+} catch {
+  unchanged = false;
+}
+if (!unchanged) {
+  await fs.writeFile(
+    OUT,
+    JSON.stringify(
+      { generatedAt: new Date().toISOString(), count: docs.length, docs },
+      null,
+      0,
+    ) + "\n",
+  );
+  console.log(`chat corpus: ${docs.length} docs (${blog.length} blog, ${shop.length} product) -> lib/chat-corpus.json`);
+} else {
+  console.log(`chat corpus: unchanged (${docs.length} docs), skip write`);
+}

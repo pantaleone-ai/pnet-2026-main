@@ -56,6 +56,11 @@ export async function getPostsBySearchQuery(query: string) {
   const results: SearchResult[] = [];
 
   // Pass 1: exact substring matches only (cheap).
+// NOTE (retrieval fork): this site-search index intentionally differs from
+// the chat corpus in lib/chat-retrieval.ts. Site search shows weak matches
+// (a catalog); the assistant must only answer from strong ones, so chat
+// applies a relevance floor, extra stopwords, and len>=4 content matching.
+// Keep the weights in sync, but do NOT merge the two paths.
   for (const post of getBlogPosts()) {
     let score = 0;
     const title = post.title.toLowerCase();

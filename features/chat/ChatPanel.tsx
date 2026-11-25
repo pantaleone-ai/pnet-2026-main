@@ -81,6 +81,8 @@ export default function ChatPanel({
   } = useChat();
   const pathname = usePathname();
   const suggestions = suggestionsFor(pathname);
+  const sendHere = (text: string, via: "suggestion" | "typed" | "retry") =>
+    send(text, { via });
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-3">
@@ -170,7 +172,7 @@ export default function ChatPanel({
             variant="outline"
             size="sm"
             disabled={pending}
-            onClick={() => send(s, { via: "suggestion" })}
+            onClick={() => sendHere(s, "suggestion")}
           >
             {s}
           </Button>
@@ -201,7 +203,7 @@ export default function ChatPanel({
 
       <ChatComposer
         pending={pending}
-        onSend={(t) => send(t, { via: "typed" })}
+        onSend={(t) => sendHere(t, "typed")}
         onStop={stop}
       />
       {variant === "popup" && (
