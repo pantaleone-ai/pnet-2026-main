@@ -24,7 +24,7 @@ export const TIER_ASSIGNMENTS: TierAssignment[] = [
     tier: "tier1",
     score: 58,
     rationale: "Purchasable downloads, strongest visual + Pinterest fit, clear discovery-to-purchase path.",
-    postsPerWeek: 6,
+    postsPerWeek: 11,
   },
   {
     appId: "print3dmodels",
@@ -77,9 +77,9 @@ export const TIER_ASSIGNMENTS: TierAssignment[] = [
   },
 ];
 
-export const PORTFOLIO_WEEKLY_TARGET = 41;
+export const PORTFOLIO_WEEKLY_TARGET = 46;
 export const TIER_WEEKLY_TARGETS: Record<GrowthTier, number> = {
-  tier1: 16,
+  tier1: 21,
   tier2: 15,
   tier3: 10,
 };

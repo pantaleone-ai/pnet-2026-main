@@ -41,8 +41,8 @@ export const PRODUCT_STRATEGIES: ProductStrategy[] = [
     bestPlatforms: ["pinterest", "instagram", "facebook"],
     bestFormats: ["pin", "carousel", "reel-concept"],
     recurringThemes: ["artwork-drop", "style-comparison", "room-context", "process-note"],
-    postsPerWeek: 6,
-    postingWindows: ["Mon 12:00 ET", "Tue 12:00 ET", "Thu 19:00 ET", "Fri 16:00 ET", "Sat 10:00 ET", "Sun 10:00 ET"],
+    postsPerWeek: 11,
+    postingWindows: ["Mon 12:00 ET", "Mon 19:00 ET", "Tue 12:00 ET", "Wed 12:00 ET", "Thu 19:00 ET", "Fri 10:00 ET", "Fri 16:00 ET", "Sat 10:00 ET", "Sat 16:00 ET", "Sun 10:00 ET", "Sun 16:00 ET"],
   },
   {
     appId: "print3dmodels",
