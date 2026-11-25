@@ -24,6 +24,8 @@ export default function ConsentManager({
       <ConsentManagerClient>{children}</ConsentManagerClient>
 
       <CookieBanner
+        trapFocus={false}
+        scrollLock={false}
         theme={{
           "banner.card": {
             noStyle: true,

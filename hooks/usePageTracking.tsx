@@ -31,8 +31,10 @@ function PageTrackingInner() {
     // Google Analytics page tracking — single page_view per SPA route,
     // collected by default (opt-out via isGaEnabled Consent Mode check).
     // Layout init uses send_page_view:false so this is the only page_view.
+    // Optional-chained: ad-blockers remove gtag; must never throw and
+    // must never block PostHog/Meta below.
     if (isGaEnabled()) {
-      window.gtag("event", "page_view", {
+      (window as any).gtag?.("event", "page_view", {
         page_path: url,
         page_title: pageTitle,
       });
