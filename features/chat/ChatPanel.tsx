@@ -170,7 +170,7 @@ export default function ChatPanel({
             variant="outline"
             size="sm"
             disabled={pending}
-            onClick={() => send(s)}
+            onClick={() => send(s, { via: "suggestion" })}
           >
             {s}
           </Button>
@@ -199,7 +199,11 @@ export default function ChatPanel({
         </div>
       )}
 
-      <ChatComposer pending={pending} onSend={send} onStop={stop} />
+      <ChatComposer
+        pending={pending}
+        onSend={(t) => send(t, { via: "typed" })}
+        onStop={stop}
+      />
       {variant === "popup" && (
         <p className="shrink-0 text-center text-[11px] leading-none text-muted-foreground">
           Answers from {SITE_URL.replace("https://", "")}.{" "}

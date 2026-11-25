@@ -41,7 +41,7 @@ type ChatContextValue = {
   popupOpen: boolean;
   isPristine: boolean;
   setPopupOpen: (open: boolean) => void;
-  send: (text: string) => Promise<void>;
+  send: (text: string, opts?: { via?: "suggestion" | "typed" | "retry" }) => Promise<void>;
   stop: () => void;
   retry: () => Promise<void>;
   dismissError: () => void;
@@ -118,7 +118,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   }, [messages, hydrated, activeId]);
 
   const send = useCallback(
-    async (text: string) => {
+    async (text: string, opts?: { via?: "suggestion" | "typed" | "retry" }) => {
       const question = text.trim();
       if (!question || abortRef.current) return;
       setError(null);
@@ -138,7 +138,11 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: question, history }),
+          body: JSON.stringify({
+            message: question,
+            history,
+            via: opts?.via ?? "typed",
+          }),
           signal: controller.signal,
         });
         if (!response.ok || !response.body) {
@@ -223,7 +227,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     if (failedMessage) {
       setError(null);
       setFailedMessage(null);
-      await send(failedMessage);
+      await send(failedMessage, { via: "retry" });
     }
   }, [failedMessage, send]);
 

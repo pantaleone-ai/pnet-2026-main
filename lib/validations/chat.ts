@@ -15,6 +15,9 @@ export const chatPayloadSchema = z.object({
     .min(2, "Message must be at least 2 characters.")
     .max(CHAT_MAX_MESSAGE_LENGTH, "Message is too long."),
   history: z.array(historyItemSchema).max(CHAT_MAX_HISTORY).optional(),
+  // How the message was composed: suggestion chip, typed composer, retry.
+  // Used only for aggregate funnel analytics, never PII.
+  via: z.enum(["suggestion", "typed", "retry"]).optional(),
 });
 
 export type ChatPayload = z.infer<typeof chatPayloadSchema>;

@@ -31,6 +31,19 @@ async function mdxFiles(dir) {
   return files;
 }
 
+// Editorial topic aliases: human-assigned keywords for docs whose own
+// title/description/slug don't contain the words people search for
+// (e.g. "The Virtual Company" is the AI-companies post). Surfaced by the
+// zero-result mining loop (`npm run chat:analytics`); add entries here
+// with evidence, not guesses. Scored like title matches.
+const KEYWORD_ALIASES = {
+  "ai-companies": ["companies", "company", "AI companies", "virtual company"],
+};
+const PRODUCT_CATEGORY_SLUGS = {
+  Apps: "ai-apps",
+  "Ai Workflows": "ai-workflows",
+};
+
 async function loadDocs(contentDir, type) {
   const dir = path.join(ROOT, contentDir);
   let files = [];
@@ -45,13 +58,21 @@ async function loadDocs(contentDir, type) {
     const { data, content } = matter(raw);
     if (!data.title) continue;
     const slug = path.basename(file, ".mdx");
-    docs.push({
+    const doc = {
       type,
       slug,
       title: String(data.title),
       description: String(data.description || ""),
       content: content.trim().slice(0, MAX_CONTENT_CHARS),
-    });
+    };
+    const aliases = KEYWORD_ALIASES[slug];
+    if (aliases) doc.aliases = aliases;
+    if (type === "product" && typeof data.category === "string") {
+      doc.category =
+        PRODUCT_CATEGORY_SLUGS[data.category] ||
+        data.category.toLowerCase().replace(/\s+/g, "-");
+    }
+    docs.push(doc);
   }
   return docs;
 }

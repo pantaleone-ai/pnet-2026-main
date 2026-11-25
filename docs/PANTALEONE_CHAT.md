@@ -130,16 +130,18 @@ One assistant, one backend, one conversation state, two presentations:
 ## Stage 2 status (2026-11-24)
 
 **Vectorize: provisioned, seeded, evaluated — stays OFF.**
-Index `pnet-chat-index` (1024 dims, cosine, 46 docs) is live and queryable,
-but the eval series decided its status: pure-cosine rerank 17/20,
-unweighted 3-way fusion 17/20, lexical+RRF 19/20 — the index leg demoted
+Index `pnet-chat-index` (1024 dims, cosine, 46 docs) is live and queryable.
+The eval series decided its status: pure-cosine rerank 17/20, unweighted
+3-way fusion 17/20, lexical+RRF 19/20 — the index leg demoted
 previously-passing cases, so it stays opt-in (`CHAT_VECTORIZE=1`).
-Shipped instead: **weighted RRF with 2× lexical weight**, which scored
-**20/20 on the live preview**, fixing both the readiness tie-flip and the
-Docker morphology gap with no index. Query terms are punctuation-stripped
-before scoring ("business?" now matches "business"). Next experiments if
-quality regresses: asymmetric embedding candidates, chunked doc vectors,
-per-query index fallback.
+Shipped instead: **weighted RRF (2× lexical) + relevance floor with
+semantic rescue**, which scored **50/50 on the live preview with zero
+adversarial failures**. Query terms are punctuation-stripped; body-text
+matching requires 4+ char terms ("sea" no longer matches "research");
+editorial topic aliases (`KEYWORD_ALIASES` in the corpus builder,
+surfaced by the mining loop) rescue slug-only topic matches. Next
+experiments if quality regresses: chunked doc vectors, per-query index
+fallback (leg already consults only on weak lexical top-1).
 
 **Usage analytics: live.** Every turn writes a structured record to the
 `CHAT_ANALYTICS` KV namespace (90-day TTL): per-day aggregates
@@ -159,6 +161,36 @@ dependency (responsive Sheet covers both), no backend message fetch
 (no D1 yet — documented Stage 2 hook), no lead-capture forms (contact
 CTA only), no Message/Bubble component set (custom transcript reuses
 shadcn Button/Textarea/Sheet/Skeleton/Tooltip).
+
+## Stage 2 execution (in progress, branch `feat/chat-stage2`)
+
+**1. Asymmetric embeddings — DONE (index re-seeded).**
+`npm run chat:index [--mode compact|full]` (default compact: title +
+description only, 500 chars). Compact is the fair-rematch candidate
+against the full-body vectors that lost the gate. Record the active
+mode here when changed. Currently: **compact**.
+
+**2. Per-query index fallback — DONE (code).**
+The Vectorize leg runs only when the lexical top-1 score is weak
+(`WEAK_LEXICAL_TOP_SCORE = 10`, i.e. no title-level match) AND the
+master switch allows it. Strong lexical matches skip the extra
+embedding+index latency entirely. Switch: `CHAT_VECTORIZE=1` enables the
+leg (default OFF until the 50-question eval beats the 20/20 baseline).
+
+**3. Eval: 20 → 50 questions — DONE.**
+Paraphrase pairs, shop-product coverage, honest fallbacks
+(pricing/refunds), off-topic honesty (`expectEmpty`), and prompt-injection
+resistance with leak detection (`expectAbsent`, e.g. system-prompt
+phrases must never appear). Gates: overall ≥ 90%, adversarial 100%.
+
+**4. Analytics loop — DONE (code) + weekly runbook.**
+`via` (suggestion/typed/retry) and conversation-depth buckets
+(first/followup/deep) flow into the KV day aggregates; `npm run
+chat:analytics` prints via/depth breakdowns plus per-question coverage
+hints ("possibly covered by: slug" vs "genuine gap candidate"). Weekly:
+run the report, turn top zero-result questions into corpus keywords,
+aliases, or new content; prune/replace suggestion chips with low
+click-through (via=suggestion share falling while typed rises).
 
 ## 4. Verification- `npx tsc --noEmit` (must pass).
 - `npx eslint` on new/changed files (must pass).

@@ -7,6 +7,7 @@ import {
   chatPayloadSchema,
 } from "@/lib/validations/chat";
 import {
+  MIN_LEXICAL_SCORE,
   docKey,
   findDocsBySlugs,
   fuseRanks,
@@ -34,12 +35,16 @@ const CHAT_MODEL = "@cf/google/gemma-4-26b-a4b-it";
 const EMBED_MODEL = "@cf/qwen/qwen3-embedding-0.6b";
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-4o-mini";
 const SITE_URL = "https://www.pantaleone.net";
-// Kill switches (env): CHAT_NO_RERANK=1 forces lexical order;
-// CHAT_VECTORIZE=1 enables the Vectorize index leg. Default off: the index
-// leg scored 17/20 vs the 19/20 lexical+RRF baseline on the eval set
-// (2026-11-24) and stays opt-in until a recipe beats the baseline.
-const VECTORIZE_ENABLED = process.env.CHAT_VECTORIZE === "1";
+// Kill switches (env): CHAT_NO_RERANK=1 forces lexical order.
+// CHAT_VECTORIZE=0 disables the Vectorize index leg (experiment branch:
+// default ON to measure the compact-vector + per-query-fallback recipe;
+// keep ON only if the 50-question eval beats the 20/20 lexical baseline).
+const VECTORIZE_ENABLED = process.env.CHAT_VECTORIZE !== "0";
 const VECTORIZE_TOP_K = 12;
+// Per-query fallback: the index leg runs only when the lexical top hit is
+// weak (below a bare title match). Strong lexical matches skip the extra
+// latency/cost; weak ones get semantic rescue.
+const WEAK_LEXICAL_TOP_SCORE = 10;
 
 type ChatBindings = {
   ai: CloudflareAI | null;
@@ -161,6 +166,8 @@ async function recordAnalytics(
     retrievalMs: number;
     zeroResult: boolean;
     question: string;
+    via: "suggestion" | "typed" | "retry";
+    depthBucket: "first" | "followup" | "deep";
   },
 ): Promise<void> {
   const TTL = 90 * 24 * 3600;
@@ -175,12 +182,18 @@ async function recordAnalytics(
     paths[entry.path] = (paths[entry.path] ?? 0) + 1;
     const models = (cur.models ?? {}) as Record<string, number>;
     if (entry.model) models[entry.model] = (models[entry.model] ?? 0) + 1;
+    const via = (cur.via ?? {}) as Record<string, number>;
+    via[entry.via] = (via[entry.via] ?? 0) + 1;
+    const depth = (cur.depth ?? {}) as Record<string, number>;
+    depth[entry.depthBucket] = (depth[entry.depthBucket] ?? 0) + 1;
     await kv.put(
       dayKey,
       JSON.stringify({
         turns: ((cur.turns as number) ?? 0) + 1,
         paths,
         models,
+        via,
+        depth,
         zeroResults: ((cur.zeroResults as number) ?? 0) + (entry.zeroResult ? 1 : 0),
       }),
       { expirationTtl: TTL },
@@ -211,11 +224,9 @@ const limiter = rateLimit({
   uniqueTokenPerInterval: 1000,
 });
 
-function toSourceUrl(item: {
-  type: string;
-  slug: string;
-}): string {
+function toSourceUrl(item: { type: string; slug: string; category?: string }): string {
   if (item.type === "blog") return `${SITE_URL}/blog/${item.slug}`;
+  if (item.category) return `${SITE_URL}/shop/${item.category}/${item.slug}`;
   return `${SITE_URL}/shop`;
 }
 
@@ -223,7 +234,7 @@ function buildContext(results: ChatRetrievalHit[]) {
   return results.slice(0, RETRIEVAL_TOP_K).map((r) => ({
     title: r.title,
     type: r.type,
-    url: toSourceUrl({ type: r.type, slug: r.slug }),
+    url: toSourceUrl({ type: r.type, slug: r.slug, category: r.category }),
     excerpt: r.excerpt || "",
   }));
 }
@@ -233,6 +244,10 @@ const SYSTEM_PROMPT = [
   "Answer in direct, plain language using ONLY the site context provided.",
   "If the context does not contain the answer, say so and point to",
   "https://www.pantaleone.net/contact.",
+  "Relevance check before answering: if none of the sources actually answer",
+  "the question (for example hiring, pricing, contact details, or anything",
+  "off-topic), say you cannot help from site content and point to the contact",
+  "page. Never force an answer from unrelated sources.",
   "Never invent URLs, prices, dates, or facts. Cite the source titles you used.",
 ].join(" ");
 
@@ -524,7 +539,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { message, history } = parsed.data;
+    const { message, history, via } = parsed.data;
     void CHAT_MAX_MESSAGE_LENGTH;
 
     const bindings = await getChatBindings();
@@ -533,6 +548,7 @@ export async function POST(request: Request) {
     const retrievalStart = Date.now();
     const lexical = searchChatCorpus(message);
     let ranked = lexical;
+    let embRank: Map<string, number> | null = null;
     if (RERANK_ENABLED && ai && lexical.length > 1) {
       try {
         const pool = lexical.slice(0, RERANK_POOL);
@@ -554,7 +570,16 @@ export async function POST(request: Request) {
           pool,
           orderByCosine(pool, queryVector, vectors.slice(1)),
         ];
-        if (VECTORIZE_ENABLED && vectorize) {
+        const cosineOrder = lists[2] as ChatRetrievalHit[];
+        embRank = new Map<string, number>(
+          cosineOrder.map((h, i) => [docKey(h), i + 1]),
+        );
+        const lexicalTop = pool[0]?.score ?? 0;
+        if (
+          VECTORIZE_ENABLED &&
+          vectorize &&
+          lexicalTop < WEAK_LEXICAL_TOP_SCORE
+        ) {
           try {
             const res = await vectorize.query(queryVector, {
               topK: VECTORIZE_TOP_K,
@@ -572,7 +597,7 @@ export async function POST(request: Request) {
             if (vecHits.length > 0) lists.push(vecHits);
             logger.info("chat vectorize", {
               context: "chat-api",
-              meta: { matches: res.count },
+              meta: { matches: res.count, triggeredByWeakLexical: lexicalTop },
             });
           } catch (error) {
             // Index leg is additive — cosine fusion still applies.
@@ -586,6 +611,7 @@ export async function POST(request: Request) {
         }
         const fused = fuseRanks(lists);
         const fusedKeys = new Set(fused.map(docKey));
+        const usedVectorize = lists.length > 3;
         ranked = [
           ...fused,
           ...lexical.filter((h) => !fusedKeys.has(docKey(h))),
@@ -595,7 +621,8 @@ export async function POST(request: Request) {
           meta: {
             model: EMBED_MODEL,
             pool: pool.length,
-            vectorize: lists.length > 3,
+            vectorize: usedVectorize,
+            lexicalTop,
           },
         });
       } catch (error) {
@@ -607,6 +634,17 @@ export async function POST(request: Request) {
       }
     }
     const retrievalMs = Date.now() - retrievalStart;
+
+    // Relevance floor: exact matches need title-level evidence (10+),
+    // unless the embedding model ranks them top-3 (semantic rescue for
+    // slug-only topic matches and paraphrases). Weak single-content-word
+    // hits become honest fallbacks. Fuzzy typo-rescues and Vectorize
+    // rescues pass through on their own signal.
+    const keep = (h: ChatRetrievalHit) =>
+      h.origin !== "lexical" ||
+      (h.score ?? 0) >= MIN_LEXICAL_SCORE ||
+      (embRank?.get(docKey(h)) ?? 99) <= 3;
+    ranked = ranked.filter(keep);
 
     let context: ReturnType<typeof buildContext> = [];
     try {
@@ -631,6 +669,7 @@ export async function POST(request: Request) {
         }
         return;
       }
+      const historyLen = history?.length ?? 0;
       const task = recordAnalytics(kv, {
         ...r,
         sources: context.length,
@@ -639,6 +678,9 @@ export async function POST(request: Request) {
         retrievalMs,
         zeroResult: context.length === 0,
         question: message.slice(0, 200),
+        via: via ?? "typed",
+        depthBucket:
+          historyLen <= 0 ? "first" : historyLen <= 3 ? "followup" : "deep",
       });
       if (waitUntil) {
         try {

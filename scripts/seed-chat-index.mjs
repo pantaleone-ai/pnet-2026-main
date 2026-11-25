@@ -1,19 +1,30 @@
 /**
  * Seeds the pnet-chat-index Vectorize index from the build-time corpus.
  *
- *   CLOUDFLARE_API_TOKEN=... CLOUDFLARE_ACCOUNT_ID=... node scripts/seed-chat-index.mjs
+ *   CLOUDFLARE_API_TOKEN=... CLOUDFLARE_ACCOUNT_ID=... node scripts/seed-chat-index.mjs [--mode compact|full]
  *
- * Idempotent: vector IDs are stable (`type/slug`), so re-running updates
- * changed docs in place. Re-run whenever site content changes. Stale IDs
- * (deleted pages) are reported, not auto-deleted — delete the index and
- * re-seed after large content removals.
+ * Modes (embedding candidate text):
+ *   compact (default) — title + description only. Asymmetric to short
+ *     user queries; the fair-rematch candidate after full-body vectors
+ *     underperformed (17/20 vs 19/20 baseline).
+ *   full — title + description + body (capped). The original recipe.
+ *
+ * Idempotent: vector IDs are stable hashes of `type/slug`, so re-running
+ * overwrites in place. Record the active mode in docs/PANTALEONE_CHAT.md.
  */
 const ACCOUNT = process.env.CLOUDFLARE_ACCOUNT_ID;
 const TOKEN = process.env.CLOUDFLARE_API_TOKEN;
 const INDEX = process.env.CHAT_VECTORIZE_INDEX || "pnet-chat-index";
 const EMBED_MODEL = "@cf/qwen/qwen3-embedding-0.6b";
 const EMBED_BATCH = 8;
-const TEXT_CHARS = 2000;
+const MODE = process.argv.includes("--mode")
+  ? process.argv[process.argv.indexOf("--mode") + 1]
+  : "compact";
+if (MODE !== "compact" && MODE !== "full") {
+  console.error(`Expected --mode compact|full, got "${MODE}"`);
+  process.exit(1);
+}
+const TEXT_CHARS = MODE === "compact" ? 500 : 2000;
 
 if (!ACCOUNT || !TOKEN) {
   console.error(
@@ -44,7 +55,7 @@ async function api(path, options = {}) {
 const corpus = (await import("../lib/chat-corpus.json", { with: { type: "json" } }))
   .default;
 const docs = corpus.docs;
-console.log(`corpus: ${docs.length} docs`);
+console.log(`corpus: ${docs.length} docs, mode: ${MODE}`);
 
 // Vectorize IDs cap at 64 bytes and some slugs approach that alone, so IDs
 // are stable FNV-1a hashes of `type/slug`. Human-readable mapping lives in
@@ -60,7 +71,10 @@ function docId(d) {
 }
 
 const texts = docs.map((d) =>
-  `${d.title}\n${d.description}\n${d.content}`.slice(0, TEXT_CHARS),
+  `${d.title}\n${d.description}${d.aliases ? `\n${d.aliases.join(", ")}` : ""}${MODE === "full" ? `\n${d.content}` : ""}`.slice(
+    0,
+    TEXT_CHARS,
+  ),
 );
 
 // Batch-embed.
