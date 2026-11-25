@@ -2687,4 +2687,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "enamel surreal minimalism impossible geometry 86768930",
     format: "avif",
   },
+  {
+    id: "2026-10-21-metal-topological-abstraction-soak-stain-pools-69929930",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-21-metal-topological-abstraction-soak-stain-pools-69929930.avif",
+    firstSeen: "2026-10-21",
+    descriptor: "metal topological abstraction soak stain pools 69929930",
+    format: "avif",
+  },
+  {
+    id: "2026-10-22-gesture-abstract-landscape-folded-planes-99953861",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-22-gesture-abstract-landscape-folded-planes-99953861.avif",
+    firstSeen: "2026-10-22",
+    descriptor: "gesture abstract landscape folded planes 99953861",
+    format: "avif",
+  },
+  {
+    id: "2026-10-22-travertine-surreal-minimalism-facade-grid-24785327",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-22-travertine-surreal-minimalism-facade-grid-24785327.avif",
+    firstSeen: "2026-10-22",
+    descriptor: "travertine surreal minimalism facade grid 24785327",
+    format: "avif",
+  },
 ];
