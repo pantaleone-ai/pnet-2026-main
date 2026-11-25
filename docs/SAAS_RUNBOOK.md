@@ -1,5 +1,16 @@
 # Pantaleone Chat SaaS — Runbook
 
+> Lockfile rule (learned 2026-11-25): NEVER run npm with
+> `legacy-peer-deps=true` in this repo (a stale global `~/.npmrc` once
+> caused exactly this). It makes npm skip optional peer subtrees when
+> writing `package-lock.json`, while CI (strict, no such flag) demands
+> them — `npm ci` then fails with "Missing ... from lock file" even
+> though every local check passes. If CI ever reports that class of
+> error again: regenerate the lock strictly
+> (`rm -rf node_modules && npm install` with default settings),
+> verify locally (`npm ci`, typecheck, tests, build, preview + eval),
+> then commit.
+
 ## Resources (all provisioned 2026-11-25)
 
 D1 (chat data):
