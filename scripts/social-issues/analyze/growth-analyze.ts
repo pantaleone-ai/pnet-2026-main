@@ -94,10 +94,13 @@ function checkFreshness(recs: Rec[]): void {
 }
 
 function checkDedupe(recs: Rec[]): void {
+  // Full merge-key grain (entity, metric, scope, snapshot day, period_start):
+  // multi-day API windows (FB 14d, Pinterest 30d) legitimately share a
+  // snapshot date with distinct period_starts — those are not violations.
   const rows = bqJson<{ entity_id: string; metric_name: string; d: string; c: string }>(
     `SELECT entity_id, metric_name, CAST(DATE(snapshot_at) AS STRING) d, CAST(COUNT(*) AS STRING) c ` +
       `FROM \`${D}.social_metric_observations\` WHERE DATE(snapshot_at) >= DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY) ` +
-      `GROUP BY 1,2,3 HAVING COUNT(*) > 1 ORDER BY COUNT(*) DESC LIMIT 5`,
+      `GROUP BY 1,2,3, metric_scope, DATE(snapshot_at), period_start HAVING COUNT(*) > 1 ORDER BY COUNT(*) DESC LIMIT 5`,
   );
   if (!rows.length) {
     console.log("dedupe: no violations in last 14d");
