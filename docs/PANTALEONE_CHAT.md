@@ -162,9 +162,12 @@ query's distinctive words to `KEYWORD_ALIASES` in
 (b) genuine gap → file a content task, do not fake coverage;
 (c) off-topic/abuse → ignore (the floor + fallback handle it). Monthly:
 compare suggestion CTR per page (`suggByRoute` vs `routes`); rewrite or
-drop chip sets below 5% CTR. Retention decision recorded here: 90-day
-TTL, question text only, no PII scrubbing yet — revisit before any
-multi-tenant phase.
+drop chip sets below 5% CTR. Known limits: the in-memory rate limiter is
+per-isolate, so a distributed burst will not reliably trip 429s — the
+`errors.r429` counter undercounts by design; true edge enforcement
+needs the KV-backed limiter (Stage 2). Retention decision recorded here:
+90-day TTL, question text only, no PII scrubbing yet — revisit before
+any multi-tenant phase.
 
 Adaptations from the original responsive plan: no Drawer/vaul
 dependency (responsive Sheet covers both), no backend message fetch
