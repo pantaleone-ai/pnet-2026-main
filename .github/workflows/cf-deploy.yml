@@ -33,6 +33,19 @@ jobs:
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      # Build-time public config. NEXT_PUBLIC_* is inlined by Next.js at
+      # build time, so CI must provide it here — Worker secrets alone only
+      # cover runtime and never reach the client bundle (that gap silently
+      # disabled GA/Meta/PostHog in prod). Missing/empty keeps the feature
+      # disabled, same as unset (see config/analytics.ts).
+      NEXT_PUBLIC_GOOGLE_ANALYTICS_ID: ${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID }}
+      NEXT_PUBLIC_META_PIXEL_ID: ${{ secrets.NEXT_PUBLIC_META_PIXEL_ID }}
+      NEXT_PUBLIC_META_PIXEL_ID_SYNTHETIC_PICS: ${{ secrets.NEXT_PUBLIC_META_PIXEL_ID_SYNTHETIC_PICS }}
+      NEXT_PUBLIC_POSTHOG_KEY: ${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}
+      NEXT_PUBLIC_POSTHOG_HOST: ${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}
+      NEXT_PUBLIC_POSTHOG_UI_HOST: ${{ secrets.NEXT_PUBLIC_POSTHOG_UI_HOST }}
+      NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL }}
+      NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
     steps:
       - uses: actions/checkout@v4
 
@@ -45,6 +58,10 @@ jobs:
 
       - name: Build + deploy to production
         if: github.event_name == 'push' || inputs.promote == 'true'
+        env:
+          # Prod-host gate (lib/meta-pixel.ts): non-production builds fail
+          # closed unless the hostname itself is allowlisted.
+          NEXT_PUBLIC_VERCEL_ENV: production
         run: npm run deploy
 
       - name: Build + upload version preview (no traffic)
