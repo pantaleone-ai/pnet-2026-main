@@ -548,6 +548,7 @@ export async function POST(request: Request) {
     const retrievalStart = Date.now();
     const lexical = searchChatCorpus(message);
     let ranked = lexical;
+    let embRank: Map<string, number> | null = null;
     if (RERANK_ENABLED && ai && lexical.length > 1) {
       try {
         const pool = lexical.slice(0, RERANK_POOL);
@@ -569,6 +570,10 @@ export async function POST(request: Request) {
           pool,
           orderByCosine(pool, queryVector, vectors.slice(1)),
         ];
+        const cosineOrder = lists[2] as ChatRetrievalHit[];
+        embRank = new Map<string, number>(
+          cosineOrder.map((h, i) => [docKey(h), i + 1]),
+        );
         const lexicalTop = pool[0]?.score ?? 0;
         if (
           VECTORIZE_ENABLED &&
@@ -630,13 +635,15 @@ export async function POST(request: Request) {
     }
     const retrievalMs = Date.now() - retrievalStart;
 
-    // Relevance floor: exact matches need title-level evidence (10+).
-    // Weak single-content-word hits become honest fallbacks instead of
-    // confident answers from unrelated pages. Fuzzy typo-rescues and
-    // Vectorize rescues pass through on their own signal.
-    ranked = ranked.filter(
-      (h) => h.origin !== "lexical" || (h.score ?? 0) >= MIN_LEXICAL_SCORE,
-    );
+    // Relevance floor: exact matches need title-level evidence (10+),
+    // unless the embedding model ranks them top-3 (semantic rescue for
+    // slug-only topic matches and paraphrases). Weak single-content-word
+    // hits become honest fallbacks. Fuzzy typo-rescues and Vectorize
+    // rescues pass through on their own signal.
+    const keep = (h: ChatRetrievalHit) =>
+      h.origin !== "lexical" ||
+      (h.score ?? 0) >= MIN_LEXICAL_SCORE ||
+      (embRank?.get(docKey(h)) ?? 99) <= 3;
 
     let context: ReturnType<typeof buildContext> = [];
     try {
