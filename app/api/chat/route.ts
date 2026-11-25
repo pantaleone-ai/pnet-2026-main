@@ -644,6 +644,7 @@ export async function POST(request: Request) {
       h.origin !== "lexical" ||
       (h.score ?? 0) >= MIN_LEXICAL_SCORE ||
       (embRank?.get(docKey(h)) ?? 99) <= 3;
+    ranked = ranked.filter(keep);
 
     let context: ReturnType<typeof buildContext> = [];
     try {
