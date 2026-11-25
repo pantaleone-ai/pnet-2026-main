@@ -1,5 +1,7 @@
 import { betterAuth, type BetterAuthOptions } from "better-auth";
+import { captcha } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { logger } from "./logger";
 
 import {
   chatbots,
@@ -68,6 +70,7 @@ export type AuthEnv = {
   CHAT_DB?: unknown;
   BETTER_AUTH_SECRET?: string;
   BETTER_AUTH_URL?: string;
+  TURNSTILE_SECRET_KEY?: string;
 };
 
 function createAuth(env: AuthEnv) {
@@ -78,6 +81,13 @@ function createAuth(env: AuthEnv) {
   }
   const db = getDb(env.CHAT_DB as never) as ChatDatabase;
 
+  if (!env.TURNSTILE_SECRET_KEY) {
+    logger.warn(
+      "TURNSTILE_SECRET_KEY is not set — signup/login run without bot protection in this environment. Set it before public traffic.",
+      { context: "auth" },
+    );
+  }
+
   const options = {
     secret: env.BETTER_AUTH_SECRET ?? process.env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL ?? process.env.BETTER_AUTH_URL,
@@ -85,6 +95,11 @@ function createAuth(env: AuthEnv) {
       "https://www.pantaleone.net",
       "https://chat.pantaleone.net",
     ],
+    advanced: {
+      // Cloudflare puts the real visitor IP in cf-connecting-ip; without
+      // this, better-auth rate limiting falls back to one shared bucket.
+      ipAddress: { ipAddressHeaders: ["cf-connecting-ip", "x-forwarded-for"] },
+    },
     database: drizzleAdapter(db, { provider: "sqlite" }),
     emailAndPassword: {
       enabled: true,
@@ -95,6 +110,20 @@ function createAuth(env: AuthEnv) {
       sendVerificationEmail,
       sendOnSignUp: true,
     },
+    // Turnstile bot protection on auth endpoints. Only active when the
+    // secret is configured; otherwise signup/login still work but every
+    // attempt is logged so a missing key is visible, never silent.
+    ...(env.TURNSTILE_SECRET_KEY
+      ? {
+          plugins: [
+            captcha({
+              provider: "cloudflare-turnstile",
+              secretKey: env.TURNSTILE_SECRET_KEY,
+              endpoints: ["/sign-up/email", "/sign-in/email"],
+            }),
+          ],
+        }
+      : {}),
     databaseHooks: {
       user: {
         create: {
