@@ -60,6 +60,9 @@
 	"env": {
 		"staging": {
 			"name": "pantaleonenet-staging",
+			"vars": {
+				"BETTER_AUTH_URL": "https://pantaleonenet-staging.mattpantaleone.workers.dev"
+			},
 			"services": [
 				{
 					"binding": "WORKER_SELF_REFERENCE",
@@ -120,6 +123,9 @@
 		},
 		"development": {
 			"name": "pantaleonenet-dev",
+			"vars": {
+				"BETTER_AUTH_URL": "https://pantaleonenet-dev.mattpantaleone.workers.dev"
+			},
 			"services": [
 				{
 					"binding": "WORKER_SELF_REFERENCE",

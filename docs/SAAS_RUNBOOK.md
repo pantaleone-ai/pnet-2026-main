@@ -27,16 +27,19 @@ KV:
 
 Queues: `chat-ingest{,-staging,-dev}` + dead-letter queues (ingest worker lands in P3).
 
-Worker bindings: see `wrangler.jsonc`. TEMPORARY all-envs-share-dev rule
-for CHAT_DB/CHAT_UPLOADS/CHAT_PLATFORM/CHAT_INGEST — **split per-env
-before any SaaS UI ships or chat.pantaleone.net resolves.**
+Worker bindings: see `wrangler.jsonc`. Environments split per env
+(top-level = production; `env.staging` / `env.development` override D1,
+KV, R2, queues, AI, cache, and observability). `npm run deploy` stays
+prod; `preview`/`upload` target dev. Per-env secrets required:
+BETTER_AUTH_SECRET set for dev + staging (+prod already); RESEND_API_KEY
+and TURNSTILE_SECRET_KEY still owner-provided per env.
 
-Secrets (set via `wrangler secret put`; never commit):
-- `BETTER_AUTH_SECRET` — set 2026-11-25 (all envs share it today; rotate on env split)
-- `RESEND_API_KEY` — pre-existing (contact form)
+Secrets (set via `wrangler secret put [--env X]`; never commit):
+- `BETTER_AUTH_SECRET` — set for prod + dev + staging (unique per env)
+- `RESEND_API_KEY` — pre-existing on prod only (contact form); owner must set per env for SaaS emails
+- `TURNSTILE_SECRET_KEY` + build-time `NEXT_PUBLIC_TURNSTILE_SITE_KEY` — owner creates the widget, then set per env
 - Owner actions still open: verify `pantaleone.net` in Resend (DNS records),
-  one manual end-to-end signup to validate the verification email path,
-  Turnstile widget + keys for signup/login hardening.
+  one manual end-to-end signup to validate the verification email path.
 
 ## Migrations
 
@@ -62,8 +65,7 @@ if better-auth upgrades change the schema, generate a new migration.
 ## Not yet verified (needs owner)
 
 1. One real signup → inbox click → login → dashboard (blocked on Resend domain verification for pantaleone.net; everything up to the inbox click is proven).
-2. Turnstile on signup/login (deferred to P2 hardening).
-3. Env split + `chat.pantaleone.net` DNS before any public SaaS traffic.
+2. Turnstile end-to-end (widget keys from owner; server enforcement + invisible client widget are in place and degrade gracefully without keys — verify on staging once keys exist).
 
 ## SaaS smoke test (run after any auth/schema change)
 

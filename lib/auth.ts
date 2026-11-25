@@ -95,6 +95,11 @@ function createAuth(env: AuthEnv) {
       "https://www.pantaleone.net",
       "https://chat.pantaleone.net",
     ],
+    advanced: {
+      // Cloudflare puts the real visitor IP in cf-connecting-ip; without
+      // this, better-auth rate limiting falls back to one shared bucket.
+      ipAddress: { ipAddressHeaders: ["cf-connecting-ip", "x-forwarded-for"] },
+    },
     database: drizzleAdapter(db, { provider: "sqlite" }),
     emailAndPassword: {
       enabled: true,
