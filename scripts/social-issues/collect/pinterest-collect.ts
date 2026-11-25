@@ -43,6 +43,9 @@ interface PostRow {
   published_at: string | null;
   permalink_url: string | null;
   proof_url: string | null;
+  // campaign_id filled post-merge by campaign-lineage.ts; emitted as NULL so
+  // staging schema (autodetect from JSONL) always matches social_posts.
+  campaign_id: string | null;
 }
 
 interface ObsRow {
@@ -144,7 +147,7 @@ function main(): void {
   for (const pid of pinIds.slice(0, maxPins)) {
     try {
       const p = get<{ id?: string; title?: string; description?: string; link?: string; board_id?: string; created_at?: string }>(token, `/pins/${pid}`);
-      posts.push({ post_id: pid, content_id: null, project_id: PROJECT_ID, account_id: ACCOUNT_ID, platform: "pinterest", published_at: p.created_at ?? null, permalink_url: `https://www.pinterest.com/pin/${pid}/`, proof_url: `https://www.pinterest.com/pin/${pid}/` });
+      posts.push({ post_id: pid, content_id: null, project_id: PROJECT_ID, account_id: ACCOUNT_ID, platform: "pinterest", published_at: p.created_at ?? null, permalink_url: `https://www.pinterest.com/pin/${pid}/`, proof_url: `https://www.pinterest.com/pin/${pid}/`, campaign_id: null });
     } catch (e) {
       errors.push(`pin-detail:${pid}:${String(e).slice(0, 120)}`);
       continue;

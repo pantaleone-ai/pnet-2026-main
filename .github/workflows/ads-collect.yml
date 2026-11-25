@@ -107,10 +107,14 @@ jobs:
             "$T.stg_ads_observations" "$M.ads.observations.jsonl"
           cat "$M-meta-ads.campaigns.jsonl" "$M-google-ads.campaigns.jsonl" > "$M.ads.campaigns.jsonl"
           [ -s "$M.ads.campaigns.jsonl" ] && bq --location="$BQ_LOCATION" --project_id="$BQ_PROJECT" load --replace --source_format=NEWLINE_DELIMITED_JSON "$T.stg_ads_campaigns" "$M.ads.campaigns.jsonl" || echo "skip stg_ads_campaigns (empty)"
+          # Explicit INSERT column lists (never INSERT ROW): staging is
+          # autodetected from JSONL, so a missing collector field must fail
+          # loudly here instead of merging partial rows.
           bq --location="$BQ_LOCATION" --project_id="$BQ_PROJECT" query --nouse_legacy_sql "
             MERGE \`$D.dim_campaigns\` T USING \`$D.stg_ads_campaigns\` S
             ON T.campaign_id = S.campaign_id
-            WHEN NOT MATCHED THEN INSERT ROW;"
+            WHEN NOT MATCHED THEN INSERT (campaign_id, project_id, name, objective, audience, status, start_at, end_at, autonomy_level)
+            VALUES (S.campaign_id, S.project_id, S.name, S.objective, S.audience, S.status, S.start_at, S.end_at, S.autonomy_level);"
           bq --location="$BQ_LOCATION" --project_id="$BQ_PROJECT" query --nouse_legacy_sql "
             MERGE \`$D.social_metric_observations\` T USING \`$D.stg_ads_observations\` S
             ON T.entity_id = S.entity_id
@@ -118,8 +122,16 @@ jobs:
               AND T.metric_scope = S.metric_scope
               AND DATE(T.snapshot_at) = DATE(S.snapshot_at)
               AND IFNULL(T.period_start, TIMESTAMP '1970-01-01 00:00:00+00') = IFNULL(S.period_start, TIMESTAMP '1970-01-01 00:00:00+00')
-            WHEN NOT MATCHED THEN INSERT ROW;"
+            WHEN NOT MATCHED THEN INSERT (project_id, account_id, platform, entity_type, entity_id, content_id, campaign_id, metric_name, source_metric_name, metric_value, metric_scope, metric_unit, period_start, period_end, snapshot_at, collected_at, organic_or_paid, api_version, metric_definition_version, confidence)
+            VALUES (S.project_id, S.account_id, S.platform, S.entity_type, S.entity_id, S.content_id, S.campaign_id, S.metric_name, S.source_metric_name, S.metric_value, S.metric_scope, S.metric_unit, S.period_start, S.period_end, S.snapshot_at, S.collected_at, S.organic_or_paid, S.api_version, S.metric_definition_version, S.confidence);"
           bq --location="$BQ_LOCATION" --project_id="$BQ_PROJECT" query --nouse_legacy_sql --parameter="run_id:STRING:${{ github.run_id }}-${STAMP}" "
             INSERT \`$D.ingest_runs\` (run_id, started_at, source, rows_loaded, status, notes)
             VALUES (@run_id, CURRENT_TIMESTAMP(), 'ci-ads-collect',
               (SELECT COUNT(*) FROM \`$D.stg_ads_observations\`), 'ok', 'paid ads collect+merge');"
+      - name: Upload raw pulls (replay insurance)
+        if: always() && (github.event_name == 'schedule' || github.event.inputs.dry-run != 'true')
+        uses: actions/upload-artifact@v4
+        with:
+          name: ads-metrics-${{ github.run_id }}
+          path: data/ads-metrics/
+          retention-days: 30
