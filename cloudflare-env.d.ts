@@ -39,4 +39,10 @@ interface CloudflareEnv {
   AI?: CloudflareAI;
   VECTORIZE?: CloudflareVectorize;
   CHAT_ANALYTICS?: CloudflareKV;
+  CHAT_DB?: import("@cloudflare/workers-types").D1Database;
+  CHAT_UPLOADS?: import("@cloudflare/workers-types").R2Bucket;
+  CHAT_PLATFORM?: import("@cloudflare/workers-types").KVNamespace;
+  CHAT_INGEST?: import("@cloudflare/workers-types").Queue;
+  BETTER_AUTH_SECRET?: string;
+  BETTER_AUTH_URL?: string;
 }

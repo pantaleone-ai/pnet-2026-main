@@ -25,6 +25,18 @@
 	"ai": {
 		"binding": "AI"
 	},
+	"d1_databases": [
+		{
+			// TEMPORARY until the env split lands: all envs share the DEV
+			// database. No production code path touches CHAT_DB yet (no SaaS
+			// UI, no hostname), so this is safe — but do NOT ship SaaS UI or
+			// chat.pantaleone.net traffic before splitting per-env bindings.
+			"binding": "CHAT_DB",
+			"database_name": "pantaleone-chat-dev",
+			"database_id": "648e9d0b-364c-4a51-8364-d93c9ae90470",
+			"migrations_dir": "drizzle/migrations"
+		}
+	],
 	"vectorize": [
 		{
 			"binding": "VECTORIZE",
@@ -35,8 +47,22 @@
 		{
 			"binding": "CHAT_ANALYTICS",
 			"id": "b811d0f5bc4a40b1a5c86ac8ff33af64"
+		},
+		{
+			// TEMPORARY: dev namespace for all envs (see CHAT_DB note above).
+			"binding": "CHAT_PLATFORM",
+			"id": "cc15922efc81452a8abfe4ec6bdb53a8"
 		}
 	],
+	"queues": {
+		"producers": [
+			{
+				// TEMPORARY: dev queue for all envs (see CHAT_DB note above).
+				"binding": "CHAT_INGEST",
+				"queue": "chat-ingest-dev"
+			}
+		]
+	},
 	"observability": {
 		"enabled": true,
 		"head_sampling_rate": 1,
@@ -55,6 +81,11 @@
 			// You can change the bucket name if you want
 			// See https://developers.cloudflare.com/workers/wrangler/commands/#r2-bucket-create
 			"bucket_name": "pantaleonenet-opennext-cache"
+		},
+		{
+			// TEMPORARY: dev bucket for all envs (see CHAT_DB note above).
+			"binding": "CHAT_UPLOADS",
+			"bucket_name": "pantaleone-chat-uploads-dev"
 		}
 	],
 	"images": {
