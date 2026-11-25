@@ -71,7 +71,7 @@ function docId(d) {
 }
 
 const texts = docs.map((d) =>
-  `${d.title}\n${d.description}${MODE === "full" ? `\n${d.content}` : ""}`.slice(
+  `${d.title}\n${d.description}${d.aliases ? `\n${d.aliases.join(", ")}` : ""}${MODE === "full" ? `\n${d.content}` : ""}`.slice(
     0,
     TEXT_CHARS,
   ),

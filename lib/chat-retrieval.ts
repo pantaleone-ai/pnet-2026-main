@@ -10,6 +10,8 @@ export type ChatSourceDoc = {
   content: string;
   /** Product category slug (e.g. ai-apps) — deep-links citations to /shop/[category]/[slug]. */
   category?: string;
+  /** Editorial topic aliases from the corpus builder (scored like title matches). */
+  aliases?: string[];
   /**
    * Provenance: exact lexical matches need title-level evidence
    * (MIN_LEXICAL_SCORE) to count; fuzzy typo-rescues and Vectorize
@@ -45,6 +47,11 @@ function scoreDoc(doc: ChatSourceDoc, terms: string[]): number {
     if (slug.includes(word)) score += 8;
     if (description.includes(word)) score += 6;
     if (word.length >= 4 && content.includes(word)) score += 4;
+    if (
+      word.length >= 4 &&
+      doc.aliases?.some((a) => a.toLowerCase().includes(word))
+    )
+      score += 10;
   }
   return score;
 }

@@ -31,9 +31,14 @@ async function mdxFiles(dir) {
   return files;
 }
 
-// Mirrors getProductCategorySlug in lib/helpers.ts (kept in sync manually):
-// product citations deep-link to /shop/[category]/[slug] instead of the
-// catalog root, so sources identify the exact product.
+// Editorial topic aliases: human-assigned keywords for docs whose own
+// title/description/slug don't contain the words people search for
+// (e.g. "The Virtual Company" is the AI-companies post). Surfaced by the
+// zero-result mining loop (`npm run chat:analytics`); add entries here
+// with evidence, not guesses. Scored like title matches.
+const KEYWORD_ALIASES = {
+  "ai-companies": ["companies", "company", "AI companies", "virtual company"],
+};
 const PRODUCT_CATEGORY_SLUGS = {
   Apps: "ai-apps",
   "Ai Workflows": "ai-workflows",
@@ -60,6 +65,8 @@ async function loadDocs(contentDir, type) {
       description: String(data.description || ""),
       content: content.trim().slice(0, MAX_CONTENT_CHARS),
     };
+    const aliases = KEYWORD_ALIASES[slug];
+    if (aliases) doc.aliases = aliases;
     if (type === "product" && typeof data.category === "string") {
       doc.category =
         PRODUCT_CATEGORY_SLUGS[data.category] ||
