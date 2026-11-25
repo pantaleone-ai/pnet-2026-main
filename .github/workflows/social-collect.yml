@@ -96,10 +96,14 @@ jobs:
             "$T.stg_posts" "$M.posts.jsonl"
           bq --location="$BQ_LOCATION" --project_id="$BQ_PROJECT" load --replace --source_format=NEWLINE_DELIMITED_JSON \
             "$T.stg_observations" "$M.observations.jsonl"
+          # Explicit INSERT column lists (never INSERT ROW): staging is
+          # autodetected from JSONL, so a missing collector field must fail
+          # loudly here instead of merging partial rows.
           bq --location="$BQ_LOCATION" --project_id="$BQ_PROJECT" query --nouse_legacy_sql "
             MERGE \`$D.social_posts\` T USING \`$D.stg_posts\` S
             ON T.post_id = S.post_id
-            WHEN NOT MATCHED THEN INSERT ROW;"
+            WHEN NOT MATCHED THEN INSERT (post_id, content_id, project_id, account_id, platform, published_at, permalink_url, proof_url, campaign_id)
+            VALUES (S.post_id, S.content_id, S.project_id, S.account_id, S.platform, S.published_at, S.permalink_url, S.proof_url, S.campaign_id);"
           # Lineage: registry upserts (insert-only) + fill null lineage on posts.
           # FB proof IDs are bare while warehouse keys are page_post composite,
           # hence the second ENDS_WITH merge. Empty staging = merge no-op.
@@ -110,11 +114,13 @@ jobs:
           bq --location="$BQ_LOCATION" --project_id="$BQ_PROJECT" query --nouse_legacy_sql "
             MERGE \`$D.dim_campaigns\` T USING \`$D.stg_campaigns\` S
             ON T.campaign_id = S.campaign_id
-            WHEN NOT MATCHED THEN INSERT ROW;"
+            WHEN NOT MATCHED THEN INSERT (campaign_id, project_id, name, objective, audience, status, start_at, end_at, autonomy_level)
+            VALUES (S.campaign_id, S.project_id, S.name, S.objective, S.audience, S.status, S.start_at, S.end_at, S.autonomy_level);"
           bq --location="$BQ_LOCATION" --project_id="$BQ_PROJECT" query --nouse_legacy_sql "
             MERGE \`$D.dim_content\` T USING \`$D.stg_content\` S
             ON T.content_id = S.content_id AND T.project_id = S.project_id
-            WHEN NOT MATCHED THEN INSERT ROW;"
+            WHEN NOT MATCHED THEN INSERT (content_id, project_id, pillar, format, angle, hook, offer, cta, landing_page, campaign_id, experiment_id)
+            VALUES (S.content_id, S.project_id, S.pillar, S.format, S.angle, S.hook, S.offer, S.cta, S.landing_page, S.campaign_id, S.experiment_id);"
           bq --location="$BQ_LOCATION" --project_id="$BQ_PROJECT" query --nouse_legacy_sql "
             MERGE \`$D.social_posts\` T USING \`$D.stg_post_lineage\` S
             ON T.post_id = S.post_id
@@ -132,8 +138,16 @@ jobs:
               AND T.metric_scope = S.metric_scope
               AND DATE(T.snapshot_at) = DATE(S.snapshot_at)
               AND IFNULL(T.period_start, TIMESTAMP '1970-01-01 00:00:00+00') = IFNULL(S.period_start, TIMESTAMP '1970-01-01 00:00:00+00')
-            WHEN NOT MATCHED THEN INSERT ROW;"
+            WHEN NOT MATCHED THEN INSERT (project_id, account_id, platform, entity_type, entity_id, content_id, campaign_id, metric_name, source_metric_name, metric_value, metric_scope, metric_unit, period_start, period_end, snapshot_at, collected_at, organic_or_paid, api_version, metric_definition_version, confidence)
+            VALUES (S.project_id, S.account_id, S.platform, S.entity_type, S.entity_id, S.content_id, S.campaign_id, S.metric_name, S.source_metric_name, S.metric_value, S.metric_scope, S.metric_unit, S.period_start, S.period_end, S.snapshot_at, S.collected_at, S.organic_or_paid, S.api_version, S.metric_definition_version, S.confidence);"
           bq --location="$BQ_LOCATION" --project_id="$BQ_PROJECT" query --nouse_legacy_sql --parameter="run_id:STRING:${{ github.run_id }}-${STAMP}" "
             INSERT \`$D.ingest_runs\` (run_id, started_at, source, rows_loaded, status, notes)
             VALUES (@run_id, CURRENT_TIMESTAMP(), 'ci-social-collect',
               (SELECT COUNT(*) FROM \`$D.stg_observations\`), 'ok', 'nightly collect+merge');"
+      - name: Upload raw pulls (replay insurance)
+        if: always() && (github.event_name == 'schedule' || github.event.inputs.dry-run != 'true')
+        uses: actions/upload-artifact@v4
+        with:
+          name: social-metrics-${{ github.run_id }}
+          path: data/social-metrics/
+          retention-days: 30

@@ -34,6 +34,9 @@ interface PostRow {
   published_at: string | null;
   permalink_url: string | null;
   proof_url: string | null;
+  // campaign_id filled post-merge by campaign-lineage.ts; emitted as NULL so
+  // staging schema (autodetect from JSONL) always matches social_posts.
+  campaign_id: string | null;
 }
 
 interface ObsRow {
@@ -124,7 +127,7 @@ export function collectSite(
     );
     for (const p of feed.data ?? []) {
       if (!p.id) continue;
-      posts.push({ post_id: p.id, content_id: null, project_id: site, account_id: fbAccountId, platform: "facebook", published_at: normTs(p.created_time ?? null), permalink_url: p.permalink_url ?? null, proof_url: p.permalink_url ?? null });
+      posts.push({ post_id: p.id, content_id: null, project_id: site, account_id: fbAccountId, platform: "facebook", published_at: normTs(p.created_time ?? null), permalink_url: p.permalink_url ?? null, proof_url: p.permalink_url ?? null, campaign_id: null });
       observations.push(
         obs({ project_id: site, account_id: fbAccountId, platform: "facebook", entity_type: "post", entity_id: p.id, content_id: null, campaign_id: null, metric_name: "post_insights", source_metric_name: "insights", metric_value: null, metric_scope: "lifetime", metric_unit: null, period_start: null, period_end: null, organic_or_paid: "organic", confidence: "unavailable:post_insights_deprecated_2026" }, now),
       );
@@ -162,7 +165,7 @@ export function collectSite(
       );
       for (const m of media.data ?? []) {
         if (!m.id) continue;
-        posts.push({ post_id: m.id, content_id: null, project_id: site, account_id: igAccountId, platform: "instagram", published_at: normTs(m.timestamp ?? null), permalink_url: null, proof_url: null });
+        posts.push({ post_id: m.id, content_id: null, project_id: site, account_id: igAccountId, platform: "instagram", published_at: normTs(m.timestamp ?? null), permalink_url: null, proof_url: null, campaign_id: null });
         if (typeof m.like_count === "number")
           observations.push(obs({ project_id: site, account_id: igAccountId, platform: "instagram", entity_type: "post", entity_id: m.id, content_id: null, campaign_id: null, metric_name: "likes", source_metric_name: "like_count", metric_value: m.like_count, metric_scope: "snapshot", metric_unit: "count", period_start: null, period_end: null, organic_or_paid: "organic", confidence: "ok" }, now));
         if (typeof m.comments_count === "number")
