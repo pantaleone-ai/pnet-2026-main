@@ -12,7 +12,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { useChat } from "./ChatProvider";
-import { ASSISTANT_NAME, SITE_URL, suggestionsFor } from "./store";
+import { ASSISTANT_NAME, suggestionsFor } from "./store";
 import ChatComposer from "./ChatComposer";
 import ChatTranscript from "./ChatTranscript";
 
@@ -206,15 +206,6 @@ export default function ChatPanel({
         onSend={(t) => sendHere(t, "typed")}
         onStop={stop}
       />
-      {variant === "popup" && (
-        <p className="shrink-0 text-center text-[11px] leading-none text-muted-foreground">
-          Answers from {SITE_URL.replace("https://", "")}.{" "}
-          <Link href="/contact" className="underline underline-offset-4">
-            Contact
-          </Link>{" "}
-          for anything else.
-        </p>
-      )}
     </div>
   );
 }

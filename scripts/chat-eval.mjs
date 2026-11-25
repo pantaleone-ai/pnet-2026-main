@@ -51,6 +51,23 @@ const CASES = [
     expectText: "contact",
     note: "no-results case: must say so and point to contact",
   },
+  // ── Deterministic intents (must never depend on retrieval luck) ──
+  { q: "hey", expectText: "pantaleone assistant", note: "greeting intent" },
+  {
+    q: "Explore Pantaleone's products.",
+    expect: "nextjs-ai-starter-app",
+    note: "catalog-browse intent with deep product links",
+  },
+  {
+    q: "I have an AI project to discuss.",
+    expect: "/contact",
+    note: "hiring intent points to contact",
+  },
+  {
+    q: "What services do you offer?",
+    expect: "/services",
+    note: "services intent (no services page in corpus)",
+  },
   // ── Paraphrases (same answers, different words) ──
   { q: "Am I ready for AI?", expect: "ai-readiness-assessment-checklist" },
   { q: "n8n LangChain agent tutorial", expect: "building-ai-agent-workflows-n8n-langchain" },
