@@ -2,7 +2,9 @@
 
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { BotIcon, ChevronDownIcon, UserIcon } from "lucide-react";
+import { ChevronDownIcon, UserIcon } from "lucide-react";
+
+import ChatBrandIcon from "./ChatBrandIcon";
 
 import { cn } from "@/lib/utils";
 import { SITE_URL, type ChatMessage } from "./store";
@@ -105,7 +107,7 @@ export default function ChatTranscript({
               {m.role === "user" ? (
                 <UserIcon className="size-4" />
               ) : (
-                <BotIcon className="size-4" />
+                <ChatBrandIcon />
               )}
             </span>
             <div
