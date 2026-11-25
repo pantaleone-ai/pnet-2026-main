@@ -31,9 +31,11 @@ const config = {
   },
   // NOTE: legacy-URL redirects (apex->www single-hop 301s, /grid->/shop,
   // /blog/post/*->/blog/*, /feed->/rss.xml) and 410 Gone responses for dead
-  // prefixes (/p, /tag, /nft-art, /product, ...) live in middleware.ts, which
+  // prefixes (/p, /tag, /product, ...) live in middleware.ts, which
   // runs before next.config redirects and collapses host+path fixes into one
-  // hop. Do not re-add redirects here without removing them there first.
+  // hop. /nft-art/* is the exception: it 301s cross-domain to synthetic.pics
+  // (edge Single Redirect + middleware backstop). Do not re-add redirects
+  // here without removing them there first.
   images: {
     // Keep images fully unoptimized (zero Image Optimization requests on
     // Vercel); originals are served directly from the edge/CDN.

@@ -179,17 +179,25 @@ for (const p of REDIRECTED_PAGES) {
 for (const p of ["/api/", "/_next/", "/private/", "/checkout"]) {
   if (!robots.includes(p)) err(`robots.txt missing protection for ${p}`);
 }
-// Dead legacy prefixes (/p, /tag, /nft-art, /product, ...) have no
+// Dead legacy prefixes (/p, /tag, /product, ...) have no
 // equivalent page and must 410 via middleware.ts — a 301 to the homepage
 // is a soft-404 that keeps them in Search Console's "Page with redirect"
 // report indefinitely. This fails closed if homepage redirects return.
+// EXCEPTION: /nft-art/* has a true new home on synthetic.pics, so it 301s
+// cross-domain (SEO-correct permanent move, GA-tagged) via edge + middleware
+// backstop — not a 410.
 const nextConfig = read("next.config.mjs");
 if (/destination:\s*["']\/["']/.test(nextConfig)) {
   err("next.config.mjs must not 301 dead paths to the homepage (soft-404) — use the middleware.ts 410");
 }
-for (const seg of ["GONE_SEGMENTS", '"p"', '"tag"', '"nft-art"', "410"]) {
+for (const seg of ["GONE_SEGMENTS", '"p"', '"tag"', "410"]) {
   if (!middleware.includes(seg)) {
     err(`middleware.ts missing dead-prefix 410 handling (${seg})`);
+  }
+}
+for (const seg of ["nft-art", "synthetic.pics", "nft-art-legacy", "301"]) {
+  if (!middleware.includes(seg)) {
+    err(`middleware.ts missing nft-art -> synthetic.pics 301 handling (${seg})`);
   }
 }
 // A static public/robots.txt would shadow the app/robots.ts route in

@@ -6,14 +6,17 @@ const CANONICAL_HOST = "www.pantaleone.net";
 
 /**
  * First path segments with no equivalent live page. These are dead legacy
- * photo-blog / directory URLs (old `/p/*`, `/tag/*`, `/nft-art/*` etc.).
+ * photo-blog / directory URLs (old `/p/*`, `/tag/*` etc.).
  * They return 410 Gone instead of a soft-404 301 to the homepage so Google
  * drops them instead of reporting them as "Page with redirect" forever.
+ *
+ * NOTE: `/nft-art/*` is NOT here — it 301s to https://www.synthetic.pics
+ * (edge Single Redirect + middleware backstop, GA-tagged) because it has
+ * a true new home on that domain.
  */
 const GONE_SEGMENTS = new Set([
   "p",
   "tag",
-  "nft-art",
   "product",
   "digital-asset-nft-tag",
   "buy-nfts-and-custom-artwork",
@@ -22,6 +25,42 @@ const GONE_SEGMENTS = new Set([
 function isGonePath(pathname: string): boolean {
   const firstSegment = pathname.split("/").filter(Boolean)[0] ?? "";
   return GONE_SEGMENTS.has(firstSegment);
+}
+
+/**
+ * External legacy home for the retired `/nft-art/*` section.
+ * Permanent cross-domain move (SEO: 301) to the new gallery domain, with
+ * GA UTM so this traffic is filterable in GA4:
+ *   utm_source=pantaleone.net&utm_medium=redirect&utm_campaign=nft-art-legacy
+ *
+ * NOTE (CF-verified 2026-11-25): Single Redirect `preserve_query_string=true`
+ * DISCARDS any query on the target URL — even when the request has no query.
+ * So the edge rule uses preserve=false with the UTM baked into the static
+ * target (legacy `?add-to-cart=2614` etc. is intentionally dropped — it is
+ * WooCommerce noise meaningless on synthetic.pics). This backstop matches:
+ * UTM only, no original-query merge.
+ */
+const NFT_ART_REDIRECT_BASE = "https://www.synthetic.pics/";
+const NFT_ART_UTM: Record<string, string> = {
+  utm_source: "pantaleone.net",
+  utm_medium: "redirect",
+  utm_campaign: "nft-art-legacy",
+};
+
+function isNftArtPath(pathname: string): boolean {
+  return (
+    pathname === "/nft-art" ||
+    pathname === "/nft-art/" ||
+    pathname.startsWith("/nft-art/")
+  );
+}
+
+function getNftArtDestination(): URL {
+  const url = new URL(NFT_ART_REDIRECT_BASE);
+  for (const [k, v] of Object.entries(NFT_ART_UTM)) {
+    url.searchParams.set(k, v);
+  }
+  return url;
 }
 
 /**
@@ -144,6 +183,14 @@ const GONE_HTML = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><m
  */
 export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+
+  // Retired NFT gallery: permanent move to synthetic.pics (has a true new
+  // home, so 301 — not a 410). Edge Single Redirect serves this first;
+  // this is the backstop for localhost / preview / CF bypass. Keep in sync
+  // with scripts/cf-redirect-rules.sh.
+  if (isNftArtPath(pathname)) {
+    return NextResponse.redirect(getNftArtDestination(), 301);
+  }
 
   // Dead content with no equivalent: 410 regardless of host. no-store so
   // neither CDN layer pins the Gone body (observed: 404/410 HTML inheriting
