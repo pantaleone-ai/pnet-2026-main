@@ -2711,4 +2711,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "travertine surreal minimalism facade grid 24785327",
     format: "avif",
   },
+  {
+    id: "2026-10-22-aggregate-biomorphic-abstraction-asymmetric-planes-24445662",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-22-aggregate-biomorphic-abstraction-asymmetric-planes-24445662.avif",
+    firstSeen: "2026-10-22",
+    descriptor: "aggregate biomorphic abstraction asymmetric planes 24445662",
+    format: "avif",
+  },
+  {
+    id: "2026-10-22-mass-topological-abstraction-black-square-94597286",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-22-mass-topological-abstraction-black-square-94597286.avif",
+    firstSeen: "2026-10-22",
+    descriptor: "mass topological abstraction black square 94597286",
+    format: "avif",
+  },
+  {
+    id: "2026-10-22-composition-organic-abstraction-folded-planes-48022967",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-22-composition-organic-abstraction-folded-planes-48022967.avif",
+    firstSeen: "2026-10-22",
+    descriptor: "composition organic abstraction folded planes 48022967",
+    format: "avif",
+  },
 ];
