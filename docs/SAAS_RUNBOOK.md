@@ -31,8 +31,15 @@ Worker bindings: see `wrangler.jsonc`. Environments split per env
 (top-level = production; `env.staging` / `env.development` override D1,
 KV, R2, queues, AI, cache, and observability). `npm run deploy` stays
 prod; `preview`/`upload` target dev. Per-env secrets required:
-BETTER_AUTH_SECRET set for dev + staging (+prod already); RESEND_API_KEY
-and TURNSTILE_SECRET_KEY still owner-provided per env.
+BETTER_AUTH_SECRET set for dev + staging (+prod already). RESEND_API_KEY
+is prod-only — set it on staging/dev before any SaaS email test there.
+TURNSTILE_SECRET_KEY set on all three envs (2026-11-26).
+
+Secrets (set via `wrangler secret put [--env X]`; never commit):
+- `BETTER_AUTH_SECRET` — set for prod + dev + staging (unique per env)
+- `RESEND_API_KEY` — prod only (contact form + SaaS emails); owner must set on staging/dev for SaaS email tests
+- `BETTER_AUTH_URL` — wrangler vars: prod `https://www.pantaleone.net`, staging/dev worker URLs (set 2026-11-26)
+- `TURNSTILE_SECRET_KEY` — set on all envs (2026-11-26); build-time `NEXT_PUBLIC_TURNSTILE_SITE_KEY` is a GitHub Actions secret (set 2026-11-26) wired via `cf-deploy.yml`
 
 Secrets (set via `wrangler secret put [--env X]`; never commit):
 - `BETTER_AUTH_SECRET` — set for prod + dev + staging (unique per env)
@@ -46,9 +53,20 @@ Secrets (set via `wrangler secret put [--env X]`; never commit):
 ```bash
 npm run db:generate                    # schema -> drizzle/migrations/*.sql
 npm run db:apply:dev                   # apply to pantaleone-chat-dev
-npx wrangler d1 migrations apply pantaleone-chat-staging --remote   # when needed
-npx wrangler d1 migrations apply pantaleone-chat-prod --remote       # when needed
+npx wrangler d1 migrations apply pantaleone-chat-staging --remote --env staging   # at staging deploy (see note below)
+npx wrangler d1 migrations apply pantaleone-chat-prod --remote                     # at launch
 ```
+
+> 2026-11-26 anomaly: `migrations apply` against the staging DB fails
+> with `7404 database could not be found` even though `d1 info` and
+> plain `d1 execute` succeed against the same ID, and the identical
+> migration applied cleanly to dev. Likely a wrangler/API quirk with
+> never-migrated databases. If it persists at deploy time: verify with
+> `wrangler d1 execute <db> --remote --env <env> --command "SELECT 1"`,
+> retry, and as a last resort run the SQL via the Cloudflare dashboard
+> SQL editor and mark the journal entry applied (check
+> `migrations list` first) rather than letting a broken CLI block a
+> deploy. Same procedure applies to prod at launch.
 
 Never edit an applied migration. Auth tables mirror better-auth defaults;
 if better-auth upgrades change the schema, generate a new migration.
@@ -62,10 +80,32 @@ if better-auth upgrades change the schema, generate a new migration.
 - Login blocked pre-verification with clear error; duplicate signup creates nothing; short password rejected server-side
 - Test data cleaned out of the dev DB afterwards
 
+## Verified 2026-11-26 (P1 landing + P2 auth completion, dev deploy)
+
+- `tsc`, `eslint` (touched files), `vitest run` (23 pass), prod `build` (129 pages) green
+- Deployed + promoted to `pantaleonenet-dev`; all routes live:
+  `/custom-business-chatbot`, `/signup`, `/login`, `/verify-email`,
+  `/forgot-password`, `/reset-password` → 200; `/dashboard` → 307 logged out
+- Turnstile: missing token → 400 `MISSING_RESPONSE`; dummy token → 403
+  `VERIFICATION_FAILED`; secret value validated via direct siteverify
+  (`invalid-input-response` only, no `invalid-input-secret`)
+- No test users created by the enforcement probes (D1 queried directly)
+- `/api/chat` streaming intact on the new build (sources event + deltas)
+- `/custom-business-chatbot` prerendered static, correct title + sitemap entry
+
 ## Not yet verified (needs owner)
 
-1. One real signup → inbox click → login → dashboard (blocked on Resend domain verification for pantaleone.net; everything up to the inbox click is proven).
-2. Turnstile end-to-end (widget keys from owner; server enforcement + invisible client widget are in place and degrade gracefully without keys — verify on staging once keys exist).
+1. One real signup → inbox click → login → dashboard on staging or prod
+   (Resend domain is active; prod key exists. Staging/dev still need
+   `RESEND_API_KEY` set: `printf '%s' "$KEY" | wrangler secret put
+   RESEND_API_KEY --env staging` and same for `--env development`).
+2. Turnstile browser end-to-end (server enforcement proven on dev
+   2026-11-26: missing token → 400, dummy token → 403, secret value
+   validated via siteverify `invalid-input-response`-only). Still needs:
+   real invisible-challenge signup in a browser per env + confirming the
+   widget's domain list covers `www.pantaleone.net`, the workers.dev
+   hosts, and localhost.
+3. Inbox delivery of verification + password-reset emails (needs #1).
 
 ## SaaS smoke test (run after any auth/schema change)
 

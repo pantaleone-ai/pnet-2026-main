@@ -46,6 +46,7 @@ jobs:
       NEXT_PUBLIC_POSTHOG_UI_HOST: ${{ secrets.NEXT_PUBLIC_POSTHOG_UI_HOST }}
       NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL }}
       NEXT_PUBLIC_APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
     steps:
       - uses: actions/checkout@v4
 

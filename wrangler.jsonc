@@ -25,6 +25,9 @@
 	"ai": {
 		"binding": "AI"
 	},
+	"vars": {
+		"BETTER_AUTH_URL": "https://www.pantaleone.net"
+	},
 	"d1_databases": [
 		{
 			"binding": "CHAT_DB",
@@ -87,7 +90,7 @@
 				},
 				{
 					"binding": "CHAT_PLATFORM",
-					"id": "2448c9fa5c3448abfe4ec6bdb53a8"
+					"id": "2448c9fa5c34427fa1bb7042fe943d38"
 				}
 			],
 			"queues": {

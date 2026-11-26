@@ -119,14 +119,21 @@ const HEAD: HeadType[] = [
     slug: "/resources/ai-readiness-guide",
   },
   {
+    page: "CustomBusinessChatbot",
+    title: truncateTitle("Custom Business Chatbot | Pantaleone"),
+    description: truncateDescription(
+      "Turn your website into an AI assistant that answers visitor questions, cites your pages, and captures leads.",
+    ),
+    slug: "/custom-business-chatbot",
+  },
+  {
     page: "Contact",
     title: truncateTitle("Contact for AI Engineering | Pantaleone"),
     description: truncateDescription(
       "Discuss AI automation, agent development, integrations, or custom software for your business.",
     ),
     slug: "/contact",
-  },
-  {
+  },  {
     page: "Privacy",
     title: truncateTitle("Privacy Policy | Pantaleone"),
     description: truncateDescription(
