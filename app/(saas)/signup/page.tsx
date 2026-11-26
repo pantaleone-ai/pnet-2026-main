@@ -9,6 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import TurnstileWidget, { type TurnstileRef } from "@/components/TurnstileWidget";
 import { authClient } from "@/lib/auth-client";
+import {
+  getChatPlan,
+  isValidPlanId,
+  type BillingPeriod,
+} from "@/config/plans";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 
@@ -24,6 +29,13 @@ function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const website = searchParams.get("website")?.trim() || "";
+  // Pricing CTA handoff (?plan=&billing=). Validated against the plans
+  // config; billing is only honored for the two supported values.
+  // Preserved through verify-email so onboarding/billing (P5) can pick it up.
+  const planParam = searchParams.get("plan")?.trim() || "";
+  const selectedPlan = isValidPlanId(planParam) ? getChatPlan(planParam) : null;
+  const billingParam = searchParams.get("billing")?.trim() || "";
+  const billing: BillingPeriod = billingParam === "annual" ? "annual" : "monthly";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -67,11 +79,16 @@ function SignupForm() {
       // requireEmailVerification is on: there is no session yet, so the
       // dashboard would bounce. Land on the verify notice instead; the
       // verification email's callbackURL brings them to /dashboard after
-      // they click through.
-      const next = website
-        ? `/verify-email?email=${encodeURIComponent(email.trim())}&website=${encodeURIComponent(website)}`
-        : `/verify-email?email=${encodeURIComponent(email.trim())}`;
-      router.push(next);
+      // they click through. Plan + billing ride along for P5.
+      const verifyParams = new URLSearchParams({
+        email: email.trim(),
+      });
+      if (website) verifyParams.set("website", website);
+      if (selectedPlan) {
+        verifyParams.set("plan", selectedPlan.id);
+        verifyParams.set("billing", billing);
+      }
+      router.push(`/verify-email?${verifyParams.toString()}`);
     } catch (err) {
       turnstileRef.current?.reset();
       setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -85,7 +102,16 @@ function SignupForm() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">Create your account</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          One workspace and one assistant are created automatically.
+          {selectedPlan ? (
+            <>
+              You selected <span className="font-medium text-foreground">{selectedPlan.name}</span>
+              {" "}({billing === "annual" ? "annual" : "monthly"} billing).
+              One workspace and one assistant are created automatically —
+              paid billing starts at launch, nothing is charged today.
+            </>
+          ) : (
+            "One workspace and one assistant are created automatically."
+          )}
         </p>
       </div>
       <form onSubmit={onSubmit} className="flex flex-col gap-3">
@@ -134,7 +160,16 @@ function SignupForm() {
       <p className="text-sm text-muted-foreground">
         Already have an account?{" "}
         <Link
-          href={website ? `/login?website=${encodeURIComponent(website)}` : "/login"}
+          href={(() => {
+            const params = new URLSearchParams();
+            if (website) params.set("website", website);
+            if (selectedPlan) {
+              params.set("plan", selectedPlan.id);
+              params.set("billing", billing);
+            }
+            const qs = params.toString();
+            return qs ? `/login?${qs}` : "/login";
+          })()}
           className="underline underline-offset-4"
         >
           Log in
