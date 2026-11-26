@@ -15,15 +15,21 @@
 
 D1 (chat data):
 - `pantaleone-chat-dev` — `648e9d0b-364c-4a51-8364-d93c9ae90470`
-- `pantaleone-chat-staging` — `46df8b0b-3cf0-42e4-a914-022fe6fcd05f`
-- `pantaleone-chat-prod` — `62f4e755-4aa9-4a51-8364-d93c9ae90470`
+- `pantaleone-chat-staging` — `46df8b0c-3cf0-42e4-a914-022fe6fcd05f`
+- `pantaleone-chat-prod` — `62f4e755-4aa9-4ea7-b1c4-673b17c9c64d`
 
 R2 (knowledge uploads; cache bucket untouched):
 - `pantaleone-chat-uploads{,-staging,-dev}`
 
 KV:
 - `CHAT_ANALYTICS` = `b811d0f5bc4a40b1a5c86ac8ff33af64` (existing single-tenant analytics)
-- `CHAT_PLATFORM` (+`-staging`, `-dev`) — SaaS metering/usage
+- `CHAT_PLATFORM` = `59c956ebc41f45838fa7d5443f2a24b9` (+`-staging` `-dev` variants — see wrangler.jsonc)
+
+> 2026-11-26 lesson: every hand-transcribed binding ID in wrangler.jsonc
+> must be verified with `wrangler <type> list` before it can block a
+> deploy. This bit us three times (staging KV, prod KV, prod D1 — all
+> transcription errors, all caught only at deploy). Never trust a pasted
+> ID; always list.
 
 Queues: `chat-ingest{,-staging,-dev}` + dead-letter queues (ingest worker lands in P3).
 
