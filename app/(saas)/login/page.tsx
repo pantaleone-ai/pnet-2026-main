@@ -9,9 +9,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import TurnstileWidget, { type TurnstileRef } from "@/components/TurnstileWidget";
 import { authClient } from "@/lib/auth-client";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const website = searchParams.get("website")?.trim() || "";
+  const justReset = searchParams.get("reset") === "true";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -64,6 +77,11 @@ export default function LoginPage() {
         <p className="mt-1 text-sm text-muted-foreground">
           Log in to manage your assistant.
         </p>
+        {justReset && (
+          <p className="mt-2 text-sm text-muted-foreground" role="status">
+            Password updated. Log in with your new password.
+          </p>
+        )}
       </div>
       <form onSubmit={onSubmit} className="flex flex-col gap-3">
         <div className="flex flex-col gap-1.5">
@@ -93,15 +111,24 @@ export default function LoginPage() {
             {error}
           </p>
         )}
-        <TurnstileWidget ref={turnstileRef} siteKey={turnstileSiteKey} />
+        <TurnstileWidget ref={turnstileRef} siteKey={turnstileSiteKey} action="auth" />
         <Button type="submit" disabled={pending || !email || !password}>
           {pending ? "Logging in…" : "Log in"}
         </Button>
       </form>
       <p className="text-sm text-muted-foreground">
         No account yet?{" "}
-        <Link href="/signup" className="underline underline-offset-4">
+        <Link
+          href={website ? `/signup?website=${encodeURIComponent(website)}` : "/signup"}
+          className="underline underline-offset-4"
+        >
           Create one
+        </Link>
+      </p>
+      <p className="text-sm text-muted-foreground">
+        Forgot your password?{" "}
+        <Link href="/forgot-password" className="underline underline-offset-4">
+          Reset it
         </Link>
       </p>
     </div>

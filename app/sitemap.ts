@@ -37,6 +37,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
+      url: getBaseUrl("/custom-business-chatbot"),
+      lastModified: LAST_MODIFIED,
+      changeFrequency: "monthly" as const,
+      priority: 0.9,
+    },
+    {
       url: getBaseUrl("/contact"),
       lastModified: LAST_MODIFIED,
       changeFrequency: "monthly" as const,

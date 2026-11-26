@@ -13,33 +13,37 @@ import { getResendClient } from "./resendClient";
 
 type SendMailFn = (args: { user: { email: string }; url: string }) => Promise<void>;
 
-const sendVerificationEmail: SendMailFn = async ({ user: u, url }) => {
-  const resend = getResendClient();
-  const { error } = await resend.emails.send({
-    from: process.env.CONTACT_FROM_EMAIL || "Pantaleone <contact@pantaleone.net>",
-    to: u.email,
-    subject: "Verify your Pantaleone Chat account",
-    html: `<p>Welcome to Pantaleone Chat.</p><p><a href="${url}">Verify your email address</a> to finish creating your account. This link expires soon.</p>`,
-    text: `Welcome to Pantaleone Chat. Verify your email address: ${url}`,
-  });
-  if (error) {
-    throw new Error(`Verification email failed: ${error.message}`);
-  }
-};
+function makeSenders(resendKey: string | undefined, fromEmail: string | undefined) {
+  const from = fromEmail || process.env.CONTACT_FROM_EMAIL || "Pantaleone <contact@pantaleone.net>";
+  const sendVerificationEmail: SendMailFn = async ({ user: u, url }) => {
+    const resend = getResendClient(resendKey);
+    const { error } = await resend.emails.send({
+      from,
+      to: u.email,
+      subject: "Verify your Pantaleone Chat account",
+      html: `<p>Welcome to Pantaleone Chat.</p><p><a href="${url}">Verify your email address</a> to finish creating your account. This link expires soon.</p>`,
+      text: `Welcome to Pantaleone Chat. Verify your email address: ${url}`,
+    });
+    if (error) {
+      throw new Error(`Verification email failed: ${error.message}`);
+    }
+  };
 
-const sendResetPassword: SendMailFn = async ({ user: u, url }) => {
-  const resend = getResendClient();
-  const { error } = await resend.emails.send({
-    from: process.env.CONTACT_FROM_EMAIL || "Pantaleone <contact@pantaleone.net>",
-    to: u.email,
-    subject: "Reset your Pantaleone Chat password",
-    html: `<p><a href="${url}">Reset your password</a>. If you did not request this, ignore this email.</p>`,
-    text: `Reset your password: ${url}`,
-  });
-  if (error) {
-    throw new Error(`Password-reset email failed: ${error.message}`);
-  }
-};
+  const sendResetPassword: SendMailFn = async ({ user: u, url }) => {
+    const resend = getResendClient(resendKey);
+    const { error } = await resend.emails.send({
+      from,
+      to: u.email,
+      subject: "Reset your Pantaleone Chat password",
+      html: `<p><a href="${url}">Reset your password</a>. If you did not request this, ignore this email.</p>`,
+      text: `Reset your password: ${url}`,
+    });
+    if (error) {
+      throw new Error(`Password-reset email failed: ${error.message}`);
+    }
+  };
+  return { sendVerificationEmail, sendResetPassword };
+}
 
 export const AUTH_COOKIE_PREFIX = "pantaleone-chat";
 
@@ -71,7 +75,43 @@ export type AuthEnv = {
   BETTER_AUTH_SECRET?: string;
   BETTER_AUTH_URL?: string;
   TURNSTILE_SECRET_KEY?: string;
+  RESEND_API_KEY?: string;
+  CONTACT_FROM_EMAIL?: string;
 };
+
+const TURNSTILE_ACTION = "auth";
+
+function hostnameOf(value: string | undefined): string | null {
+  if (!value) return null;
+  try {
+    return new URL(value).hostname.toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Hostnames a Turnstile token may have been minted for. Derived per env
+ * from the configured base URL plus the canonical site hosts, so staging
+ * and dev workers pass without ever allowlisting localhost in production.
+ */
+function buildAllowedHostnames(baseURL: string | undefined): string[] {
+  const hosts = new Set<string>([
+    "www.pantaleone.net",
+    "pantaleone.net",
+    "chat.pantaleone.net",
+    // Preview workers (staging verification happens here, not on PR URLs).
+    "pantaleonenet-dev.mattpantaleone.workers.dev",
+    "pantaleonenet-staging.mattpantaleone.workers.dev",
+  ]);
+  const baseHost = hostnameOf(baseURL);
+  if (baseHost) hosts.add(baseHost);
+  if (!baseHost || baseHost === "localhost" || baseHost === "127.0.0.1") {
+    hosts.add("localhost");
+    hosts.add("127.0.0.1");
+  }
+  return [...hosts];
+}
 
 function createAuth(env: AuthEnv) {
   if (!env.CHAT_DB) {
@@ -88,9 +128,15 @@ function createAuth(env: AuthEnv) {
     );
   }
 
+  const baseURL = env.BETTER_AUTH_URL ?? process.env.BETTER_AUTH_URL;
+  const { sendVerificationEmail, sendResetPassword } = makeSenders(
+    env.RESEND_API_KEY ?? process.env.RESEND_API_KEY,
+    env.CONTACT_FROM_EMAIL ?? process.env.CONTACT_FROM_EMAIL,
+  );
+
   const options = {
     secret: env.BETTER_AUTH_SECRET ?? process.env.BETTER_AUTH_SECRET,
-    baseURL: env.BETTER_AUTH_URL ?? process.env.BETTER_AUTH_URL,
+    baseURL,
     trustedOrigins: [
       "https://www.pantaleone.net",
       "https://chat.pantaleone.net",
@@ -113,6 +159,10 @@ function createAuth(env: AuthEnv) {
     // Turnstile bot protection on auth endpoints. Only active when the
     // secret is configured; otherwise signup/login still work but every
     // attempt is logged so a missing key is visible, never silent.
+    // Single shared action ("auth") across signup + login: the captcha
+    // plugin enforces one expectedAction for all endpoints, so both
+    // surfaces mint the same action and the server rejects cross-context
+    // replay plus unapproved hostnames.
     ...(env.TURNSTILE_SECRET_KEY
       ? {
           plugins: [
@@ -120,6 +170,8 @@ function createAuth(env: AuthEnv) {
               provider: "cloudflare-turnstile",
               secretKey: env.TURNSTILE_SECRET_KEY,
               endpoints: ["/sign-up/email", "/sign-in/email"],
+              expectedAction: TURNSTILE_ACTION,
+              allowedHostnames: buildAllowedHostnames(baseURL),
             }),
           ],
         }

@@ -9,9 +9,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import TurnstileWidget, { type TurnstileRef } from "@/components/TurnstileWidget";
 import { authClient } from "@/lib/auth-client";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 export default function SignupPage() {
+  return (
+    <Suspense>
+      <SignupForm />
+    </Suspense>
+  );
+}
+
+function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const website = searchParams.get("website")?.trim() || "";
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -52,7 +64,14 @@ export default function SignupPage() {
         setError(signUpError.message || "Could not create your account.");
         return;
       }
-      router.push("/dashboard");
+      // requireEmailVerification is on: there is no session yet, so the
+      // dashboard would bounce. Land on the verify notice instead; the
+      // verification email's callbackURL brings them to /dashboard after
+      // they click through.
+      const next = website
+        ? `/verify-email?email=${encodeURIComponent(email.trim())}&website=${encodeURIComponent(website)}`
+        : `/verify-email?email=${encodeURIComponent(email.trim())}`;
+      router.push(next);
     } catch (err) {
       turnstileRef.current?.reset();
       setError(err instanceof Error ? err.message : "Something went wrong.");
@@ -107,14 +126,17 @@ export default function SignupPage() {
             {error}
           </p>
         )}
-        <TurnstileWidget ref={turnstileRef} siteKey={turnstileSiteKey} />
+        <TurnstileWidget ref={turnstileRef} siteKey={turnstileSiteKey} action="auth" />
         <Button type="submit" disabled={pending || !email || !password}>
           {pending ? "Creating account…" : "Create account"}
         </Button>
       </form>
       <p className="text-sm text-muted-foreground">
         Already have an account?{" "}
-        <Link href="/login" className="underline underline-offset-4">
+        <Link
+          href={website ? `/login?website=${encodeURIComponent(website)}` : "/login"}
+          className="underline underline-offset-4"
+        >
           Log in
         </Link>
       </p>

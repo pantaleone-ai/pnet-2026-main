@@ -1,15 +1,20 @@
-// Resend API wrapper using environment variable RESEND_API_KEY
+// Resend API wrapper. In the Workers runtime secrets arrive via the
+// Cloudflare env binding, not process.env — callers running in a request
+// context must pass the key explicitly. process.env remains the fallback
+// for local dev and scripts.
 import { Resend, type CreateEmailOptions } from "resend";
 
 let client: Resend | null = null;
+let clientKey: string | null = null;
 
-export function getResendClient(): Resend {
-  const apiKey = process.env.RESEND_API_KEY;
+export function getResendClient(explicitApiKey?: string): Resend {
+  const apiKey = explicitApiKey || process.env.RESEND_API_KEY;
   if (!apiKey) {
     throw new Error("RESEND_API_KEY environment variable is not set");
   }
-  if (!client) {
+  if (!client || clientKey !== apiKey) {
     client = new Resend(apiKey);
+    clientKey = apiKey;
   }
   return client;
 }

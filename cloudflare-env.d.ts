@@ -45,4 +45,7 @@ interface CloudflareEnv {
   CHAT_INGEST?: import("@cloudflare/workers-types").Queue;
   BETTER_AUTH_SECRET?: string;
   BETTER_AUTH_URL?: string;
+  TURNSTILE_SECRET_KEY?: string;
+  RESEND_API_KEY?: string;
+  CONTACT_FROM_EMAIL?: string;
 }
