@@ -80,6 +80,30 @@ if better-auth upgrades change the schema, generate a new migration.
 - Login blocked pre-verification with clear error; duplicate signup creates nothing; short password rejected server-side
 - Test data cleaned out of the dev DB afterwards
 
+## Verified 2026-11-26 (commercial pricing, PR #397 — live on www)
+
+- `config/plans.ts` is the single source of truth: Starter $29 / Growth
+  $79 (recommended) / Pro $199 / Agency $499, monthly default, annual =
+  10x monthly (2 months free). AI-reply allowances 1k/4k/12k/40k, pooled,
+  reset monthly.
+- `config/plans.test.ts` (7 tests): annual math, reply allowances, agency
+  marketability guard (white-label / client-level / cross-client never
+  render), signup hrefs, plan validation, USD formatting.
+- Landing page: toggle, buyer + outcome per tier, plan CTAs to
+  `/signup?plan=&billing=` (agency to contact), comparison table, AI-reply
+  definition, no-surprise-billing policy, usage FAQ, priced Offer JSON-LD.
+- Signup/login accept + preserve `?plan=`/`?billing=` for the P5 handoff.
+- Gates: tsc, eslint (touched), vitest 30 pass, prod build 129 pages.
+- Verified on dev worker (fresh build + deploy) and on www after the
+  prod deploy + cache purge: all CTAs, prices, FAQ, guardrail (no
+  "White-label" in HTML).
+- NOT built (by spec guardrail, do not advertise): Stripe products/prices,
+  checkout, entitlements, usage metering/alerts, add-ons (+1k replies
+  $15, +assistant $15, remove branding $19, onboarding $299) — all P5/P6.
+- Lesson: `npx opennextjs-cloudflare deploy` does NOT build — it reuses
+  `.open-next/`. Always `build` first (or use the `npm run` scripts);
+  a stale deploy serves old pages with zero errors.
+
 ## Verified 2026-11-26 (P1 landing + P2 auth completion, dev deploy)
 
 - `tsc`, `eslint` (touched files), `vitest run` (23 pass), prod `build` (129 pages) green
