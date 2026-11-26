@@ -25,6 +25,16 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const website = searchParams.get("website")?.trim() || "";
   const justReset = searchParams.get("reset") === "true";
+  const planParam = searchParams.get("plan")?.trim() || "";
+  const billingParam = searchParams.get("billing")?.trim() || "";
+  const signupHref = (() => {
+    const params = new URLSearchParams();
+    if (website) params.set("website", website);
+    if (planParam) params.set("plan", planParam);
+    if (billingParam) params.set("billing", billingParam);
+    const qs = params.toString();
+    return qs ? `/signup?${qs}` : "/signup";
+  })();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -119,7 +129,7 @@ function LoginForm() {
       <p className="text-sm text-muted-foreground">
         No account yet?{" "}
         <Link
-          href={website ? `/signup?website=${encodeURIComponent(website)}` : "/signup"}
+          href={signupHref}
           className="underline underline-offset-4"
         >
           Create one

@@ -1,12 +1,14 @@
 import Heading from "@/components/HeadingTitle";
 import SeparatorHorizontal from "@/components/SeparatorHorizontal";
 import HEAD from "@/config/seo/head";
-import { CHAT_PLANS } from "@/config/plans";
+import {
+  CHAT_PLANS,
+} from "@/config/plans";
 import { siteConfig } from "@/config/site";
 import { getPageMetadata } from "@/lib/seo/page-metadata";
 import type { HeadType } from "@/types";
 import type { Metadata } from "next";
-import Link from "next/link";
+import PricingSection from "./PricingSection";
 import UrlCaptureForm from "./UrlCaptureForm";
 
 export const dynamic = "force-static";
@@ -52,21 +54,49 @@ const FAQS = [
     a: "Connecting a website takes minutes. Most of the time goes to reviewing which pages the assistant may use and adding the handful of answers only you know. Small sites typically publish the same day.",
   },
   {
+    q: "What is an AI reply?",
+    a: "One completed, visitor-facing response from your assistant. A visitor message alone does not count, and neither does opening the widget. Each additional AI response counts as one. Failed requests and our internal testing never count. Included replies are pooled across all assistants on your plan and reset every month — unused replies do not roll over.",
+  },
+  {
+    q: "What happens if I reach my monthly AI reply limit?",
+    a: "Your workspace shows usage as it grows, and we email you at 80% and 100%. We never charge overages silently. At the limit you upgrade to a higher plan to keep answering; until then visitors see a clear message instead of an error, and every lead already captured stays in your inbox.",
+  },
+  {
+    q: "How does annual billing save money?",
+    a: "Annual plans cost 10 times the monthly price, so two months are free. Starter is $290 instead of $348, Growth $790 instead of $948, Pro $1,990 instead of $2,388, and Agency $4,990 instead of $5,988. Prices are in USD.",
+  },
+  {
     q: "What happens when my website changes?",
     a: "Knowledge sources re-index on a schedule. Update a page on your site and the assistant picks it up without you touching the chatbot.",
   },
   {
     q: "Can it capture leads, not just answer questions?",
-    a: "Yes. When a conversation looks like buying intent, the assistant can ask for a name, email, and details — stored in your lead inbox with the full conversation attached, exportable as CSV.",
+    a: "Yes, from Growth up. When a conversation looks like buying intent, the assistant can ask for a name, email, and details — stored in your lead inbox with the full conversation attached, exportable as CSV.",
   },
   {
     q: "Does my business data leak into other customers' chatbots?",
     a: "No. Every chatbot retrieves only from its own knowledge sources — your pages are filtered by your workspace at query time, and automated isolation tests verify cross-customer reads are impossible. Your content is never used to train shared models.",
   },
   {
-    q: "What does it cost?",
-    a: "Early access is free while we finalize launch pricing. The plan tiers below show the usage limits each tier carries, so you can see where your site fits. You will lock founding pricing before billing starts.",
+    q: "When does billing start?",
+    a: "Plans are in early access while paid billing is finalized. Join now to hold your place: founding customers lock the prices and terms on this page before billing starts, and nothing is charged until then.",
   },
+];
+
+const COMPARISON_ROWS: { label: string; values: [string, string, string, string] }[] = [
+  { label: "Monthly price", values: ["$29", "$79", "$199", "$499"] },
+  { label: "AI replies / month (pooled)", values: ["1,000", "4,000", "12,000", "40,000"] },
+  { label: "Assistants", values: ["1", "3", "10", "25"] },
+  { label: "Websites / domains", values: ["1", "3", "10", "25"] },
+  { label: "Indexed pages per assistant", values: ["100", "500", "2,000", "2,000"] },
+  { label: "Knowledge sources per assistant", values: ["5", "10", "25", "25"] },
+  { label: "Team members", values: ["1", "3", "10", "10"] },
+  { label: "Conversation history", values: ["30 days", "90 days", "1 year", "1 year"] },
+  { label: "Lead capture", values: ["Basic", "Lead inbox + search", "Advanced", "Advanced"] },
+  { label: "Analytics", values: ["—", "Standard", "Advanced", "Advanced"] },
+  { label: "Embed + hosted page", values: ["Yes", "Yes", "Yes", "Yes"] },
+  { label: "Branding", values: ["Pantaleone branding", "Pantaleone branding", "Branding controls", "Contact us"] },
+  { label: "Support", values: ["Email", "Priority email", "Priority", "Priority"] },
 ];
 
 function getServiceJsonLd() {
@@ -81,6 +111,17 @@ function getServiceJsonLd() {
     },
     areaServed: "US",
     description: page.description,
+    hasOfferCatalog: {
+      "@type": "OfferCatalog",
+      name: "Business chatbot plans",
+      itemListElement: CHAT_PLANS.map((tier) => ({
+        "@type": "Offer",
+        name: tier.name,
+        price: tier.monthlyPrice,
+        priceCurrency: "USD",
+        description: tier.positioning,
+      })),
+    },
   };
 }
 
@@ -191,77 +232,102 @@ export default function CustomBusinessChatbotPage() {
 
         <div className="mx-auto max-w-6xl px-6 pb-16">
           <h2 className="text-2xl font-semibold text-center mb-2">
-            Early-access plans
+            Plans priced by answers, not seats
           </h2>
           <p className="text-center text-muted-foreground mb-8">
-            Free during early access. Prices are announced before billing
-            starts — founding customers lock launch pricing.
+            Every plan includes unlimited visitor questions — you pay for the
+            AI replies your assistants send. Annual billing costs 10× monthly:
+            two months free.
           </p>
-          <div className="grid gap-8 md:grid-cols-3">
-            {CHAT_PLANS.map((tier) => (
-              <div
-                key={tier.id}
-                className={`flex flex-col border rounded-lg p-6 ${
-                  tier.highlighted
-                    ? "border-primary shadow-lg relative"
-                    : "border-border"
-                }`}
-              >
-                {tier.highlighted && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground text-xs font-medium px-3 py-1 rounded-full">
-                    Most Popular
-                  </div>
-                )}
-                <h3 className="text-xl font-semibold mb-2">{tier.name}</h3>
-                <div className="mb-4">
-                  <span className="text-3xl font-bold">
-                    {tier.price ?? "Early access"}
-                  </span>
-                  {tier.price && (
-                    <span className="text-muted-foreground ml-1">
-                      / {tier.period}
-                    </span>
-                  )}
-                </div>
-                <p className="text-muted-foreground mb-6">{tier.description}</p>
-                <ul className="space-y-2 mb-8 flex-1">
-                  {tier.features.map((feature) => (
-                    <li key={feature} className="flex items-start">
-                      <svg
-                        className="h-5 w-5 text-primary mr-2 mt-0.5 shrink-0"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                      <span className="text-sm">{feature}</span>
-                    </li>
+          <PricingSection />
+        </div>
+
+        <SeparatorHorizontal short={true} />
+
+        <div className="mx-auto max-w-5xl px-6 pb-16">
+          <h2 className="text-2xl font-semibold text-center mb-2">
+            Compare plans
+          </h2>
+          <p className="text-center text-muted-foreground mb-8">
+            The full picture, in one table.
+          </p>
+          <div className="overflow-x-auto rounded-lg border border-border">
+            <table className="w-full text-sm">
+              <caption className="sr-only">
+                Feature comparison across Starter, Growth, Pro, and Agency plans
+              </caption>
+              <thead>
+                <tr className="border-b border-border bg-muted/50">
+                  <th scope="col" className="text-left font-medium p-3">
+                    <span className="sr-only">Feature</span>
+                  </th>
+                  {CHAT_PLANS.map((tier) => (
+                    <th
+                      key={tier.id}
+                      scope="col"
+                      className="text-left font-semibold p-3"
+                    >
+                      {tier.name}
+                    </th>
                   ))}
-                </ul>
-                <Link
-                  href={tier.href}
-                  className={`inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-                    tier.highlighted
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                      : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                  }`}
-                >
-                  {tier.cta}
-                </Link>
-              </div>
-            ))}
+                </tr>
+              </thead>
+              <tbody>
+                {COMPARISON_ROWS.map((row) => (
+                  <tr
+                    key={row.label}
+                    className="border-b border-border last:border-0"
+                  >
+                    <th scope="row" className="text-left font-medium p-3">
+                      {row.label}
+                    </th>
+                    {row.values.map((value, i) => (
+                      <td
+                        key={`${row.label}-${i}`}
+                        className="p-3 text-muted-foreground"
+                      >
+                        {value}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
 
         <SeparatorHorizontal short={true} />
 
         <div className="prose dark:prose-invert mx-auto max-w-3xl px-6 py-8">
+          <h2 className="text-2xl font-semibold mb-4" id="usage">
+            What is an AI reply?
+          </h2>
+          <p className="mb-4">
+            An AI reply is one completed, visitor-facing response from your
+            assistant. That is the only thing that counts against your plan:
+          </p>
+          <ul className="list-disc pl-6 space-y-2 mb-8">
+            <li>A visitor message alone does not count.</li>
+            <li>A completed AI response counts as one; each additional AI response counts as one more.</li>
+            <li>Opening the widget does not count.</li>
+            <li>Failed requests and our internal testing do not count.</li>
+            <li>Included replies are pooled across all assistants on your plan and reset every month. Unused replies do not roll over.</li>
+          </ul>
+
+          <h2 className="text-2xl font-semibold mb-4">No surprise bills</h2>
+          <p className="mb-4">
+            Your workspace shows usage as it grows, and we email you when you
+            reach 80% and 100% of your monthly replies. We never charge
+            overages silently: at the limit, you choose to upgrade to a higher
+            plan to keep answering. Until then, visitors see a clear message
+            instead of an error, and every lead already captured stays in your
+            inbox.
+          </p>
+        </div>
+
+        <SeparatorHorizontal short={true} />
+
+        <div id="usage-faq" className="prose dark:prose-invert mx-auto max-w-3xl px-6 py-8 scroll-mt-16">
           <h2 className="text-2xl font-semibold mb-4">
             Frequently asked questions
           </h2>

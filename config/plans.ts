@@ -1,106 +1,257 @@
 /**
  * Single source of truth for Pantaleone Chat SaaS plans.
  *
- * The marketing page, onboarding, dashboard, billing, and enforcement code
+ * The landing page, onboarding, dashboard, billing, and enforcement code
  * all import from here — never hardcode plan names, limits, or prices in
- * UI or logic. Stripe price IDs are attached in P5 (billing); until then
- * `stripePriceId` stays null and checkout is disabled.
+ * UI or logic.
  *
- * Owner action before launch: confirm the limits and set launch prices.
- * Current numbers are early-access drafts, clearly labelled as such in UI.
+ * Billing model (2026-11-26): monthly default; annual = 10x monthly
+ * (2 months free). Stripe price IDs attach in P5 (billing) — until then
+ * `stripePriceId` stays null and checkout is disabled; CTAs route to
+ * signup with `?plan=` + `?billing=` preserved for later handoff.
+ *
+ * Agency guardrail: client workspaces, white-labeling, per-client
+ * permissions, and cross-client reporting are NOT implemented. They are
+ * tracked here as `planned: true` for internal roadmap use only and must
+ * never render on public marketing (see `isMarketable`).
+ *
+ * Add-ons (evaluated 2026-11-26, NOT offered until billing supports
+ * entitlements — do not surface in UI yet):
+ * - +1,000 AI replies $15/mo · +1 assistant $15/mo ·
+ *   remove branding $19/mo · custom onboarding $299 one-time.
  */
-export type PlanId = "starter" | "growth" | "scale";
+export type PlanId = "starter" | "growth" | "pro" | "agency";
+export type BillingPeriod = "monthly" | "annual";
+
+/** Months free on annual billing (annual total = monthly × (12 - N)). */
+export const ANNUAL_FREE_MONTHS = 2;
+
+export interface ChatPlanFeature {
+  label: string;
+  /** True when the capability exists in the product today. */
+  available: boolean;
+  /** Internal note for planned-but-unbuilt capabilities. Never marketed. */
+  planned?: boolean;
+}
 
 export interface ChatPlan {
   id: PlanId;
   name: string;
-  /** Display price. Null = announced at launch (early access). */
-  price: string | null;
-  period: string;
-  description: string;
-  features: string[];
+  /** Intended buyer, shown on the card. */
+  buyer: string;
+  /** Positioning line (outcome-led, no hype). */
+  positioning: string;
+  /** Monthly price in USD. */
+  monthlyPrice: number;
   cta: string;
-  /** Signup handoff; scale routes to contact instead. */
+  /** Signup handoff; agency routes to contact until self-serve is ready. */
   href: string;
   highlighted?: boolean;
   stripePriceId: string | null;
   limits: {
-    /** Published chatbots per workspace. */
-    chatbots: number;
-    /** Visitor messages per month. */
-    messagesPerMonth: number;
-    /** Knowledge sources across the workspace. */
-    knowledgeSources: number;
+    assistants: number;
+    domains: number;
+    /** Included AI replies per month, pooled across assistants. */
+    aiRepliesPerMonth: number;
+    /** Indexed pages per assistant. */
+    pagesPerAssistant: number;
+    /** Knowledge sources per assistant. */
+    sourcesPerAssistant: number;
+    teamMembers: number;
+    /** Conversation history retention in days. */
+    historyDays: number;
   };
+  features: ChatPlanFeature[];
+}
+
+function f(label: string, available = true, planned = false): ChatPlanFeature {
+  return { label, available, planned };
 }
 
 export const CHAT_PLANS: ChatPlan[] = [
   {
     id: "starter",
     name: "Starter",
-    price: null,
-    period: "per month",
-    description:
-      "One assistant answering from your website. For small sites proving the concept.",
-    features: [
-      "1 published chatbot",
-      "500 visitor messages per month",
-      "1 knowledge source (website or files)",
-      "Hosted chat page + embed snippet",
-      "Lead capture (contact mode)",
-      "Email support",
-    ],
-    cta: "Start early access",
+    buyer: "One website needs a chatbot.",
+    positioning:
+      "Give your website a useful assistant. Answer common questions and help visitors find the information they need.",
+    monthlyPrice: 29,
+    cta: "Start with Starter",
     href: "/signup",
     stripePriceId: null,
-    limits: { chatbots: 1, messagesPerMonth: 500, knowledgeSources: 1 },
+    limits: {
+      assistants: 1,
+      domains: 1,
+      aiRepliesPerMonth: 1000,
+      pagesPerAssistant: 100,
+      sourcesPerAssistant: 5,
+      teamMembers: 1,
+      historyDays: 30,
+    },
+    features: [
+      f("1 assistant"),
+      f("1 website / domain"),
+      f("1,000 AI replies / month"),
+      f("Up to 100 indexed pages"),
+      f("Up to 5 knowledge sources"),
+      f("1 team member"),
+      f("30-day conversation history"),
+      f("Basic lead capture"),
+      f("Website embed"),
+      f("Hosted chatbot page"),
+      f("Pantaleone branding"),
+      f("Email support"),
+    ],
   },
   {
     id: "growth",
     name: "Growth",
-    price: null,
-    period: "per month",
-    description:
-      "More bots, more sources, more conversations. For businesses running on inbound questions.",
-    features: [
-      "3 published chatbots",
-      "5,000 visitor messages per month",
-      "10 knowledge sources",
-      "Everything in Starter",
-      "Conversation history + search",
-      "Lead inbox with CSV export",
-      "Priority support",
-    ],
-    cta: "Start early access",
+    buyer: "A growing business wants more leads.",
+    positioning:
+      "Do more than answer questions. Capture leads, review conversations, and give your team a better way to follow up.",
+    monthlyPrice: 79,
+    cta: "Choose Growth",
     href: "/signup",
     highlighted: true,
     stripePriceId: null,
-    limits: { chatbots: 3, messagesPerMonth: 5000, knowledgeSources: 10 },
+    limits: {
+      assistants: 3,
+      domains: 3,
+      aiRepliesPerMonth: 4000,
+      pagesPerAssistant: 500,
+      sourcesPerAssistant: 10,
+      teamMembers: 3,
+      historyDays: 90,
+    },
+    features: [
+      f("3 assistants"),
+      f("3 websites / domains"),
+      f("4,000 AI replies / month"),
+      f("Up to 500 indexed pages per assistant"),
+      f("Up to 10 knowledge sources per assistant"),
+      f("3 team members"),
+      f("90-day conversation history"),
+      f("Lead inbox and conversation search"),
+      f("Standard analytics"),
+      f("Website embed"),
+      f("Hosted chatbot pages"),
+      f("Priority email support"),
+    ],
   },
   {
-    id: "scale",
-    name: "Scale",
-    price: null,
-    period: "custom",
-    description:
-      "High volume, multiple brands, or strict requirements. We scope it with you.",
+    id: "pro",
+    name: "Pro",
+    buyer: "One business, multiple assistants.",
+    positioning:
+      "Run multiple specialized assistants across your business. Manage conversations, review performance, and maintain control from one place.",
+    monthlyPrice: 199,
+    cta: "Choose Pro",
+    href: "/signup",
+    stripePriceId: null,
+    limits: {
+      assistants: 10,
+      domains: 10,
+      aiRepliesPerMonth: 12000,
+      pagesPerAssistant: 2000,
+      sourcesPerAssistant: 25,
+      teamMembers: 10,
+      historyDays: 365,
+    },
     features: [
-      "10 published chatbots",
-      "25,000 visitor messages per month",
-      "Unlimited knowledge sources",
-      "Everything in Growth",
-      "Custom retention + data controls",
-      "Onboarding call",
+      f("10 assistants"),
+      f("10 websites / domains"),
+      f("12,000 AI replies / month"),
+      f("Up to 2,000 indexed pages per assistant"),
+      f("Up to 25 knowledge sources per assistant"),
+      f("10 team members"),
+      f("1-year conversation history"),
+      f("Advanced lead management"),
+      f("Advanced analytics"),
+      f("Branding controls"),
+      f("Priority support"),
     ],
-    cta: "Talk to us",
+  },
+  {
+    id: "agency",
+    name: "Agency",
+    buyer: "Agencies deploying for clients.",
+    positioning:
+      "Deploy and manage business chatbots for multiple clients from one platform. Add a recurring service without building the technology yourself.",
+    monthlyPrice: 499,
+    cta: "Choose Agency",
     href: "/contact?enterprise=true",
     stripePriceId: null,
-    limits: { chatbots: 10, messagesPerMonth: 25000, knowledgeSources: -1 },
+    limits: {
+      assistants: 25,
+      domains: 25,
+      aiRepliesPerMonth: 40000,
+      pagesPerAssistant: 2000,
+      sourcesPerAssistant: 25,
+      teamMembers: 10,
+      historyDays: 365,
+    },
+    features: [
+      f("25 assistants"),
+      f("25 websites / domains"),
+      f("40,000 AI replies / month"),
+      f("Up to 2,000 indexed pages per assistant"),
+      f("Up to 25 knowledge sources per assistant"),
+      f("10 team members"),
+      f("1-year conversation history"),
+      f("Priority support"),
+      // Guardrail: kept in config for roadmap tracking, never marketed.
+      f("Client-level management", false, true),
+      f("Cross-client analytics", false, true),
+      f("White-label deployment", false, true),
+    ],
   },
 ];
 
-export function getChatPlan(id: PlanId): ChatPlan {
+export function getChatPlan(id: string): ChatPlan {
   const plan = CHAT_PLANS.find((p) => p.id === id);
   if (!plan) throw new Error(`Unknown chat plan: ${id}`);
   return plan;
+}
+
+export function isValidPlanId(id: string | null | undefined): id is PlanId {
+  return (
+    id === "starter" || id === "growth" || id === "pro" || id === "agency"
+  );
+}
+
+/** Marketable features only — planned-but-unbuilt items never reach the UI. */
+export function marketableFeatures(plan: ChatPlan): ChatPlanFeature[] {
+  return plan.features.filter((feat) => feat.available);
+}
+
+/** Annual total: 10x monthly (2 months free). */
+export function annualPrice(plan: ChatPlan): number {
+  return plan.monthlyPrice * (12 - ANNUAL_FREE_MONTHS);
+}
+
+/** Whole-dollar saving vs 12 months monthly. */
+export function annualSavings(plan: ChatPlan): number {
+  return plan.monthlyPrice * 12 - annualPrice(plan);
+}
+
+/** Effective monthly cost on the annual plan, for display ("$24/mo billed annually"). */
+export function annualEffectiveMonthly(plan: ChatPlan): number {
+  return annualPrice(plan) / 12;
+}
+
+export function formatUSD(amount: number): string {
+  return `$${amount.toLocaleString("en-US", { maximumFractionDigits: amount % 1 === 0 ? 0 : 2 })}`;
+}
+
+export function signupHref(
+  plan: ChatPlan,
+  billing: BillingPeriod,
+  website?: string,
+): string {
+  // Contact-routed plans (agency) keep their destination untouched —
+  // plan/billing params only apply to the self-serve signup flow.
+  if (!plan.href.startsWith("/signup")) return plan.href;
+  const params = new URLSearchParams({ plan: plan.id, billing });
+  if (website) params.set("website", website);
+  return `/signup?${params.toString()}`;
 }
