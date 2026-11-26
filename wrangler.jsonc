@@ -32,7 +32,7 @@
 		{
 			"binding": "CHAT_DB",
 			"database_name": "pantaleone-chat-prod",
-			"database_id": "62f4e755-4aa9-4a51-8364-d93c9ae90470",
+			"database_id": "62f4e755-4aa9-4ea7-b1c4-673b17c9c64d",
 			"migrations_dir": "drizzle/migrations"
 		}
 	],
@@ -49,7 +49,7 @@
 		},
 		{
 			"binding": "CHAT_PLATFORM",
-			"id": "59c956ebc41f45838fab8ff33af64"
+			"id": "59c956ebc41f45838fa7d5443f2a24b9"
 		}
 	],
 	"queues": {
