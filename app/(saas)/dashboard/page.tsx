@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
+import Link from "next/link";
 
 import { getDb } from "@/lib/db";
 import { chatbots, organizationMembers, organizations } from "@/drizzle/schema";
@@ -56,7 +57,10 @@ export default async function DashboardPage() {
           <ul className="mt-2 flex flex-col gap-1">
             {bots.map((b) => (
               <li key={b.id} className="text-sm">
-                {b.name} — {b.status}
+                {b.name} — {b.status} ·{" "}
+                <Link href="/knowledge" className="underline underline-offset-4">
+                  Knowledge
+                </Link>
               </li>
             ))}
           </ul>
