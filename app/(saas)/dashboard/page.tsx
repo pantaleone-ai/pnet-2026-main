@@ -58,6 +58,10 @@ export default async function DashboardPage() {
             {bots.map((b) => (
               <li key={b.id} className="text-sm">
                 {b.name} — {b.status} ·{" "}
+                <Link href="/assistant" className="underline underline-offset-4">
+                  Assistant
+                </Link>{" "}
+                ·{" "}
                 <Link href="/knowledge" className="underline underline-offset-4">
                   Knowledge
                 </Link>
