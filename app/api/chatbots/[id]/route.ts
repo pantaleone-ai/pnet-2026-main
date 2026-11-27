@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 
 import { chatbotKnowledgeSources, chatbots, knowledgeSources } from "@/drizzle/schema";
 import { getSession, requireOrgMembership } from "@/lib/auth-session";
+import { getBillingConfig, getEntitlement, isBillingLive } from "@/lib/billing";
 import { getDb } from "@/lib/db";
 import { updateChatbotSchema } from "@/lib/ingest/assistant";
 import { logger } from "@/lib/logger";
@@ -12,6 +13,14 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 const NO_STORE = { "Cache-Control": "no-store" } as const;
+
+async function billingLiveForPublish(env: {
+  STRIPE_SECRET_KEY?: string;
+  STRIPE_WEBHOOK_SECRET?: string;
+  BETTER_AUTH_URL?: string;
+}): Promise<boolean> {
+  return isBillingLive(getBillingConfig(env));
+}
 
 /** Update chatbot identity, behavior, appearance, or publish status. */
 export async function PATCH(
@@ -24,7 +33,13 @@ export async function PATCH(
   }
   const { id } = await params;
   const { env } = await getCloudflareContext({ async: true });
-  const db = getDb((env as { CHAT_DB?: unknown }).CHAT_DB);
+  const e = env as {
+    CHAT_DB?: unknown;
+    STRIPE_SECRET_KEY?: string;
+    STRIPE_WEBHOOK_SECRET?: string;
+    BETTER_AUTH_URL?: string;
+  };
+  const db = getDb(e.CHAT_DB);
 
   const [bot] = await db.select().from(chatbots).where(eq(chatbots.id, id)).limit(1);
   if (!bot) {
@@ -50,10 +65,18 @@ export async function PATCH(
   }
   const input = parsed.data;
 
-  // Publishing requires at least one READY knowledge source — a bot with
-  // nothing to answer from must stay a draft (same gate the onboarding
-  // wizard will enforce in P4c).
+  // Publishing requires an active subscription once billing is live.
+  // Before that (early access, no keys/prices), publishing stays open.
   if (input.status === "published" && bot.status !== "published") {
+    if (await billingLiveForPublish(e)) {
+      const entitlement = await getEntitlement(db, bot.organizationId);
+      if (!entitlement) {
+        return NextResponse.json(
+          { error: "Publishing requires an active subscription. Choose a plan to continue." },
+          { status: 403, headers: NO_STORE },
+        );
+      }
+    }
     const ready = await db
       .select({ id: knowledgeSources.id })
       .from(chatbotKnowledgeSources)

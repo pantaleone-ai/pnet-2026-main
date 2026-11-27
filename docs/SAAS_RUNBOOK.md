@@ -127,6 +127,12 @@ if better-auth upgrades change the schema, generate a new migration.
   development in wrangler.jsonc) — the tenant retrieval filter uses it,
   and a wrong default silently scopes every query to the wrong env
   (empty results, zero errors). The ingest worker already had it.
+- `wrangler secret put/delete` can fail with 10215 ("latest version not
+  deployed") — deploy the worker first, then modify secrets. If behavior
+  looks stale right after a put, redeploy before assuming anything else.
+- Workers cannot use Stripe's sync `constructEvent` (needs async crypto)
+  — always `await constructEventAsync(...)` server-side. The sync variant
+  throws; the error message says exactly this.
 
 ## Verified 2026-11-26 (commercial pricing, PR #397 — live on www)
 

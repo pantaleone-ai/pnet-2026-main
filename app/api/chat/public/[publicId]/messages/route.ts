@@ -8,6 +8,7 @@ import {
   usageEvents,
 } from "@/drizzle/schema";
 import { getDb, type ChatDatabase } from "@/lib/db";
+import { checkMessageAllowance, getBillingConfig } from "@/lib/billing";
 import { logger } from "@/lib/logger";
 import { getIdentifier, rateLimit } from "@/lib/rate-limit";
 import {
@@ -114,6 +115,9 @@ export async function POST(
       VECTORIZE_SAAS?: TenantBindings["VECTORIZE_SAAS"];
       CHAT_PLATFORM?: TenantBindings["KV"];
       ENV_NAME?: string;
+      STRIPE_SECRET_KEY?: string;
+      STRIPE_WEBHOOK_SECRET?: string;
+      BETTER_AUTH_URL?: string;
     };
     ctx?: { waitUntil?: (p: Promise<unknown>) => void };
   };
@@ -160,6 +164,20 @@ export async function POST(
     KV: (e.CHAT_PLATFORM as TenantBindings["KV"]) ?? null,
     ENV_NAME: e.ENV_NAME ?? "production",
   };
+
+  // Plan-cap enforcement (no-op while billing is not live). Blocked turns
+  // are neither answered nor persisted — the visitor gets a clear upgrade
+  // path instead of silence or a wrong answer.
+  const allowance = await checkMessageAllowance(
+    db,
+    getBillingConfig(e),
+    resolved.bot.organizationId,
+  );
+  if (!allowance.allowed) {
+    return streamFallback(
+      "This assistant has reached its monthly AI reply allowance. The business owner can upgrade the plan to keep answers flowing — leave your contact details below and they will follow up.",
+    );
+  }
 
   const context = await retrieveTenantContext({
     db,

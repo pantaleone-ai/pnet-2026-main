@@ -216,8 +216,7 @@ export const leads = sqliteTable("leads", {
 });
 
 /** Append-only billing/metering log. Never updated, never deleted by code. */
-export const usageEvents = sqliteTable("usage_events", {
-  id: text("id").primaryKey(),
+export const usageEvents = sqliteTable("usage_events", {  id: text("id").primaryKey(),
   organizationId: text("organization_id")
     .notNull()
     .references(() => organizations.id, { onDelete: "cascade" }),
@@ -253,6 +252,46 @@ export const embedDomains = sqliteTable(
   },
   (t) => [uniqueIndex("embed_domain_unique").on(t.chatbotId, t.domain)],
 );
+
+// ---------------------------------------------------------------------------
+// Billing (P5). One active subscription per organization; entitlements are
+// derived server-side from subscription status on every billable operation.
+// webhook_events provides Stripe idempotency (stripe_event_id PK).
+// ---------------------------------------------------------------------------
+
+/** Customer subscription. status mirrors Stripe (active|trialing|past_due|canceled|...). */
+export const subscriptions = sqliteTable("subscriptions", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id")
+    .notNull()
+    .references(() => organizations.id, { onDelete: "cascade" }),
+  stripeCustomerId: text("stripe_customer_id"),
+  stripeSubscriptionId: text("stripe_subscription_id").unique(),
+  stripePriceId: text("stripe_price_id"),
+  planId: text("plan_id"),
+  status: text("status").notNull().default("incomplete"),
+  currentPeriodEnd: integer("current_period_end", { mode: "timestamp" }),
+  cancelAtPeriodEnd: integer("cancel_at_period_end", { mode: "boolean" })
+    .notNull()
+    .default(false),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  updatedAt: integer("updated_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+/** Processed Stripe events (idempotency — never re-apply the same event). */
+export const webhookEvents = sqliteTable("webhook_events", {
+  stripeEventId: text("stripe_event_id").primaryKey(),
+  type: text("type").notNull(),
+  processedAt: integer("processed_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+export type Subscription = typeof subscriptions.$inferSelect;
 
 export type Conversation = typeof conversations.$inferSelect;
 export type ChatMessage = typeof messages.$inferSelect;
