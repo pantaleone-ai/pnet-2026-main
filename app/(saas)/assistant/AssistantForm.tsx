@@ -265,7 +265,7 @@ export default function AssistantForm({
 
       {isPublished && (
         <p className="text-sm text-muted-foreground">
-          Live at <code className="text-xs">/c/{chatbot.publicId}</code> (hosted page lands in P4c).
+          Publish to update the live version. Unpublish to take it offline.
         </p>
       )}
     </div>

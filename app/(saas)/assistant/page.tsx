@@ -12,6 +12,7 @@ import {
 import { getDb } from "@/lib/db";
 import { getSession } from "@/lib/auth-session";
 import AssistantForm from "./AssistantForm";
+import TestPanel from "./TestPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -98,6 +99,16 @@ export default async function AssistantPage() {
           Configure how your assistant talks, what it knows, and when it goes live.
         </p>
       </div>
+      <TestPanel chatbotId={bot.id} botName={bot.name} />
+      {bot.status === "published" && (
+        <p className="text-sm text-muted-foreground">
+          Live at{" "}
+          <Link href={`/c/${bot.publicId}`} className="underline underline-offset-4">
+            /c/{bot.publicId}
+          </Link>{" "}
+          · embed with <code className="text-xs">/c/{bot.publicId}?embed=1</code>
+        </p>
+      )}
       <AssistantForm
         chatbot={{
           id: bot.id,
