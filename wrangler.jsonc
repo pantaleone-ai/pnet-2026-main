@@ -40,6 +40,10 @@
 		{
 			"binding": "VECTORIZE",
 			"index_name": "pnet-chat-index"
+		},
+		{
+			"binding": "VECTORIZE_SAAS",
+			"index_name": "pantaleone-chat-index-saas"
 		}
 	],
 	"kv_namespaces": [
@@ -118,6 +122,10 @@
 				{
 					"binding": "VECTORIZE",
 					"index_name": "pnet-chat-index"
+				},
+				{
+					"binding": "VECTORIZE_SAAS",
+					"index_name": "pantaleone-chat-index-saas"
 				}
 			],
 			"observability": {
@@ -181,6 +189,10 @@
 				{
 					"binding": "VECTORIZE",
 					"index_name": "pnet-chat-index"
+				},
+				{
+					"binding": "VECTORIZE_SAAS",
+					"index_name": "pantaleone-chat-index-saas"
 				}
 			],
 			"observability": {

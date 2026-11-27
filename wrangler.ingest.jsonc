@@ -1,0 +1,122 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "pantaleone-ingest",
+	"main": "workers/ingest/src/index.ts",
+	"compatibility_date": "2026-11-04",
+	"compatibility_flags": ["nodejs_compat"],
+	"vars": {
+		"ENV_NAME": "production"
+	},
+	"ai": { "binding": "AI" },
+	"d1_databases": [
+		{
+			"binding": "CHAT_DB",
+			"database_name": "pantaleone-chat-prod",
+			"database_id": "62f4e755-4aa9-4ea7-b1c4-673b17c9c64d",
+			"migrations_dir": "drizzle/migrations"
+		}
+	],
+	"vectorize": [
+		{
+			"binding": "VECTORIZE_SAAS",
+			"index_name": "pantaleone-chat-index-saas"
+		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "CHAT_UPLOADS",
+			"bucket_name": "pantaleone-chat-uploads"
+		}
+	],
+	"queues": {
+		"producers": [{ "binding": "CHAT_INGEST", "queue": "chat-ingest" }],
+		"consumers": [
+			{
+				"queue": "chat-ingest",
+				"max_batch_size": 5,
+				"max_retries": 3,
+				"dead_letter_queue": "chat-ingest-dlq"
+			}
+		]
+	},
+	"triggers": {
+		"crons": ["*/15 * * * *"]
+	},
+	"observability": { "enabled": true },
+	"env": {
+		"staging": {
+			"name": "pantaleone-ingest-staging",
+			"vars": { "ENV_NAME": "staging" },
+			"d1_databases": [
+				{
+					"binding": "CHAT_DB",
+					"database_name": "pantaleone-chat-staging",
+					"database_id": "46df8b0c-3cf0-42e4-a914-022fe6fcd05f",
+					"migrations_dir": "drizzle/migrations"
+				}
+			],
+			"vectorize": [
+				{
+					"binding": "VECTORIZE_SAAS",
+					"index_name": "pantaleone-chat-index-saas"
+				}
+			],
+			"r2_buckets": [
+				{
+					"binding": "CHAT_UPLOADS",
+					"bucket_name": "pantaleone-chat-uploads-staging"
+				}
+			],
+			"queues": {
+				"producers": [{ "binding": "CHAT_INGEST", "queue": "chat-ingest-staging" }],
+				"consumers": [
+					{
+						"queue": "chat-ingest-staging",
+						"max_batch_size": 5,
+						"max_retries": 3,
+						"dead_letter_queue": "chat-ingest-staging-dlq"
+					}
+				]
+			},
+			"ai": { "binding": "AI" },
+			"observability": { "enabled": true }
+		},
+		"development": {
+			"name": "pantaleone-ingest-dev",
+			"vars": { "ENV_NAME": "development" },
+			"d1_databases": [
+				{
+					"binding": "CHAT_DB",
+					"database_name": "pantaleone-chat-dev",
+					"database_id": "648e9d0b-364c-4a51-8364-d93c9ae90470",
+					"migrations_dir": "drizzle/migrations"
+				}
+			],
+			"vectorize": [
+				{
+					"binding": "VECTORIZE_SAAS",
+					"index_name": "pantaleone-chat-index-saas"
+				}
+			],
+			"r2_buckets": [
+				{
+					"binding": "CHAT_UPLOADS",
+					"bucket_name": "pantaleone-chat-uploads-dev"
+				}
+			],
+			"queues": {
+				"producers": [{ "binding": "CHAT_INGEST", "queue": "chat-ingest-dev" }],
+				"consumers": [
+					{
+						"queue": "chat-ingest-dev",
+						"max_batch_size": 5,
+						"max_retries": 3,
+						"dead_letter_queue": "chat-ingest-dev-dlq"
+					}
+				]
+			},
+			"ai": { "binding": "AI" },
+			"observability": { "enabled": true }
+		}
+	}
+}
