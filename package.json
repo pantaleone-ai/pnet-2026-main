@@ -30,7 +30,7 @@
     "check-types": "tsc --noEmit --pretty",
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
-    "db:apply:dev": "wrangler d1 migrations apply pantaleone-chat-dev --remote",
+    "db:apply:dev": "wrangler d1 migrations apply pantaleone-chat-dev --remote --env development",
     "format:check": "prettier --check \"**/*.{ts,tsx,mdx}\" --cache",
     "format:write": "prettier --write \"**/*.{ts,tsx,mdx}\" --cache",
     "validate-seo": "tsx scripts/validate-seo.ts",
