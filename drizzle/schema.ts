@@ -129,6 +129,12 @@ export const chatbots = sqliteTable("chatbots", {
   publicId: text("public_id").notNull().unique(),
   description: text("description"),
   status: text("status").notNull().default("draft"),
+  /** Greeting shown by the widget before the first visitor message. */
+  welcomeMessage: text("welcome_message"),
+  /** off | contact | always — when the widget offers lead capture. */
+  leadCaptureMode: text("lead_capture_mode").notNull().default("contact"),
+  /** JSON: { theme, launcherPosition } — safe subset only. */
+  appearanceJson: text("appearance_json").notNull().default("{}"),
   createdAt: integer("created_at", { mode: "timestamp" })
     .notNull()
     .$defaultFn(() => new Date()),
@@ -140,6 +146,117 @@ export const chatbots = sqliteTable("chatbots", {
 export type Organization = typeof organizations.$inferSelect;
 export type OrganizationMember = typeof organizationMembers.$inferSelect;
 export type Chatbot = typeof chatbots.$inferSelect;
+
+// ---------------------------------------------------------------------------
+// Tenant runtime (P4): conversations, leads, usage, embed allowlist.
+// Every row carries organization_id (except messages, scoped via their
+// conversation) and is filtered by membership server-side.
+// ---------------------------------------------------------------------------
+
+/** One visitor thread on a chatbot. visitor_id is opaque per chatbot. */
+export const conversations = sqliteTable(
+  "conversations",
+  {
+    id: text("id").primaryKey(),
+    organizationId: text("organization_id")
+      .notNull()
+      .references(() => organizations.id, { onDelete: "cascade" }),
+    chatbotId: text("chatbot_id")
+      .notNull()
+      .references(() => chatbots.id, { onDelete: "cascade" }),
+    visitorId: text("visitor_id").notNull(),
+    title: text("title"),
+    status: text("status").notNull().default("open"),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+    updatedAt: integer("updated_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (t) => [
+    uniqueIndex("conversation_visitor_unique").on(t.chatbotId, t.visitorId),
+  ],
+);
+
+/** A single turn. Citations reference retrieved chunks only. */
+export const messages = sqliteTable("messages", {
+  id: text("id").primaryKey(),
+  conversationId: text("conversation_id")
+    .notNull()
+    .references(() => conversations.id, { onDelete: "cascade" }),
+  role: text("role").notNull(),
+  content: text("content").notNull(),
+  citationsJson: text("citations_json"),
+  tokensJson: text("tokens_json"),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+/** Captured contact beginnings, scoped to org + chatbot. */
+export const leads = sqliteTable("leads", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id")
+    .notNull()
+    .references(() => organizations.id, { onDelete: "cascade" }),
+  chatbotId: text("chatbot_id")
+    .notNull()
+    .references(() => chatbots.id, { onDelete: "cascade" }),
+  conversationId: text("conversation_id").references(() => conversations.id, {
+    onDelete: "set null",
+  }),
+  name: text("name"),
+  email: text("email"),
+  company: text("company"),
+  inquiry: text("inquiry"),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+/** Append-only billing/metering log. Never updated, never deleted by code. */
+export const usageEvents = sqliteTable("usage_events", {
+  id: text("id").primaryKey(),
+  organizationId: text("organization_id")
+    .notNull()
+    .references(() => organizations.id, { onDelete: "cascade" }),
+  chatbotId: text("chatbot_id").references(() => chatbots.id, {
+    onDelete: "cascade",
+  }),
+  conversationId: text("conversation_id").references(() => conversations.id, {
+    onDelete: "set null",
+  }),
+  /** message | ingestion | storage */
+  eventType: text("event_type").notNull(),
+  model: text("model"),
+  inputChars: integer("input_chars"),
+  outputChars: integer("output_chars"),
+  metadataJson: text("metadata_json"),
+  createdAt: integer("created_at", { mode: "timestamp" })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+/** Embed allowlist: the loader only serves these origins per chatbot. */
+export const embedDomains = sqliteTable(
+  "embed_domains",
+  {
+    id: text("id").primaryKey(),
+    chatbotId: text("chatbot_id")
+      .notNull()
+      .references(() => chatbots.id, { onDelete: "cascade" }),
+    domain: text("domain").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  },
+  (t) => [uniqueIndex("embed_domain_unique").on(t.chatbotId, t.domain)],
+);
+
+export type Conversation = typeof conversations.$inferSelect;
+export type ChatMessage = typeof messages.$inferSelect;
+export type Lead = typeof leads.$inferSelect;
 
 // ---------------------------------------------------------------------------
 // Knowledge ingestion (P3). Every tenant row carries organization_id and is
@@ -246,6 +363,14 @@ export const chatbotSettings = sqliteTable("chatbot_settings", {
   contextLimit: integer("context_limit"),
   citationBehavior: text("citation_behavior"),
   fallbackMessage: text("fallback_message"),
+  /** Assistant personality, e.g. "friendly and concise". */
+  tone: text("tone"),
+  /** Extra behavior rules from the business, appended to the system prompt. */
+  systemInstructions: text("system_instructions"),
+  /** JSON array of starter questions shown by the widget. */
+  suggestedQuestionsJson: text("suggested_questions_json")
+    .notNull()
+    .default("[]"),
   updatedAt: integer("updated_at", { mode: "timestamp" })
     .notNull()
     .$defaultFn(() => new Date()),
