@@ -158,6 +158,7 @@
     "sonner": "^2.0.7",
     "stripe": "^20.1.2",
     "tailwind-merge": "^3.4.0",
+    "unpdf": "^2.2.3",
     "zod": "^4.3.4"
   },
   "devDependencies": {

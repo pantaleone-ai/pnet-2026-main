@@ -86,6 +86,35 @@ if better-auth upgrades change the schema, generate a new migration.
 - Login blocked pre-verification with clear error; duplicate signup creates nothing; short password rejected server-side
 - Test data cleaned out of the dev DB afterwards
 
+## Ingest worker (P3b, 2026-11-27)
+
+- `workers/ingest/` — plain Cloudflare Worker (NOT OpenNext): consumes
+  `chat-ingest[-env]` queues, runs the extraction pipeline, sweeps stuck
+  jobs on `*/15` cron. Own config `wrangler.ingest.jsonc` (dev/staging/prod
+  D1 IDs verified against `d1 list`; shared `pantaleone-chat-index-saas`
+  1024-dim cosine index; per-env `ENV_NAME` var for metadata isolation).
+- Pipeline per job: load source (missing = ack, org mismatch = throw) →
+  ready-check idempotency → status=processing → wipe prior docs/chunks +
+  vectors → extract (website/sitemap crawl, R2 file, FAQ JSON) → chunk →
+  embed (`@cf/qwen/qwen3-embedding-0.6b`, batches of 50) → upsert with
+  `{organization_id, chatbot_id, source_id, document_id, env}` metadata →
+  D1 records → ready + page_count. Any failure → status=failed + error,
+  rethrow for queue retry → DLQ.
+- Crawl: sitemap.xml discovery (urlset + one-level sitemapindex), robots.txt
+  (correct most-specific-group precedence), bounded BFS (200 pages, depth 3,
+  4-way concurrency), manual redirects (5 hops, each re-validated with DNS),
+  2MB/page cap, same-origin + excluded-paths scoping, exact-dup skipping.
+- Critical Vectorize finding: metadata filters silently match NOTHING until
+  a metadata index exists per property AND the vectors were inserted after
+  it. Created indexes for organization_id/chatbot_id/source_id/document_id/
+  env on the SaaS index — BEFORE any production ingestion. Proven: same
+  query returns count:1 with the right org filter, count:0 with wrong org.
+  Lesson: never add a filterable property without its metadata index, and
+  re-index after adding one.
+- D1 timestamp mode stores SECONDS (drizzle converts Date<->seconds), not
+  millis. Hand-written SQL fixtures must use seconds or time comparisons
+  (sweep cutoff) silently miss.
+
 ## Verified 2026-11-26 (commercial pricing, PR #397 — live on www)
 
 - `config/plans.ts` is the single source of truth: Starter $29 / Growth

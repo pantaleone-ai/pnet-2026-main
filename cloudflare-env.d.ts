@@ -22,8 +22,17 @@ interface CloudflareVectorize {
     options?: {
       topK?: number;
       returnMetadata?: "none" | "indexed" | "all";
+      filter?: Record<string, unknown>;
     },
   ): Promise<{ matches: CloudflareVectorizeMatch[]; count: number }>;
+  upsert(
+    vectors: {
+      id: string;
+      values: number[];
+      metadata?: Record<string, string | number | boolean>;
+    }[],
+  ): Promise<unknown>;
+  deleteByIds(ids: string[]): Promise<unknown>;
 }
 
 interface CloudflareKV {
@@ -38,6 +47,7 @@ interface CloudflareKV {
 interface CloudflareEnv {
   AI?: CloudflareAI;
   VECTORIZE?: CloudflareVectorize;
+  VECTORIZE_SAAS?: CloudflareVectorize;
   CHAT_ANALYTICS?: CloudflareKV;
   CHAT_DB?: import("@cloudflare/workers-types").D1Database;
   CHAT_UPLOADS?: import("@cloudflare/workers-types").R2Bucket;
