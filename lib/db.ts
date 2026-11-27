@@ -20,3 +20,21 @@ export function getDb(d1: D1Database | unknown): ChatDatabase {
   }
   return drizzle(d1 as D1Database, { schema });
 }
+
+/**
+ * Drizzle wraps D1 failures ("Failed query: ...", cause holds the SQLite
+ * detail), so walk the chain looking for a uniqueness violation. Only
+ * those mean "already seen" — everything else must stay a real error.
+ */
+export function isUniqueViolation(err: unknown): boolean {
+  const seen = new Set<unknown>();
+  let current: unknown = err;
+  while (current && typeof current === "object" && !seen.has(current)) {
+    seen.add(current);
+    const message =
+      current instanceof Error ? current.message : String(current);
+    if (/UNIQUE constraint failed|already exists/i.test(message)) return true;
+    current = (current as { cause?: unknown }).cause;
+  }
+  return typeof err === "string" && /UNIQUE constraint failed|already exists/i.test(err);
+}

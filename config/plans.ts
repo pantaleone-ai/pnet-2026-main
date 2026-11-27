@@ -7,7 +7,7 @@
  *
  * Billing model (2026-11-26): monthly default; annual = 10x monthly
  * (2 months free). Stripe price IDs attach in P5 (billing) — until then
- * `stripePriceId` stays null and checkout is disabled; CTAs route to
+ * `stripePrices` stay null and checkout is disabled; CTAs route to
  * signup with `?plan=` + `?billing=` preserved for later handoff.
  *
  * Agency guardrail: client workspaces, white-labeling, per-client
@@ -47,7 +47,12 @@ export interface ChatPlan {
   /** Signup handoff; agency routes to contact until self-serve is ready. */
   href: string;
   highlighted?: boolean;
-  stripePriceId: string | null;
+  /**
+   * Stripe price IDs, attached in P5 when the owner creates products in
+   * test mode first, then live. Null = checkout disabled for that
+   * interval; CTAs keep routing to signup (early access).
+   */
+  stripePrices: { monthly: string | null; annual: string | null };
   limits: {
     assistants: number;
     domains: number;
@@ -78,7 +83,7 @@ export const CHAT_PLANS: ChatPlan[] = [
     monthlyPrice: 29,
     cta: "Start with Starter",
     href: "/signup",
-    stripePriceId: null,
+    stripePrices: { monthly: null, annual: null },
     limits: {
       assistants: 1,
       domains: 1,
@@ -113,7 +118,7 @@ export const CHAT_PLANS: ChatPlan[] = [
     cta: "Choose Growth",
     href: "/signup",
     highlighted: true,
-    stripePriceId: null,
+    stripePrices: { monthly: null, annual: null },
     limits: {
       assistants: 3,
       domains: 3,
@@ -147,7 +152,7 @@ export const CHAT_PLANS: ChatPlan[] = [
     monthlyPrice: 199,
     cta: "Choose Pro",
     href: "/signup",
-    stripePriceId: null,
+    stripePrices: { monthly: null, annual: null },
     limits: {
       assistants: 10,
       domains: 10,
@@ -180,7 +185,7 @@ export const CHAT_PLANS: ChatPlan[] = [
     monthlyPrice: 499,
     cta: "Choose Agency",
     href: "/contact?enterprise=true",
-    stripePriceId: null,
+    stripePrices: { monthly: null, annual: null },
     limits: {
       assistants: 25,
       domains: 25,
