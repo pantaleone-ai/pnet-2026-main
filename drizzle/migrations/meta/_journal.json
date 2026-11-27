@@ -15,6 +15,13 @@
       "when": 1795730253894,
       "tag": "0001_needy_ravenous",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1795746948978,
+      "tag": "0002_clean_greymalkin",
+      "breakpoints": true
     }
   ]
 }

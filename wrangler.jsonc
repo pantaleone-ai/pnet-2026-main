@@ -26,7 +26,8 @@
 		"binding": "AI"
 	},
 	"vars": {
-		"BETTER_AUTH_URL": "https://www.pantaleone.net"
+		"BETTER_AUTH_URL": "https://www.pantaleone.net",
+		"ENV_NAME": "production"
 	},
 	"d1_databases": [
 		{
@@ -68,7 +69,8 @@
 		"staging": {
 			"name": "pantaleonenet-staging",
 			"vars": {
-				"BETTER_AUTH_URL": "https://pantaleonenet-staging.mattpantaleone.workers.dev"
+				"BETTER_AUTH_URL": "https://pantaleonenet-staging.mattpantaleone.workers.dev",
+				"ENV_NAME": "staging"
 			},
 			"services": [
 				{
@@ -135,7 +137,8 @@
 		"development": {
 			"name": "pantaleonenet-dev",
 			"vars": {
-				"BETTER_AUTH_URL": "https://pantaleonenet-dev.mattpantaleone.workers.dev"
+				"BETTER_AUTH_URL": "https://pantaleonenet-dev.mattpantaleone.workers.dev",
+				"ENV_NAME": "development"
 			},
 			"services": [
 				{

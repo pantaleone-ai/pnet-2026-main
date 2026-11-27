@@ -114,6 +114,19 @@ if better-auth upgrades change the schema, generate a new migration.
 - D1 timestamp mode stores SECONDS (drizzle converts Date<->seconds), not
   millis. Hand-written SQL fixtures must use seconds or time comparisons
   (sweep cutoff) silently miss.
+- `npx opennextjs-cloudflare deploy` does NOT build — it reuses
+  `.open-next/`. Always `build` first (or use the `npm run` scripts);
+  a stale deploy serves old pages with zero errors. Verified 2026-11-27
+  for the fourth time (tenant-chat logging fix initially tested stale).
+- R2 incremental-cache population fails with Worker 500s under default
+  concurrency (rate limiting). Deploy with `--cacheChunkSize 5` when it
+  flakes: `npx opennextjs-cloudflare deploy --env development
+  --cacheChunkSize 5`. Direct R2 put/delete works fine when this happens,
+  so it is uploader-side, not storage-side.
+- Web-worker envs need their own `ENV_NAME` var (production/staging/
+  development in wrangler.jsonc) — the tenant retrieval filter uses it,
+  and a wrong default silently scopes every query to the wrong env
+  (empty results, zero errors). The ingest worker already had it.
 
 ## Verified 2026-11-26 (commercial pricing, PR #397 — live on www)
 
