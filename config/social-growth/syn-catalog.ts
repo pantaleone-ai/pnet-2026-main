@@ -2735,4 +2735,28 @@ export const SYN_CATALOG: CatalogArtwork[] = [
     descriptor: "composition organic abstraction folded planes 48022967",
     format: "avif",
   },
+  {
+    id: "2026-10-22-shards-architectural-abstraction-sharp-angular-74306000",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-22-shards-architectural-abstraction-sharp-angular-74306000.avif",
+    firstSeen: "2026-10-22",
+    descriptor: "shards architectural abstraction sharp angular 74306000",
+    format: "avif",
+  },
+  {
+    id: "2026-10-23-surrounding-brutalist-abstraction-tessellation-40790950",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-23-surrounding-brutalist-abstraction-tessellation-40790950.avif",
+    firstSeen: "2026-10-23",
+    descriptor: "surrounding brutalist abstraction tessellation 40790950",
+    format: "avif",
+  },
+  {
+    id: "2026-10-23-lilac-cascade-kinetic-geometry-radial-structure-65766614",
+    imageUrl:
+      "https://api.synthetic.pics/image/2026-10-23-lilac-cascade-kinetic-geometry-radial-structure-65766614.avif",
+    firstSeen: "2026-10-23",
+    descriptor: "lilac cascade kinetic geometry radial structure 65766614",
+    format: "avif",
+  },
 ];
