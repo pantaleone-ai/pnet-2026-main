@@ -60,17 +60,11 @@ export interface ResolvedChatbot {
   suggestedQuestions: string[];
 }
 
-/** Resolve a public chatbot. Unpublished/missing → null (callers 404). */
-export async function resolvePublicChatbot(
+/** Settings assembly shared by the public path and the owner preview. */
+export async function resolveChatbotConfig(
   db: ChatDatabase,
-  publicId: string,
-): Promise<ResolvedChatbot | null> {
-  const [bot] = await db
-    .select()
-    .from(chatbots)
-    .where(eq(chatbots.publicId, publicId))
-    .limit(1);
-  if (!bot || bot.status !== "published") return null;
+  bot: Chatbot,
+): Promise<Omit<ResolvedChatbot, "bot">> {
   const [settings] = await db
     .select()
     .from(chatbotSettings)
@@ -86,7 +80,6 @@ export async function resolvePublicChatbot(
     suggestedQuestions = [];
   }
   return {
-    bot,
     welcomeMessage: bot.welcomeMessage,
     leadCaptureMode: bot.leadCaptureMode ?? "contact",
     model: settings?.model || TENANT_CHAT_MODEL,
@@ -99,6 +92,20 @@ export async function resolvePublicChatbot(
       "I could not find that in our help content. Try different words, or leave your contact details and we will get back to you.",
     suggestedQuestions,
   };
+}
+
+/** Resolve a public chatbot. Unpublished/missing → null (callers 404). */
+export async function resolvePublicChatbot(
+  db: ChatDatabase,
+  publicId: string,
+): Promise<ResolvedChatbot | null> {
+  const [bot] = await db
+    .select()
+    .from(chatbots)
+    .where(eq(chatbots.publicId, publicId))
+    .limit(1);
+  if (!bot || bot.status !== "published") return null;
+  return { bot, ...(await resolveChatbotConfig(db, bot)) };
 }
 
 function parseInstructions(settingsInstructions: unknown): string | null {
@@ -280,3 +287,129 @@ export function sseEncode(payload: unknown): Uint8Array {
 }
 
 export const SSE_DONE = "data: [DONE]\n\n";
+
+export function streamSourcesAndText(
+  sources: TenantContextItem[],
+  fullText: string,
+): Response {
+  const stream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(
+        sseEncode({
+          sources: sources.map((s) => ({
+            title: s.title,
+            url: s.url,
+            excerpt: s.excerpt,
+          })),
+        }),
+      );
+      for (let i = 0; i < fullText.length; i += 120) {
+        controller.enqueue(sseEncode({ delta: fullText.slice(i, i + 120) }));
+      }
+      controller.enqueue(new TextEncoder().encode(SSE_DONE));
+      controller.close();
+    },
+  });
+  return new Response(stream, {
+    headers: { "Cache-Control": "no-store", "Content-Type": "text/event-stream" },
+  });
+}
+
+export function buildExtractiveFallback(
+  question: string,
+  context: TenantContextItem[],
+): string {
+  const lines = [
+    `Here is what I found for "${question}":`,
+    "",
+    ...context.map((c, i) => `${i + 1}. ${c.title}${c.url ? ` — ${c.url}` : ""}\n${c.excerpt}`),
+  ];
+  return lines.join("\n");
+}
+
+export interface GeneratedReply {
+  context: TenantContextItem[];
+  text: string;
+  usedFallback: boolean;
+}
+
+/**
+ * Retrieve + generate a single tenant reply, streaming the model and
+ * collecting the full text (non-streaming core shared by the public SSE
+ * path and the authed preview path). Callers own transport + persistence.
+ */
+export async function retrieveAndGenerate(args: {
+  db: ChatDatabase;
+  bindings: TenantBindings;
+  bot: { id: string; name: string; organizationId: string };
+  resolved: Pick<
+    ResolvedChatbot,
+    "model" | "topK" | "tone" | "instructions" | "fallbackMessage"
+  >;
+  message: string;
+}): Promise<GeneratedReply> {
+  const { db, bindings, bot, resolved, message } = args;
+  const context = await retrieveTenantContext({
+    db,
+    bindings,
+    organizationId: bot.organizationId,
+    chatbotId: bot.id,
+    query: message,
+    topK: resolved.topK,
+  });
+  if (context.length === 0) {
+    return { context, text: resolved.fallbackMessage, usedFallback: true };
+  }
+  const system = buildTenantSystemPrompt({
+    botName: bot.name,
+    tone: resolved.tone,
+    instructions: resolved.instructions,
+  });
+  const contextBlock = context
+    .map((c, i) => `[${i + 1}] ${c.title}\n${c.excerpt}`)
+    .join("\n\n");
+  if (bindings.AI) {
+    try {
+      const upstream = (await bindings.AI.run(resolved.model, {
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: `${contextBlock}\n\nVisitor: ${message}` },
+        ],
+        stream: true,
+      })) as unknown as ReadableStream<Uint8Array>;
+      const reader = upstream.getReader();
+      const decoder = new TextDecoder();
+      let emitted = "";
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        for (const line of decoder.decode(value, { stream: true }).split("\n")) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith("data:")) continue;
+          const data = trimmed.slice(5).trim();
+          if (!data || data === "[DONE]") continue;
+          try {
+            const json = JSON.parse(data) as {
+              response?: string;
+              choices?: { delta?: { content?: string } }[];
+            };
+            const delta =
+              json.response ?? json.choices?.[0]?.delta?.content ?? "";
+            if (delta) emitted += delta;
+          } catch {
+            // Ignore non-JSON keepalive chunks.
+          }
+        }
+      }
+      if (emitted.trim())
+        return { context, text: emitted, usedFallback: false };
+    } catch {
+      // Fall through to the extractive fallback below.
+    }
+  }
+  return {
+    context,
+    text: buildExtractiveFallback(message, context),
+    usedFallback: true,
+  };
+}
